@@ -1,6 +1,6 @@
 function ok= demo_real_test2
 % Perform tests based on the demo_real function with new structs
-% $Id: demo_real_test2.m,v 1.4 2004-07-18 04:16:51 aadler Exp $
+% $Id: demo_real_test2.m,v 1.5 2004-07-22 03:32:37 aadler Exp $
 
 isOctave= exist('OCTAVE_VERSION');
 
@@ -18,7 +18,6 @@ end
 
 load(datareal,'vtx','simp');
 
-demo_mdl.type = 'model';
 demo_mdl.name = 'demo real model';
 demo_mdl.nodes= vtx;
 demo_mdl.elems= simp;
@@ -73,13 +72,15 @@ end
 clear gnd_ind elec zc sym protocol no_pl I Ib
 clear indH indV indH_sz meas_pat idx jnk
 
+demo_mdl= eidors_obj('fwd_model', demo_mdl);
 
 % simulate data for homogeneous medium
 
-homg_img.type = 'image';
 homg_img.name = 'homogeneous image';
 homg_img.elem_data= ones( size(demo_mdl.elems,1) ,1);
 homg_img.fwd_model= demo_mdl;
+
+homg_img = eidors_obj('image', homg_img);
 
 homg_data=fwd_solve( demo_mdl, homg_img);
 
@@ -90,11 +91,11 @@ load( datacom ,'A','B') %Indices of the elements to represent the inhomogeneity
 mat(A)= mat(A)+0.15;
 mat(B)= mat(B)-0.20;
 
-inhomg_img.type = 'image';
 inhomg_img.name = 'inhomogeneous image';
 inhomg_img.elem_data= mat;
 inhomg_img.fwd_model= demo_mdl;
 clear A B mat
+inhomg_img = eidors_obj('image', inhomg_img );
 
 inhomg_data=fwd_solve( demo_mdl, inhomg_img);
 
@@ -106,8 +107,9 @@ demo_inv.solve=       'np_inv_solve';
 demo_inv.hyperparameter= 1e-8;
 demo_inv.image_prior.func= 'np_calc_image_prior';
 demo_inv.image_prior.parameters= [3 1]; % see iso_f_smooth: deg=1, w=1
-demo_inv.type= 'differential';
+demo_inv.reconst_type= 'differential';
 demo_inv.fwd_model= demo_mdl;
+demo_inv= eidors_obj('inv_model', demo_inv);
 
 % solve inverse model
 
