@@ -9,81 +9,10 @@ EIDORS and then run this command in a matlab
 &gt;&gt;run /path/to/eidors3d/startup.m
 </pre>
 
-<ul>
-    <li><h3> 
-<a href="./EIDORS_basics/tutorial010.shtml"
-      >EIDORS Basics</a>
-</h3>
-
-    <li><h3> 
-<a href="./EIDORS_basics/tutorial110.shtml"
-      >Basic Image reconstruction</a>
-</h3>
-
-    <li><h3> 
-<a href="./EIDORS_basics/tutorial120.shtml"
-      >Compare 2D Image reconstruction</a>
-</h3>
-
-    <li><h3> 
-<a href="./EIDORS_basics/tutorial130.shtml"
-       >Compare 3D Image reconstruction</a>
-</h3>
-
-    <li><h3> 
-<a href="./temporal_reconstruction/tutorial140.shtml"
-       >Image reconstruction of moving objects</a>
-</h3>
-
-    <li><h3> 
-<a href="./absolute_reconst/tutorial151.shtml"
-       >Absolute image reconstruction</a>
-</h3>
-
-    <li><h3> 
-<a href="./cheating_EIDORS/tutorial210-cheating.shtml"
-       >Cheating" with EIDORS</a>
-</h3>
-</ul>
-
-<h3>Application: EIT of Lungs</h3>
-<ul>
-    <li><h3> 
-<a href="./lung_EIT/tutorial310-lung-images.shtml"
-   >Images of lungs</a>
-
-</ul>
-
-<h3>Application: EIT for geophysics</h3>
-<ul>
-    <li><h3> 
-<a href="./geophysics/tutorial410-hole-model.shtml"
-   >EIT of borehole</a>
-
-</ul>
-
-<h3>EIDORS data structures and models</h3>
-<ul>
-    <li><h3> 
-<a href="./data_structures/tutorial020.shtml"
-      >Basic EIDORS Data structures</a>
-</h3>
-
-    <li><h3> 
-<a href="./data_structures/tutorial030.shtml"
-      >Modifying EIDORS models</a>
-</h3>
-
-
-    <li><h3> 
-<a href="./netgen/tutorial040.shtml" >Using Netgen to build EIDORS models</a>
-</h3>
-
-    <li><h3> 
-<a href="./netgen/tutorial050.shtml" >More sophisticated uses of Netgen</a>
-</h3>
-
-</ul>
+<!--#include virtual="./image_reconst.html" -->
+<!--#include virtual="./data_structures.html" -->
+<!--#include virtual="./application_examples.html" -->
+<!--#include virtual="./netgen.html" -->
 
 <h3>Older Tutorials</h3>
 <ul>
@@ -97,7 +26,7 @@ EIDORS and then run this command in a matlab
 </td></tr></table>
 <p>
 <small>
-    Last Modified: $Date: 2007-06-15 18:45:23 $ by $Author: aadler $
+    Last Modified: $Date: 2007-08-29 09:33:35 $ by $Author: aadler $
 </small>
 </BODY></HTML>
 <!--

@@ -1,0 +1,28 @@
+<!--#include virtual="nav-sidebar.shtml" -->
+<h2>EIDORS Data Structures</h2>
+
+To run these tutorials, you need to 
+<a href="../download.shtml">download and install</a>
+EIDORS and then run this command in a matlab
+(or octave) session.
+<pre width="40">
+&gt;&gt;run /path/to/eidors3d/startup.m
+</pre>
+
+<!--#include virtual="./data_structures.html" -->
+
+</td></tr></table>
+<p>
+<small>
+    Last Modified: $Date: 2007-08-29 09:33:35 $ by $Author: aadler $
+</small>
+</BODY></HTML>
+<!--
+      <p><li><b>
+      </b><br>
+      <ul>
+      </ul>
+      <i>Questions</i>:
+      <br>&minus;
+
+      -->
