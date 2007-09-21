@@ -11,7 +11,8 @@
        <td> 21 Sept 2006.
        <hr>
    <tr><th valign="top"> Brief Description:
-       <td> Netgen Models of a 2 plane 16 electrode tank at 
+       <td> Netgen Models of a 30cm diameter, 30cm high,
+            2 plane 16 electrode tank at 
             several levels of quantization
        <hr>
    <tr><th valign="top"> License:
@@ -61,7 +62,7 @@ different levels of refinement flag to netgen.
 
 
 <small>
-    Last Modified: $Date: 2007-09-21 18:29:19 $ by $Author: aadler $
+    Last Modified: $Date: 2007-09-21 18:32:25 $ by $Author: aadler $
 </small>
 </body></html>
 
