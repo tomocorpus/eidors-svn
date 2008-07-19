@@ -1,4 +1,4 @@
-% Create Model $Id: if_peep_trial01.m,v 1.2 2008-07-19 17:08:50 aadler Exp $
+% Create Model $Id: if_peep_trial01.m,v 1.3 2008-07-19 20:58:23 aadler Exp $
 
 imdl= mk_common_model('c2c2',16);
 % Reverse electrodes to give 'clinical' view (looking toward patient head)
@@ -13,7 +13,7 @@ axis equal; axis off
 
 hh=text(-1.1,0,'Right');
 set(hh,'Rotation',90,'HorizontalAlignment','Center');
-hh=text(0,+1.1,'Top');
+hh=text(0,+1.1,'Ventral');
 set(hh,'HorizontalAlignment','Center');
 
-print -r100 -dpng if_peep_trial01.png
+print -r150 -dpng if_peep_trial01.png
