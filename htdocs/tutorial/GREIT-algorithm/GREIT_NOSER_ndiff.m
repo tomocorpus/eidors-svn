@@ -17,7 +17,8 @@ function [img,map]= GREIT_NOSER_ndiff( ref_meas, reconst_meas )
    img= reshape(ds, 32,32,num_meas);
 
 function [RM,map] = calc_NOSER_RM
-   [J,map] = GREIT_Jacobian_cyl;
+   [J,map,vbkgnd] = GREIT_Jacobian_cyl;
+   J = J ./ (vbkgnd*ones(size(J,2))); % Normalized Jacobian
    RM = zeros(size(J'));
  
    % Remove space outside FEM model
