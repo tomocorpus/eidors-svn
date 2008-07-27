@@ -1,9 +1,4 @@
 % Reconstruct some images $Id$
-algs = {'GREIT_Sheffield_backproj', ...
-        'GREIT_NOSER_ndiff', ...
-        'GREIT_NOSER_diff', ...
-       };
-
 imb.calc_colours.ref_level = 0; % select colour output
 imb.calc_colours.greylev   = 0.01; % black backgnd
 bkgnd= [.1,.5,.1]; imb.calc_colours.backgnd   = bkgnd;
@@ -18,6 +13,7 @@ ind= sub2ind([32,32],yc,xc);
 % Use this Map for reconstruction shape
 [x,y]=meshgrid(linspace(-1,1,32),linspace(-1,1,32)); out = x.^2+y.^2>1.1;
 
+algs = get_list_of_algs;
 for i= 1:length(algs)
    img = feval(algs{i}, vh, vi(:,idx) );
    hmi = calc_hm_set( img, 0.5 )+1;
