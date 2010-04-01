@@ -18,6 +18,7 @@ show_fem(img_v);
 subplot(222);
 img_v = rmfield(img_2, 'elem_data');
 img_v.node_data = vh.volt(:,7);
-show_fem(img_v);
+img_v.calc_colours.cb_shrink_move = [0.3,0.6,+0.03];
+show_fem(img_v,1);
 
 print -dpng -r125 forward_solvers02a.png
