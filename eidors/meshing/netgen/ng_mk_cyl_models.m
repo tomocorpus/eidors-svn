@@ -15,11 +15,12 @@ function [fmdl,mat_idx] = ng_mk_cyl_models(cyl_shape, elec_pos, ...
 %  elec_pos = [degrees,z] centres of each electrode (N_elecs x 2)
 %
 % ELECTRODE SHAPES::
-%  elec_shape = [width,height, {maxsz, pem}]  % Rectangular elecs
+%  elec_shape = [width,height, maxsz]  % Rectangular elecs
 %     OR
-%  elec_shape = [radius, {0, maxsz, pem} ]  % Circular elecs
-%     maxsz  (OPT)  -> max size of mesh elems (default = course mesh)
-%     pem  (OPT)  -> 1: Point Electrode Model, 0: Complete Electrode Model (default)
+%  elec_shape = [radius, 0, maxsz ]    % Circular elecs
+%     OR
+%  elec_shape = [0, 0, maxsz ]         % Point elecs
+%    (point elecs does some tricks with netgen, so the elecs aren't exactly where you ask)
 %
 % Specify either a common electrode shape or for each electrode
 %
@@ -142,7 +143,7 @@ function n_pts_elecs = write_geo_file(geofn, ptsfn, tank_height, tank_radius, ..
    %  elecs(i).dims  = [radius] or [width,height]
    %  elecs(i).maxh  = '-maxh=#' or '';
    pts_elecs_idx = []; 
-%^keyboard
+
    for i=1:n_elecs
       name = sprintf('elec%04d',i);
       pos = elecs(i).pos;
@@ -154,15 +155,23 @@ function n_pts_elecs = write_geo_file(geofn, ptsfn, tank_height, tank_radius, ..
          write_rect_elec(fid,name, pos, pos,  ...
                elecs(i).dims, tank_radius, elecs(i).maxh);
        case 'P'
-         pts_elecs_idx = [ pts_elecs_idx, i]; 
-         continue; % DON'T print solid cyl
+         % I had the good idea of trying to specify points for the point electrodes,
+         % but netgen doesn't really listen to this. So instead, it only puts points
+         % close to where you ask. Instead, specifc a rectangular elec where you want it.
+         if 0 % OLD technique - keep in case we can figure out netgen better
+            pts_elecs_idx = [ pts_elecs_idx, i]; 
+            continue; % DON'T print solid cyl
+         else
+            write_rect_elec(fid,name, pos, pos,  ...
+                  elecs(i).dims, tank_radius, elecs(i).maxh);
+         end
 
        otherwise; error('huh? shouldnt get here');
       end
       fprintf(fid,'solid cyl%04d = bigcyl    and %s; \n',i,name);
    end
 
-   % SHOULD tank_maxh go here?
+   % SHOULD tank_maxh go here? - right now it seems to make the whole model refined
    fprintf(fid,'tlo bigcyl;\n');
    for i=1:n_elecs
       if any(i == pts_elecs_idx); continue; end
@@ -183,7 +192,7 @@ function n_pts_elecs = write_geo_file(geofn, ptsfn, tank_height, tank_radius, ..
    fprintf(fid,'%d\n',n_pts_elecs);
    for i = pts_elecs_idx;
       posxy = elecs(i).pos(1:2);
-      fprintf(fid,'%10f %10f 0 %10f\n', posxy, elecs(i).dims );
+      fprintf(fid,'%10f %10f 0 %10f\n', posxy, elecs(i).dims(1) );
    end
    fclose(fid); % ptsfn
 
@@ -239,7 +248,6 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, hig, rad, is2D );
        % Parse elec_pos = [n_elecs_per_plane,z_planes] 
       n_elecs= elec_pos(1); % per plane
       th = linspace(0,2*pi, n_elecs+1)'; th(end)=[];
-      csth= rad*[sin(th),cos(th)]; % clockwise from TDC
 
       on_elecs = ones(n_elecs, 1);
       el_th = []; 
@@ -273,30 +281,23 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, hig, rad, is2D );
 
 function elec = elec_spec( row, is2D, hig, rad )
   if     is2D
-     if length(row)>=2 && row(2) == -1 % Point electrodes
-        % Create rectangular electrodes with bottom, cw point where we want
-        elec.shape = 'P' 
-        if length(row)>=3 && row(3) > 0
-           elec.dims  =  row(3);
-        else
-           elec.dims  =  rad; % Make big if unspecified
-        end
+     if row(1) == 0;
+        elec.shape = 'P';
+% To create a PEM, we make a square and take the corner. This isn't perfect, since
+% the elec isn't quite where we asked for it, but that's as good is I can do. I tried
+% asking for two rectangles to touch, but that freaks netgen out.
+        elec.dims  =  [rad/20, hig]; 
      else
         elec.shape = 'R';
         elec.dims  = [row(1),hig];
      end
   else
-     if length(row)<2 || row(2) == 0 % Circular electrodes 
+     if row(1) == 0
+        elec.shape = 'P' 
+        elec.dims  = [rad/20, hig/10];
+     elseif length(row)<2 || row(2) == 0 % Circular electrodes 
         elec.shape = 'C';
         elec.dims  = row(1);
-     elseif row(2) == -1 % Point electrodes
-        % Create rectangular electrodes with bottom, cw point where we want
-        elec.shape = 'P' 
-        if length(row)>=3 && row(3) > 0
-           elec.dims  =  row(3);
-        else
-           elec.dims  =  rad; % Make big if unspecified
-        end
      elseif row(2)>0      % Rectangular electrodes
         elec.shape = 'R';
         elec.dims  = row(1:2);
@@ -310,13 +311,6 @@ function elec = elec_spec( row, is2D, hig, rad )
   else
      elec.maxh = '';
   end
-
-  if length(row)<4 || row(4) == 0
-     elec.model = 'cem'; % Complete Electrode Model (CEM)
-  else
-     elec.model = 'pem'; % Point Electrode Model (PEM)
-  end
-  %TODO support Shunt Electrode Model (SEM)
 
 function write_header(fid,tank_height,tank_radius,maxsz,extra);
    if maxsz==0; 
@@ -464,7 +458,7 @@ function electrode = pem_from_cem(elecs, electrode, nodes)
 % consistent effective impedance later.
   Ne = length(electrode);
   for i = 1:Ne
-    if elecs(i).model == 'pem'
+    if elecs(i).shape == 'P'
       % find the angles of the nodes for this electrode relative to (0,0)
       xy = nodes(electrode(i).nodes,:);
       ang = atan2(xy(:,2),xy(:,1));
@@ -475,6 +469,8 @@ function electrode = pem_from_cem(elecs, electrode, nodes)
         ang = ang + (ang <0)*2*pi;
       end
       % choose the counter-clockwise most node only
+      % subtract the height so we get bottom left. This is OK, since we have rect elecs
+      if size(xy,2) == 3 ; ang = ang - xy(:,3); end
       [jnk, ind] = max(ang);
       electrode(i).nodes = electrode(i).nodes(ind);
     end
