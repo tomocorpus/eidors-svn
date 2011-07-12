@@ -1,5 +1,7 @@
 % Generate HTML frame to view $Id$
 
+fid= fopen('TV-params-NSR=0.html','w');
+
 a=sprintf('%calpha;',38); % alpha
 m=sprintf('%cminus;',38); % alpha
 s=sprintf('%c',60); % less than 
