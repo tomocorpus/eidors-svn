@@ -1,6 +1,6 @@
-function Reg= laplace_image_prior( inv_model );
-% LAPLACE_IMAGE_PRIOR calculate image prior
-% Reg= laplace_image_prior( inv_model )
+function Reg= prior_laplace( inv_model );
+% PRIOR_LAPLACE calculate image prior
+% Reg= prior_laplace( inv_model )
 % Reg        => output regularization term
 % inv_model  => inverse model struct
 %
