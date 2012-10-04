@@ -54,7 +54,7 @@ else
 end
 
 if ~isfield(img.parameters,'perturb')
-    img.parameters.perturb= [0.0001 0.001 0.01];
+    img.parameters.perturb= [0 0.0001 0.001 0.01];
 end
 
 if ~isfield(img.parameters,'lambda')
@@ -68,6 +68,7 @@ end
 if isfield(img.parameters,'homogeneization')
     img = homogeneous_estimate( img, data );
 end
+
 
 residuals= zeros(size(data,1),iters+1);
 for k= 1:iters
@@ -204,9 +205,9 @@ nnp= (1-FI).*(FI.^2).*(BETA.^2)./SVJ.^2;
 np= -(4./lambda).*sum(nnp,1);
 kapa= (2*n.*p./np).*(lambda.^2.*np.*p+2*lambda.*n.*p+lambda.^4.*n.*np)./(lambda.^2.*n.^2+p.^2).^(3/2);
 
-[mk,ik]= min(kapa);
-[m,ist]= min(abs(svj-lambda(ik)));
-tol=svj(ist);
+% [mk,ik]= min(kapa);
+% [m,ist]= min(abs(svj-lambda(ik)));
+% tol=svj(ist);
 
 n= length(lambda);
 
@@ -308,6 +309,10 @@ elec_obj = 'top';
 fmdl = ng_mk_gen_models(shape_str, elec_pos, elec_shape, elec_obj);
 %fmdl.nodes = fmdl.nodes(:,[1,3,2]);
 
+% spacing= [1 1 1 2 3 3 4 4 5 6 6 7 8 8 9 10 10 11 12 12 13 14 14 15 16 17];
+% multiples= [1 2 3 2 1 5/3 1 2  1 1 7/6 1 1 10/8 1 1 12/10 1 1 13/12 1 1 15/14 1 1 1];
+% fmdl.stimulation= stim_pattern_geophys( 64, 'Schlumberger', {'spacings', spacing,'multiples',multiples});
+
 fmdl.stimulation= stim_pattern_geophys( 64, 'Wenner', {'spacings', 1:32} );
 
 cmdl= mk_grid_model([], 2.5+[-30,5,20,30:10:290,300,315,340], ...
@@ -353,10 +358,11 @@ normalisation= 1./vh1.meas;
 I= speye(length(normalisation));
 I(1:size(I,1)+1:size(I,1)*size(I,1))= normalisation;
 
-imdl.parameters.lambda= logspace(-5.5,-2,1000);
-imdl.parameters.perturb= [0 logspace(-5,-3,5)];
+% imdl.parameters.lambda= logspace(-5.5,-2,1000);
+imdl.parameters.lambda= logspace(-3,2,1000);
+imdl.parameters.perturb= [0 logspace(-1,0,5)];
 
-imdl.parameters.max_iterations= 1;
+imdl.parameters.max_iterations= 10;
 imdl.parameters.normalisation= I;
 imdl.parameters.homogeneization=1;
 imdl.parameters.fixed_background= 1;
@@ -390,4 +396,6 @@ figure; hist(I*(dd.meas-vCG),50)
 
 show_pseudosection( fmdl, I*dd.meas, '')
 show_pseudosection( fmdl, I*vCG, '')
+show_pseudosection( fmdl, (vCG-dd.meas)./dd.meas*100)
+% show_pseudosection( fmdl, I*vCG, '')
 end
