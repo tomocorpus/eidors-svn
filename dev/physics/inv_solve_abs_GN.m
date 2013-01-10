@@ -26,7 +26,8 @@ end
 
 img0 = physics_data_mapper(img);
 if ~strcmp(img0.current_physics,'conductivity')
-   error('inv_solve_abs_GN does not work for %s',img0.current_physics);
+       error('EIDORS:PhysicsNotSupported', '%s does not support %s', ...
+    'INV_SOLVE_ABS_GN',img0.current_physics);
 end
 for i = 1:iters  
   vsim = fwd_solve( img ); 
