@@ -22,8 +22,7 @@ fmdl.jacobian = @jacobian_apparent_resistivity;
 fmdl.solve    = @fwd_solve_apparent_resistivity;
 
 % Construct a model with a homogeneous conductivity of 0.1 Sm and insert a conductive sphere
-img = mk_image(fmdl,0+ mk_c2f_circ_mapping(fmdl,[0;1.5;0;0.3])*100);
-img.elem_data(img.elem_data==0)= 0.1;
+img = mk_image(fmdl,0.1 + mk_c2f_circ_mapping(fmdl,[0;1.5;0;0.3])*100);
 show_fem(img);
 print_convert stimPatt_PseudoSec07_1.png '-density 75'
 
