@@ -2,7 +2,7 @@ function [r_est_parametric, cond_est_parametric, gi] = compare(r_real, cond_real
 %r_real = 0.03;
 %cond_real = 0.7;
 %% create forward model:
-fmdl= ng_mk_cyl_models([0.3,0.15,0.005],[32,[0.1,0.2]],[0.01 0 0.002]); 
+fmdl= ng_mk_cyl_models([0.3,0.15,0.01],[32,[0.1,0.2]],[0.01 0 0.002]); 
 stim =  mk_stim_patterns(32,2,[0,1],[0,1], {'no_meas_current'}, 1);
 % since the prior pushes to a ball of zero radius at (0,0,0), we need that
 % to be a plausible location
@@ -14,7 +14,7 @@ fmdl.stimulation = stim;
 
 imdl = select_imdl(fmdl,{'Basic GN abs'});
 
-img = mk_image(fmdl,0.4,'conductivity'); % 0.4 S/m background conductivita (roughly tissue @ 50 kHz)
+img = mk_image(fmdl,1,'conductivity');
 
 vh  = fwd_solve(img);
 
@@ -24,7 +24,8 @@ img.conductivity.elem_data = bladder(r_real, cond_real);
 
 %
 vi1  = fwd_solve(img);
-vi = add_noise(1e2,vi1);
+vi = add_noise(1e1,vi1);
+%vi=vi1; %test without noise
 disp(norm(calc_difference_data(vi1,vi,fmdl)));
 %show_fem(img)
 
