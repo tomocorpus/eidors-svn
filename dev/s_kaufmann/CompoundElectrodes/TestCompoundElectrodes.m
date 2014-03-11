@@ -27,49 +27,47 @@ fprintf('CEV111 Image Reconstruction with EIDORS\n\n');
 
 %% Parameters
 Display.DisplayMeas = 0;
-Display.ShowFEM = 1;
-Display.ShowLegend = 1;
+Display.ShowFEM = 0;
 Display.SaveFigures = 1;
+Display.RAWData = 0;
 
 DoReconstruction = 1;
 ChooseNF = 0;
 
 UsePhase = 0;
 
-bkgnd_conductivity =  1;%0.65*1e-3;   % Tank bkgnd_conductivity set in order to align hom simulation to hom measurements
+bkgnd_conductivity =  0.65*1e-3;   % Tank bkgnd_conductivity set in order to align hom simulation to hom measurements
 %bkgnd_conductivity =  1.155*1e-3;   % Tank bkgnd_conductivity set in order to align hom simulation to hom measurements
-
-MeasurementFolder = 'C:\Repos\eidors\dev\s_kaufmann\CompoundElectrodes\Measurements\';
-HomogeneousMeasFile = [MeasurementFolder 'SingleObject_Reference' '.mat'];
-InhomogeneousMeasFile = [MeasurementFolder 'SingleObject_E1E2' '.mat'];
-
-ExportDir = 'C:\Temp\';
-ExportFile = [ExportDir 'CompoundElectrodes'];
 
 prior = 'tikhonov';
 %prior = 'noser';
 
+InhomogeneousMeasFile = 'SingleObject_E1E2';
+%InhomogeneousMeasFile = 'SingleObject_E6E5_direct';
+HomogeneousMeasFile = 'SingleObject_Reference';
+
+ExportDir = 'C:\Temp\';
+MeasurementFolder = 'C:\Repos\eidors\dev\s_kaufmann\CompoundElectrodes\Measurements\';
+
+ExportFile = [ExportDir HomogeneousMeasFile '_' InhomogeneousMeasFile '_' prior '_CompoundElectrodes'];
+HomogeneousMeasFile = [MeasurementFolder HomogeneousMeasFile '.mat'];
+InhomogeneousMeasFile = [MeasurementFolder InhomogeneousMeasFile '.mat'];
+
 %% Forward Model - values in mm
 
 % Tank settings
-Tank.Height = 236;
+Tank.Height = 235;
 Tank.Radius = (242)/2;
-Tank.maxMesh= 0;
+Tank.maxMesh = 20;
 
 % Electrode settings
 Electrodes.NumberOf = 16;
-Electrodes.ZPositions = 125;
+Electrodes.ZPositions = 130;
 Electrodes.InnerRadius1 = 0;
 Electrodes.InnerRadius2 = 5;
 Electrodes.OuterRadius1 = 10;
 Electrodes.OuterRadius2 = 20;
 Electrodes.maxh = 5;
-
-% Scale Tank height in order to reduce the number of elements and to speed
-% the solution up, with the trade off of beeing not accuratea anymore.
-Scale = 1;
-Tank.Height = Tank.Height * Scale;
-Electrodes.ZPositions = Electrodes.ZPositions * Scale;
 
 % The electrodes are numbered counter-clock wise
 % Electrode 1..16 are the inner current electrodes
@@ -205,57 +203,26 @@ if (Display.DisplayMeas)
 end;
 
 %% Display RAW data
-if (1)
+if (Display.RAWData)
     figure(3);  set(gcf, 'Name', 'U-Shapes');
     plot(1:length(v_sim(v_sim ~= 0)), 1e3*v_sim(v_sim ~= 0), '-o', 1:length(Data.Homogeneous.v_eidors), 1e3*Data.Homogeneous.v_eidors, '-x', 1:length(Data.Inhomogeneous.v_eidors), 1e3*Data.Inhomogeneous.v_eidors, '-x'); xlabel('No. Measurements'); ylabel('U / mV'); legend('Simulated_H_o_m', 'Measured_H_o_m', 'Measured_I_n_h_o_m');
 end;
 
 %% Display Reciprocity Error
-if (length(v_sim) > 104)
-    figure(4); set(gcf, 'Name', 'Reciprocity Accuracy');
-    subplot(2,1,1); plot(1:length(Data.Homogeneous.v_eidors), 1e2*RelativeReciprocityAccuracy_hom, 'x-', 1:length(Data.Inhomogeneous.v_eidors), 1e2*RelativeReciprocityAccuracy_inhom, '-o'); xlabel('Measurement No.'); ylabel('Relative reciprocity accuracy / %'); legend('Measured_H_o_m', 'Measured_I_n_h_o_m');
-    subplot(2,1,2); plot(1:length(Data.Homogeneous.v_eidors), 1e3*AbsoluteReciprocityError_hom, 'x-', 1:length(Data.Inhomogeneous.v_eidors), 1e3*AbsoluteReciprocityError_inhom, '-o'); xlabel('Measurement No.'); ylabel('Absolute reciprocity accuracy / mV'); legend('Measured_H_o_m', 'Measured_I_n_h_o_m');
+if (Display.RAWData)
+    if (length(v_sim) > 104)
+        figure(4); set(gcf, 'Name', 'Reciprocity Accuracy');
+        subplot(2,1,1); plot(1:length(Data.Homogeneous.v_eidors), 1e2*RelativeReciprocityAccuracy_hom, 'x-', 1:length(Data.Inhomogeneous.v_eidors), 1e2*RelativeReciprocityAccuracy_inhom, '-o'); xlabel('Measurement No.'); ylabel('Relative reciprocity accuracy / %'); legend('Measured_H_o_m', 'Measured_I_n_h_o_m');
+        subplot(2,1,2); plot(1:length(Data.Homogeneous.v_eidors), 1e3*AbsoluteReciprocityError_hom, 'x-', 1:length(Data.Inhomogeneous.v_eidors), 1e3*AbsoluteReciprocityError_inhom, '-o'); xlabel('Measurement No.'); ylabel('Absolute reciprocity accuracy / mV'); legend('Measured_H_o_m', 'Measured_I_n_h_o_m');
+    end;
 end;
 
 %% Display Reconstruction
 if DoReconstruction
     for i=1:length(IMG_Solutions)
-        IMG = IMG_Solutions(i);
-
-        IMG.calc_colours.npoints = 256;
-        IMG.calc_colours.cb_shrink_move = [1, 1, -0.1500]; % Leitfähigkeitsscala Balken (Width, Height, Position)
-
-        Title = regexprep(IMG.name, '_', '\\_');
-
-        figure();
-
-        posn= [ inf,inf,Tank.Height,1; ...
-                inf,inf,Electrodes.ZPositions-3,1; ...
-                inf,inf,Electrodes.ZPositions,1 ; ...
-                inf,inf,Electrodes.ZPositions+3,1; ...
-                inf,inf,0,1];
-
-        subplot(1, 2, 2); 
-        show_slices(IMG, posn);
-
-        if (Display.ShowLegend)
-            ax = axes('position',[0,0,1,1], 'visible', 'off');
-            text(0.82, 0.85,'Top');
-            text(0.82, 0.69,'Electrode layer + 3 mm');
-            text(0.82, 0.51,'Electrode layer');
-            text(0.82, 0.35,'Electrode layer - 3 mm');
-            text(0.82, 0.20,'Bottom');
-        end;
-
-        if UsePhase
-            IMG.calc_colours.component = 'real';
-            subplot(221); show_fem(IMG);title 'real conductivity change'
-
-            IMG.calc_colours.component = 'imag'; 
-            subplot(222); show_fem(IMG); title 'imag conductivity change'
-        else
-            subplot(1, 2, 1); show_fem(IMG, [1, 1]); title(Title);
-        end;
+        ElectrodeOffset = 10;
+        IMG = IMG_Solutions(i);        
+        ShowReconstruction(IMG, Electrodes.ZPositions, ElectrodeOffset);
     end;
     fprintf('done.\n');
 end;
@@ -265,8 +232,8 @@ if (Display.SaveFigures)
     fprintf('Saving Figures....');
     h = get(0,'children');
     for i=1:length(h)
-      saveas(h(i), [ExportFile num2str(i)], 'fig');
-      saveas(h(i), [ExportFile num2str(i)], 'pdf');
+      saveas(h(i), [ExportFile 'Figure_' num2str(i)], 'fig');
+%      saveas(h(i), [ExportFile 'Figure_' num2str(i)], 'pdf');
     end;
     fprintf('done.\n');
 end;
