@@ -1,20 +1,20 @@
-ball1 = 'solid ball = cylinder(0.3,0.3,0;0.3,0.3,1;0.4) and orthobrick(-1,-1,0;1,1,0.05) -maxh=0.1;';
-box1  = 'solid box = orthobrick(-0.6,-0.6,0;-0.1,0.1,0.05) -maxh=0.1;';
+%Create 2D model
+ball1 = 'solid ball = cylinder(0.1,0.4,0;0.1,0.4,1;0.3) and orthobrick(-1,-1,0;1,1,0.05) -maxh=0.1;';
+box1  = 'solid box = orthobrick(-0.6,-0.6,0; 0.1,-0.1,0.05) -maxh=0.1;';
 fmdl= ng_mk_cyl_models(0,[8],[0.2,0,0.05],{'ball','box',[ball1,box1]}); 
 fmdl.stimulation = stim_meas_list([1,5,2,3],8,.01,1);
-th= 0*pi/180;fmdl.nodes = fmdl.nodes*[cos(th), sin(th);-sin(th), cos(th)];
 
-%Conductivity and permittivity parametersma
-
+%Conductivity and permittivity parameters
 img = mk_image( fmdl, 1);
 img.elem_data( fmdl.mat_idx{2} ) = .01 + .01i;
 img.elem_data( fmdl.mat_idx{3} ) = .01 + .01i;
-img.fwd_solve.get_all_meas=1; %Get all measurements
-img.calc_colours.component = 'imag';
-subplot(422); show_fem(img,[1,0,0]);
 img.calc_colours.component = 'real';
-subplot(421); show_fem(img,[1,0,0]);
 
+subplot(221); show_fem(img);
+print_convert transients01a.png
+
+
+return
 tlim = 1e+0; tpts = 300;
 fmax = 1/tlim*(tpts/2);
  tax = linspace(0,tlim,tpts); % 1 sec
@@ -28,7 +28,7 @@ subplot(424); plot(fax, real(fpul),'.');% ylim([-.1,1.1]);
 
 red = real(img.elem_data);
 ied = imag(img.elem_data);
-img.fwd_solve.get_all_meas = 1;
+img.fwd_solve.get_all_meas=1; %Get all measurements
 clear vn; for i=fliplr(1:tpts)
    img.elem_data= red + ied*fax(i)*2j*pi;
    vv = fwd_solve(img);
