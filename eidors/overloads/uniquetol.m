@@ -6,6 +6,13 @@ function out = uniquetol(in, tol, varargin)
 %
 % Only provides the functions of 
 %   C = uniquetol(A,tol,'ByRows',true,'DataScale',1);
+% TODO:
+% -  Remove this function once octave has uniquetol
+% Notes: the problem of a stable defintion of
+% uniquetol is unsolved. Worse, Matlab doesn't
+% define which value it chooses. See:
+% https://stackoverflow.com/questions/46101271/what-does-uniquetol-do-exactly
+
 
 % (C) Andy Adler 2015 Licenced under GPL v2 or v3
 % $Id$ 
@@ -164,6 +171,7 @@ function do_unit_test
    -0.116481831589409043359317763588, ...
    -0.156131398552380479261003642932]';
    testvec{3} = testvec{2}';
+   testvec{4} = [100,200;106,200;112,202;113,205;113,200;113,201;113,204;113,204;110,200;110,203]/100;
 
 
    for i=1:length(testvec)
@@ -174,7 +182,7 @@ function do_unit_test
          ur = uniquetol_repl(x,tol,'rows','first');
          ue = eidors_uniquetol(x,tol);
          fprintf('Testing for tol=%f\n',tol);
-         unit_test_cmp('uu=ur (not used)',uu,ur);
-         unit_test_cmp('um=ue           ',uu,ue);
+%        unit_test_cmp('uu=ur (not used)',uu,ur);
+         unit_test_cmp('um=ue           ',uu,ue,tol/2);
       end
    end
