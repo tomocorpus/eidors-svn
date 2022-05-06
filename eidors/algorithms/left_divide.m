@@ -46,7 +46,6 @@ if isstruct(tol);
    end
 end
 
-
 if ~do_pcg
    try
      V= non_iterative(E,I);
@@ -78,13 +77,10 @@ function V= non_iterative(E,I);
     %    mesh
     if issparse(E)
         
-% This should speed up, and help issue with octave on QR
         inotzeros = logical(any(I,2));
-      if exist('OCTAVE_VERSION') == 5 % v 4.4 has problems with sparse qr
-        [Qi,R] = qr(full(I(inotzeros,:)),0);
-      else
+        % Don't need to cache, this is fast
         [Qi,R] = qr(I(inotzeros,:),0);
-      end
+        %disp([size(I), size(Qi), size(R)])
         rnotzeros = logical(any(R,2));
         R= R(rnotzeros,:);
         Q = sparse(size(I,1), size(R,1));
