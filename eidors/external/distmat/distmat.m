@@ -57,6 +57,8 @@ function [dmat,opt] = distmat(xy,varargin)
 % Release: 1.0
 % Release Date: 5/29/07
 
+% We need this because pdist and pdist2 are in the stats toolbox in matlab
+
 % process inputs
 if nargin<1 || nargin>2;
    error('Call distmat with 1 or 2 args');
