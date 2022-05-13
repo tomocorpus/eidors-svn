@@ -24,6 +24,9 @@ function map = mdl_slice_mapper( fmdl, maptype )
 %   fmdl.mdl_slice_mapper.centre and .rotate
 %          are the centre point and rotation matrices around the point
 %
+%      Optional fields
+%   fmdl.mdl_slice_mapper.model_2d - indicate a 2D model in 3D space.
+%
 % maptype
 %    for 'elem' map is FEM element nearest the point
 %    for 'node' map is FEM vertex nearest the point
@@ -57,12 +60,13 @@ switch maptype
 end
 
 function map = do_mdl_slice_mapper(fmdl, maptype)
-    if isfield(fmdl.mdl_slice_mapper,'model_2d') && ...
-               fmdl.mdl_slice_mapper.model_2d && ...
-               size(fmdl.nodes,2) == 3
-        fmdl.mdl_slice_mapper.nodes(:,3) = [];
-    end
+
     [NODE, ELEM] = level_model( fmdl);
+    if isfield(fmdl.mdl_slice_mapper,'model_2d') && ...
+          fmdl.mdl_slice_mapper.model_2d && ...
+          size(fmdl.nodes,2) == 3
+       NODE(3,:) = [];
+    end
     fmdl.nodes = NODE';
     [x, y] = grid_the_space( fmdl);
    
@@ -389,10 +393,19 @@ function [NODE, ELEM] = level_model( fwd_model )
    vtx= fwd_model.nodes;
    ELEM = fwd_model.elems';
    
-   if mdl_dim(fwd_model) ==2 % 2D case
+   if mdl_dim(fwd_model) ==2 || ... % 2D case
+         isfield(fmdl.mdl_slice_mapper, 'model_2d') && ...
+         fmdl.mdl_slice_mapper.model_2d && ...
+         ~isfield(fmdl.mdl_slice_mapper, 'level')
+     
        NODE= vtx';
        return;
    end
+   
+   if isfield(fmdl.mdl_slice_mapper, 'model_2d') && ...
+         fmdl.mdl_slice_mapper.model_2d && ...
+         ~isfield(fmdl.mdl_slice_mapper, 'level')
+      
 
    if     isfield(fwd_model.mdl_slice_mapper,'level')
        N_slices = level_model_slice(fwd_model.mdl_slice_mapper.level);

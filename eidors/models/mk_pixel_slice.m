@@ -5,10 +5,7 @@ function [imdl fmdl] = mk_pixel_slice(imdl,level,opt)
 %
 % Inputs:
 %  MDL   = an EIDORS forward or inverse model structure
-%  LEVEL = either a vector of x-,y-, and z-intercepts of the cut plane or
-%          a single value interpreted as the height of a single cut in the
-%          z plane (by default, a horizontal slice at the average electrode
-%          height will be created)
+%  LEVEL = any definition accepted by LEVEL_MODEL_SLICE for a single slice
 %  OPT   = an option structure with the following fields and defaults:
 %     opt.imgsz = [32 32];    % dimensions of the pixel grid
 %     opt.square_pixels = 0;  % adjust imgsz to get square pixels
@@ -23,7 +20,7 @@ function [imdl fmdl] = mk_pixel_slice(imdl,level,opt)
 % [OUT FMDL] = MK_PIXEL_SLICE(MDL, ...) also returns the forward model
 % structure with the coarse2fine field.
 %
-% See also MK_COARSE_FINE_MAPPING, MK_GRID_MODEL
+% See also MK_COARSE_FINE_MAPPING, MK_GRID_MODEL, LEVEL_MODEL_SLICE
 
 % (C) 2013 Bartlomiej Grychtol. License: GPL version 2 or 3
 % $Id$
@@ -60,9 +57,7 @@ switch imdl.type
 end
 
 function [rmdl fmdl] = do_pixel_slice(fmdl, opt);
-tmp = fmdl;
-[NODES R T]=level_model(fmdl,opt.level);
-tmp.nodes = NODES';
+[tmp, T, R] =level_model_slice(fmdl,opt.level);
 slc = mdl_slice_mesher(tmp,[inf inf 0]);
 slc = slc.fwd_model;
 mingrid = min(slc.nodes);
@@ -202,51 +197,6 @@ function mat_idx = calc_mat_idx(rmdl,fmdl,ff,opt)
         opt.z_depth = inf;
     end
     
- function [NODE R T] = level_model( fwd_model, level )
-
-   vtx= fwd_model.nodes;
-   [nn, dims] = size(vtx);
-   if dims ==2 % 2D case
-       NODE= vtx';
-       return;
-   end
-
-   % Infinities tend to cause issues -> replace with realmax
-   % Don't need to worry about the sign of the inf
-   level( isinf(level) | isnan(level) ) = realmax;
-   level( level==0 ) =     1e-10; %eps;
-
-   % Step 1: Choose a centre point in the plane
-   %  Weight the point by it's inv axis coords
-   invlev= 1./level;
-   ctr= invlev / sum( invlev.^2 );
-
-   % Step 2: Choose basis vectors in the plane
-   %  First is the axis furthest from ctr
-   [jnk, s_ax]= sort( - abs(level - ctr) );
-   v1= [0,0,0]; v1(s_ax(1))= level(s_ax(1));
-   v1= v1 - ctr;
-   v1= v1 / norm(v1);
-
-   % Step 3: Get off-plane vector, by cross product
-   v2= [0,0,0]; v2(s_ax(2))= level(s_ax(2));
-   v2= v2 - ctr;
-   v2= v2 / norm(v2);
-   v3= cross(v1,v2);
-
-   % Step 4: Get orthonormal basis. Replace v2
-   v2= cross(v1,v3);
-
-   % Step 5: Get bases to point in 'positive directions'
-   v1= v1 * (1-2*(sum(v1)<0));
-   v2= v2 * (1-2*(sum(v2)<0));
-   v3= v3 * (1-2*(sum(v3)<0));
-   
-   R = [v1;v2;v3];
-   T = ctr;
-
-   NODE= R * (vtx' - T'*ones(1,nn) );
-
 function elec_lev = get_elec_level(fmdl)
     z_elec= fmdl.nodes( [fmdl.electrode(:).nodes], 3);
     min_e = min(z_elec); max_e = max(z_elec);
