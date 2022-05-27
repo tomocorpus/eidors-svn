@@ -401,12 +401,7 @@ function [NODE, ELEM] = level_model( fwd_model )
        NODE= vtx';
        return;
    end
-   
-   if isfield(fmdl.mdl_slice_mapper, 'model_2d') && ...
-         fmdl.mdl_slice_mapper.model_2d && ...
-         ~isfield(fmdl.mdl_slice_mapper, 'level')
-      
-
+         
    if     isfield(fwd_model.mdl_slice_mapper,'level')
        N_slices = level_model_slice(fwd_model.mdl_slice_mapper.level);
        if N_slices > 1
