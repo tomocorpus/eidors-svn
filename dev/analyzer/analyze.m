@@ -53,6 +53,7 @@ function parse_config
   pp.FRC_relative_match = 0.2; % match start/end FRC
   pp.min_heart_peak_separation = 0.2; % (seconds) horse min heart beat separation
   pp.FB_cutoff = 0.5; % filter breaths
+  pp.frac_vent_delay = 0.5; % fractional vent delay
 
   pp.flow_window = 10:50;
   pp.colourbar = 'colourbar.png';
@@ -116,6 +117,7 @@ function CONFIG(varargin)
     case 'color_map'        ;  pp.color_map = v2str;
     case 'LP_filter'        ;  pp.LP_filter = v2num; 
     case 'model_breaths_ncos'; pp.model_breaths_ncos = v2num;
+    case 'frac_vent_delay';    pp.frac_vent_delay = v2num;
     case 'FILE';
        fh = hsh(v2str);
        if nargin>=4
@@ -792,6 +794,7 @@ function [MIF,MEF] = MaxFlow_calc(dd);
 
 % Inspi, Expi delay
 function [DIF,DEF] = VentDelay_calc(dd);
+  global pp;
   DIF = [];
   DEF = [];
   for i=1:dd.n_breaths
@@ -803,7 +806,7 @@ function [DIF,DEF] = VentDelay_calc(dd);
     Vol = dd.FR * dd.ZR(:,:,eie(1):eie(2));
     VgT = Vol - Vol(:,:,1);
     VgT = VgT ./ VgT(:,:,end);
-    VgT = sum(VgT > 0.5,3);
+    VgT = sum(VgT > pp.frac_vent_delay,3);
     DIF(:,:,i) = VgT;
 
     Vol = dd.FR * dd.ZR(:,:,eie(3):-1:eie(2));
