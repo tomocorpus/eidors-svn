@@ -829,9 +829,11 @@ function IM = my_image(IM,fout)
   end
   if nargout == 1; return; end
   image(IM); axis off;
-  if nargin>=2
-     csvwrite([fout,'.csv'],IM);
-  end
+
+function csvlink = csv_image(IM,fout);
+  fname = [fout,'.csv'];
+  csvwrite(fname,IM);
+  csvlink = sprintf('[<a href="%s">CSV</a>]',fname);
 
 function out= TV_image(dd,ii)
   global pp;
@@ -849,12 +851,13 @@ function out= TV_image(dd,ii)
   TV(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
   fout = sprintf('TV_image%03d.png',ii);
-  my_image(TV*250/max(TV(:))+5,fout);
+  my_image(TV*250/max(TV(:))+5);
+  csvlink = csv_image(TV,fout);
   
-  out = sprintf(['<center>max pixel=%1.3f<br>' ...
+  out = sprintf(['<center>%smax pixel=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
-     max(TV(:)), fout, fout, pp.colourbar);
+     csvlink, max(TV(:)), fout, fout, pp.colourbar);
   print_convert(fout);
 
 function out= Max_InspFlow_Image(dd,ii)
@@ -874,11 +877,12 @@ function out= Max_InspFlow_Image(dd,ii)
   mycolormap;
   fout = sprintf('MIF_image%03d.png',ii);
   my_image(MIF*250/max(MIF(:))+5,fout);
+  csvlink = csv_image(MIF,fout);
   
-  out = sprintf(['<center>max pixel=%1.3f<br>' ...
+  out = sprintf(['<center>%smax pixel=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
-     max(MIF(:)), fout, fout, pp.colourbar);
+     csvlink,max(MIF(:)), fout, fout, pp.colourbar);
   print_convert(fout);
 
 function out= Max_ExpiFlow_Image(dd,ii)
@@ -897,12 +901,13 @@ function out= Max_ExpiFlow_Image(dd,ii)
   MEF(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
   fout = sprintf('MEF_image%03d.png',ii);
-  my_image(MEF*250/max(MEF(:))+5,fout);
+  my_image(MEF*250/max(MEF(:))+5);
+  csvlink = csv_image(MEF,fout);
   
-  out = sprintf(['<center>max pixel=%1.3f<br>' ...
+  out = sprintf(['<center>%smax pixel=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
-     max(MEF(:)), fout, fout, pp.colourbar);
+     csvlink,max(MEF(:)), fout, fout, pp.colourbar);
   print_convert(fout);
 
 function out= InspiratoryDelayImage(dd,ii)
@@ -921,12 +926,13 @@ function out= InspiratoryDelayImage(dd,ii)
   IDI(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
   fout = sprintf('IDI_image%03d.png',ii);
-  my_image(IDI*250/max(IDI(:))+5,fout);
+  my_image(IDI*250/max(IDI(:))+5);
+  csvlink = csv_image(IDI,fout);
   
-  out = sprintf(['<center>max &Delta;t=%1.3f<br>' ...
+  out = sprintf(['<center>%smax &Delta;t=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
-     max(IDI(:)), fout, fout, pp.colourbar);
+     csvlink,max(IDI(:)), fout, fout, pp.colourbar);
   print_convert(fout);
 
 function out= ExpiratoryDelayImage(dd,ii)
@@ -945,12 +951,13 @@ function out= ExpiratoryDelayImage(dd,ii)
   EDI(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
   fout = sprintf('EDI_image%03d.png',ii);
-  my_image(EDI*250/max(EDI(:))+5,fout);
+  my_image(EDI*250/max(EDI(:))+5);
+  csvlink = csv_image(EDI,fout);
   
-  out = sprintf(['<center>max &Delta;t=%1.3f<br>' ...
+  out = sprintf(['<center>%smax &Delta;t=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
-     max(EDI(:)), fout, fout, pp.colourbar);
+     csvlink,max(EDI(:)), fout, fout, pp.colourbar);
   print_convert(fout);
 
 %DO flow_volume_slices
@@ -1064,10 +1071,11 @@ function out= flow_volume_image(dd,ii)
 % Issue ... what if some components are negative
   outimg(ROI==1) = outimg(ROI==1) + 50;
   fout = sprintf('FV_image%03d.png',ii);
-  my_image(outimg,fout); axis image;
-  str= ['<center>max pixel=%1.3f<br>' ...
+  my_image(outimg); axis image;
+  csvlink = csv_image(outimg,fout);
+  str= ['<center>%smax pixel=%1.3f<br>' ...
    '<a href="%s"><img width="200" src="%s">' ...
-   '</a><p><img src="%s"></center>'];
+   csvlink,'</a><p><img src="%s"></center>'];
   
   out = sprintf(str, max(FV(:)), fout, fout, pp.colourbar);
   print_convert(fout);
