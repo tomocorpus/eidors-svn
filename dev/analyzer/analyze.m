@@ -905,7 +905,7 @@ function out= Max_ExpiFlow_Image(dd,ii)
 function out= InspiratoryDelayImage(dd,ii)
   global pp;
   if ischar(dd) && strcmp(dd,'TITLE');
-     out = '<a title="Average of Inspiratory Delay over breaths">Insp &Delta;t Image</a>';
+     out = sprintf('<a title="Average of Inspiratory Delay over breaths">Insp Delay (thr=%d%%)</a>',round(pp.frac_vent_delay*100));
      return
   end
   if ischar(dd) && strcmp(dd,'REQBREATHS?');
@@ -929,7 +929,7 @@ function out= InspiratoryDelayImage(dd,ii)
 function out= ExpiratoryDelayImage(dd,ii)
   global pp;
   if ischar(dd) && strcmp(dd,'TITLE');
-     out = '<a title="Average of Expiratory Delay over breaths">Expi &Delta;t Image</a>';
+     out = sprintf('<a title="Average of Expiratory Delay over breaths">Expi Delay (thr=%d%%)</a>',round(pp.frac_vent_delay*100));
      return
   end
   if ischar(dd) && strcmp(dd,'REQBREATHS?');
