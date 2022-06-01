@@ -32,6 +32,7 @@ CONFIG FB_cutoff 0.5 % Cutoff of LP filter for breath detection
 CONFIG slices 4
 CONFIG LP_filter 4.0 % LP filter cut-off frequency [HZ] ... seems unused
 CONFIG model_breaths_ncos 4
+CONFIG frac_vent_delay 0.4
 %CONFIG color_map ocean
 %CONFIG color_map gray
  CONFIG color_map viridis
