@@ -22,7 +22,7 @@ function iterate_over_files
      dd = loadfile(fn);
      if dd.lD == 0 ; continue; end
      fid = outfile;
-     fprintf(fid,'<TR><TD>%s',fn(1:end-4));
+     fprintf(fid,'<TR><TD>(%d)<BR>%s',f,fn(1:end-4));
      for i=1:length(pp.callfns)
         clf;
         reqbreaths = feval(pp.callfns{i},'REQBREATHS?');
@@ -36,7 +36,7 @@ function iterate_over_files
         end
         fprintf(fid,'<TD>%s',out);
      end
-        fprintf(fid,'<TD>%s',fn(1:end-4));
+        fprintf(fid,'<TD>(%d)<BR>%s',f,fn(1:end-4));
      fclose(fid);
   end
 
