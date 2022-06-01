@@ -829,6 +829,9 @@ function IM = my_image(IM,fout)
   end
   if nargout == 1; return; end
   image(IM); axis off;
+  if nargin>=2
+     csvwrite([fout,'.csv'],IM);
+  end
 
 function out= TV_image(dd,ii)
   global pp;
