@@ -11,6 +11,8 @@ ERROR = (Error using eidors_default>get_default (line 106)
    + fwd_model_1st_order => Check ground node warning
    + calc_slices => fix unit_test to have clean use of tol
  + fix direction in emphasize_electrode_text
+ - Require Octave 7.1. Remove uniquetol.
+ - HDF5 file format
  - Test why fwd solver not more efficient with large stim patterns
  - Add 3D for prior_gaussian_HPF
  + Make sparse overload smarter

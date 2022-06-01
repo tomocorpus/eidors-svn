@@ -259,8 +259,8 @@ function out= show_perfusion(dd,ii)
   perfusion = perfusion_calc(dd);
   perfusion(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
-  my_image(perfusion*150/max(perfusion(:))+100);
   fout = sprintf('perfusion_image%03d.png',ii);
+  my_image(perfusion*150/max(perfusion(:))+100,fout);
   out = sprintf(['<center>max pixel=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
@@ -817,7 +817,7 @@ function [DIF,DEF] = VentDelay_calc(dd);
   DEF= mean(DEF,3);
   DEF= (DEF - min(DEF(ROI))).*ROI;
 
-function IM = my_image(IM)
+function IM = my_image(IM,fout)
   global pp;
   switch pp.rotate
     case 0; % nothing
@@ -842,9 +842,9 @@ function out= TV_image(dd,ii)
   TV = TVcalc(dd);
   TV(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
-  my_image(TV*250/max(TV(:))+5);
-  
   fout = sprintf('TV_image%03d.png',ii);
+  my_image(TV*250/max(TV(:))+5,fout);
+  
   out = sprintf(['<center>max pixel=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
@@ -866,9 +866,9 @@ function out= Max_InspFlow_Image(dd,ii)
   [MIF,~] = MaxFlow_calc(dd);
   MIF(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
-  my_image(MIF*250/max(MIF(:))+5);
-  
   fout = sprintf('MIF_image%03d.png',ii);
+  my_image(MIF*250/max(MIF(:))+5,fout);
+  
   out = sprintf(['<center>max pixel=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
@@ -890,9 +890,9 @@ function out= Max_ExpiFlow_Image(dd,ii)
   [~,MEF] = MaxFlow_calc(dd);
   MEF(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
-  my_image(MEF*250/max(MEF(:))+5);
-  
   fout = sprintf('MEF_image%03d.png',ii);
+  my_image(MEF*250/max(MEF(:))+5,fout);
+  
   out = sprintf(['<center>max pixel=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
@@ -914,9 +914,9 @@ function out= InspiratoryDelayImage(dd,ii)
   [IDI,~] = VentDelay_calc(dd);
   IDI(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
-  my_image(IDI*250/max(IDI(:))+5);
-  
   fout = sprintf('IDI_image%03d.png',ii);
+  my_image(IDI*250/max(IDI(:))+5,fout);
+  
   out = sprintf(['<center>max &Delta;t=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
@@ -938,9 +938,9 @@ function out= ExpiratoryDelayImage(dd,ii)
   [~,EDI] = VentDelay_calc(dd);
   EDI(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
-  my_image(EDI*250/max(EDI(:))+5);
-  
   fout = sprintf('EDI_image%03d.png',ii);
+  my_image(EDI*250/max(EDI(:))+5,fout);
+  
   out = sprintf(['<center>max &Delta;t=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
@@ -1057,12 +1057,12 @@ function out= flow_volume_image(dd,ii)
   outimg = FV*200/max(FV(:));
 % Issue ... what if some components are negative
   outimg(ROI==1) = outimg(ROI==1) + 50;
-  my_image(outimg); axis image;
+  fout = sprintf('FV_image%03d.png',ii);
+  my_image(outimg,fout); axis image;
   str= ['<center>max pixel=%1.3f<br>' ...
    '<a href="%s"><img width="200" src="%s">' ...
    '</a><p><img src="%s"></center>'];
   
-  fout = sprintf('FV_image%03d.png',ii);
   out = sprintf(str, max(FV(:)), fout, fout, pp.colourbar);
   print_convert(fout);
 
@@ -1090,12 +1090,12 @@ function out= flow_volume_image_change(dd,ii)
   outimg( ROI==1 & outimg<2  ) = 2;
   outimg( ROI==1 & outimg>255) = 255;
   
-   my_image(outimg); axis image
+  fout = sprintf('FVd_image%03d.png',ii);
+  my_image(outimg,fout); axis image
   str= ['<center>max &Delta;=%1.3f from BL<br>' ...
   '<a href="%s"><img width="200" src="%s">' ...
   '</a><p><img src="%s"></center>'];
   
-  fout = sprintf('FVd_image%03d.png',ii);
   out = sprintf(str, max(FVd(:)), fout, fout, pp.colourbar);
   print_convert(fout);
 
