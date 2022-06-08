@@ -394,7 +394,8 @@ function [NODE, ELEM] = level_model( fwd_model )
    ELEM = fwd_model.elems';
    
    if mdl_dim(fwd_model) ==2 || ... % 2D case
-         isfield(fmdl.mdl_slice_mapper, 'model_2d') && ...
+         isfield(fmdl, 'mdl_slice_mapper') &&
+		 isfield(fmdl.mdl_slice_mapper, 'model_2d') && ...
          fmdl.mdl_slice_mapper.model_2d && ...
          ~isfield(fmdl.mdl_slice_mapper, 'level')
      
