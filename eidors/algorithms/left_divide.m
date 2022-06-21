@@ -197,7 +197,8 @@ RHS = J'*W;
 unit_test_cmp('dense chol',LHS\RHS,left_divide(LHS,RHS),1e-13)
 
 
-function do_timing unit_tests
+function do_timing_unit_tests
+
 eidors_cache off
 if 0
 fmdl5= ng_mk_cyl_models(1,[16,0.2,0.4,0.6,0.8],0.05);
