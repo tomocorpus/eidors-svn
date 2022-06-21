@@ -167,6 +167,7 @@ function V=iterative_solve(E,I,tol,V,fmdl)
 
 % Test code
 function do_unit_test
+%do_timing_unit_tests; return
 
 % test solvers are unaffected 
 inv_solve('UNIT_TEST')
@@ -198,17 +199,13 @@ unit_test_cmp('dense chol',LHS\RHS,left_divide(LHS,RHS),1e-13)
 
 
 function do_timing_unit_tests
+% The point of these tests are to verify which 
+%  matrices should be sparse and which full. 
+% Conclusion is that Q should be full - AA (jun 2022)
 
-eidors_cache off
-if 0
-fmdl5= ng_mk_cyl_models(1,[16,0.2,0.4,0.6,0.8],0.05);
-extra={'ball', 'solid ball=sphere(0,0,0.5;0.4) -maxh=0.02;'};
-fmdl6= ng_mk_cyl_models(1,[16,0.2,0.4,0.6,0.8],0.05,extra);
-extra={'ball', 'solid ball=sphere(0,0,0.5;0.4) -maxh=0.013;'};
-fmdl7= ng_mk_cyl_models(1,[16,0.2,0.4,0.6,0.8],0.05,extra);
-end
+%eidors_cache off
 Nel = 64;
-for mn = 7:7; switch mn
+for mn = 1:4; switch mn
     case 1;
         fmdl = mk_common_model('d2c0',64);
         fmdl = fmdl.fwd_model;
@@ -223,12 +220,6 @@ for mn = 7:7; switch mn
         fmdl = mk_circ_tank(32, linspace(-1,1,41), {'planes',Nel, 21});
         fmdl.solve = @eidors_default;
         fmdl.system_mat = @eidors_default;
-    case 5;
-        fmdl = fmdl5;
-    case 6;
-        fmdl = fmdl6;
-    case 7;
-        fmdl = fmdl7;
     end
     stim= mk_stim_patterns(Nel,1,[0,3],[0,3],{},1);
     for sp = 1:2; switch sp;
@@ -240,16 +231,20 @@ for mn = 7:7; switch mn
             fmdl.stimulation = stim_meas_list(SSMM(idx,:)); 
         end;
         img = mk_image(fmdl,1);
-        fwd_solve(img);
-    end
-end
+%       fwd_solve(img);
+        s_mat = calc_system_mat(img);
+        idx= 1:size(s_mat.E,1);
+        idx(img.fwd_model.gnd_node) = [];
+        E = s_mat.E(idx,idx);
+        pp= fwd_model_parameters( img.fwd_model, 'skip_VOLUME' );
+        I = pp.QQ(idx,:); 
+
+        inotzeros = logical(any(I,2));
+        [Qi,R] = qr(I(inotzeros,:),0);
+        rnotzeros = logical(any(R,2));
+        R= R(rnotzeros,:);
         Q = sparse(size(I,1), size(R,1));
         Q(inotzeros,:) = Qi(:,rnotzeros);
-        %disp([size(I), size(Qi), size(R)])
-%        [Q,R] = qr(I,0);
-%        rnotzeros = any(R~=0,2);
-%        Q= Q(:,rnotzeros);
-%        R= R(rnotzeros,:);
         t=[];
         tic; T = E \ Q; t(end+1) = toc;
         tic; V = T * R; t(end+1) = toc;
@@ -258,3 +253,5 @@ end
         tic; T = E \ full(Q); t(end+1) = toc;
         tic; V = T * R; t(end+1) = toc;
         disp(t)
+    end
+end
