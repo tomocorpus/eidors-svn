@@ -80,11 +80,11 @@ function V= non_iterative(E,I);
         inotzeros = logical(any(I,2));
         % Don't need to cache, this is fast
         [Qi,R] = qr(I(inotzeros,:),0);
-        %disp([size(I), size(Qi), size(R)])
         rnotzeros = logical(any(R,2));
         R= R(rnotzeros,:);
-        Q = sparse(size(I,1), size(R,1));
+        Q = zeros(size(I,1), size(R,1)); % Faster if not sparse
         Q(inotzeros,:) = Qi(:,rnotzeros);
+        %disp([size(I), size(Qi), size(R)])
 %        [Q,R] = qr(I,0);
 %        rnotzeros = any(R~=0,2);
 %        Q= Q(:,rnotzeros);
@@ -195,3 +195,65 @@ hp  = calc_hyperparameter(imdl);
 LHS = (J'*W*J +  hp^2*RtR);
 RHS = J'*W;
 unit_test_cmp('dense chol',LHS\RHS,left_divide(LHS,RHS),1e-13)
+
+
+function do_timing unit_tests
+eidors_cache off
+if 0
+fmdl5= ng_mk_cyl_models(1,[16,0.2,0.4,0.6,0.8],0.05);
+extra={'ball', 'solid ball=sphere(0,0,0.5;0.4) -maxh=0.02;'};
+fmdl6= ng_mk_cyl_models(1,[16,0.2,0.4,0.6,0.8],0.05,extra);
+extra={'ball', 'solid ball=sphere(0,0,0.5;0.4) -maxh=0.013;'};
+fmdl7= ng_mk_cyl_models(1,[16,0.2,0.4,0.6,0.8],0.05,extra);
+end
+Nel = 64;
+for mn = 7:7; switch mn
+    case 1;
+        fmdl = mk_common_model('d2c0',64);
+        fmdl = fmdl.fwd_model;
+    case 2;
+        fmdl = mk_common_model('l2c0',64);
+        fmdl = fmdl.fwd_model;
+    case 3;
+        fmdl = mk_circ_tank(16, linspace(-1,1,41), {'planes',Nel, 21});
+        fmdl.solve = @eidors_default;
+        fmdl.system_mat = @eidors_default;
+    case 4;
+        fmdl = mk_circ_tank(32, linspace(-1,1,41), {'planes',Nel, 21});
+        fmdl.solve = @eidors_default;
+        fmdl.system_mat = @eidors_default;
+    case 5;
+        fmdl = fmdl5;
+    case 6;
+        fmdl = fmdl6;
+    case 7;
+        fmdl = fmdl7;
+    end
+    stim= mk_stim_patterns(Nel,1,[0,3],[0,3],{},1);
+    for sp = 1:2; switch sp;
+       case 1; 
+           fmdl.stimulation = stim; 
+       case 2;
+            SSMM = stim_meas_list(stim);
+            [~,idx] = sort(rand(size(SSMM,1),1));
+            fmdl.stimulation = stim_meas_list(SSMM(idx,:)); 
+        end;
+        img = mk_image(fmdl,1);
+        fwd_solve(img);
+    end
+end
+        Q = sparse(size(I,1), size(R,1));
+        Q(inotzeros,:) = Qi(:,rnotzeros);
+        %disp([size(I), size(Qi), size(R)])
+%        [Q,R] = qr(I,0);
+%        rnotzeros = any(R~=0,2);
+%        Q= Q(:,rnotzeros);
+%        R= R(rnotzeros,:);
+        t=[];
+        tic; T = E \ Q; t(end+1) = toc;
+        tic; V = T * R; t(end+1) = toc;
+        tic; T = full(E \ Q); t(end+1) = toc;
+        tic; V = T * R; t(end+1) = toc;
+        tic; T = E \ full(Q); t(end+1) = toc;
+        tic; V = T * R; t(end+1) = toc;
+        disp(t)
