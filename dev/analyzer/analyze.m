@@ -262,11 +262,12 @@ function out= show_perfusion(dd,ii)
   perfusion(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
   fout = sprintf('perfusion_image%03d.png',ii);
-  my_image(perfusion*150/max(perfusion(:))+100,fout);
-  out = sprintf(['<center>max pixel=%1.3f<br>' ...
+  my_image(perfusion*150/max(perfusion(:))+100);
+  csvlink = csv_image(perfusion,fout);
+  out = sprintf(['<center>%smax pixel=%1.3f<br>' ...
      '<a href="%s"><img width="200" src="%s">' ...
      '</a><p><img src="%s"></center>'], ...
-     max(perfusion(:)), fout, fout, pp.colourbar);
+     csvlink,max(perfusion(:)), fout, fout, pp.colourbar);
   print_convert(fout);
  
 function perfusion = perfusion_calc(dd);
@@ -820,7 +821,7 @@ function [DIF,DEF] = VentDelay_calc(dd);
   DEF= mean(DEF,3);
   DEF= (DEF - min(DEF(ROI))).*ROI;
 
-function IM = my_image(IM,fout)
+function IM = my_image(IM)
   global pp;
   switch pp.rotate
     case 0; % nothing
@@ -832,6 +833,7 @@ function IM = my_image(IM,fout)
 
 function csvlink = csv_image(IM,fout);
   fname = [fout,'.csv'];
+  IM = flipud(fliplr(IM)); 
   csvwrite(fname,IM);
   csvlink = sprintf('[<a href="%s">CSV</a>]',fname);
 
@@ -876,7 +878,7 @@ function out= Max_InspFlow_Image(dd,ii)
   MIF(dd.ZR(:,:,1)==0) = NaN;
   mycolormap;
   fout = sprintf('MIF_image%03d.png',ii);
-  my_image(MIF*250/max(MIF(:))+5,fout);
+  my_image(MIF*250/max(MIF(:))+5);
   csvlink = csv_image(MIF,fout);
   
   out = sprintf(['<center>%smax pixel=%1.3f<br>' ...
@@ -1075,9 +1077,9 @@ function out= flow_volume_image(dd,ii)
   csvlink = csv_image(outimg,fout);
   str= ['<center>%smax pixel=%1.3f<br>' ...
    '<a href="%s"><img width="200" src="%s">' ...
-   csvlink,'</a><p><img src="%s"></center>'];
+   '</a><p><img src="%s"></center>'];
   
-  out = sprintf(str, max(FV(:)), fout, fout, pp.colourbar);
+  out = sprintf(str, csvlink, max(FV(:)), fout, fout, pp.colourbar);
   print_convert(fout);
 
 function out= flow_volume_image_change(dd,ii)
@@ -1105,8 +1107,9 @@ function out= flow_volume_image_change(dd,ii)
   outimg( ROI==1 & outimg>255) = 255;
   
   fout = sprintf('FVd_image%03d.png',ii);
-  my_image(outimg,fout); axis image
-  str= ['<center>max &Delta;=%1.3f from BL<br>' ...
+  my_image(outimg); axis image
+  csvlink = csv_image(FVd,fout);
+  str= ['<center>%smax &Delta;=%1.3f from BL<br>' ...
   '<a href="%s"><img width="200" src="%s">' ...
   '</a><p><img src="%s"></center>'];
   
