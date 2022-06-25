@@ -245,6 +245,7 @@ function dd = loadfile(fname);
   dd.flow= -conv2(dd.CV,ls,'same');
   ls = reshape(ls,1,1,[])/(abs(sum(ls.*(ls>0)))/2);
   dd.ZF = -convn(dd.ZR,ls,'same');
+  dd.ZA = -convn(dd.ZF,ls,'same'); % flow accel
 
 function out= show_perfusion(dd,ii)
   global pp;
