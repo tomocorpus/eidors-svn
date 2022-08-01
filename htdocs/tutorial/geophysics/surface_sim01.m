@@ -13,7 +13,7 @@ stim = mk_stim_patterns(size(fmdl.electrode,2), 1, ... %rings
 
 fmdl.stimulation = stim;
 img= mk_image(fmdl,1);
-img.elem_data(fmdl.mat_idx{2}) = 2;
+img.elem_data(fmdl.mat_idx{1}) = 2;
 
 show_fem(img); view(-16,22); set(gca,'Projection','perspective')
 print_convert surface_sim01a.png '-density 100'
