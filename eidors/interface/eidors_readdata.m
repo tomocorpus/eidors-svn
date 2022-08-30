@@ -120,7 +120,7 @@ switch fmt
      stim = mk_stim_patterns(16,1,[0,1],[0,1],{'rotate_meas','no_meas_current'},.005);
      [stim(:).framerate] = deal(fr);
      [vv] = read_draeger_file( fname );
-     auxdata = vv; % the actual voltages
+     auxdata.vv = vv; % the actual voltages
      % Based on the draeger *get file converter
      ft = [.00098242, .00019607];% estimated AA: 2016-04-07
      vv = ft(1)*vv(1:208,:) - ft(2)*vv(322+(1:208),:);
