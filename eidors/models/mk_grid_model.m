@@ -87,6 +87,7 @@ function c2f= calc_c2f_2d( fmdl, xvec, yvec);
       end
    end
 
+% Old implementation, replaced by mk_grid_c2f   
 function c2f= calc_c2f_3d( fmdl, xvec, yvec, zvec);
 %  c2f= mk_coarse_fine_mapping( fmdl, cmdl);
    nef= size( fmdl.elems,1);
@@ -205,13 +206,13 @@ function do_unit_test
 imdl = mk_common_model('b2c2',16); imdl.hyperparameter.value = 1e-3;
 img = mk_image(imdl,1);     vh= fwd_solve(img);
 img.elem_data([51,23])=1.1; vi= fwd_solve(img);
-subplot(221); show_fem(img);
-subplot(222); show_fem(inv_solve(imdl, vh, vi));
+subplot(321); show_fem(img);
+subplot(322); show_fem(inv_solve(imdl, vh, vi));
 
 grid = linspace(-1,1,33);
 [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
      mk_grid_model( imdl.fwd_model, grid, grid );
-subplot(223); show_fem(inv_solve(imdl, vh, vi));
+subplot(323); show_fem(inv_solve(imdl, vh, vi));
 hold on; hh=show_fem(img); set(hh,'FaceAlpha',0,'EdgeColor',[0,0,1]); hold off;
 
 outside = find(sum(imdl.fwd_model.coarse2fine,1) < eps);
@@ -220,5 +221,17 @@ imdl.rec_model.coarse2fine(:,outside) = [];
 rec_out = [2*outside-1,2*outside];
 imdl.rec_model.coarse2fine(rec_out,:) = [];
 imdl.rec_model.elems(rec_out,:) = [];
-subplot(224); show_fem(inv_solve(imdl, vh, vi));
+subplot(324); show_fem(inv_solve(imdl, vh, vi));
 hold on; hh=show_fem(img); set(hh,'FaceAlpha',0,'EdgeColor',[0,0,1]); hold off;
+
+subplot(325)
+imdl = mk_common_model('n3r2',[16,2]);
+img = mk_image(imdl.fwd_model,1:size(imdl.fwd_model.elems,1));
+show_fem(img);
+
+subplot(326)
+[cmdl, c2f]= mk_grid_model(img.fwd_model, -.5:.1:.5, -.5:.1:.5, 1:.1:2);
+v = c2f'*img.elem_data;
+img2 = mk_image(cmdl, v);
+show_fem(img2)
+

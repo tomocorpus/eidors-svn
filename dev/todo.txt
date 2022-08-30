@@ -24,7 +24,7 @@ ERROR = (Error using eidors_default>get_default (line 106)
  + Warn if GREIT3D_distribution has zvec outside image and opt.distr = []
  + Use oncleanup https://www.mathworks.com/help/matlab/ref/oncleanup.html
  + mk_grid_model => Warn if length(vector)==1
- - mk_grid_model => 3D c2f seems broken. Is it
+ + mk_grid_model => 3D c2f seems broken. Is it
  + debug "Interpolation failed for point ..." in mk_c2f_circ_mapping
  + Fix phase delay in meas_pattern
  + Remove "This is an EIDORS bug" test in ng_mk_fwd_model.m:58 after validating
