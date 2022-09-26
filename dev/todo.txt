@@ -11,9 +11,9 @@ ERROR = (Error using eidors_default>get_default (line 106)
    + fwd_model_1st_order => Check ground node warning
    + calc_slices => fix unit_test to have clean use of tol
  + fix direction in emphasize_electrode_text
- - Require Octave 7.2. Remove uniquetol.
+ - Require Octave 7.2. Remove uniquetol (Bartek).
  - HDF5 file format
- - Test why fwd solver not more efficient with large stim patterns
+ + Test why fwd solver not more efficient with large stim patterns (DONE by AA)
  - Add 3D for prior_gaussian_HPF
  + Make sparse overload smarter
  + New included data based on the JXBrunner data set => landquart_data_2014.mat
@@ -33,7 +33,7 @@ ERROR = (Error using eidors_default>get_default (line 106)
  - support c2f in img_point_mapper (Bartek)
  + refactor the point_to_tet part of mk_tet_c2f
  + Check line and comment mk_tet_c2f: 429  rnode2tet = sparse(rnode2tet);
- - test netgen 6.2 for linux and windows
+ - test netgen 6.2 for linux (Andy) and windows (Bartek)
  + DON'T include netgen 6.2. KEEP OLD since smaller and don't need python
  - fix print_convert - accept command line option for pagesize (-p10x20, -pAuto)
  + fix print_convert - put stuff on clipboard in windows
