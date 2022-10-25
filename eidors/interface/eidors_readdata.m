@@ -878,11 +878,7 @@ function [vv] = landquart1_readdata( fname );
    
 % Read data from the file format develped by Swisstom, Landquart, Switzerland.
 function [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname )
-   if ~exist('OCTAVE_VERSION')
    [fid msg]= fopen(fname,'r','ieee-be','UTF-8');
-   else
-   [fid msg]= fopen(fname,'r','ieee-be');
-   end
    try
       format_version = fread(fid,1,'int32','ieee-be');
       if format_version ~= 3
@@ -960,11 +956,7 @@ function [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname )
 % Read data from the file format develped by Swisstom, Landquart, Switzerland.
 function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra] = landquart4_readdata( fname )
    evtlist = [];
-   if ~exist('OCTAVE_VERSION')
    [fid msg]= fopen(fname,'r','ieee-le','UTF-8');
-   else
-   [fid msg]= fopen(fname,'r','ieee-le');
-   end
    try
       format_version = fread(fid,1,'int32','ieee-le');
       if format_version ~= 4
@@ -1075,11 +1067,7 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
    elecImps = impedanceFactor * (viPayload(1:2:end,:) + 1i*viPayload(2:2:end,:));
 
 function [vv] = landquart4pre_readdata( fname )
-   if ~exist('OCTAVE_VERSION')
    [fid msg]= fopen(fname,'r','ieee-le','UTF-8');
-   else
-   [fid msg]= fopen(fname,'r','ieee-le');
-   end
    try
       format_version = fread(fid,1,'int32','ieee-le');
       if format_version ~= 4
