@@ -1286,7 +1286,11 @@ end
    rawsigs = zeros(67, len, 'single');
    ss= offset1 + (0:len)*SPC;
 
-   for k= 1:length(ss);
+   progress_msg('Reading EIT frame', 0, length(ss)-1);
+   for k= 1:length(ss)-1;
+       if mod(k, 100) == 0
+           progress_msg(k, length(ss)-1);
+       end
        % for newest Dräger files: one frame has 5495 bytes
        % - [0001-0008] 8 bytes of whatever in first frame then zero
        % - [0009-5168] 5160 bytes of signals: as 645 float64 (double)
