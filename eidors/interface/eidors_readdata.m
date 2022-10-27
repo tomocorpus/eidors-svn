@@ -119,11 +119,21 @@ switch fmt
      % Currently Draeger equipment uses this pattern with 5mA injection
      stim = mk_stim_patterns(16,1,[0,1],[0,1],{'rotate_meas','no_meas_current'},.005);
      [stim(:).framerate] = deal(fr);
-     [vv] = read_draeger_file( fname );
-     auxdata.vv = vv; % the actual voltages
+     [vvOrig, tstamp, event, signals, counter] = read_draeger_file( fname );
      % Based on the draeger *get file converter
      ft = [.00098242, .00019607];% estimated AA: 2016-04-07
-     vv = ft(1)*vv(1:208,:) - ft(2)*vv(322+(1:208),:);
+     vv = ft(1)*vvOrig(1:208,:) - ft(2)*vvOrig(322+(1:208),:);
+     auxdata.vv = vvOrig; % the actual voltages
+     auxdata.tstamp = tstamp;
+     auxdata.event = event;
+     auxdata.signals = signals;
+     % Based on correlating and scaling with outputs of *.get file
+     % Note that this does not 100% fit but is the best possible guess so far
+     fc = 194326.3536;
+     auxdata.curr = vvOrig(224+(1:16), :) / fc;
+     fv = 0.11771;
+     auxdata.volt = 1/fv * (vvOrig(256+(1:16), :) - vvOrig(578+(1:16), :));
+     auxdata.counter = counter;
 
    case {'raw', 'sheffield'}
       vv = sheffield_readdata( fname );
@@ -1215,7 +1225,7 @@ end
 fclose(fid);
 
 
-function vd = read_draeger_file(filename)
+function [vd, tstamp, event, signals, counter] = read_draeger_file(filename)
 %READDRAEGERFILE   Opens and reads a Draeger .eit file. Returns an array
 %containing the voltage data arranged per frame.
 %   
@@ -1270,13 +1280,61 @@ end
 
    len = floor( (filelen-offset1)/SPC );
    vd= zeros(600,len);
+   tstamp = zeros(1, len, 'double'); 
+   counter = zeros(1, len, 'uint16');     
+   event = repmat(char(0), 30, len);
+   rawsigs = zeros(67, len, 'single');
    ss= offset1 + (0:len)*SPC;
 
    for k= 1:length(ss);
+       % for newest Dräger files: one frame has 5495 bytes
+       % - [0001-0008] 8 bytes of whatever in first frame then zero
+       % - [0009-5168] 5160 bytes of signals: as 645 float64 (double)
+       % - [5169-5436] 268 bytes of "medibus" signals: as 67 float32 (single)
+       % - [5437-5467] 30 bytes of "event" string: as 30 chars 
+       % - [5468-5491] ??? some bytes (mostly int16 and zeros) of we do not know what
+       % - [5492-5493] 2 bytes of some counter signal which gets reset from time to time: as uint16 
+       % - [5494-5495] 2 bytes of zeros
+       
       if fseek(fid,ss(k),-1)<0; break; end
+      
+      fseek(fid,ss(k)+8,-1);
+      % timestamp in number of days
+      tstamp(k) = fread(fid,1,'float64', 0, 'ieee-le'); 
+      
+      fseek(fid,ss(k)+16,-1);
       vd(:,k)=fread(fid,600,'double', 0, 'ieee-le');
-   end
+      
+      start = 16+600*8;
+      fseek(fid,ss(k)+start,-1);
+      gugus(:,k) = fread(fid, floor((5169-start)/8), 'double', 'ieee-le');
+      
+      fseek(fid,ss(k)+5169,-1);
+%       rawsigs(:,k) = fread(fid, 52, 'single', 'ieee-le');
+      rawsigs(:,k) = fread(fid, 67, 'single', 'ieee-le');
+      
+      fseek(fid,ss(k)+5437,-1);
+      event(:, k) = fread(fid, 30, 'char', 'ieee-le');
+            
+%       fseek(fid,ss(k)+5437+30,-1);
+%       dada(:,k) = fread(fid, floor(SPC-(5437+30)/8), 'double', 'ieee-le');
 
+      fseek(fid,ss(k)+5491,-1);
+      counter(k) = fread(fid, 1, 'uint16', 'ieee-le');      
+   end
+   
+   % convert raw signals into a structure
+   % WARNING: this list is far from correct or complete
+   % TODO: verify and fix this!
+   SignalNames = {'RTD_Paw_mbar_01', 'RTD_Paw_mbar_02', 'RTD_Flow_L_min_03', 'RTD_Flow_L_min_04', 'RTD_Vol__mL_05', 'RTD_Vol__mL_06', 'unknown_07', 'unknown_08', 'unknown_09', 'unknown_10', 'unknown_11', 'Tispon_sec_12', 'Pmin_mbar_13', 'P0_1_mbar_14', 'Pmean_mbar_15', 'unknown_16', 'PEEP_mbar_17', 'unknown_18', 'unknown_19', 'unknown_20', 'unknown_21', 'PIP_mbar_22', 'unknown_23', 'unknown_24', 'unknown_25', 'unknown_26', 'VT_mL_27', 'unknown_28', 'unknown_29', 'unknown_30', 'unknown_31', 'VT_mL_32', 'VTispon_mL_33', 'NIF_mbar_34', 'MVleak_L_min_35', 'unknown_36', 'RRspon_1_min_37', 'unknown_38', 'MVspon_L_min_39', 'unknown_40', 'MVspon_L_min_41', 'unknown_42', 'RSB_1_LXMin_43', 'RRspon_1_min_44', 'unknown_45', 'unknown_46', 'unknown_47', 'unknown_48', 'unknown_49', 'etCO2___50', 'etCO2___51', 'unknown_52', 'unknown_53', 'unknown_54', 'unknown_55', 'unknown_56', 'unknown_57', 'unknown_58', 'unknown_59', 'unknown_60', 'unknown_61', 'unknown_62', 'unknown_63', 'unknown_64', 'unknown_65', 'unknown_66', 'unknown_67'};
+%    SignalNames = {'RTD_Paw_mbar_01', 'RTD_Paw_mbar_02', 'unknown_03', 'RTD_Flow_L_min_04', 'RTD_Vol__mL_05', 'RTD_Vol__mL_06', 'Cdyn_mL_mbar_07', 'unknown_08', 'unknown_09', 'R_mbar_L_s_10', 'unknown_11', 'unknown_12', 'unknown_13', 'unknown_14', 'unknown_15', 'unknown_16', 'unknown_17', 'unknown_18', 'unknown_19', 'unknown_20', 'unknown_21', 'unknown_22', 'unknown_23', 'unknown_24', 'unknown_25', 'unknown_26', 'unknown_27', 'unknown_28', 'unknown_29', 'unknown_30', 'unknown_31', 'VT_mL_32', 'unknown_33', 'unknown_34', 'MVleak_L_min_35', 'unknown_36', 'unknown_37', 'unknown_38', 'unknown_39', 'unknown_40', 'MV_L_min_41', 'unknown_42', 'unknown_43', 'RR_1_min_44', 'unknown_45', 'unknown_46', 'unknown_47', 'unknown_48', 'unknown_49', 'etCO2___50', 'etCO2_kPa_51', 'etCO2_mmHg_52', 'unknown_53', 'unknown_54', 'unknown_55', 'unknown_56', 'unknown_57', 'unknown_58', 'unknown_59', 'unknown_60', 'unknown_61', 'unknown_62', 'unknown_63', 'unknown_64', 'unknown_65', 'unknown_66', 'unknown_67'};
+    for iS = 1 : size(rawsigs,1) 
+%         signals.(['sig_',num2str(iS)]) = rawsigs(iS,:);
+        SigTmp = rawsigs(iS,:);
+        % set invalid values to NAN (on time signals < -1E38, others -1000)
+        SigTmp((SigTmp == -1000) | (SigTmp < -1E38)) = nan;
+        signals.(SignalNames{iS}) = SigTmp;
+    end
+   
    % End of function
    fclose(fid);
-
