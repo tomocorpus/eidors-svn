@@ -1057,6 +1057,7 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
          tStampsRel(i+1:end) = [];
          viPayload(:,i+1:end) = [];
          iqPayload(:,i+1:end) = [];
+         patPosition(:,i+1:end) = [];
       end
       eidors_msg('"%s": expected %.0f frames but read %.0f',fname, nFrames, i ,3);
    end
@@ -1339,4 +1340,5 @@ end
     end
    
    % End of function
+   progress_msg(inf);
    fclose(fid);
