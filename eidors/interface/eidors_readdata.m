@@ -1265,7 +1265,7 @@ end
    % Read Format version
    fseek(fid,0,-1); % beginning of file
    hdr = fread(fid, 8, 'uint8');
-   offset1 =  (256.^(0:3))*hdr(5:8) + 16; % "good" data starts at offset #2
+   offset1 =  (256.^(0:3))*hdr(5:8); % "good" data starts at offset #2
    switch sprintf('%02X-',header(1:4));
       case '1F-00-00-00-';
          type='Draeger v31';  SPC = 4112;
@@ -1296,30 +1296,28 @@ end
        % - [5492-5493] 2 bytes of some counter signal which gets reset from time to time: as uint16 
        % - [5494-5495] 2 bytes of zeros
        
-      if fseek(fid,ss(k),-1)<0; break; end
-      
-      fseek(fid,ss(k)+8,-1);
+      if fseek(fid,ss(k)+8,-1)<0; break; end
       % timestamp in number of days
       tstamp(k) = fread(fid,1,'float64', 0, 'ieee-le'); 
       
-      fseek(fid,ss(k)+16,-1);
+      if fseek(fid,ss(k)+16,-1)<0; break; end
       vd(:,k)=fread(fid,600,'double', 0, 'ieee-le');
       
       start = 16+600*8;
-      fseek(fid,ss(k)+start,-1);
+      if fseek(fid,ss(k)+start,-1)<0; break; end
       gugus(:,k) = fread(fid, floor((5169-start)/8), 'double', 'ieee-le');
       
-      fseek(fid,ss(k)+5169,-1);
+      if fseek(fid,ss(k)+5169,-1)<0; break; end
 %       rawsigs(:,k) = fread(fid, 52, 'single', 'ieee-le');
       rawsigs(:,k) = fread(fid, 67, 'single', 'ieee-le');
       
-      fseek(fid,ss(k)+5437,-1);
+      if fseek(fid,ss(k)+5437,-1)<0; break; end
       event(:, k) = fread(fid, 30, 'char', 'ieee-le');
             
 %       fseek(fid,ss(k)+5437+30,-1);
 %       dada(:,k) = fread(fid, floor(SPC-(5437+30)/8), 'double', 'ieee-le');
 
-      fseek(fid,ss(k)+5491,-1);
+      if fseek(fid,ss(k)+5491,-1)<0; break; end
       counter(k) = fread(fid, 1, 'uint16', 'ieee-le');      
    end
    
