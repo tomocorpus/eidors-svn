@@ -3,7 +3,7 @@ function p = get_contrib_data( contrib , file )
 %   GET_CONTRIB_DATA(CONTRIB, FILE) returns the path to the FILE from
 %   directory CONTRIB.
 %
-%   GOT_CONTRIB_DATA('list') lists the valid contributions
+%   GET_CONTRIB_DATA('list') lists the valid contributions
 %
 %   If the file in question is not found locally, GET_CONTRIB_DATA offers
 %   the option to download it to the current directory.
@@ -98,8 +98,10 @@ function ls = list_directories(have_local_data)
          'ds_tank_phantom'
          'evaluation-phantom'
          'gh_pleural_cavity'
+         'human-ventilation-2014'
          'if-experimental-lung-injury'
          'if-neonate-spontaneous'
+         'if-neonate-ventilated'
          'if-peep-acute-lung-injury'
          'jn_chest_phantom'
          'yg-ventilation-colourmap'

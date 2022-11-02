@@ -76,6 +76,8 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %   - todo MCEIT provides curr and volt on driven electrodes.
 %       how can this be provided to system?
 
+if nargin>=1 && strcmp(fname,'UNIT_TEST'); do_unit_test; return; end
+
 if ~exist(fname,'file')
    error([fname,' does not exist']);
 end
@@ -1342,3 +1344,11 @@ end
    % End of function
    progress_msg(inf);
    fclose(fid);
+
+function do_unit_test
+   % LQ2 test
+   pth = get_contrib_data('human-ventilation-2014','human-ventilation-2014.eit'); 
+   [dd,auxdata,stim]= eidors_readdata(pth);
+   unit_test_cmp('LQ2',dd(100,100), -8.820502983940973e-04 - 8.022670735677084e-04i,1e-16);
+   unit_test_cmp('LQ2:elecZ', auxdata.elec_impedance(3), -6.883231000000000e+06 - 1.805360000000000e+05i,1e-10);
+   unit_test_cmp('LQ2:t_rel', auxdata.t_rel(2), 38442185);
