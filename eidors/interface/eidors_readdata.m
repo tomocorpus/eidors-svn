@@ -187,11 +187,12 @@ switch fmt
       stim = mk_stim_patterns(32,1,[0,5],[0,5],{'no_rotate_meas','no_meas_current'},.005);
 
    case 'lq4'
-      [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra] = landquart4_readdata( fname );
+      [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra, patPosition] = landquart4_readdata( fname );
       auxdata.event = evtlist;
       auxdata.elec_impedance = elecImps;
       auxdata.t_abs = tStampsAbs;
       auxdata.t_rel = tStampsRel;
+      auxdata.pat_position = patPosition;
       for fn = fieldnames(extra)' % copy extra's fields into auxdata
          auxdata.(fn{1}) = extra.(fn{1});
       end
@@ -904,6 +905,8 @@ function [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname )
          viPayload = nan(64, nFrames);
          iqPayload = nan(2048, nFrames);
          
+         progress_msg('Reading EIT frame', 0, nFrames);
+
          header_size = 2264; 
          fseek(fid,header_size + 8,'bof');
          
@@ -915,6 +918,10 @@ function [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname )
          %%% Read frames
          i = 1;
          while fseek(fid, 1,'cof') ~= -1
+            if mod(i, 100) == 0
+                progress_msg(i, nFrames);
+            end
+            
             fseek(fid, -1,'cof');
             % read absolute timestamp (milliseconds resolution)
             tStampsAbs(i) = fread(fid,1,'int64','ieee-be');
@@ -941,6 +948,8 @@ function [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname )
    end
    fclose(fid);
    
+   progress_msg(inf);
+   
    i = i-1;
    if i ~= nFrames       
       % remove data which were preallocated but not read
@@ -966,7 +975,7 @@ function [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname )
    elecImps = viPayload(1:2:end,:) + 1i*viPayload(2:2:end,:);
 
 % Read data from the file format develped by Swisstom, Landquart, Switzerland.
-function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra] = landquart4_readdata( fname )
+function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra, patPosition] = landquart4_readdata( fname )
    evtlist = [];
    [fid msg]= fopen(fname,'r','ieee-le','UTF-8');
    try
@@ -978,6 +987,7 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
          eit_frame_offset = 328; % 60 + 12 + 256 = 328
          iq_payload = 2048;
          vi_payload = 64;
+         pat_position = 3; 
          
          % get expected number of frames and preallocate variables
          fseek(fid,16,'cof');
@@ -986,7 +996,9 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
          tStampsRel = nan(1, nFrames);
          viPayload = nan(vi_payload, nFrames);
          iqPayload = nan(iq_payload, nFrames);
+         patPosition = nan(pat_position, nFrames);
 
+         progress_msg('Reading EIT frame', 0, nFrames);
          fseek(fid,424,'bof');
          x = fread(fid, 2, 'int16', 'ieee-le');
          extra.filename = fread(fid,[1,100], 'int16=>char', 'ieee-le');
@@ -1010,6 +1022,10 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
          i = 1;
          evti = 1;
          while fseek(fid, 1,'cof') ~= -1
+            if mod(i, 100) == 0
+                progress_msg(i, nFrames);
+            end
+            
             fseek(fid, -1,'cof');
             % drop frame header and some payload:
             % read absolute timestamp (milliseconds resolution)
@@ -1028,10 +1044,9 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
                 frame_header = fread(fid,15,'int32','ieee-le'); 
                 % read relative timestamp (microseconds resolution)
                 tStampsRel(i) = frame_header(5);   
-                
-                % drop some unintersting parts  
-                fseek(fid,12, 'cof');
                
+                % get patient position
+                patPosition(:, i) = fread(fid,pat_position,'int32','ieee-le');                
                 % get electrode impedance measurement
                 viPayload(:,i) = fread(fid,vi_payload,'int32','ieee-le');
                 % get effective payload (voltage measurements)
@@ -1050,6 +1065,8 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
       rethrow(err);
    end
    fclose(fid);
+   
+   progress_msg(inf);
    
    i = i-1;
    if i ~= nFrames       
