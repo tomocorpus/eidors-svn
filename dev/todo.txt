@@ -2,6 +2,8 @@ Plan for 3.12:
  - img_point_mapper that works in Octave
  - Fix _higher_order to handle faces-type electrodes
  - Speed up / clean up _higher_order code
+ - Set image position cleanly, via something like:
+      img = set_slices(img, level, hlim, vlim, res)
 
 Plan for 3.11
  - Failing tests:
@@ -16,6 +18,7 @@ ERROR = (Error using eidors_default>get_default (line 106)
  + Test why fwd solver not more efficient with large stim patterns (DONE by AA)
  - Add 3D for prior_gaussian_HPF
  + Make sparse overload smarter
+ - Remove and test sparse overload
  + New included data based on the JXBrunner data set => landquart_data_2014.mat
     + Permission email from 2019-03-07
     + vv = freq_filt(vv, @(f) f<FR/Subsample/2, FR, 2);
@@ -33,8 +36,10 @@ ERROR = (Error using eidors_default>get_default (line 106)
  + support c2f in img_point_mapper (Bartek)
  + refactor the point_to_tet part of mk_tet_c2f
  + Check line and comment mk_tet_c2f: 429  rnode2tet = sparse(rnode2tet);
- - test netgen 6.2 for linux (Andy) and windows (Bartek)
+ - test netgen 6.2 for linux and windows (Andy)
  + DON'T include netgen 6.2. KEEP OLD since smaller and don't need python
+ - Consider adding anatomical model from Japan
+ - merge meshes speed-up/refactor (Bartek)
  - fix print_convert - accept command line option for pagesize (-p10x20, -pAuto)
  + fix print_convert - put stuff on clipboard in windows
  + fix print_convert for new matlab versions. Figure out when distorted image
@@ -56,8 +61,6 @@ ERROR = (Error using eidors_default>get_default (line 106)
 		+ show_current
 		+ mk_pixel_slice
 		calc_image_SNR - assumes level is a 3 element vector, difficult
- - merge meshes speed-up/refactor (Bartek)
- - add img = set_slices(img, level, hlim, vlim, res)
  
 
 Plan for 3.10
