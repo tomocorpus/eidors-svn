@@ -12,15 +12,18 @@ function val = img_point_mapper(img, pts, maptype )
 %   defined on elements or nodes as appropriate for the chosen MAPTYPE.
 %   If MAPTYPE is not specified, 'elem' or 'nodeinterp' is selected.
 %
-% NOTE: Only works in Matlab.
+% NOTE: Only works in Matlab. There are numerical issues before R2022b.
 %
 % See also: GET_IMG_DATA, MDL_SLICE_MAPPER
 
-% TODO: 
-%   - support for coarse2fine
-
 % (C) 2021 Bartek Grychtol. License: GPL version 2 or version 3
 % $Id$
+
+
+if nargin == 1 && ischar(img) && strcmp(img, 'UNIT_TEST')
+   do_unit_test;
+   return
+end
 
 data = get_img_data(img);
 fmdl = img.fwd_model;
@@ -49,3 +52,11 @@ switch maptype
     otherwise
         error('maptype must be ''elem'', ''node'', or ''nodeinterp''.')
 end
+
+
+function do_unit_test
+
+    slc = mk_grid_model([], 0:10,0:10, 0:1);
+    img = mk_image(slc, 1:100);
+    unit_test_cmp('3D c2f elem',img_point_mapper(img, [5.5 5.5 .5], 'elem'), 56)
+
