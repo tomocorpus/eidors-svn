@@ -87,10 +87,14 @@ function elem_ptr = mdl_elem_mapper(NODE, ELEM, x, y)
    else
       elem_ptr= img_mapper3( NODE, ELEM, x, y);
    end
+
+function val = use_triangulation
+   ver = eidors_obj('interpreter_version');
+   val = ~ver.isoctave && ver.ver >= 9.013; % pointLocation was slow/buggy before
+   
    
 function ninterp_ptr = mdl_nodeinterp_mapper(NODE, ELEM, x, y)
-   ver = eidors_obj('interpreter_version');
-   if ~ver.isoctave && ver.ver >= 9.004 % pointLocation was slow before
+   if use_triangulation
      ninterp_ptr = mdl_nodeinterp_mapper_triangulation(NODE, ELEM, x, y);
      return
    end
@@ -121,8 +125,7 @@ function ninterp_ptr = mdl_nodeinterp_mapper_triangulation(NODE, ELEM, x, y)
    
 function node_ptr = mdl_node_mapper(NODE, ELEM, bnd, x, y)
 
-   ver = eidors_obj('interpreter_version');
-   if ~ver.isoctave
+   if use_triangulation
        node_ptr = node_mapper_triangulation( NODE, ELEM, x, y);
    else
        ndims = size(NODE,1);
@@ -206,11 +209,16 @@ function EPTR= img_mapper2(NODE, ELEM, x, y );
   ver = eidors_obj('interpreter_version');
   if ver.isoctave
     id = tsearch(NODE(1,:),NODE(2,:), ELEM', x(:),y(:));
-  else 
-    s = warning('off', 'MATLAB:triangulation:PtsNotInTriWarnId');
-    TR = triangulation(ELEM', NODE');
-    warning(s.state, 'MATLAB:triangulation:PtsNotInTriWarnId');
-    id = TR.pointLocation([x(:), y(:)]);
+  else
+    if use_triangulation 
+       s = warning('off', 'MATLAB:triangulation:PtsNotInTriWarnId');
+       TR = triangulation(ELEM', NODE');
+       warning(s.state, 'MATLAB:triangulation:PtsNotInTriWarnId');
+       id = TR.pointLocation([x(:), y(:)]);
+    else
+       EPTR = img_mapper2_old(NODE, ELEM, x, y );
+       return
+    end
   end
   id(isnan(id)) = 0;
   EPTR = reshape(id,size(x));
@@ -305,7 +313,7 @@ function EPTR= img_mapper3(NODE, ELEM, x, y );
       id(in) = img2d.elem_data(id(in));
       id(~in) = 0;
   else
-      if ver.ver <  9.004 % pointLocation was slow before
+      if ver.ver <  9.013 % pointLocation was slow/buggy before
           EPTR = img_mapper3_old(NODE, ELEM, x, y);
           return
       end
