@@ -66,27 +66,29 @@ function crop_graphics_model(axis_handle, fcn_handle);
    %k=kk( find( kk== min(kk) ));
 
    for k= kk(:)'
-      if isfield(k,'ZData')
-         crop_graphics_model_3d(fcn_handle, k)
-      else
-         crop_graphics_model_2d(fcn_handle, k)
-      end
+      crop_graphics_model_(fcn_handle, k)
    end
 
-function crop_graphics_model_2d(fcn_handle, k)
+function crop_graphics_model_(fcn_handle, k)
    x= get(k,'XData');
    y= get(k,'YData');
-   z= [];
+   try
+      z= get(k,'ZData');
+   catch
+      z= [];
+   end
    idx= ~all( feval(fcn_handle,x,y,z) );
+
+   set_= {'Xdata', x(:,idx), 'Ydata', y(:,idx)};
+   if ~isempty(z)
+      set_(end+(1:2))= {'Zdata',z(:,idx)};
+   end
 
    try
       c= get(k,'CData');
-      setextra = {'Cdata',c(:,idx)};
-   catch
-      setextra = {};
+      set_(end+(1:2)) = {'Cdata',c(:,idx)};
    end
-   set(k,'Xdata', x(:,idx), ...
-        'Ydata', y(:,idx), setextra{:});
+   set(k, set_{:});
 
 function crop_graphics_model_3d(fcn_handle, k)
    x= get(k,'XData');
