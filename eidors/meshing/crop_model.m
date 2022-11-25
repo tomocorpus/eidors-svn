@@ -66,10 +66,13 @@ function crop_graphics_model(axis_handle, fcn_handle);
    %k=kk( find( kk== min(kk) ));
 
    for k= kk(:)'
-      crop_graphics_model_(fcn_handle, k)
+      ktype = get(k,'Type');
+      switch ktype; case {'patch','line'}
+          crop_patch(fcn_handle, k)
+      end % ignore non-patch
    end
 
-function crop_graphics_model_(fcn_handle, k)
+function crop_patch(fcn_handle, k)
    x= get(k,'XData');
    y= get(k,'YData');
    try
@@ -81,29 +84,26 @@ function crop_graphics_model_(fcn_handle, k)
 
    set_= {'Xdata', x(:,idx), 'Ydata', y(:,idx)};
    if ~isempty(z)
-      set_(end+(1:2))= {'Zdata',z(:,idx)};
+      set_{end+1}= 'Zdata';
+      % Can't assign to empty array, so indirect
+      dd = z(:,idx); 
+      set_{end+1}= dd;
    end
 
    try
       c= get(k,'CData');
-      set_(end+(1:2)) = {'Cdata',c(:,idx)};
+% Matlab doesn't document the shape of Cdata!
+      if size(c,2)==1; c=c'; end
+      if ~isempty(c);
+          c = c(:,idx);
+      end
+%  This should work, but weird errors
+%     set_= horzcat(set_,{'Cdata',c(:,idx)});
+      set_{end+1}= 'Cdata';
+      % Can't assign to empty array, so indirect
+      set_{end+1}= c;
    end
    set(k, set_{:});
-
-function crop_graphics_model_3d(fcn_handle, k)
-   x= get(k,'XData');
-   y= get(k,'YData');
-   z= get(k,'ZData');
-   idx= ~all( feval(fcn_handle,x,y,z) );
-   try
-      c= get(k,'CData');
-      setextra = {'Cdata',c(:,idx)};
-   catch
-      setextra = {};
-   end
-   set(k,'Xdata', x(:,idx), ...
-         'Ydata', y(:,idx), ...
-         'Zdata', z(:,idx), setextra{:});
 
 % CROP fwd_model
 function [fmdl1,c2f_idx]= crop_fwd_model(fmdl0, fcn_handle);
@@ -219,7 +219,7 @@ function do_unit_test
    subplot(338)
    show_fem(img);
    try
-   crop_model([],inline('y<0','x','y','z'));
+   crop_model([],@(x,y,z) y<0)
    catch
    title('expected fail');
    end
