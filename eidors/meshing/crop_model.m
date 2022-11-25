@@ -66,41 +66,52 @@ function crop_graphics_model(axis_handle, fcn_handle);
    %k=kk( find( kk== min(kk) ));
 
    for k= kk(:)'
-      x= get(k,'XData');
-      y= get(k,'YData');
-      try
-          z= get(k,'ZData');
-      catch
-          z= [];
-      end
-      try
-         c= get(k,'CData');
-      catch
-         c= [];
-      end
-      idx= ~all( feval(fcn_handle,x,y,z) );
-      if any(size(c)>[1,1])
-          if any(size(z)>[1,1])
-              set(k,'Xdata', x(:,idx), ...
-                  'Ydata', y(:,idx), ...
-                  'Zdata', z(:,idx), ...
-                  'Cdata', c(:,idx));
-          else
-              set(k,'Xdata', x(:,idx), ...
-                  'Ydata', y(:,idx), ...
-                  'Cdata', c(:,idx));
-          end
+      if isfield(k,'ZData')
+         crop_graphics_model_3d(fcn_handle, k)
       else
-          if any(size(z)>[1,1])
-              set(k,'Xdata', x(:,idx), ...
-                  'Ydata', y(:,idx), ...
-                  'Zdata', z(:,idx));
-          else
-              set(k,'Xdata', x(:,idx), ...
-                  'Ydata', y(:,idx));
-          end
+         crop_graphics_model_2d(fcn_handle, k)
       end
-      
+   end
+
+function crop_graphics_model_2d(fcn_handle, k)
+   x= get(k,'XData');
+   y= get(k,'YData');
+   z= [];
+   idx= ~all( feval(fcn_handle,x,y,z) );
+
+   try
+      c= get(k,'CData');
+   catch
+      c= [];
+   end
+   if any(size(c)>[1,1])
+      set(k,'Xdata', x(:,idx), ...
+        'Ydata', y(:,idx), ...
+        'Cdata', c(:,idx));
+   else
+      set(k,'Xdata', x(:,idx), ...
+            'Ydata', y(:,idx));
+   end
+
+function crop_graphics_model_3d(fcn_handle, k)
+   x= get(k,'XData');
+   y= get(k,'YData');
+   z= get(k,'ZData');
+   idx= ~all( feval(fcn_handle,x,y,z) );
+   try
+      c= get(k,'CData');
+   catch
+      c= [];
+   end
+   if any(size(c)>[1,1])
+      set(k,'Xdata', x(:,idx), ...
+            'Ydata', y(:,idx), ...
+            'Zdata', z(:,idx), ...
+            'Cdata', c(:,idx));
+   else
+      set(k,'Xdata', x(:,idx), ...
+            'Ydata', y(:,idx), ...
+            'Zdata', z(:,idx));
    end
 
 % CROP fwd_model
@@ -210,15 +221,20 @@ function do_unit_test
 
 
    subplot(337)
-   imdl = mk_common_model('d2c2'); fmdl= imdl.fwd_model;
+   imdl = mk_common_model('d2c2');
+   fmdl= imdl.fwd_model;
+   img = mk_image(imdl); img.elem_data(1:16) = 1.1;
    show_fem(fmdl);
    subplot(338)
-   show_fem(fmdl); hh= gca; 
-   title('expected fail');
-   subplot(339)
-   show_fem(fmdl);
+   show_fem(img);
+   try
    crop_model([],inline('y<0','x','y','z'));
-   crop_model(hh,inline('x<0','x','y','z'));
+   catch
    title('expected fail');
+   end
+
+   subplot(339)
+   show_fem(fmdl); hh= gca; 
+   crop_model(hh,inline('x<0','x','y','z'));
    
 
