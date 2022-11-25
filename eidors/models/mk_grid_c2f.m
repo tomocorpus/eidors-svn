@@ -767,6 +767,7 @@ function [intpts, tri2edge, tri2intpt, edge2intpt] = get_tet_intersection_points
         intpts = [intpts; tmp];        
     end
     
+    E = double(E); % keep sparse happy
     tri2edge = sparse(T,E,I,size(fmdl.faces,1),size(m.edges,1));
     tri2intpt = sparse(T,I,ones(size(I)),size(fmdl.faces,1),size(I,1));
     edge2intpt  = sparse(E,I,ones(size(I)),size(m.edges,1),size(I,1));
