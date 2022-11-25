@@ -81,17 +81,12 @@ function crop_graphics_model_2d(fcn_handle, k)
 
    try
       c= get(k,'CData');
+      setextra = {'Cdata',c(:,idx)};
    catch
-      c= [];
+      setextra = {};
    end
-   if any(size(c)>[1,1])
-      set(k,'Xdata', x(:,idx), ...
-        'Ydata', y(:,idx), ...
-        'Cdata', c(:,idx));
-   else
-      set(k,'Xdata', x(:,idx), ...
-            'Ydata', y(:,idx));
-   end
+   set(k,'Xdata', x(:,idx), ...
+        'Ydata', y(:,idx), setextra{:});
 
 function crop_graphics_model_3d(fcn_handle, k)
    x= get(k,'XData');
@@ -100,19 +95,13 @@ function crop_graphics_model_3d(fcn_handle, k)
    idx= ~all( feval(fcn_handle,x,y,z) );
    try
       c= get(k,'CData');
+      setextra = {'Cdata',c(:,idx)};
    catch
-      c= [];
+      setextra = {};
    end
-   if any(size(c)>[1,1])
-      set(k,'Xdata', x(:,idx), ...
-            'Ydata', y(:,idx), ...
-            'Zdata', z(:,idx), ...
-            'Cdata', c(:,idx));
-   else
-      set(k,'Xdata', x(:,idx), ...
-            'Ydata', y(:,idx), ...
-            'Zdata', z(:,idx));
-   end
+   set(k,'Xdata', x(:,idx), ...
+         'Ydata', y(:,idx), ...
+         'Zdata', z(:,idx), setextra{:});
 
 % CROP fwd_model
 function [fmdl1,c2f_idx]= crop_fwd_model(fmdl0, fcn_handle);
