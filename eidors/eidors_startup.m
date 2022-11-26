@@ -98,6 +98,9 @@ function archdir = set_paths(HOMEDIR, ver,path_array)
     addpath(genpath([HOMEDIR, '/external'])); %add subdirectories
     addpath([HOMEDIR, '/deprecated']);
     addpath([HOMEDIR, '/overloads']);
+    if ~ver.isoctave && ver.ver < 9.008
+        addpath([HOMEDIR, '/overloads/sparse']);
+    end
     warning on MATLAB:dispatcher:nameConflict
 
     %addpath([HOMEDIR, '/tests']);
