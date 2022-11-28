@@ -50,9 +50,9 @@ end
 
 function ampl = calc_amplitude(img,qmi)
    if nargin == 1 
-       ampl = sum(img,'all');
+       ampl = sum(img(:));
    else 
-       ampl = sum(img.*qmi,'all');
+       ampl = sum(img(:).*qmi(:));
    end
 
 function pe   = calc_posn_error(qmi, xmean, ymean, xy)
