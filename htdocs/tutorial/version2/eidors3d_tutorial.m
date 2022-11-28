@@ -251,6 +251,7 @@ tol = 1e-5
 %Compute the Jacobian at the first homogeneous guess mat_ref
 
 [J] = jacobian_3d(I,elec,vtx,simp,gnd_ind,mat_ref,zc,v_f,dfj,tol,'{n}');
+J(isnan(J)) = 0; % Not sure why we have Nan --aa 2022
 
 %Its condition number
 cond(J)
@@ -278,9 +279,9 @@ rank(J)
 %Add couple of smoothing regularization matrices
 %based on neighboring vertices
 
-[R1] = iso_f_smooth(simp,1);
+[R1] = iso_f_smooth(simp,vtx,1,1);
 %and faces
-[R2] = iso_f_smooth(simp,3);
+[R2] = iso_f_smooth(simp,vtx,3,1);
 
 %Let the relaxation parameter 
 a = 1e-7;
@@ -337,6 +338,7 @@ writevtkfile('xpcg',vtx,simp,xpcg)
 %Exercise 12:  Non-linear inverse solution.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if 0 % code for inv_sol not available
 %Newton's nonlinear iterative solver
 
 %For 5 iterations use
@@ -348,11 +350,14 @@ writevtkfile('xpcg',vtx,simp,xpcg)
 
 %Write the solutions to a VTK (Visualization ToolKit) file using,
 writevtkfile('solf',vtx,simp,solf)
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Exercise 13:  Complex admittivity computations.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if 0 % Matlab changes in luinc broke this
 
 %Define a complex reference admittivity
 mat_refC = (1+0.5i)*ones(size(simp,1),1);
@@ -435,11 +440,14 @@ subplot(2,3,6); [fc] = slicer_plot_n(0.10,riC,vtx,simp,fc); view(2); grid; color
 
 %Save workspace as
 %name_work complex
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Exercise 14:  Anisotropic computations.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+if 0
 
 %First create an anisotropic admittivity distribution
 gamma_xx = 1.0 + 0.5i;
@@ -480,3 +488,4 @@ Ela = diag(Ela1) .* Ela2;
 
 %and use the anisotropic normalized (by the volume) admittivities 
 Jrow = Jrow_x3 .* diag(Ela);
+end
