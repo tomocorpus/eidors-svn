@@ -1,5 +1,5 @@
 %% calculate the GREIT parameters
-levels =[inf,inf,Zpos];
+levels =[inf,inf,Zpos(1)];
 show_slices(imgr, levels);
 imgr.calc_colours.npoints = 128;
 imgr.calc_slices.levels=levels;
