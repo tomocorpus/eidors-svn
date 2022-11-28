@@ -76,22 +76,39 @@ mat(A) = sA;
 
 figure; 
 subplot(1,2,1);
+if 0 % Very old code
 trimesh(srf,vtx(:,1),vtx(:,2),vtx(:,3));
 axis image;
 set(gcf,'Colormap',[0 0 0]);
 hidden off;
 hold on;
-repaint_inho(real(mat),real(mat_ref),vtx,simp); title('REAL');
+repaint_inho(real(mat),real(mat_ref),vtx,simp);
+else
+   fmdl= eidors_obj('fwd_model','', ...
+          'nodes',vtx,'elems',simp);
+   img = eidors_obj('image','', ...
+          'fwd_model',fmdl,'elem_data',real(mat));
+   show_fem(img);
+end
+title('REAL');
 camlight left;
 lighting flat;
 
 subplot(1,2,2);
-trimesh(srf,vtx(:,1),vtx(:,2),vtx(:,3));
-axis image;
-set(gcf,'Colormap',[0 0 0]);
-hidden off;
-hold on;
-repaint_inho(imag(mat),imag(mat_ref),vtx,simp); title('IMAGINARY');
+if 0
+    trimesh(srf,vtx(:,1),vtx(:,2),vtx(:,3));
+    axis image;
+    set(gcf,'Colormap',[0 0 0]);
+    hidden off;
+    hold on;
+    repaint_inho(imag(mat),imag(mat_ref),vtx,simp);
+else
+   img = eidors_obj('image','', ...
+          'fwd_model',fmdl, ...
+          'elem_data',imag(mat-mat_ref));
+   show_fem(img);
+end
+ title('IMAGINARY');
 camlight left;
 lighting flat;
 
@@ -105,22 +122,38 @@ sprintf('and this one at  %f + %f i',real(sB), imag(sB))
 mat(B) = sB;
 
 figure; subplot(1,2,1); 
-trimesh(srf,vtx(:,1),vtx(:,2),vtx(:,3));
-axis image;
-set(gcf,'Colormap',[0 0 0]);
-hidden off;
-hold on;
-repaint_inho(real(mat),real(mat_ref),vtx,simp); title('REAL');
+if 0
+    trimesh(srf,vtx(:,1),vtx(:,2),vtx(:,3));
+    axis image;
+    set(gcf,'Colormap',[0 0 0]);
+    hidden off;
+    hold on;
+    repaint_inho(real(mat),real(mat_ref),vtx,simp);
+else
+   img = eidors_obj('image','', ...
+          'fwd_model',fmdl, ...
+          'elem_data',real(mat-mat_ref));
+   show_fem(img);
+end
+ title('REAL');
 camlight left;
 lighting flat;
 
 subplot(1,2,2); 
-trimesh(srf,vtx(:,1),vtx(:,2),vtx(:,3));
-axis image;
-set(gcf,'Colormap',[0 0 0]);
-hidden off;
-hold on;
-repaint_inho(imag(mat),imag(mat_ref),vtx,simp); title('IMAGINARY');
+if 0
+    trimesh(srf,vtx(:,1),vtx(:,2),vtx(:,3));
+    axis image;
+    set(gcf,'Colormap',[0 0 0]);
+    hidden off;
+    hold on;
+    repaint_inho(imag(mat),imag(mat_ref),vtx,simp);
+else
+   img = eidors_obj('image','', ...
+          'fwd_model',fmdl, ...
+          'elem_data',imag(mat-mat_ref));
+   show_fem(img);
+end
+ title('IMAGINARY');
 camlight left;
 lighting flat;
 

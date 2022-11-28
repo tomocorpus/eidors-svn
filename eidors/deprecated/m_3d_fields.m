@@ -80,12 +80,9 @@ if isreal(E)==1
 else  %is real
 
    %Preconditioner
-   % OCtave doesn't have Cholinc yet (as of 2.9.13)
-   if exist('OCTAVE_VERSION')
-      L= []; U=[];
-   else
-      [L,U] = luinc(E,tol/10);
-   end
+   % LUinc no longer available (matlab 6 or so)
+%  [L,U] = luinc(E,tol/10);
+   [L,U] = ilu(E, struct('droptol',E/10));
 
    for y=1:size(MC,2)
 
