@@ -31,7 +31,7 @@ imdl.solve_use_matrix.RM = P*J'/(J*P*J' + hp^2*Rn);
 imgr= inv_solve(imdl,vh,vi);
 
 %% calculate the GREIT parameters
-levels =[inf,inf,Zpos];
+levels =[inf,inf,Zpos(1)];
 show_slices(imgr, levels);
 imgr.calc_colours.npoints = 128;
 imgr.calc_slices.levels=levels;
