@@ -18,6 +18,8 @@ function mdl = gmsh_mk_2d_model(varargin)
 %% (C) 2021 Bartlomiej Grychtol, License: GPL version 2 or version 3
 % $Id$
 
+if nargin==1 && ischar(varargin{1}) && strcmp(varargin{1},'UNIT_TEST'); do_unit_test; return; end
+
 [shape, cl] = process_input(varargin{:});
 
 namestem = tempname;
@@ -83,3 +85,22 @@ if numel(shape) > 1 && numel(shape{end}) == 1
     cl = shape{end};
     shape(end) = [];
 end
+
+function do_unit_test
+  th=linspace(0,2*pi,9);
+  th(end) = [];
+  xy = [cos(th);sin(th)]';
+  fmdl=gmsh_mk_2d_model(xy);
+  subplot(331); show_fem(fmdl) 
+  title 'standard'
+
+  unit_test_cmp('stop sign 01', max(fmdl.nodes), [1,1]);
+  unit_test_cmp('stop sign 02', min(fmdl.nodes),-[1,1]);
+
+  fmdl=gmsh_mk_2d_model({xy,0.5});
+  subplot(332); show_fem(fmdl) 
+  title 'coarse'
+
+  fmdl=gmsh_mk_2d_model({xy,xy*0.5,0.2});
+  subplot(333); show_fem(fmdl) 
+  title 'hole'
