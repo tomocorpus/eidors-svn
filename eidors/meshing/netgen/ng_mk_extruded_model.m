@@ -91,7 +91,7 @@ geofn= [fnstem,'.geo'];
 meshfn= [fnstem,'.vol'];
 
 [tank_height, tank_shape, tank_maxh, is2D] = parse_shape(shape);
-[elecs, centres] = parse_elecs(elec_pos, elec_shape, tank_shape, tank_height, is2D );
+[elecs, centres] = parse_elecs(elec_pos, elec_shape, tank_shape, tank_height, is2D ) 
 write_geo_file(geofn, tank_height, tank_shape, ...
                tank_maxh, elecs, extra_ng_code);
            
@@ -495,10 +495,6 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, tank_shape, hig, i
         return; % no electrodes, nothing to do
     end
     
-   if is2D
-      elec_pos(:,3) = hig/2;
-   end
-   
    % temp fix
    rad = tank_shape.size;
 
@@ -506,6 +502,11 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, tank_shape, hig, i
    % So elec_pos means the number of electrodes in this case
    if size(elec_pos,1) == 1
        % Parse elec_pos = [n_elecs_per_plane,(0=equal angles,1=equal dist),z_planes] 
+       if is2D
+          % create an electrode at half height
+          elec_pos(:,3) = hig/2;
+       end
+   
       n_elecs= elec_pos(1); % per plane
       offset = elec_pos(2) - floor(elec_pos(2));
       switch floor(elec_pos(2))
