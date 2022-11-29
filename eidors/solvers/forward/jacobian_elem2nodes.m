@@ -34,11 +34,19 @@ function e_d = calc_elem_from_node_image(EtoN, node_data);
    n_elems= size(EtoN,2);
    mu=1e-3; % regularization hyperparameter (squared)
    % jnkflag needed to make lsqr shut up
-   [e_d, jnkflag] = lsqr([EtoN;mu*speye(n_elems)], ...
-                         [node_data;zeros(n_elems,1)], ...
-                          1e-8,1000); % should be enough, accuracy is ok
+
+   A = [EtoN;mu*speye(n_elems)];
+   B = [node_data;zeros(n_elems,1)];
+   if 0 % previously used iterative
+      [e_d, jnkflag] = lsqr(A,B, 1e-8,1000);
+   else
+      e_d = left_divide(A,B);
+   end
 
 return;
+% Test code in nodal_jacobian01
+
+
 % Three different ways to invert iEtoN. We only need something fairly
 % approximate. This is test code to check
 [Nn,Ne]= size(EtoN);  
