@@ -89,8 +89,18 @@ function do_unit_test
    epsilon = 0.01;
    [x,y] = meshgrid(-2:0.5:2,-2:0.5:2);
    in=point_in_tet(fmdl,[x(:),y(:)],epsilon);
-   xx=[41 42 50 51 49 40 33 32 31 43 59 39];
-   yy=[ 4 26 29 30 31 32 34 35 36 51 55 59];
-   in_=sparse(xx,yy,1,length(x(:)),num_elems(fmdl));
+   vv=[41 42 50 51 49 40 33 32 31 43 59 39];
+   hh=[ 4 26 29 30 31 32 34 35 36 51 55 59];
+   in_=sparse(vv,hh,1,length(x(:)),num_elems(fmdl));
    unit_test_cmp('2D test',in,in_);
+
+   fmdl = mk_common_model('n3r2',[16,2]);
+   fmdl = fmdl.fwd_model;
+   epsilon = 0.01;
+   [x,y,z] = ndgrid(-2:0.5:2,-2:0.5:2,1:2);
+   in=point_in_tet(fmdl,[x(:),y(:),z(:)],epsilon);
+   vv=[51 59 49 39 31 23];
+   hh=[296 314 332 350 368 386];
+   in_=sparse(vv,hh,1,length(x(:)),400);
+   unit_test_cmp('3D test',in(:,1:400),in_);
 end
