@@ -22,8 +22,6 @@ if nargin < 4
     exclude_nodes = false;
 end
 
-copt.fstr = 'point_in_tet';
-copt.cache_obj = {fmdl.nodes, fmdl.elems, points, epsilon, exclude_nodes};
 ver = eidors_obj('interpreter_version');
 try 
    calc_fn= str2func(fmdl.point_in_tet.algorithm);
@@ -35,6 +33,8 @@ else
 end
 end
 
+copt.fstr = 'point_in_tet';
+copt.cache_obj = {fmdl.nodes, fmdl.elems, points, epsilon, exclude_nodes, calc_fn};
 point2tet = eidors_cache(calc_fn,{fmdl, points, epsilon, exclude_nodes}, copt);
 
 end
@@ -123,11 +123,11 @@ end
 function do_unit_test_3d
    fmdl = mk_common_model('n3r2',[16,2]);
    fmdl = fmdl.fwd_model;
-   epsilon = eps;
+   epsilon = 0;
    [x,y,z] = ndgrid(-2:0.5:2,-2:0.5:2,1.1:2);
    for ca = 1:2; switch ca
-      case 1; fmdl.point_in_tet.algorithm = 'do_point_in_tet_triangulation'; 
-      case 2; fmdl.point_in_tet.algorithm = 'do_point_in_tet_inequalities'; 
+      case 1; fmdl.point_in_tet.algorithm = 'do_point_in_tet_inequalities'; 
+      case 2; fmdl.point_in_tet.algorithm = 'do_point_in_tet_triangulation'; 
       end
       str = ['3D test:', fmdl.point_in_tet.algorithm];
       in=point_in_tet(fmdl,[x(:),y(:),z(:)],epsilon);
@@ -136,5 +136,6 @@ function do_unit_test_3d
       in_=sparse(vv,hh,1,length(x(:)),400);
       unit_test_cmp(str,all(sum(in,2)<=1), true);
       unit_test_cmp(str,in(:,1:400),in_);
+      disp( in(:,1:400) )
    end
 end
