@@ -66,7 +66,7 @@ function point2tet = do_point_in_tet_inequalities(fmdl, points, epsilon, exclude
        chunk_start = chunk_end+1;
        chunk_end = min(chunk_start + chunk_sz, size(points,1));
        idx = chunk_start:chunk_end;
-       if false
+       if true
            A_= A(1:4:end,:)*points(idx,:)';
            b_= b(1:4:end);
            p2t = (bsxfun(@minus, A_,b_) <= epsilon)';
@@ -75,7 +75,9 @@ function point2tet = do_point_in_tet_inequalities(fmdl, points, epsilon, exclude
                % that was actually slower
                %good = find(any(p2t,2));
                %p2t(good,:) = p2t(good,:) & (bsxfun(@minus, A(i:4:end,:)*points(idx(good),:)',b(i:4:end)) <= epsilon)';
-               p2t = p2t & (bsxfun(@minus, A(i:4:end,:)*points(idx,:)',b(i:4:end)) <= epsilon)';
+               A_= A(i:4:end,:)*points(idx,:)';
+               b_= b(i:4:end);
+               p2t = p2t & (bsxfun(@minus, A_, b_) <= epsilon)';
                %           progress_msg(.21 + (i-1)*.23);
            end
            point2tet = [point2tet; builtin('sparse',p2t)];
