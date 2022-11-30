@@ -6,6 +6,8 @@ function point2tet = point_in_tet(fmdl,points, epsilon, exclude_nodes)
 % License: GPL version 2 or 3
 % $Id$
 
+if nargin>=1 && ischar(fmdl) && strcmp(fmdl,'UNIT_TEST'); do_unit_test(); return; end
+
 if nargin < 4
     exclude_nodes = false;
 end
@@ -45,7 +47,10 @@ function point2tet = do_point_in_tet(fmdl, points, epsilon, exclude_nodes)
            chunk_end = min(chunk_start + chunk_sz, size(points,1));
            idx = chunk_start:chunk_end;
            if 1
-               p2t = (bsxfun(@minus, A(1:4:end,:)*points(idx,:)',b(1:4:end)) <= epsilon)';
+               A_= A(1:4:end,:)*points(idx,:)';
+               b_= b(1:4:end);
+keyboard
+               p2t = (bsxfun(@minus, A_,b_) <= epsilon)';
                %        progress_msg(.21);
                for i = 2:4
                    % that was actually slower
@@ -76,4 +81,16 @@ function point2tet = do_point_in_tet(fmdl, points, epsilon, exclude_nodes)
    end
        
 
+end
+
+function do_unit_test
+   fmdl = mk_common_model('a2c2',4);
+   fmdl = fmdl.fwd_model;
+   epsilon = 0.01;
+   [x,y] = meshgrid(-2:0.5:2,-2:0.5:2);
+   in=point_in_tet(fmdl,[x(:),y(:)],epsilon);
+   xx=[41 42 50 51 49 40 33 32 31 43 59 39];
+   yy=[ 4 26 29 30 31 32 34 35 36 51 55 59];
+   in_=sparse(xx,yy,1,length(x(:)),num_elems(fmdl));
+   unit_test_cmp('2D test',in,in_);
 end
