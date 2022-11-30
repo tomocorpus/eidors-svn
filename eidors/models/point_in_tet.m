@@ -1,6 +1,16 @@
 function point2tet = point_in_tet(fmdl,points, epsilon, exclude_nodes)
 %POINT_IN_TET test for points contained in elements
+% point2tet = point_in_tet(fmdl,points, epsilon, exclude_nodes)
 %
+%   fmdl: tet mesh to test against
+%   points: [x,y,z] of points to test
+%   tolerance: typically eps
+%   exclude_nodes: nodes to exclude
+%
+%   fmdl.point_in_tet.algorithm: specify approach
+%     e.g. fmdl.point_in_tet.algorithm = 'do_point_in_tet_inequalities'
+%   
+% point2tet: sparse matrix Npoints x Ntets 
 %
 % (C) 2015 Bartlomiej Grychtol
 % License: GPL version 2 or 3
@@ -15,10 +25,14 @@ end
 copt.fstr = 'point_in_tet';
 copt.cache_obj = {fmdl.nodes, fmdl.elems, points, epsilon, exclude_nodes};
 ver = eidors_obj('interpreter_version');
+try 
+   calc_fn= str2func(fmdl.point_in_tet.algorithm);
+catch % otherwise use triangulation unless octave
 if ver.isoctave 
    calc_fn= @do_point_in_tet_inequalities;
 else        
    calc_fn= @do_point_in_tet_triangulation;
+end
 end
 
 point2tet = eidors_cache(calc_fn,{fmdl, points, epsilon, exclude_nodes}, copt);
@@ -52,10 +66,9 @@ function point2tet = do_point_in_tet_inequalities(fmdl, points, epsilon, exclude
        chunk_start = chunk_end+1;
        chunk_end = min(chunk_start + chunk_sz, size(points,1));
        idx = chunk_start:chunk_end;
-       if 1
+       if false
            A_= A(1:4:end,:)*points(idx,:)';
            b_= b(1:4:end);
-keyboard
            p2t = (bsxfun(@minus, A_,b_) <= epsilon)';
            %        progress_msg(.21);
            for i = 2:4
@@ -108,11 +121,18 @@ end
 function do_unit_test_3d
    fmdl = mk_common_model('n3r2',[16,2]);
    fmdl = fmdl.fwd_model;
-   epsilon = 0.01;
-   [x,y,z] = ndgrid(-2:0.5:2,-2:0.5:2,1:2);
-   in=point_in_tet(fmdl,[x(:),y(:),z(:)],epsilon);
-   vv=[51 59 49 39 31 23];
-   hh=[296 314 332 350 368 386];
-   in_=sparse(vv,hh,1,length(x(:)),400);
-   unit_test_cmp('3D test',in(:,1:400),in_);
+   epsilon = eps;
+   [x,y,z] = ndgrid(-2:0.5:2,-2:0.5:2,1.1:2);
+   for ca = 1:2; switch ca
+      case 1; fmdl.point_in_tet.algorithm = 'do_point_in_tet_triangulation'; 
+      case 2; fmdl.point_in_tet.algorithm = 'do_point_in_tet_inequalities'; 
+      end
+      str = ['3D test:', fmdl.point_in_tet.algorithm];
+      in=point_in_tet(fmdl,[x(:),y(:),z(:)],epsilon);
+      vv=[51 59 49 39 31 23];
+      hh=[297 313 333 349 369 385];
+      in_=sparse(vv,hh,1,length(x(:)),400);
+      unit_test_cmp(str,all(sum(in,2)<=1), true);
+      unit_test_cmp(str,in(:,1:400),in_);
+   end
 end
