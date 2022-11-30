@@ -39,12 +39,22 @@ function [K,V] = call_convhulln(pts,p);
   K=0; V=0;
   dim = size(pts,2);
 
-try
-    [K, V] = convhulln(pts,{'Qt Pp Qs'});
-catch
-    %redo it with "Joggle", but set to zero if small
+% Octave <=7.3 gives massive text output
+% from Qhull. Instead go straight to joggle
+% version
+
+% TODO: should we always use joggle anyway?
+if exist('OCTAVE_VERSION')
     [K, V] = convhulln(pts,{'Qt Pp Qs QJ'});
     if V<1e-8; V=0; end
+else
+    try
+        [K, V] = convhulln(pts,{'Qt Pp Qs'});
+    catch
+        %redo it with "Joggle", but set to zero if small
+        [K, V] = convhulln(pts,{'Qt Pp Qs QJ'});
+        if V<1e-8; V=0; end
+    end
 end
    
 
