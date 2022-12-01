@@ -5,6 +5,11 @@ for i=1:3
    imgc.fwd_model.mdl_slice_mapper.xpts = linspace(-0.25,0.25,200);
    imgc.fwd_model.mdl_slice_mapper.ypts = linspace(0.8,1,100);
    q = show_current(imgc,vh.volt);
+   % get it to work in octave
+   q.xp = q.xp(ones(200,1),:);
+   q.yp = q.yp(ones(128,1),:)';
+   q.yp = flipud( q.yp );
+   q.yc = flipud( q.yc );
    hh=show_fem(imgc);
    set(hh,'EdgeColor',[1,1,1]*.75);
    hold on;
