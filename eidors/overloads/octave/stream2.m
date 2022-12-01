@@ -3,6 +3,7 @@
 ## Copyright (C) 2019-2022 The Octave Project Developers
 ##
 ## Added to EIDORS 2022 by Andy Adler
+##   -- modifications to fix matlab compatibilities
 ##
 ## See the file COPYRIGHT.md in the top-level directory of this
 ## distribution or <https://octave.org/copyright/>.
@@ -94,8 +95,13 @@ function xy = stream2 (varargin)
       [x, y] = meshgrid (1:n, 1:m);
     case 6
       [x, y, u, v, spx, spy] = varargin{:};
+      [x, u] = fix_to_matrix(x, u, 1);
+      [y, v] = fix_to_matrix(y, v, 2);
+     
     case 7
       [x, y, u, v, spx, spy, options] = varargin{:};
+      [x, u] = fix_to_matrix(x, u, 1);
+      [y, v] = fix_to_matrix(y, v, 2);
     otherwise
       print_usage ();
   endswitch
@@ -185,6 +191,37 @@ function xy = stream2 (varargin)
 
 endfunction
 
+# check if x is vector. Make full size
+# axix (=1 for x and =2 for y)
+function [x, u] = fix_to_matrix(x, u, axis);
+  if size_equal(x,u)
+    return
+  endif
+  if all(size(x)>1)
+    return
+  endif
+   
+  dirn = diff( x );
+  if all(dirn>0)
+    doflip = false;
+  elseif all(dirn<0)
+    doflip = true;
+  else
+    error ("stream2: axis not monotonic");
+  end
+  
+  # extend x in the rows
+  x = x(:).';
+  x = x(ones(size(u,axis),1),:);
+  if axis==2
+    x = x.';
+  endif
+
+  if doflip % flipud if axis=2, rl if axis=1
+    x = flip( x, 3-axis );
+    u = flip( u, 3-axis );
+  endif
+endfunction
 
 %!demo
 %! clf;
