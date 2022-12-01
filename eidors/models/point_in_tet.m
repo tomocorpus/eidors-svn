@@ -124,18 +124,19 @@ function do_unit_test_3d
    fmdl = mk_common_model('n3r2',[16,2]);
    fmdl = fmdl.fwd_model;
    epsilon = 0;
-   [x,y,z] = ndgrid(-2:0.5:2,-2:0.5:2,1.1:2);
+   ll = linspace(-1,1,8);
+   [x,y,z] = ndgrid(ll*1.8,ll*1.8,1.1:2.1);
    for ca = 1:2; switch ca
       case 1; fmdl.point_in_tet.algorithm = 'do_point_in_tet_inequalities'; 
       case 2; fmdl.point_in_tet.algorithm = 'do_point_in_tet_triangulation'; 
       end
       str = ['3D test:', fmdl.point_in_tet.algorithm];
       in=point_in_tet(fmdl,[x(:),y(:),z(:)],epsilon);
-      vv=[51 59 49 39 31 23];
-      hh=[297 313 333 349 369 385];
+      vv=[  38  45  44  35  27  20  21];
+      hh=[ 280 305 316 341 352 377 388];
       in_=sparse(vv,hh,1,length(x(:)),400);
       unit_test_cmp(str,all(sum(in,2)<=1), true);
       unit_test_cmp(str,in(:,1:400),in_);
-      disp( in(:,1:400) )
+%     disp( in(:,1:400) )
    end
 end
