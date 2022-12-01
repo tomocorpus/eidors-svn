@@ -101,6 +101,9 @@ function archdir = set_paths(HOMEDIR, ver,path_array)
     if ~ver.isoctave && ver.ver < 9.008
         addpath([HOMEDIR, '/overloads/sparse']);
     end
+    if ver.isoctave 
+        addpath([HOMEDIR, '/overloads/octave']);
+    end
     warning on MATLAB:dispatcher:nameConflict
 
     %addpath([HOMEDIR, '/tests']);
