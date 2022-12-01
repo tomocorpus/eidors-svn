@@ -95,7 +95,8 @@ function val = use_triangulation
    
 function ninterp_ptr = mdl_nodeinterp_mapper(NODE, ELEM, x, y)
    if use_triangulation
-     ninterp_ptr = mdl_nodeinterp_mapper_triangulation(NODE, ELEM, x, y);
+     ninterp_ptr = mdl_nodeinterp_mapper_triangulation( ...
+        double(NODE), double(ELEM), x, y);
      return
    end
    elem_ptr = mdl_elem_mapper(NODE, ELEM, x, y);
@@ -318,7 +319,7 @@ function EPTR= img_mapper3(NODE, ELEM, x, y );
           return
       end
       s = warning('off', 'MATLAB:triangulation:PtsNotInTriWarnId');
-      TR = triangulation(ELEM', NODE');
+      TR = triangulation(double(ELEM'), double(NODE'));
       warning(s.state, 'MATLAB:triangulation:PtsNotInTriWarnId');
       pts = [x(:),y(:)]; pts(:,3) = 0;
       id = pointLocation(TR, pts);
