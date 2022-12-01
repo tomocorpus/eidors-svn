@@ -345,7 +345,7 @@ function inv2d = distmesh_2d_model_depr(str, n_elec, options);
    elec_posn= [sin(th),cos(th)];
    [elec_nodes, refine_nodes] = dm_mk_elec_nodes( elec_posn, ...
           elec_width, refine_level);
-   fd=inline('sqrt(sum(p.^2,2))-1','p');
+   fd=@(p) sqrt(sum(p.^2,2))-1;
    bbox = [-1,-1;1,1];
    z_contact = 0.01;
    fwd_mdl= dm_mk_fwd_model( fd, [], n_nodes, bbox, ...
