@@ -5,7 +5,7 @@ elec_shape = [0.05]; % circular elecs,
 maxh       = 0.08;   % mesh size
 fmdl= mk_library_model({'adult_male','boundary'}, ...
        [elec_per_plane,equal_spacing, elec_planes], elec_shape, maxh);
-subplot
+clf
 subplot(211); show_fem(fmdl);
 print_convert mk_library_model03a.png
 view(2);
