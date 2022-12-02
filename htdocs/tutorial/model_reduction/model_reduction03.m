@@ -18,7 +18,7 @@ end
 assert(flag == 1); % success?
 
 % final result
-! rm model_reduction03.txt
+delete('model_reduction03.txt')
 diary model_reduction03.txt
 stdres(RR*f_mm,tol)
 diary off
