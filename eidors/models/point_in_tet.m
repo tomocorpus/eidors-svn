@@ -4,7 +4,7 @@ function point2tet = point_in_tet(fmdl,points, epsilon, exclude_nodes)
 %
 %   fmdl: tet mesh to test against
 %   points: [x,y,z] of points to test
-%   tolerance: typically eps
+%   epsilon: typically eps
 %   exclude_nodes: nodes to exclude
 %
 %   fmdl.point_in_tet.algorithm: specify approach
@@ -49,6 +49,10 @@ function point2tet = do_point_in_tet_triangulation(fmdl, points, epsilon, exclud
 end
 
 function point2tet = do_point_in_tet_inequalities(fmdl, points, epsilon, exclude_nodes)
+   % use the correct tolerance
+   if isstruct(epsilon)
+      epsilon = epsilon.tol_node2tet;
+   end
    progress_msg('Tet inequalities');
    [A,b] = tet_to_inequal(fmdl.nodes,fmdl.elems);
    progress_msg(Inf);
