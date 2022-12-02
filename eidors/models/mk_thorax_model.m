@@ -134,10 +134,27 @@ end
 
 
 function do_unit_test
-   subplot(121)
+   subplot(221)
    show_fem(mk_thorax_model('male'));
    
-   subplot(122)
+   subplot(222)
    show_fem(mk_thorax_model('female'));
+
+   subplot(223)
+   eth16 = 360*cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5 - 90; eth16 = eth16';
+   eth32 = 360*cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45 - 90; eth32 = eth32';
+   ep = eth16; ep(:,2) = 150;
+   ep(17:48,1) = eth32; ep(17:48,2) = 175;
+   ep(49:64,1) = eth16; ep(49:64,2) = 200;
+   mdl = mk_thorax_model('male',ep,[5 0 .5],10);
+   show_fem(mdl);
+
+   subplot(224)
+   mdl = mk_thorax_model('female',ep,[5 0 .5],10);
+   show_fem(mdl);
+
+   % This doens't work with mk_thorax_model
+%  ng_write_opt('MSZCYLINDER',[0,0,50,0,0,60,180,5]);
+%  show_fem(mk_thorax_model('male'));
    
 end
