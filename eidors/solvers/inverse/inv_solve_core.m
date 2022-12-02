@@ -279,8 +279,9 @@ img = map_img(img, opt.elem_working);
 
 % solve for difference data?
 if nargin == 3
-   assert(all(~strcmp(opt.meas_working, {'apparent_resistivity','log_apparent_resistivity', 'log10_apparent_resitivity'})), ...
-          ['meas_working = ''' opt.meas_working ''' not yet supported for difference solutions']);
+   test = strcmp(opt.meas_working{1}, {'apparent_resistivity','log_apparent_resistivity', 'log10_apparent_resitivity'});
+   errstr= ['meas_working = ''' opt.meas_working{1} ''' not yet supported for difference solutions'];
+   assert(all(~test), errstr);
    for i = 1:length(opt.elem_output)
       assert(any(strcmp(opt.elem_output{i}, {'conductivity','resistivity','movement'})), ...
              ['elem_output = {' strjoin(opt.elem_output,', ') '} but difference solver log normal outputs are not supported']);
