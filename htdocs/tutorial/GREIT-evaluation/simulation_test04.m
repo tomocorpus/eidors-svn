@@ -22,4 +22,4 @@ for i= 1:length(algs)
    end
 end
 
-!find simulation_test_imgs -name s*0*_??.png -exec convert -trim '{}' png8:'{}' ';'
+system('find simulation_test_imgs -name s*0*_??.png -exec convert -trim "{}" png8:"{}" ";"')
