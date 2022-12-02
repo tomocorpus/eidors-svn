@@ -30,7 +30,7 @@ else
    fprintf(fid,'<HTML><HEAD><TITLE>%s</TITLE><BODY>\n',fname);
    fprintf(fid,'<img src="%s.gif" width="256"></BODY></HTML>',fname);
    fclose(fid);
-   if  strfind(system_dependent('getos'),'Windows')
+   if  ispc %strfind(system_dependent('getos'),'Windows')
       system(sprintf('explorer "%s.html"',fname));
    else % we hope this is here - under linux etc
       system(sprintf('firefox "./%s.html" &',fname));
