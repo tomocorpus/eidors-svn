@@ -1,4 +1,4 @@
-function out = mk_thorax_model(str, elec_pos, elec_shape, maxh)
+function out = mk_thorax_model(str, varargin)
 %MK_THORAX_MODEL FEM models of the thorax
 %
 % MK_THORAX_MODEL provides a shorthand to predefined thorax FEMs and 
@@ -40,6 +40,14 @@ if nargin>0 && ischar(str)
          out = list_predef_models; return;
    end
 end
+
+opt.fstr = 'mk_thorax_model';
+out = eidors_cache(@do_mk_thorax_model,[{str}, varargin(:)'],opt);
+
+end
+
+function out = do_mk_thorax_model(str, elec_pos, elec_shape, maxh)
+
 if ismember(str,list_predef_models)
    out = build_predef_model(str);
    return
@@ -66,7 +74,7 @@ end
 function out = build_basic_model(str)
 switch(str)
    case {'male', 'female'}
-      out = remesh_at_model(str);
+      out = eidors_cache(@remesh_at_model, {str});
 end
 end
 
