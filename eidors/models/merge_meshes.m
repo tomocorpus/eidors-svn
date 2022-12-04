@@ -28,9 +28,15 @@ end
 if ~isfield(M1, 'mat_idx')
    M1.mat_idx = {1:length(M1.elems)};
 end
+
+do_msg = length(shapes) > 1;
+if do_msg, progress_msg(sprintf('Merging mesh %d/%d ... ',0,length(shapes))); end
+
 % Use a for loop, vectorised approach can run out of memory
 for i = 1:length(shapes)
-   progress_msg(sprintf('Merging mesh %d/%d ... ',i,length(shapes)));
+   if do_msg
+      progress_msg(sprintf('Merging mesh %d/%d ... ',i,length(shapes)));
+   end
    l1 = length(M1.nodes);
    M2 = shapes{i};
    if ~isfield(M2, 'boundary');
@@ -87,7 +93,7 @@ for i = 1:length(shapes)
          nodes_to_add = [nodes_to_add; M2.nodes(n,:)];
       end
    end
-   progress_msg(Inf)
+   if do_msg, progress_msg(Inf); end
    M1.nodes = [M1.nodes; nodes_to_add];
    LE = length(M1.elems);
    for j = 1:numel(M2.mat_idx)
