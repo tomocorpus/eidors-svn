@@ -9,7 +9,7 @@ shape_str = ['solid incyl  = cylinder (0,0,0; 1,0,0; 1) -maxh=1.0; \n', ...
 th= linspace(0,2*pi,N_elec+1)'; th(end)=[];
 cth= cos(th); sth=sin(th); zth= zeros(size(th));
  elec_pos = [zth, cth, sth, zth cth, sth];
- elec_shape=[0.01];
+ elec_shape=[0.05];
  elec_obj = 'incyl';
  fmdl = ng_mk_gen_models(shape_str, elec_pos, elec_shape, elec_obj);
 subplot(221); show_fem( fmdl );
