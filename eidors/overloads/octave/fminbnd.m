@@ -88,7 +88,10 @@
 ## PKG_ADD: ## Discard result to avoid polluting workspace with ans at startup.
 ## PKG_ADD: [~] = __all_opts__ ("fminbnd");
 
-function [x, fval, info, output] = fminbnd (fun, a, b, options = struct ())
+## Added ability to pass extra params to fn
+## A Adler, Dec 2022
+
+function [x, fval, info, output] = fminbnd (fun, a, b, options = struct (), varargin = {})
 
   ## Get default options if requested.
   if (nargin == 1 && ischar (fun) && strcmp (fun, "defaults"))
@@ -120,7 +123,7 @@ function [x, fval, info, output] = fminbnd (fun, a, b, options = struct ())
 
   if (funvalchk)
     ## Replace fun with a guarded version.
-    fun = @(x) guarded_eval (fun, x);
+    fun = @(x) guarded_eval (fun, x, varargin{:});
   endif
 
   ## The default exit flag if exceeded number of iterations.
@@ -132,7 +135,7 @@ function [x, fval, info, output] = fminbnd (fun, a, b, options = struct ())
   v = a + c*(b-a);
   w = x = v;
   e = 0;
-  fv = fw = fval = fun (x);
+  fv = fw = fval = fun (x, varargin{:});
   nfev += 1;
 
   if (isa (a, "single") || isa (b, "single") || isa (fval, "single"))
@@ -199,7 +202,7 @@ function [x, fval, info, output] = fminbnd (fun, a, b, options = struct ())
 
     ## f must not be evaluated too close to x.
     u = x + max (abs (d), tol) * (sign (d) + (d == 0));
-    fu = fun (u);
+    fu = fun (u, varargin{:});
 
     niter += 1;
 
