@@ -39,6 +39,22 @@ else
    Reg = prior_laplace( inv_model );
 end
 
+function filt= calc_Gaussian_HPF( fmdl, diam_frac)
+  pts = interp_mesh(fmdl,3); % elem ctr
+  fmdl.interp_mesh.n_interp = 0; % for ctr
+  ptc = interp_mesh(fmdl,0);
+  beta=0.75*2.769/diam_frac.^2;
+  Abeta_pi = 2*get_elem_volume(fmdl)*beta/pi;
+
+  for j= 1:num_elems(fmdl)
+    dif = bsxfun(@minus, pts, ptc(j,:));
+    r2  = sum(dif.^2, 2);
+    flt(:,j)=-Abeta_pi.*mean( exp(-beta*r2 ),3);
+  end %for j=1:ELEM
+  np=1;
+  flt=flt/np^2+eye(num_elems(fmdl));
+  flt= ( flt+flt' )/ 2;
+  filt= sparse(flt.*(abs(flt)>.003)); 
 
 % Calculate Gaussian HP Filter as per Adler & Guardo 96
 % parameter is diam_frac (normally 0.1)
@@ -110,10 +126,12 @@ function [x,xc,y,yc] = interp_points(NODE,ELEM,np);
 function do_unit_test
   imdl = mk_common_model('a2c0',16);
   RtR = prior_gaussian_HPF(imdl);
+  tx= full(RtR(1:4,1:4));
   tt=[0.562239752317943, -0.117068756722254, -0.025875127622824, -0.117068756722254;
      -0.117068756722254,  0.562239752317943, -0.117068756722254, -0.025875127622824;
      -0.025875127622824, -0.117068756722254,  0.562239752317943, -0.117068756722254;
      -0.117068756722254, -0.025875127622824, -0.117068756722254,  0.562239752317943];
+  keyboard
   unit_test_cmp('a2c2 :1', RtR(1:4,1:4),tt,1e-10);
 
   RtR= calc_Gaussian_HPF_old( imdl.fwd_model, 0.1);
