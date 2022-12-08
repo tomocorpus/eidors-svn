@@ -16,7 +16,7 @@ elec_posn= [sin(th),cos(th)];
        elec_width, refine_level);
 
 % Define circular medium
-fd=inline('sum(p.^2,2)-1','p');
+fd=@(p) sum(p.^2,2)-1;
 bbox = [-1,-1;1,1];
 smdl= dm_mk_fwd_model( fd, [], n_nodes, bbox, ...
                           elec_nodes, refine_nodes, z_contact);
@@ -99,10 +99,10 @@ end
 %% 5 Create animated graphics $Id$
 
 % Trim images
-!find -name 'simulate_move2_04b*.png' -exec convert  -trim '{}' PNG8:'{}' ';'
+system('find -name ''simulate_move2_04b*.png'' -exec convert  -trim "{}" PNG8:"{}" ";"')
 
 % Convert to animated Gif
-!convert -delay 50 simulate_move2_04b*.png -loop 0 simulate_move2_05b.gif
+system('convert -delay 50 simulate_move2_04b*.png -loop 0 simulate_move2_05b.gif')
 
 %% 6 Reconstruct images $Id$
 
