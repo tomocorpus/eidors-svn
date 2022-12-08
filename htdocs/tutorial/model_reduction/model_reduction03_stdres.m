@@ -28,7 +28,9 @@ function Ro = stdres(Ri,tol)
    end
    n=n-1;
    i = [0:(N-1)];
-   R = round(10.^(i/N),n);
+%  R = round(10.^(i/N),n);
+%  octave round can't do digits
+   R = round(10.^(i/N)/10^n)*10^n;
    R = R' * d;
    for j = 1:length(Ri(:))
       if Ri(j) == 0; continue; end
