@@ -33,7 +33,7 @@ end
 copt.cache_obj= {fwd_model.nodes, fwd_model.elems, diam_frac};
 copt.fstr = 'prior_gaussian_HPF';
 if elem_dim(fwd_model) == 2;
-   Reg = eidors_cache(@calc_Gaussian_HPF, {fwd_model, diam_frac}, copt );
+   Reg = eidors_cache(@calc_Gaussian_HPF_old, {fwd_model, diam_frac}, copt );
 else
    warning('prior_gaussian_HPF: not yet able to generate 3D models');
    Reg = prior_laplace( inv_model );
@@ -42,7 +42,7 @@ end
 
 % Calculate Gaussian HP Filter as per Adler & Guardo 96
 % parameter is diam_frac (normally 0.1)
-function filt= calc_Gaussian_HPF( fmdl, diam_frac)
+function filt= calc_Gaussian_HPF_old( fmdl, diam_frac)
   ELEM= fmdl.elems';
   NODE= fmdl.nodes';
 
@@ -115,6 +115,9 @@ function do_unit_test
      -0.025875127622824, -0.117068756722254,  0.562239752317943, -0.117068756722254;
      -0.117068756722254, -0.025875127622824, -0.117068756722254,  0.562239752317943];
   unit_test_cmp('a2c2 :1', RtR(1:4,1:4),tt,1e-10);
+
+  RtR= calc_Gaussian_HPF_old( imdl.fwd_model, 0.1);
+  unit_test_cmp('a2c2 _old :1', RtR(1:4,1:4),tt,1e-10);
 
   imdl = mk_common_model('a3cr',16);
   RtR = prior_gaussian_HPF(imdl);  %NOTE: Fix required
