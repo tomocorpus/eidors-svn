@@ -581,10 +581,12 @@ function bytes = cache_ng_opt_bytes
        bytes2 = '';
        eidors_msg('Warning. no MSZ file %s',mszfile,1);
    end
-   bytes = [bytes(1:bytescut(1)-1), ...
+   % Must be int8 ... matlab does some very slow
+   % lookups in eidors_var_id for char
+   bytes = int8(...
+           [bytes(1:bytescut(1)-1), ...
             bytes2, ...
-            bytes(bytescut(2)+3)];
-   eidors_var_id(bytes)
+            bytes(bytescut(2)+3)]);
 
 function debug_msg(id,name,action)
 global eidors_objects;
