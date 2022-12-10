@@ -479,6 +479,7 @@ function [imdl,fmdl,imgs] = parse_fmdl(fmdl);
 
 function do_unit_test
    do_very_basic_test
+   do_very_basic_test_3d
    do_performance_test; 
    do_basic_tests
 
@@ -503,8 +504,43 @@ function do_very_basic_test
        imgs = calc_slices(imgr);
        imgs(isnan(imgs)) = 0;
        ls = linspace(-1,1,32); [x,y] = meshgrid(ls,ls);
-       xc = [sum(sum(imgs.*x))/sum(sum(imgs))]
-       yc = [sum(sum(imgs.*y))/sum(sum(imgs))]
+       xc = [sum(sum(imgs.*x))/sum(sum(imgs))];
+       yc = [sum(sum(imgs.*y))/sum(sum(imgs))];
+       
+       unit_test_cmp('Reconst xpos',xc,xc_,1e-7);
+       unit_test_cmp('Reconst ypos',yc,yc_, 1e-7);
+    end
+
+function do_very_basic_test_3d
+    img = mk_image(mk_common_model('a3cr',[16,1]));
+    vopt.imgsz = [32 32];
+    vopt.square_pixels = true;
+    vopt.zvec = [-0.2,0.2];
+    vopt.save_memory = 1;
+    opt.noise_figure = 1.0;
+
+    % GREIT 3D with a 1x32 electrode layout
+    [imdl,opt.distr] = GREIT3D_distribution(img.fwd_model, vopt);
+    img.elem_data(5+64*6) = 1.2; vi=fwd_solve(img);
+    img.elem_data(:)   = 1;   vh=fwd_solve(img);
+    opt.noise_figure = 1;
+
+    for test = 1; switch test
+       case 1; img.elem_data(:) = 1; % uniform
+          xc_= 0.19221520; yc_=-0.23110588;
+       case 2; 
+          r2 =sum(interp_mesh(img,0).^2*[1;1;0],2);
+          img.elem_data = 1 + (r2<0.2); % centre
+          xc_= 0.21157312; yc_=-0.21416713;
+       end
+       imdl = mk_GREIT_model(imdl,0.2,[],opt);
+       imgr = inv_solve(imdl,vh,vi);
+
+       imgs = calc_slices(imgr,[inf,inf,0]);
+       imgs(isnan(imgs)) = 0;
+       ls = linspace(-1,1,32); [x,y] = meshgrid(ls,ls);
+       xc = [sum(sum(imgs.*x))/sum(sum(imgs))];
+       yc = [sum(sum(imgs.*y))/sum(sum(imgs))];
        
        unit_test_cmp('Reconst xpos',xc,xc_,1e-7);
        unit_test_cmp('Reconst ypos',yc,yc_, 1e-7);
