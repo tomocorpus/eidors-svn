@@ -485,27 +485,30 @@ function do_unit_test
 
 function do_very_basic_test
     img = mk_image(mk_common_model('a3cr',[16,1]));
-    r2  = sum(interp_mesh(img,0).^2*[1;1;0],2);
     img.elem_data(5+64*6) = 1.2; vi=fwd_solve(img);
     img.elem_data(:)   = 1;   vh=fwd_solve(img);
     opt.noise_figure = 1;
 
-%   img.elem_data(r2<0.2) = 2;
-    imdl = mk_GREIT_model(img,0.2,[],opt);
-    imgr = inv_solve(imdl,vh,vi);
+    for test = 1:2; switch test
+       case 1; img.elem_data(:) = 1; % uniform
+          xc_= 0.19852208; yc_=-0.2336663;
+       case 2; 
+          r2 =sum(interp_mesh(img,0).^2*[1;1;0],2);
+          img.elem_data = 1 + (r2<0.2); % centre
+          xc_= 0.21157312; yc_=-0.21416713;
+       end
+       imdl = mk_GREIT_model(img,0.2,[],opt);
+       imgr = inv_solve(imdl,vh,vi);
 
-    imgs = calc_slices(imgr);
-    imgs(isnan(imgs)) = 0;
-    ls = linspace(-1,1,32); [x,y] = meshgrid(ls,ls);
-    xc = [sum(sum(imgs.*x))/sum(sum(imgs))]
-    yc = [sum(sum(imgs.*y))/sum(sum(imgs))]
-    
-    xc_= 0.19852208;
-    yc_=-0.2336663;
-    unit_test_cmp('Reconst xpos',xc,xc_,1e-7);
-    unit_test_cmp('Reconst ypos',yc,yc_, 1e-7);
-
-    keyboard
+       imgs = calc_slices(imgr);
+       imgs(isnan(imgs)) = 0;
+       ls = linspace(-1,1,32); [x,y] = meshgrid(ls,ls);
+       xc = [sum(sum(imgs.*x))/sum(sum(imgs))]
+       yc = [sum(sum(imgs.*y))/sum(sum(imgs))]
+       
+       unit_test_cmp('Reconst xpos',xc,xc_,1e-7);
+       unit_test_cmp('Reconst ypos',yc,yc_, 1e-7);
+    end
 
 function do_basic_tests
 
