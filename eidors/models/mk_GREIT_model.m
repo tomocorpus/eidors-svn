@@ -8,9 +8,13 @@ function [imdl, weight]= mk_GREIT_model( fmdl, radius, weight, options )
 %            noise figure (NF). See options.noise_figure below.
 %
 % Parameters:
-%   mdl    - fwd model on which to do simulations, or
-%          - inv model (experimental), or
+%   mdl    - fwd_model on which to do simulations, or
+%          - image
+%          - inv_model 
 %          - string specifying prepackaged models
+%
+%   is mdl.type == 'image' then the background conductivity of the image is used
+%   if mdl.type == 'inv_model' then the background conductivity in jacobian_bkgnd is used
 %
 %   radius - requested weighting matrix  (recommend 0.2 for 16 electrodes)
 %   weight - weighting matrix (weighting of noise vs signal). Can be empty
@@ -525,14 +529,15 @@ function do_very_basic_test_3d
     img.elem_data(:)   = 1;   vh=fwd_solve(img);
     opt.noise_figure = 1;
 
-    for test = 1; switch test
+    for test = 1:2; switch test
        case 1; img.elem_data(:) = 1; % uniform
           xc_= 0.19221520; yc_=-0.23110588;
        case 2; 
           r2 =sum(interp_mesh(img,0).^2*[1;1;0],2);
           img.elem_data = 1 + (r2<0.2); % centre
-          xc_= 0.21157312; yc_=-0.21416713;
+          xc_= 0.20440922; yc_=-0.20445254;
        end
+       imdl.jacobian_bkgnd.value = img.elem_data;
        imdl = mk_GREIT_model(imdl,0.2,[],opt);
        imgr = inv_solve(imdl,vh,vi);
 
