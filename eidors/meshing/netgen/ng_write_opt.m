@@ -371,8 +371,30 @@ opt.stloptions.recalchopt = 1;
 opt.visoptions.subdivisions = 1;
 
 function do_unit_test
-%  test_main_options()
+   test_main_options()
    unit_test_MSZ()
+   test_caching()
+
+function test_caching()
+   for test=0:10; switch test
+      case 0; fclose(fopen('ng.opt','w')); %exist!
+              delete('ng.opt');
+              eidors_cache clear
+              nel_ = 1599;
+      case 1; ng_write_opt('moderate'); % default
+              nel_ = 1599;
+      case 2; ng_write_opt('coarse');
+              nel_ = 570;
+      case 3; ng_write_opt('MSZCYLINDER',[0,0,.1,0,0,.2,1,0.05]);
+              nel_ = 43861;
+      otherwise; break;
+      end
+      fmdl= ng_mk_cyl_models(1,[2,0.5],0.1);
+      nel = num_elems(fmdl);
+      show_fem(fmdl); title(sprintf('Nel=%d',nel))
+      unit_test_cmp(sprintf( ...
+           'Cache: ng.opt #%d',test), nel, nel_);
+   end
 
 function test_main_options()
 opt.meshoptions.fineness = 6;

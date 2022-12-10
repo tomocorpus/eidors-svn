@@ -569,7 +569,7 @@ function bytes = cache_ng_opt_bytes
    bytescut(1) = ff(1)+length(mszstr);
    ff = strfind(bytes(bytescut(1):end),'.msz');
    if length(ff)==0;
-      bytes = []; return % empty meshsizefilename. That's OK.
+      return % empty meshsizefilename. That's OK.
    end
    bytescut(2) = bytescut + ff(1) + 2;
    mszfile = bytes(bytescut(1):bytescut(2));
@@ -584,6 +584,7 @@ function bytes = cache_ng_opt_bytes
    bytes = [bytes(1:bytescut(1)-1), ...
             bytes2, ...
             bytes(bytescut(2)+3)];
+   eidors_var_id(bytes)
 
 function debug_msg(id,name,action)
 global eidors_objects;
