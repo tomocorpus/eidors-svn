@@ -16,7 +16,8 @@ if ischar(fwd_model0) && strcmp(fwd_model0,'UNIT_TEST'); do_unit_test; return; e
 
 FC0 = system_mat_fields(fwd_model0); % this should be a cache hit
 
-copt.cache_obj = mk_cache_obj(fwd_model1);
+copt.cache_obj= {mk_cache_obj(fwd_model0), ...
+                 mk_cache_obj(fwd_model1)};
 copt.fstr = 'update_system_mat_fields';
 dFC = eidors_cache(@calc_update_system_mat_fields,{fwd_model0, fwd_model1},copt );
 
@@ -28,7 +29,7 @@ FC1 = FC0 + dFC;
 % will get the cached value from this function
 fstr = 'system_mat_fields';
 cache_obj = mk_cache_obj(fwd_model1);
-eidors_obj('set-cache', cache_obj, fstr, {FC1}, t);
+eidors_obj('set-cache', cache_obj, fstr, {FC1});
 
 
 % only cache stuff which is really relevant here
@@ -56,6 +57,7 @@ function dFC= calc_update_system_mat_fields( fwd_model0, fwd_model1 )
    assert(all(all(fwd_model0.elems == fwd_model1.elems)), 'expected fmdl0 and fmdl1 to have the same element structure');
    assert(all(de <= e), 'invalid elem# found for delta nodes');
 
+   % TODO: Replace with sparse FFdata etc
    FFjidx= floor([0:d0*e-1]'/d0)*d1*ones(1,d1) + ones(d0*e,1)*(1:d1);
    FFiidx= [1:d0*e]'*ones(1,d1);
    FFdata= zeros(d0*e,d1);
@@ -79,9 +81,20 @@ else
    [F2data0,F2iidx0,F2jidx0, C2data0,C2iidx0,C2jidx0] = compl_elec_mdl(fwd_model0,p0,dn);
    [F2data1,F2iidx1,F2jidx1, C2data1,C2iidx1,C2jidx1] = compl_elec_mdl(fwd_model1,p1,dn);
 
+if 0
    FF= sparse([FFiidx(:);  F2iidx0(:);  F2iidx1(:)],...
               [FFjidx(:);  F2jidx0(:);  F2jidx1(:)],...
               [FFdata(:); -F2data0(:); +F2data1(:)]);
+else
+% New sparse assembly. Is it faster?
+   F1=sparse(FFiidx, FFjidx, ...
+             FFdata, d0*e, d1*e);
+   F2=sparse(F2iidx0,F2jidx0, ...
+           -F2data0, d0*e, d1*e);
+   F3= sparse(F2iidx1,F2jidx1, ...
+             F2data1,d0*e, d1*e);
+   FF = F1 + F2 + F3;
+end
    
    CC= sparse([(1:d1*e)';     C2iidx0(:)], ...
               [p0.ELEM(:);    C2jidx0(:)], ...
@@ -89,6 +102,8 @@ else
 end
 
 dFC= FF*CC;
+   fprintf('c2:'); toc
+
 
 % Add parts for complete electrode model
 function [FFdata,FFiidx,FFjidx, CCdata,CCiidx,CCjidx] = ...
@@ -207,3 +222,32 @@ function do_unit_test
       profsave(profile('info'),'profile');
       fprintf('update_system_mat_fields(fmdl0,fmdl1) = %0.3f sec [profiled]\n',t1);
    end
+
+function time_test_code
+    f0= mk_common_model('e3cr',4);
+    f0 = f0.fwd_model; f1=f0;
+    f1.nodes(1,:)= f1.nodes(1,:) + 1e-6*[1,1,1];
+    Fa= system_mat_fields(f1);
+    for sp=1:10;eidors_cache clear;switch sp;
+       case 1;
+    tic; F1= update_system_mat_fields(f0,f1); toc
+       case 2;
+    tic; F0= system_mat_fields(f0); toc
+    tic; F1= update_system_mat_fields(f0,f1); toc
+       case 3;
+    sv = 'skip_VOLUME';
+    tic; fwd_model_parameters(f0,sv); toc
+    tic; fwd_model_parameters(f0,sv); toc
+    tic; fwd_model_parameters(f1,sv); toc
+    tic; fwd_model_parameters(f1,sv); toc
+    disp ----
+    tic; F0= system_mat_fields(f0); toc
+    tic; F0= system_mat_fields(f0); toc
+    disp ----
+    tic; F1= update_system_mat_fields(f0,f1); toc
+    tic; F1= update_system_mat_fields(f0,f1); toc
+    tic; Fb= system_mat_fields(f1); toc
+    unit_test_cmp('',Fa,F1,1e-10);
+       otherwise; break;
+    end; end
+

@@ -6,6 +6,9 @@ Plan for 3.12:
       img = set_slices(img, level, hlim, vlim, res)
 
 Plan for 3.11
+ - Fix use of full FFdata in update_system_mat_fields
+ - Remove NODE / ELEM use nodes elems
+ - Make simplified fwd_model_parameters
  - Failing tests:
    + [GREIT3D_distribution: => Fix to use weight rather than NF
 ERROR = (Error using eidors_default>get_default (line 106)
