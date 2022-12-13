@@ -1,8 +1,11 @@
 function FC1 = update_system_mat_fields( fwd_model0, fwd_model1 )
-% SYSTEM_MAT_FIELDS: fields (elem to nodes) fraction of system mat
-% FC= system_mat_fields( fwd_model )
+% UPDATE_SYSTEM_MAT_FIELDS: fields (elem to nodes) fraction of system mat
+% Create the fields for a small change (fmdl1) from a base model (fmdl0)
+% If the change is small, this computation is faster
+% FC= system_mat_fields( fmdl0, fmdl1)
 % input: 
-%   fwd_model = forward model
+%   fmdl0 = base forward model
+%   fmdl1 = new (updated) forward model
 % output:
 %   FC:        s_mat= C' * S * conduct * C = FC' * conduct * FC;
 
@@ -11,19 +14,14 @@ function FC1 = update_system_mat_fields( fwd_model0, fwd_model1 )
 
 if ischar(fwd_model0) && strcmp(fwd_model0,'UNIT_TEST'); do_unit_test; return; end
 
-copt.cache_obj = mk_cache_obj(fwd_model0);
-copt.fstr = 'system_mat_fields';
-copt.log_level = 4;
-FC0 = eidors_cache(@system_mat_fields,{fwd_model0},copt ); % this should be a cache hit
+FC0 = system_mat_fields(fwd_model0); % this should be a cache hit
 
-t = tic;
 copt.cache_obj = mk_cache_obj(fwd_model1);
 copt.fstr = 'update_system_mat_fields';
 dFC = eidors_cache(@calc_update_system_mat_fields,{fwd_model0, fwd_model1},copt );
 
 % updated system_mat_fields
 FC1 = FC0 + dFC;
-t = toc(t);
 
 % now we fake out the caching system by telling it that we are doing
 % system_mat_fields(fwd_model1) with the new model, calls to system_mat_fields
@@ -169,15 +167,19 @@ function do_unit_test
       fmdl0.nodes(1,:) = fmdl0.nodes(1,:) + rand(1,ndim)*1e-10; % defeat cache
       t=tic; FC0 = system_mat_fields(fmdl0); t0(i)=toc(t);
    
+      fwd_model_parameters(fmdl0,'skip_VOLUME'); % cache
       % perturb nodes
       fmdl1 = fmdl0;
       nn = fmdl1.electrode(1).nodes;
       nn = [nn(1); nn(end)];
       fmdl1.nodes(nn,:) = fmdl1.nodes(nn,:) + 1e-4+rand(2,ndim)*1e-10; % perturb
+      FC0 = system_mat_fields(fmdl0);
+      fwd_model_parameters(fmdl1,'skip_VOLUME'); % cache
       t=tic; FC1a = update_system_mat_fields(fmdl0, fmdl1); t1(i)=toc(t);
       t=tic; FC1b = system_mat_fields(fmdl1); t2(i)=toc(t);
       eidors_cache('clear_name', 'system_mat_fields');
       t=tic; FC1c = system_mat_fields(fmdl1); t3(i)=toc(t);
+   keyboard
    end
    fprintf('system_mat_fields(fmdl0) = %0.2f sec\n',mean(t0));
    fprintf('update_system_mat_fields(fmdl0,fmdl1) = %0.3f sec [faster?]\n',mean(t1));
