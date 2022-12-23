@@ -240,7 +240,9 @@ function [QQ, VV, n_meas] = calc_QQ_slow(N2E, stim, p)
 
 function [QQ, VV, n_meas] = calc_QQ_fast(N2E, stim, p)
    try
-   ncols = arrayfun(@(x) size(x.stim_pattern,2), stim);
+      ncols = arrayfun(@(x) size(x.stim_pattern,2), stim);
+   catch
+      error('EIDORS:fwd_model_parameters stim_pattern not specified');
    end
    if any(ncols>1);
       str = 'multiple columns in stim_pattern for patterns: ';
