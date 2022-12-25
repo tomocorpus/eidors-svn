@@ -75,4 +75,25 @@ function do_unit_test
     -3 -3 0 0 6  0; 0 0 -6 -6 0 12];
    unit_test_cmp('with CEM',s_mat.E,Eok,1e-13);
 
+% NOTE: there is a bug in the paper,
+% actually, the connection is to newEl
+   NewElectrode = 3; % add new electrode
+   Y12 = 1/10; % Y=1/10Ohms between E#1 and new electrode
+   Y13 = 1/ 5; % Y=1/ 5Ohms between E#1 and new elec
+   c_list = [ 1,3,Y12;
+              2,NewElectrode,Y13];
+   img.fwd_model.system_mat = @system_mat_instrument;
+   img.fwd_model.system_mat_instrument.connect_list = c_list;
+   s_mat= calc_system_mat(img); 
+
+   Eok(:,7) = 0; Eok(7,:) = 0;
+   Eok = Eok + [ 0 0 0 0 0 0 0;
+0 0 0 0   0   0   0; 0 0 0 0   0   0   0; 
+0 0 0 0   0   0   0; 0 0 0 0  .1   0 -.1;
+0 0 0 0   0  .2 -.2; 0 0 0 0 -.1 -.2  .3];
+   unit_test_cmp('instrument',s_mat.E,Eok,1e-13);
+
+   img.fwd_model.stimulation = ...
+      stim_meas_list([1,NewElectrode,1,NewElectrode]); 
+%  disp(Eok)
 %  disp(full(s_mat.E))
