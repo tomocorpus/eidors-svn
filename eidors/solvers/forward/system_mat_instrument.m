@@ -9,6 +9,10 @@ function s_mat = system_mat_instrument( img);
 %     [node1a, node1b, admittance_1ab]
 %     [node2a, node2b, admittance_2ab]
 %
+% Instrument electrode can be added using
+%  fmdl.electrode(end+1) = struct('nodes','instrument','z_contact',NaN);
+%  Such electrodes must be last
+%
 % CITATION_REQUEST:
 % AUTHOR: A Adler
 % TITLE: Modelling instrument admittances with EIDORS
@@ -26,6 +30,15 @@ function s_mat = system_mat_instrument( img);
 
    new_c_list = img.fwd_model.system_mat_instrument.connect_list;
 
+% pre-delete all 'instrument' nodes
+% system matrix can't handle them
+% BUG ALERT: instrument nodes must be at end
+   for i=num_elecs(img):-1:1
+      enodes = img.fwd_model.electrode(i).nodes;
+      if ischar(enodes) && strcmp(enodes,'instrument');
+         img.fwd_model.electrode(i)= [];
+      end
+   end
    s_mat= system_mat_1st_order(img);
    E = s_mat.E;
 
@@ -54,9 +67,11 @@ function do_unit_test
    % Example from conference paper
    fmdl = eidors_obj('fwd_model','eg', ...
        'nodes',[0,0;0,1;2,0;2,1], ...
-       'elems',[1,2,3;2,3,4]);
+       'elems',[1,2,3;2,3,4], ...
+       'gnd_node',1);
    fmdl = mdl_normalize(fmdl,1);
    fmdl.system_mat = @eidors_default;
+   fmdl.solve      = @eidors_default;
    img = mk_image(fmdl,[1,2]);
    s_mat= calc_system_mat(img); 
    Eok= [ 5,-4,-1, 0;-4, 6, 0,-2;
@@ -75,6 +90,14 @@ function do_unit_test
     -3 -3 0 0 6  0; 0 0 -6 -6 0 12];
    unit_test_cmp('with CEM',s_mat.E,Eok,1e-13);
 
+   img.fwd_model.stimulation = ...
+      stim_meas_list([1,2,1,2]); 
+
+   imgs = img; imgs.elem_data = [1;1];
+   vv= fwd_solve(imgs);
+   Ztest =  2+5/30+5/60;
+   unit_test_cmp('CEM solve',vv.meas,Ztest,1e-13);
+
 % NOTE: there is a bug in the paper,
 % actually, the connection is to newEl
    NewElectrode = 3; % add new electrode
@@ -82,6 +105,12 @@ function do_unit_test
    Y13 = 1/ 5; % Y=1/ 5Ohms between E#1 and new elec
    c_list = [ 1,3,Y12;
               2,NewElectrode,Y13];
+   % Add instrument electrode
+   img.fwd_model.electrode(NewElectrode) = ... 
+       struct('nodes','instrument','z_contact',NaN);
+   img.fwd_model.stimulation = ...
+      stim_meas_list([1,3,1,3]); 
+
    img.fwd_model.system_mat = @system_mat_instrument;
    img.fwd_model.system_mat_instrument.connect_list = c_list;
    s_mat= calc_system_mat(img); 
@@ -93,7 +122,12 @@ function do_unit_test
 0 0 0 0   0  .2 -.2; 0 0 0 0 -.1 -.2  .3];
    unit_test_cmp('instrument',s_mat.E,Eok,1e-13);
 
-   img.fwd_model.stimulation = ...
-      stim_meas_list([1,NewElectrode,1,NewElectrode]); 
+   imgs = img; imgs.elem_data = [1;1];
+   vv= fwd_solve(imgs);
+   Ztest = 1/( Y12 + 1/(Ztest + 1/Y13));
+   
+   unit_test_cmp('instrument solve',vv.meas, Ztest,1e-13);
+
+
 %  disp(Eok)
 %  disp(full(s_mat.E))
