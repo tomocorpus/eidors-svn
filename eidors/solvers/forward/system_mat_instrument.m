@@ -8,9 +8,22 @@ function s_mat = system_mat_instrument( img);
 %  connection list =
 %     [node1a, node1b, admittance_1ab]
 %     [node2a, node2b, admittance_2ab]
+%
+% CITATION_REQUEST:
+% AUTHOR: A Adler
+% TITLE: Modelling instrument admittances with EIDORS
+% CONFERENCE: EIT 2021
+% YEAR: 2021
+% PAGE: 74
+% LINK: https://zenodo.org/record/4940249
 
 % (C) 2021 Andy Adler. License: GPL version 2 or version 3
 % $Id$
+
+   if ischar(img) && strcmp(img,'UNIT_TEST'); do_unit_test; return; end
+
+   citeme(mfilename)
+
    new_c_list = img.fwd_model.system_mat_instrument.connect_list;
 
    s_mat= system_mat_1st_order(img);
@@ -36,3 +49,16 @@ function s_mat = system_mat_instrument( img);
    end
    
    s_mat.E = Eo;
+
+function do_unit_test
+   % Example from conference paper
+   fmdl = eidors_obj('fwd_model','eg', ...
+       'nodes',[0,0;0,1;2,0;2,1], ...
+       'elems',[1,2,3;2,3,4]);
+   fmdl = mdl_normalize(fmdl,1);
+   fmdl.system_mat = @eidors_default;
+   img = mk_image(fmdl,[1,2]);
+   s_mat= calc_system_mat(img); 
+   Eok= [ 5,-4,-1, 0;-4, 6, 0,-2;
+         -1, 0, 9,-8; 0,-2,-8,10]/4;
+   unit_test_cmp('basic',s_mat.E,Eok);
