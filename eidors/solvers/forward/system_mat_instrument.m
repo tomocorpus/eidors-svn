@@ -62,3 +62,17 @@ function do_unit_test
    Eok= [ 5,-4,-1, 0;-4, 6, 0,-2;
          -1, 0, 9,-8; 0,-2,-8,10]/4;
    unit_test_cmp('basic',s_mat.E,Eok);
+
+   img.fwd_model.electrode = [ ...
+     struct('nodes',[1,2],'z_contact',5/30), ...
+     struct('nodes',[3,4],'z_contact',5/60)];
+   s_mat= calc_system_mat(img); 
+
+   Eok(:,5:6) = 0; Eok(5:6,:) = 0;
+   Eok = Eok + [ ...
+     2 1 0 0 -3 0; 1 2 0 0 -3 0;
+     0  0 4 2 0 -6; 0 0  2  4 0 -6
+    -3 -3 0 0 6  0; 0 0 -6 -6 0 12];
+   unit_test_cmp('with CEM',s_mat.E,Eok,1e-13);
+
+%  disp(full(s_mat.E))
