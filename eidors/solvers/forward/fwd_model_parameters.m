@@ -192,6 +192,15 @@ function [N2E,cem_electrodes] = calculate_N2E( fwd_model, bdy, n_elec, n);
 
 function [N2Ei,N2Ei_nodes,cem_electrodes]= N2Ei_from_nodes( ...
       fwd_model, bdy, elec_nodes, cem_electrodes,n);
+  % Instrument nodes are added here like a CEM node but with no connections,
+  % Use system_mat_instrument to add
+  if ischar(elec_nodes) && strcmp(elec_nodes,'instrument')
+     cem_electrodes = cem_electrodes+1;
+     N2Ei= 1;
+     N2Ei_nodes = n+cem_electrodes;
+     return
+  end
+
   if length(elec_nodes) ==1 % point electrode (maybe inside body)
      N2Ei = 1;
      N2Ei_nodes = elec_nodes;
