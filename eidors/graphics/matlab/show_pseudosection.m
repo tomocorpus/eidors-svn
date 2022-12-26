@@ -572,7 +572,8 @@ end
 function [r_point,th_point]= plotPseudoSectionCircularIn(fmdl,data)
 fs= fmdl.show_pseudosection.fs;
 [elec_posn,elecNumber] = electrodesPosition(fmdl);
-[A,th_point,r,xc,yc] = polarPosition(elecNumber,elec_posn);
+% Make sure we get all parameters. Don't use r_bary
+[A,~,th_point,r,xc,yc] = polarPosition(elecNumber,elec_posn);
 a= max(A,[],2);
 r_point= a/2;
 r_point= (r-r_point/pi);%*9*pi*r/10+pi*r/10;
