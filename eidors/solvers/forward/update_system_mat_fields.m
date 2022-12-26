@@ -57,7 +57,7 @@ function dFC= calc_update_system_mat_fields( fwd_model0, fwd_model1 )
    assert(all(all(fwd_model0.elems == fwd_model1.elems)), 'expected fmdl0 and fmdl1 to have the same element structure');
    assert(all(de <= e), 'invalid elem# found for delta nodes');
 
-   % TODO: Replace with sparse FFdata etc
+   % TODO: use vectorized inverse from see system_mat_fields
    FFjidx= floor([0:d0*e-1]'/d0)*d1*ones(1,d1) + ones(d0*e,1)*(1:d1);
    FFiidx= [1:d0*e]'*ones(1,d1);
    FFdata= zeros(d0*e,d1);
@@ -69,10 +69,6 @@ function dFC= calc_update_system_mat_fields( fwd_model0, fwd_model1 )
      FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
    end %for j=1:ELEMs
 
-if 0 % Not complete electrode model
-   FF= sparse(FFiidx,FFjidx,FFdata);
-   CC= sparse((1:d1*e),p0.ELEM(:),ones(d1*e,1), d1*e, n);
-else
    % TODO this could be better: we could look to see which, if any electrodes
    % have been modified and only update those ones... currently the
    % implementation here is pretty brain dead on the assumption this part is
@@ -81,7 +77,7 @@ else
    [F2data0,F2iidx0,F2jidx0, C2data0,C2iidx0,C2jidx0] = compl_elec_mdl(fwd_model0,p0,dn);
    [F2data1,F2iidx1,F2jidx1, C2data1,C2iidx1,C2jidx1] = compl_elec_mdl(fwd_model1,p1,dn);
 
-if 0
+if 1
    FF= sparse([FFiidx(:);  F2iidx0(:);  F2iidx1(:)],...
               [FFjidx(:);  F2jidx0(:);  F2jidx1(:)],...
               [FFdata(:); -F2data0(:); +F2data1(:)]);
@@ -99,10 +95,8 @@ end
    CC= sparse([(1:d1*e)';     C2iidx0(:)], ...
               [p0.ELEM(:);    C2jidx0(:)], ...
               [ones(d1*e,1);  C2data0(:)]);
-end
 
-dFC= FF*CC;
-   fprintf('c2:'); toc
+   dFC= FF*CC;
 
 
 % Add parts for complete electrode model
@@ -194,7 +188,6 @@ function do_unit_test
       t=tic; FC1b = system_mat_fields(fmdl1); t2(i)=toc(t);
       eidors_cache('clear_name', 'system_mat_fields');
       t=tic; FC1c = system_mat_fields(fmdl1); t3(i)=toc(t);
-   keyboard
    end
    fprintf('system_mat_fields(fmdl0) = %0.2f sec\n',mean(t0));
    fprintf('update_system_mat_fields(fmdl0,fmdl1) = %0.3f sec [faster?]\n',mean(t1));
@@ -204,9 +197,9 @@ function do_unit_test
    unit_test_cmp('cache trick is really fast        ',mean(t2./t0) < 0.015,1);
    unit_test_cmp('cache was cleared before recalc   ',mean(t3) > mean(t0)*0.9,1); % did actually clear cache
    unit_test_cmp('cache trick returns correct result',FC1a,FC1b);
-   unit_test_cmp('delta FC gives same result        ',FC1a,FC1c,10*eps);
+   unit_test_cmp('delta FC gives same result        ',FC1a,FC1c,100*eps);
    fprintf('speed-up: %0.2f\n',mean(t0./t1));
-   if(sum(sum((FC1a - FC1c).^2)) > 0)
+   if(sum(sum((FC1a - FC1c).^2)) > 100*eps)
       err = FC1a - FC1c
    end
 
