@@ -10,12 +10,12 @@ function [I,D] = vectorize_inverse(M);
 if ischar(M) && strcmp(M,'UNIT_TEST'); do_unit_test; return; end
 
 szM = size(M);
-if szM(1) ~= smM(2)
+if szM(1) ~= szM(2)
     error('vectorize_inverse: matrix must be square');
 end
 switch szM(1)
-   case 3; [I,D] = vectorize_3x3inv(M3);
-   case 4; [I,D] = vectorize_4x4inv(M3);
+   case 3; [I,D] = vectorize_3x3inv(M);
+   case 4; [I,D] = vectorize_4x4inv(M);
    otherwise;
       error('Only 3x3 and 4x4 matrices possible')
 end
