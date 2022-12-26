@@ -126,7 +126,25 @@ function do_unit_test
    vv= fwd_solve(imgs);
    Ztest = 1/( Y12 + 1/(Ztest + 1/Y13));
    
-   unit_test_cmp('instrument solve',vv.meas, Ztest,1e-13);
+   unit_test_cmp('instrument solve1',vv.meas, Ztest,1e-13);
+
+   % apply current to ground
+   imgs.fwd_model.stimulation = struct( ...
+      'stim_pattern',[1;0;NaN], ...
+      'volt_pattern',[0;0;0], ...
+      'meas_pattern',[1,0,-1;0,1,-1]);
+   vv= fwd_solve(imgs);
+   Ztest2 = 10/(7.25+10)*5;
+   unit_test_cmp('instrument solve2',vv.meas, [Ztest;Ztest2],1e-13);
+
+   % apply voltage to ground
+   imgs.fwd_model.stimulation = struct( ...
+      'stim_pattern',[NaN;0;NaN], ...
+      'volt_pattern',[10;0;0], ...
+      'meas_pattern',[1,0,-1;0,1,-1]);
+   vv= fwd_solve(imgs);
+   Ztest = 10*[1;5/7.25];
+   unit_test_cmp('instrument solve3',vv.meas, Ztest,1e-13);
 
 
 %  disp(Eok)
