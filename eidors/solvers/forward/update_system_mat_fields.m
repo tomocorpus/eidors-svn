@@ -54,10 +54,13 @@ function dFC= calc_update_system_mat_fields( fwd_model0, fwd_model1 )
    [dn,~] = find(abs(fwd_model0.nodes - fwd_model1.nodes) > eps);
    dn = unique(dn);
    [de,~] = find(ismember(fwd_model1.elems,dn)); % our modified nodes touched these elements
+   de = unique(de);
    assert(all(all(fwd_model0.elems == fwd_model1.elems)), 'expected fmdl0 and fmdl1 to have the same element structure');
    assert(all(de <= e), 'invalid elem# found for delta nodes');
 
    % TODO: use vectorized inverse from see system_mat_fields
+
+if 1 % Slow way
    FFjidx= floor([0:d0*e-1]'/d0)*d1*ones(1,d1) + ones(d0*e,1)*(1:d1);
    FFiidx= [1:d0*e]'*ones(1,d1);
    FFdata= zeros(d0*e,d1);
@@ -68,6 +71,27 @@ function dFC= calc_update_system_mat_fields( fwd_model0, fwd_model1 )
      idx= d0*(j-1)+1 : d0*j;
      FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
    end %for j=1:ELEMs
+   % Remove non-zero components
+   idx = all(FFdata==0,2);
+   FFdata(idx,:) = [];
+   FFiidx(idx,:) = [];
+   FFjidx(idx,:) = [];
+   
+else
+   ded0 = bsxfun(@plus,[de(:)-1]*d0,1:d0)'; 
+   ded0 = ded0(:); lded0= length(ded0);
+   FFjidx= floor([ded0-1]/d0)*d1*ones(1,d1) + ...
+           ones(lded0,1)*(1:d1);
+   FFiidx= ded0*ones(1,d1);
+   FFdata= zeros(lded0,d1);
+   dfact = (d0-1)*d0;
+   for i=1:length(de); j=de(i);
+     a0=  inv([ ones(d1,1), p0.NODE( :, p0.ELEM(:,j) )' ]);
+     a1=  inv([ ones(d1,1), p1.NODE( :, p0.ELEM(:,j) )' ]);
+     idx= d0*(i-1)+1 : d0*i;
+     FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
+   end %for j=1:ELEMs
+end
 
    % TODO this could be better: we could look to see which, if any electrodes
    % have been modified and only update those ones... currently the
@@ -176,7 +200,6 @@ function do_unit_test
       fmdl0.nodes(1,:) = fmdl0.nodes(1,:) + rand(1,ndim)*1e-10; % defeat cache
       t=tic; FC0 = system_mat_fields(fmdl0); t0(i)=toc(t);
    
-      fwd_model_parameters(fmdl0,'skip_VOLUME'); % cache
       % perturb nodes
       fmdl1 = fmdl0;
       nn = fmdl1.electrode(1).nodes;
@@ -193,11 +216,12 @@ function do_unit_test
    fprintf('update_system_mat_fields(fmdl0,fmdl1) = %0.3f sec [faster?]\n',mean(t1));
    fprintf('system_mat_fields(fmdl1) = %0.3f sec [cache hit?]\n',mean(t2));
    fprintf('system_mat_fields(fmdl1+delta) = %0.3f sec [recalculate]\n',mean(t3));
+%  disp(mean([t0;t1;t2;t3]'))
    unit_test_cmp('delta FC is fast                  ',mean(t1) < mean(t0)/2,1);
-   unit_test_cmp('cache trick is really fast        ',mean(t2./t0) < 0.015,1);
-   unit_test_cmp('cache was cleared before recalc   ',mean(t3) > mean(t0)*0.9,1); % did actually clear cache
+   unit_test_cmp('cache trick is really fast        ',mean(t2./t0) < 0.030,1);
+   unit_test_cmp('cache was cleared before recalc   ',mean(t3) > mean(t2)*5,1); % did actually clear cache
    unit_test_cmp('cache trick returns correct result',FC1a,FC1b);
-   unit_test_cmp('delta FC gives same result        ',FC1a,FC1c,100*eps);
+   unit_test_cmp('delta FC gives same result        ',FC1a,FC1c,3e2*eps); % Variation since random
    fprintf('speed-up: %0.2f\n',mean(t0./t1));
    if(sum(sum((FC1a - FC1c).^2)) > 100*eps)
       err = FC1a - FC1c
