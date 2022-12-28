@@ -4,11 +4,13 @@ Plan for 3.12:
  - Speed up / clean up _higher_order code
  - Set image position cleanly, via something like:
       img = set_slices(img, level, hlim, vlim, res)
-
-Plan for 3.11
- - Fix use of full FFdata in update_system_mat_fields
+ - HDF5 file format
  - Remove NODE / ELEM use nodes elems
  - Make simplified fwd_model_parameters
+ - test netgen 6.2 for linux and windows
+
+Plan for 3.11
+ + Fix use of full FFdata in update_system_mat_fields
  - Failing tests:
    + [GREIT3D_distribution: => Fix to use weight rather than NF
 ERROR = (Error using eidors_default>get_default (line 106)
@@ -17,7 +19,6 @@ ERROR = (Error using eidors_default>get_default (line 106)
    + calc_slices => fix unit_test to have clean use of tol
  + fix direction in emphasize_electrode_text
  + Require Octave 7.2. Remove uniquetol (Bartek).
- - HDF5 file format
  + GREIT accept image in 3D
  + Test why fwd solver not more efficient with large stim patterns (DONE by AA)
  - Add 3D for prior_gaussian_HPF
@@ -41,7 +42,6 @@ ERROR = (Error using eidors_default>get_default (line 106)
  + refactor the point_to_tet part of mk_tet_c2f
  + Check line and comment mk_tet_c2f: 429  rnode2tet = sparse(rnode2tet);
  + fix crop_model to work on images
- - test netgen 6.2 for linux and windows (Andy)
  + DON'T include netgen 6.2. KEEP OLD since smaller and don't need python
  - Consider adding anatomical model from Japan
  - merge meshes speed-up/refactor (Bartek)
@@ -49,7 +49,7 @@ ERROR = (Error using eidors_default>get_default (line 106)
  + fix print_convert - accept command line option for pagesize (-p10x20, -pauto)
  + fix print_convert - put stuff on clipboard in windows
  + fix print_convert for new matlab versions. Figure out when distorted image
- - bugs in ng_mk_geometric models? (tutorial #30)
+ + bugs in ng_mk_geometric models? (tutorial #30)
 
  + Refactor fmdl.mdl_slice_mesher.level.rotate/centre
 	- central function to handle levels:

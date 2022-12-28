@@ -1399,14 +1399,16 @@ function write_geo_file(geo_fn, body_solid_code, electrode_solid_code, body_extr
         end
     end
     
-    % Assume the first object is the main one
+    % Assume the last object is the main one
+    % This code is needed to make sure the main object does
+    % not contain the others
     mainobj = 'MainNetgenObject';
-    fprintf(fid, 'solid %s = %s ', mainobj, body_extra_param{1}.name);
-    for i= 2:numel(body_solid_code)
+    fprintf(fid, 'solid %s = %s ', mainobj, body_extra_param{end}.name);
+    for i= 1:numel(body_solid_code)-1
        fprintf(fid, 'and (not %s)', body_extra_param{i}.name);
     end
     fprintf(fid, ';\n');
-    body_extra_param{1}.name = mainobj; % rename it for following code
+    body_extra_param{end}.name = mainobj; % rename it for following code
      
     % Write body tlos in geo file.
     for i = 1:numel(body_solid_code)
@@ -1683,6 +1685,31 @@ function fmdl = complete_fmdl(fmdl, electrode_extra_param)
     fmdl = eidors_obj('fwd_model', fmdl);
 
 function do_unit_test
+    do_separate_internals_test
+    do_combinations
+    
+% Ensure that objects don't overlap
+function do_separate_internals_test
+    body_geometry{1}.sphere.radius     = 0.25;
+    body_geometry{1}.sphere.center     = [0 0 0.5];
+    body_geometry{1}.name              = 'Sphere';
+    body_geometry{2}.cylinder.radius   = 1;
+    body_geometry{2}.name              = 'Tank';
+    n_elect = 16;
+    th = linspace(0, 2*pi, n_elect+1); th(end) = [];
+    for i = 1:n_elect
+        electrode_geometry{i}.sphere.center = [cos(th(i)) sin(th(i)) 0.5];
+        electrode_geometry{i}.sphere.radius = 0.1;
+    end
+    fmdl = ng_mk_geometric_models(body_geometry, electrode_geometry);
+    imdl = fmdl; imdl.elems(fmdl.mat_idx{1},:) = [];
+    omdl = fmdl; omdl.elems(fmdl.mat_idx{2},:) = [];
+    c2f = mk_tet_c2f(omdl,imdl);
+    unit_test_cmp('max overlap', max(c2f(:))     ,0,10*eps)
+    unit_test_cmp('min overlap',-min(c2f(:))     ,0,10*eps)
+    unit_test_cmp('mean overlap', mean(abs(c2f(:))),0,eps)
+
+function do_combinations
     for tn = 1:do_test_number(0)
         eidors_msg('ng_mk_geometric_models: unit_test %02d', tn, 1);
         [fmdl, opts] = do_test_number(tn);
