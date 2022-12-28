@@ -106,7 +106,7 @@ end
 
 function elem_data = define_elem_data(mdl, opt)
 
-   el_str = '(x-%f).^2/%f^2 + (y-%f).^2/%f^2 + (z-%f).^2/%f^2 <= 1';
+   el_str = '(x- %f).^2/%f^2 + (y- %f).^2/%f^2 + (z- %f).^2/%f^2 <= 1';
    pack = @(x,y) mat2cell(reshape([x' y']',1,[])',ones(1, 2*numel(x)))';
 
 
