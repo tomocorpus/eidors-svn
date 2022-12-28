@@ -210,6 +210,10 @@ switch str
        ep = 360*eth16' - 90; ep(:,2) = 175;
        out = mk_thorax_model('male',ep,[5 0 .5],10);
     case 'adult_male_thorax_2x16'
+       eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
+       ep1= 360*eth16' - 90; ep1(:,2) = 200;
+       ep2= 360*eth16' - 90; ep2(:,2) = 150;
+       out = mk_thorax_model('male',[ep1;ep2],[5 0 .5],10);
     case 'adult_female_thorax_1x32'
        eth32 = cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45;
        ep = 360*eth32' - 90; ep(:,2) = 175;
@@ -219,6 +223,10 @@ switch str
        ep = 360*eth16' - 90; ep(:,2) = 175;
        out = mk_thorax_model('female',ep,[5 0 .5],10);
     case 'adult_female_thorax_2x16'
+       eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
+       ep1= 360*eth16' - 90; ep1(:,2) = 200;
+       ep2= 360*eth16' - 90; ep2(:,2) = 150;
+       out = mk_thorax_model('female',[ep1;ep2],[5 0 .5],10);
         
     case 'cylinder_16x1el_coarse'
        out = build_if_needed(...

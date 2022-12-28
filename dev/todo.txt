@@ -45,7 +45,8 @@ ERROR = (Error using eidors_default>get_default (line 106)
  + DON'T include netgen 6.2. KEEP OLD since smaller and don't need python
  - Consider adding anatomical model from Japan
  - merge meshes speed-up/refactor (Bartek)
- - fix print_convert - accept command line option for pagesize (-p10x20, -pAuto)
+ + add 'adult_female' models to mk_library_models
+ - fix print_convert - accept command line option for pagesize (-p10x20, -pauto)
  + fix print_convert - put stuff on clipboard in windows
  + fix print_convert for new matlab versions. Figure out when distorted image
  - bugs in ng_mk_geometric models? (tutorial #30)
