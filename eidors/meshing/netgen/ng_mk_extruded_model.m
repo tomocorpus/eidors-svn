@@ -91,7 +91,7 @@ geofn= [fnstem,'.geo'];
 meshfn= [fnstem,'.vol'];
 
 [tank_height, tank_shape, tank_maxh, is2D] = parse_shape(shape);
-[elecs, centres] = parse_elecs(elec_pos, elec_shape, tank_shape, tank_height, is2D ) 
+[elecs, centres] = parse_elecs(elec_pos, elec_shape, tank_shape, tank_height, is2D );
 write_geo_file(geofn, tank_height, tank_shape, ...
                tank_maxh, elecs, extra_ng_code);
            
