@@ -142,6 +142,12 @@ out = {
     'adult_male_32el_lungs';
     'adult_male_grychtol2016a_1x32';
     'adult_male_grychtol2016a_2x16';
+    'adult_male_thorax_1x32';
+    'adult_male_thorax_1x16';
+    'adult_male_thorax_2x16';
+    'adult_female_thorax_1x32';
+    'adult_female_thorax_1x16';
+    'adult_female_thorax_2x16';
     'cylinder_16x1el_coarse';
     'cylinder_16x1el_fine';
     'cylinder_16x1el_vfine';   
@@ -195,6 +201,24 @@ switch str
     case 'adult_male_grychtol2016a_2x16'
         out = mk_thorax_model_grychtol2016a('2x16_planar');
         out = out.fwd_model;
+    case 'adult_male_thorax_1x32'
+       eth32 = cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45;
+       ep = 360*eth32' - 90; ep(:,2) = 15;
+       out = mk_thorax_model('male',ep,[5 0 .5],10);
+    case 'adult_male_thorax_1x16'
+       eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
+       ep = 360*eth16' - 90; ep(:,2) = 175;
+       out = mk_thorax_model('male',ep,[5 0 .5],10);
+    case 'adult_male_thorax_2x16'
+    case 'adult_female_thorax_1x32'
+       eth32 = cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45;
+       ep = 360*eth32' - 90; ep(:,2) = 175;
+       out = mk_thorax_model('female',ep,[5 0 .5],10);
+    case 'adult_female_thorax_1x16'
+       eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
+       ep = 360*eth16' - 90; ep(:,2) = 175;
+       out = mk_thorax_model('female',ep,[5 0 .5],10);
+    case 'adult_female_thorax_2x16'
         
     case 'cylinder_16x1el_coarse'
        out = build_if_needed(...
