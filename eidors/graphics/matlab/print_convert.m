@@ -34,7 +34,9 @@ function print_convert(filename, varargin)
 %  Examples
 %   print_convert('outname.png')         % uses default options
 %   print_convert outname.png
-%   print_convert outname.png -r150       % set dpi=150
+%   print_convert outname.png -r150      % set dpi=150
+%   print_convert outname.png -p10x20    % pagesize 10x20
+%   print_convert outname.png -pauto     % pagesize = size on screen
 %   print_convert('outname.png',opts);   % use options
 %
 % See also IMWRITE
@@ -48,10 +50,8 @@ function print_convert(filename, varargin)
 %
 %  FILENAME : filename to print to file type is the extension
 %  OPTIONS  : specify dpi as '-density N'
-%  PAGEHWR  : set page hight/width to control shape of figures
 %  
 %   print_convert('outname.png','-density 150') % resolution to 150 dpi
-%   print_convert('outname.png','-density 150', 0.5)
  
 if ischar(filename) && strcmp(filename,'UNIT_TEST'); do_unit_test; return; end
 
@@ -105,8 +105,10 @@ elseif ischar(pp.pagesize)
     end
 else
     pos = [0 0 pp.pagesize];
-    pp = set_prop(pp,   'PaperPositionMode','manual', ...
-                        'PaperPosition', pos);
+    pp = set_prop(pp, ...
+        'PaperPositionMode','manual', ...
+        'PaperSize', pp.pagesize+1, ... % big enough
+        'PaperPosition', pos);
 end    
 
 function pp = set_prop(pp, varargin)
@@ -240,20 +242,37 @@ function pp = parse_options(filename,varargin)
    if nargin == 1   
       return; 
    end
-   if nargin>=3
-      %print_convert('outname.png','-density 150', 0.5)
-      pp.aspect_ratio = varargin{2};  
-   end
  
    opt = varargin{1};
    if ischar(opt)
-      val =regexp(opt,'-density (\d+)','tokens');
-      if ~isempty(val);
-         pp.resolution = sprintf('-r%d', str2double(val{1}{1}) * pp.factor);
-      end
-      val =regexp(opt,'-r(\d+)','tokens');
-      if ~isempty(val);
-         pp.resolution = sprintf('-r%d', str2double(val{1}{1}) * pp.factor);
+      for i = 1:length(varargin); opt = varargin{i}; parseok=false;
+          val =regexp(opt,'-density (\d+)','tokens');
+          if ~isempty(val);
+             pp.resolution = sprintf('-r%d', str2double(val{1}{1}) * pp.factor);
+             parseok=true;
+          end
+
+          val =regexp(opt,'-r(\d+)','tokens');
+          if ~isempty(val);
+             pp.resolution = sprintf('-r%d', str2double(val{1}{1}) * pp.factor);
+             parseok=true;
+          end
+
+          val =strcmp(opt,'-pauto');
+          if ~isempty(val);
+             pp.pagesize = 'auto';
+             parseok=true;
+          end
+
+          val =regexp(opt,'-p(\d+)x(\d+)','tokens');
+          if ~isempty(val);
+             pp.pagesize = [str2num(val{1}{1}), str2num(val{1}{2})];
+             parseok=true;
+          end
+
+          if ~parseok
+             eidors_msg('print_convert: option (%s) not understood',opt,0)
+          end
       end
    elseif isstruct(opt)
      if isfield(opt,'figno');
@@ -313,7 +332,7 @@ function pp = parse_options(filename,varargin)
  
  
 function do_unit_test
-   fprintf('does unit test \n');
+   fprintf('Doing UNIT_TEST for print_convert\n');
    fid = fopen('print_convert_test.html','w');
    fprintf(fid,'<HTML><BODY>\n');
    for i=1:26;
@@ -343,10 +362,12 @@ function do_unit_test
  
    print_convert pc04.png '-density 50'
    print_convert pc05.png '-r100'
+
+   print_convert pc05.png '-p10x20'
  
-   print_convert('pc06.png', '-r100' , 1/8)
- 
-   print_convert('pc06.png', '-r100' , 3/1)
+% No longer supported ... not useful
+%  print_convert('pc06.png', '-r100' , 1/8) 
+%  print_convert('pc06.png', '-r100' , 3/1)
  
    opt.resolution = 100;
    print_convert('pc07.png', opt);
