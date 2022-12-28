@@ -28,7 +28,13 @@ fid = fopen(fname,'r');
 tline = fgetl(fid);
 while ischar(tline)
     [key, val] = strtok(tline,' ');
-    strval = strip(val);  
+%   strval = strip(val); %% Matlab only
+    strval= regexp(val,'\s*(.*\S)\s*','tokens');
+    if isempty(strval)
+       strval = '';
+    else
+       strval= strval{1}{1};
+    end
     numval = str2double(strval);
     if isnan(numval)
         eval(sprintf('opt.%s = ''%s'';',key,strval));
