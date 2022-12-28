@@ -509,8 +509,8 @@ function [fmdl,rmdl,fmdl_idx,rmdl_idx] = crop_models(fmdl,rmdl)
 % Perfom unit tests
 function do_unit_test
    do_case_test;
-   do_small_test;
-   do_realistic_test;
+%  do_small_test;
+%  do_realistic_test;
 
    
 function do_case_test
@@ -550,6 +550,13 @@ function do_case_test
               subplot(X,Y,i), show_test(t1,t2);
               c2f = mk_tet_c2f(t1,t2);
               unit_test_cmp(txt,c2f,0,0);
+           case 5
+              txt = 'tet split into four';
+              t2.elems = [1 2 3 5;1 2 4 5;1 3 4 5;2 3 4 5];
+              t2.nodes = [0 0 0;0 5 0;5 0 0;0 0 5;1 1 1]/5;
+              subplot(X,Y,i), show_test(t1,t2);
+              c2f = mk_tet_c2f(t1,t2);
+              unit_test_cmp(txt,c2f*10,[2,2,2,4],10*eps);
            otherwise
              break;
         end
