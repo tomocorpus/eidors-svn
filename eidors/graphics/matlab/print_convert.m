@@ -364,6 +364,8 @@ function do_unit_test
    print_convert pc05.png '-r100'
 
    print_convert pc05.png '-p10x20'
+   print_convert pc05.png '-pauto'
+   print_convert pc06.png '-r100' '-p10x20'
  
 % No longer supported ... not useful
 %  print_convert('pc06.png', '-r100' , 1/8) 
