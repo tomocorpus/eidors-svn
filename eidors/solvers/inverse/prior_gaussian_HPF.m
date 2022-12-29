@@ -34,12 +34,7 @@ end
 
 copt.cache_obj= {fwd_model.nodes, fwd_model.elems, diam_frac};
 copt.fstr = 'prior_gaussian_HPF';
-if elem_dim(fwd_model) == 2;
-   Reg = eidors_cache(@calc_Gaussian_HPF_old, {fwd_model, diam_frac}, copt );
-else
-   warning('prior_gaussian_HPF: not yet able to generate 3D models');
-   Reg = prior_laplace( inv_model );
-end
+Reg = eidors_cache(@calc_Gaussian_HPF, {fwd_model, diam_frac}, copt );
 
 function filt= calc_Gaussian_HPF( fmdl, diam_frac)
   pts = interp_mesh(fmdl,3); % elem ctr
@@ -159,7 +154,9 @@ function do_unit_test
 
   imdl = mk_common_model('a3cr',16);
   RtR = prior_gaussian_HPF(imdl);  %NOTE: Fix required
-  tt = [6    -2     0     0; -2     6     0     0;
-        0     0     6    -2;  0     0    -2     6];
-  unit_test_cmp('a3cr :1', RtR(1:4,1:4),tt,1e-10);
+  tt=[0.793660877689329,-0.096517734290331;
+     -0.096517734290331, 0.793660877689329;
+     -0.004236643618993,-0.011516904603663;
+     -0.011516904603663,-0.004236643618993];
+  unit_test_cmp('a3cr :1', RtR(1:4,1:2),tt,1e-10);
 
