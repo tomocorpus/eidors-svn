@@ -46,22 +46,27 @@ function filt= calc_Gaussian_HPF( fmdl, diam_frac)
   fmdl.interp_mesh.n_interp = 0; % for ctr
   ptc = interp_mesh(fmdl,0);
   beta=2.769/diam_frac.^2;
-  % integral of exp(-r2) = pi
-  Abeta_pi = get_elem_volume(fmdl)*beta/pi;
+  dim = elem_dim(fmdl);
 
   % Gaussian is integral of exp(-beta*r^2)
   % Integral of exp(-1/2 * x'*Sigma*x)
   %  = sqrt((2*pi)^k*det(Sigma))
   % Here Sigma = 2*eye()*beta
   %  det(Sigma) = (2*beta)^k
+  % so int[exp(-beta*r2)]= (pi*beta)^(d/2)
+
+  % integral of exp(-r2) = 
+  Abeta_pi = get_elem_volume(fmdl)*(beta/pi)^(dim/2);
   for j= 1:num_elems(fmdl)
     dif = bsxfun(@minus, pts, ptc(j,:));
     r2  = sum(dif.^2, 2);
-    flt(:,j)=Abeta_pi.*mean( exp(-beta*r2 ),3);
+    mean_elem = mean( exp(-beta*r2 ),3);
+    flt(:,j)=Abeta_pi.*mean_elem;
   end %for j=1:ELEM
-  np=1;
+  % flt should sum to 1, but the integral is numeric and could vary. Instead we normalize
+  flt = flt./sum(flt);
   % Filter is 1 - Gaussian
-  flt=eye(num_elems(fmdl)) - flt/np^2;
+  flt=eye(num_elems(fmdl)) - flt;
   flt= ( flt+flt' )/ 2;
   filt= sparse(flt.*(abs(flt)>.003)); 
 
@@ -139,6 +144,8 @@ function [x,xc,y,yc] = interp_points(NODE,ELEM,np);
 function do_unit_test
   imdl = mk_common_model('a2c0',16);
   RtR = prior_gaussian_HPF(imdl);
+  imdl = mk_common_model('a2c0',16);
+  RtR = calc_Gaussian_HPF(imdl,.05);
   tx= full(RtR(1:4,1:4));
   tt=[0.562239752317943, -0.117068756722254, -0.025875127622824, -0.117068756722254;
      -0.117068756722254,  0.562239752317943, -0.117068756722254, -0.025875127622824;
