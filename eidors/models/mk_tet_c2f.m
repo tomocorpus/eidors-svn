@@ -255,7 +255,7 @@ function c2f = do_mk_tet_c2f(fmdl,rmdl,opt)
     c2f = bsxfun(@rdivide,c2f,vol);
 
     % count identical tets just once
-    ftri_in_rtri(rtet_in_ftet') = 0;
+    ftet_in_rtet(rtet_in_ftet') = 0;
    
     
     % add tets contained in vox
