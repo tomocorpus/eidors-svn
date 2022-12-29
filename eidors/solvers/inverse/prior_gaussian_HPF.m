@@ -47,7 +47,10 @@ function filt= calc_Gaussian_HPF( fmdl, diam_frac)
   ptc = interp_mesh(fmdl,0);
   % we divide by four to closely match
   % previous implementation
-  beta=2.769/diam_frac.^2 / 4;
+  mdl_dim = max(fmdl.nodes) - min(fmdl.nodes);
+  mdl_dim = mean(mdl_dim(1:2)); 
+   
+  beta=2.769/(diam_frac * mdl_dim)^2;
   dim = elem_dim(fmdl);
 
   % Gaussian is integral of exp(-beta*r^2)
@@ -146,8 +149,7 @@ function [x,xc,y,yc] = interp_points(NODE,ELEM,np);
 function do_unit_test
   imdl = mk_common_model('a2c0',16);
   RtR = prior_gaussian_HPF(imdl);
-  imdl = mk_common_model('a2c0',16);
-  RtR = calc_Gaussian_HPF(imdl,.10);
+  RtR = calc_Gaussian_HPF(imdl.fwd_model,.10);
   tt=[0.557367798877852, -0.124016055611277, -0.029231532288002, -0.124016055611277];
   unit_test_cmp('a2c2 :1', RtR(1,1:4),tt,1e-10);
 
