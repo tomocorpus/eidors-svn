@@ -6,6 +6,8 @@ function Reg= prior_gaussian_HPF( inv_model );
 % Parameters:
 %   diam_frac= inv_model.fwd_model.prior_gaussian_HPF.diam_frac DEFAULT 0.1
 %
+% NOTE: the old version had numerous bugs. It has been fixed and simplified for version 3.11
+%
 % CITATION_REQUEST:
 % AUTHOR: A Adler & R Guardo
 % YEAR: 1996
@@ -43,12 +45,15 @@ function filt= calc_Gaussian_HPF( fmdl, diam_frac)
   pts = interp_mesh(fmdl,3); % elem ctr
   fmdl.interp_mesh.n_interp = 0; % for ctr
   ptc = interp_mesh(fmdl,0);
-  beta=0.75*2.769/diam_frac.^2;
+  beta=2.769/diam_frac.^2;
   % integral of exp(-r2) = pi
-  % TODO: Understand beta
-  Abeta_pi = 2*get_elem_volume(fmdl)*beta/pi;
+  Abeta_pi = get_elem_volume(fmdl)*beta/pi;
 
-  % Gaussian is integral of exp(-r)
+  % Gaussian is integral of exp(-beta*r^2)
+  % Integral of exp(-1/2 * x'*Sigma*x)
+  %  = sqrt((2*pi)^k*det(Sigma))
+  % Here Sigma = 2*eye()*beta
+  %  det(Sigma) = (2*beta)^k
   for j= 1:num_elems(fmdl)
     dif = bsxfun(@minus, pts, ptc(j,:));
     r2  = sum(dif.^2, 2);
@@ -82,8 +87,10 @@ function filt= calc_Gaussian_HPF_old( fmdl, diam_frac)
     a= xy([2;3;1],1).*xy([3;1;2],2) ...
          -xy([3;1;2],1).*xy([2;3;1],2);
     aire=abs(sum(a));
-    endr=find(y<=max(xy(:,2)) & y>=min(xy(:,2)) ...
-            & x<=max(xy(:,1)) & x>=min(xy(:,1)) )';
+    mx_xy = max(xy);
+    mn_xy = min(xy);
+    endr=find(y<=mx_xy(2) & y>=mn_xy(2) ...
+            & x<=mx_xy(1) & x>=mn_xy(1) )';
     aa= sum(abs(ones(length(endr),1)*a' ...
          +v_yx(endr,:)*xy'*tourne)');
     endr( find( abs(1 - aa / aire) > 1e-8 ) )=[];
@@ -123,6 +130,8 @@ function [x,xc,y,yc] = interp_points(NODE,ELEM,np);
 %  elements
   x= [x(:);xp(:)]; 
   y= [y(:);yp(:)]; 
+
+% BUG HERE: why is xc,yc scaled and not x,y
 
   xc= mean(xt,2)/taille(1);
   yc= mean(yt,2)/taille(2);
