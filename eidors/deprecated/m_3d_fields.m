@@ -82,7 +82,10 @@ else  %is real
    %Preconditioner
    % LUinc no longer available (matlab 6 or so)
 %  [L,U] = luinc(E,tol/10);
-   [L,U] = ilu(E, struct('droptol',E/10));
+%  [L,U] = ilu(E, struct('droptol',E/10));
+   opts.droptol = tol/10 
+   opts.type = 'nofill'; %otherwise droptol is ignored opts.type = 'nofill';
+   [L,U] = ilu(E, opts);
 
    for y=1:size(MC,2)
 
