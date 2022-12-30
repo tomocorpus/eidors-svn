@@ -258,8 +258,7 @@ function pp = parse_options(filename,varargin)
              parseok=true;
           end
 
-          val =strcmp(opt,'-pauto');
-          if ~isempty(val);
+          if strcmp(opt,'-pauto') 
              pp.pagesize = 'auto';
              parseok=true;
           end
