@@ -80,7 +80,9 @@ tolstr='';
    if strcmp(ok(1:2),'OK');
       npass= npass+1;
    else
-%     keyboard % uncomment to debug
+      if eidors_debug('query','unit_test_cmp:fail')
+          keyboard % uncomment to debug
+      end
    end
    ntotal= ntotal+1;
    
