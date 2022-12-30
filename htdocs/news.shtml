@@ -7,6 +7,34 @@ EIDORS package.
 <ul>
 
 <p><li> <b>
+ 30 December 2022
+   </b><br>
+<b>EIDORS Version 3.11 release</b>
+<p>Blobby the walrus is proud to announce the
+release of EIDORS version 3.11,
+available at <a href="http://www.eidors.org">www.eidors.org</a>,
+and DOI:<a href="http://dx.doi.org/10.5281/zenodo.7495740">10.5281/zenodo.7495740</a>.
+This is primarily a bug fixing release but it includes
+<ul>
+<LI> Expanded hardware support / Improved LQ4 support / Draeger image format
+<LI> Cleaned-up the interface of some functions that accept many options.
+<LI> Forward models include linear circuits as "extra_nodes"
+<LI> Higher order system matrix speedups
+<LI> Improvement to system_mat_fields (stability &amp; speed)
+<LI> Custom high-density regions in Netgen meshing functions (ng_write_opt)
+<LI> Caching on ng.opt file and useful presets for ng.opt file
+<LI> 2D meshing with gmsh
+<LI> Improved graphics functions incl. more intuitive slicing
+<LI> Improved mesh interpolation (speedups and new functionality)
+<LI> Use Matlab's Triangulation class for speed in several functions
+<LI> Improvements to print_convert: speedups, clipboard functionality, better control of size &amp; resolution
+<LI> model of stimulation patterns from monopolar data (mono2stim)
+<LI> faster noise figure search
+<LI> distmesh improvements/bug fixes
+<LI> (As always) bug fixes
+</ul>
+
+<p><li> <b>
   14 June 2021        
    </b><br>
 <b>EIDORS Workshop at <a href="http://www.eit2021.ie">EIT 2021</a></b>
