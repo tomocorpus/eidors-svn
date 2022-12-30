@@ -18,7 +18,7 @@ if nargin == 0
     fname = 'ng.opt';
 end
 
-if isfolder(fname)
+if exist(fname,'dir')
     fname = [fname filesep 'ng.opt'];
 end
 
