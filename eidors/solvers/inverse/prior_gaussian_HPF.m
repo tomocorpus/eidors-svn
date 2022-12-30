@@ -1,12 +1,13 @@
-function Reg= prior_gaussian_HPF( inv_model );
+function Reg= prior_gaussian_HPF( fwd_model );
 % PRIOR_GAUSSIAN_HPF calculate image prior
-% Reg= prior_gaussian_HPF( inv_model )
+% Reg= prior_gaussian_HPF( fwd_model )
+%     or accepts inv_model
 % Reg        => output regularization term
-% inv_model  => inverse model struct
+% fwd_model  => forward model struct
 % Parameters:
-%   diam_frac= inv_model.fwd_model.prior_gaussian_HPF.diam_frac DEFAULT 0.1
+%   diam_frac= fwd_model.prior_gaussian_HPF.diam_frac DEFAULT 0.1
+%   zero_thresh=fwd_model.prior_gaussian_HPF.zero_thresh DEFAULT 0.0001
 %
-% NOTE: the old version had numerous bugs. It has been fixed and simplified for version 3.11
 %
 % CITATION_REQUEST:
 % AUTHOR: A Adler & R Guardo
@@ -19,24 +20,36 @@ function Reg= prior_gaussian_HPF( inv_model );
 % PAGE: 170–9
 % LINK: http://ieeexplore.ieee.org/xpl/freeabs_all.jsp?arnumber=491418
 
+% NOTES:
+% - the old version had numerous bugs. It has been fixed and simplified for version 3.11
+% - Old code should be removed in future
+% TODO:
+% - Accept and work with coarse2fine
 
 % (C) 2005 Andy Adler. License: GPL version 2 or version 3
 % $Id$
 
-if ischar(inv_model) && strcmp(inv_model,'UNIT_TEST'); do_unit_test; return; end
+if ischar(fwd_model) && strcmp(fwd_model,'UNIT_TEST'); do_unit_test; return; end
 
-fwd_model= inv_model.fwd_model;
+if ~strcmp(fwd_model.type, 'fwd_model')
+    fwd_model= fwd_model.fwd_model;
+end
 try 
     diam_frac= fwd_model.prior_gaussian_HPF.diam_frac;
 catch
     diam_frac= 0.1;
 end
+try 
+    diam_frac= fwd_model.prior_gaussian_HPF.zero_thresh;
+catch
+    zero_thresh = .0001;
+end
 
 copt.cache_obj= {fwd_model.nodes, fwd_model.elems, diam_frac};
 copt.fstr = 'prior_gaussian_HPF';
-Reg = eidors_cache(@calc_Gaussian_HPF, {fwd_model, diam_frac}, copt );
+Reg = eidors_cache(@calc_Gaussian_HPF, {fwd_model, diam_frac, zero_thresh}, copt );
 
-function filt= calc_Gaussian_HPF( fmdl, diam_frac)
+function filt= calc_Gaussian_HPF( fmdl, diam_frac, zero_thresh)
   pts = interp_mesh(fmdl,3); % elem ctr
   fmdl.interp_mesh.n_interp = 0; % for ctr
   ptc = interp_mesh(fmdl,0);
@@ -68,7 +81,7 @@ function filt= calc_Gaussian_HPF( fmdl, diam_frac)
   % Filter is 1 - Gaussian
   flt=eye(num_elems(fmdl)) - flt;
   flt= ( flt+flt' )/ 2;
-  filt= sparse(flt.*(abs(flt)>.0001)); 
+  filt= sparse(flt.*(abs(flt)>zero_thresh)); 
 
 % Calculate Gaussian HP Filter as per Adler & Guardo 96
 % parameter is diam_frac (normally 0.1)
@@ -144,10 +157,10 @@ function [x,xc,y,yc] = interp_points(NODE,ELEM,np);
 function do_unit_test
   imdl = mk_common_model('a2c0',16);
   RtR = prior_gaussian_HPF(imdl);
-  RtR = calc_Gaussian_HPF(imdl.fwd_model,.10);
   tt=[0.557367798877852, -0.124016055611277, -0.029231532288002, -0.124016055611277];
   unit_test_cmp('a2c2 :1', RtR(1,1:4),tt,1e-10);
 
+  % Old values are somewhat similar
   RtR= calc_Gaussian_HPF_old( imdl.fwd_model, 0.1);
   tt=[0.562239752317943, -0.117068756722254, -0.025875127622824, -0.117068756722254];
   unit_test_cmp('a2c2 _old :1', RtR(1,1:4),tt,1e-10);
@@ -159,4 +172,28 @@ function do_unit_test
      -0.004236643618993,-0.011516904603663;
      -0.011516904603663,-0.004236643618993];
   unit_test_cmp('a3cr :1', RtR(1:4,1:2),tt,1e-10);
+
+  ls = -1:.1:1;
+  fmdl = mk_grid_model([], ls, ls); 
+  fmdl = rmfield(fmdl,'coarse2fine');
+  RtR = prior_gaussian_HPF(fmdl);
+  
+  % Test space-independence ... 2D
+  ll= 2*(length(ls)-1);
+  unit_test_cmp('2D space indep', ...
+     RtR(10*ll+(1:4),10*ll+(1:4)), ...
+     RtR(12*ll+(1:4),12*ll+(1:4)), 1e-14);
+
+
+  ls = -1:.2:1;
+  fmdl = mk_grid_model([],ls,ls,(-4:2:4)/10); 
+  fmdl = rmfield(fmdl,'coarse2fine');
+  RtR = prior_gaussian_HPF(fmdl);
+  
+  % Test space-independence ... 2D
+  ll= 6*(length(ls)-1);
+  lv= 6*(length(ls)-1)^2;
+  unit_test_cmp('3D space indep', ...
+     RtR(lv+3*ll+(1:4),lv+3*ll+(1:4)), ...
+     RtR(lv+5*ll+(1:4),lv+5*ll+(1:4)), 1e-14);
 

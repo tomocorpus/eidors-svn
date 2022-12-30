@@ -21,7 +21,7 @@ ERROR = (Error using eidors_default>get_default (line 106)
  + Require Octave 7.2. Remove uniquetol (Bartek).
  + GREIT accept image in 3D
  + Test why fwd solver not more efficient with large stim patterns (DONE by AA)
- - Add 3D for prior_gaussian_HPF
+ + Add 3D for prior_gaussian_HPF
  + Make sparse overload smarter
  + Remove and test sparse overload
  + New included data based on the JXBrunner data set => landquart_data_2014.mat
