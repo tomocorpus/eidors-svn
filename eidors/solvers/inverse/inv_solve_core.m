@@ -2555,7 +2555,7 @@ function test_map_meas(data, N, in, out, expected)
 %fprintf('TEST: map_meas(%s -> %s)\n', in, out);
    calc_val = map_meas(data, N, in, out);
    str = sprintf('map_data(%s -> %s)', in, out);
-   unit_test_cmp(str, calc_val, expected)
+   unit_test_cmp(str, calc_val, expected,100*eps)
 
 
 % a couple easy reconstructions
