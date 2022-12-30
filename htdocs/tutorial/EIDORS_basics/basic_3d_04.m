@@ -6,4 +6,4 @@ vi= fwd_solve(img2);
 
 plot([vh.meas, vi.meas]);
 axis tight
-print_convert('basic_3d_04a.png','-density 60',0.4);
+print_convert('basic_3d_04a.png','-density 60','-p10x5');
