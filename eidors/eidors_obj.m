@@ -148,6 +148,9 @@ function verstr = test_versions;
       ver= version; ver(ver=='.')=' ';
       ver = sscanf(ver,'%f'); ver=ver(:);
 
+      % build numbers are too large and interfere
+      ver(4:end) = [];
+
       % Convert 7.8.1 to 7.008001
       verstr.ver = 1e-3.^(0:length(ver)-1) * ver(:); 
 
