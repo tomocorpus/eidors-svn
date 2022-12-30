@@ -89,7 +89,7 @@ function do_unit_test
 
    priors={'prior_tikhonov',
            'prior_laplace',
-           'prior_gaussian_HPF',
+%          'prior_gaussian_HPF', % This is an R prior
            'prior_movement'};
    models= {'a2c0','f2c2','n3r2'};
 
