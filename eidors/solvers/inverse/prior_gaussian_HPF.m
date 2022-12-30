@@ -71,14 +71,12 @@ function filt= calc_Gaussian_HPF( fmdl, diam_frac, zero_thresh)
   % so int[exp(-beta*r2)]= (pi*beta)^(d/2)
 
   % integral of exp(-r2) = 
-  Abeta_pi = get_elem_volume(fmdl)*(beta/pi)^(dim/2);
+  Abeta_pi = get_elem_volume(fmdl,'no_c2f') ...
+             *(beta/pi)^(dim/2);
   for j= 1:num_elems(fmdl)
     dif = bsxfun(@minus, pts, ptc(j,:));
     r2  = sum(dif.^2, 2);
     mean_elem = mean( exp(-beta*r2 ),3);
-    if isfield(fmdl,'coarse2fine');
-       mean_elem = fmdl.coarse2fine * mean_elem;
-    end
     flt(:,j)=Abeta_pi.*mean_elem;
   end %for j=1:ELEM
   % flt should sum to 1, but the integral is numeric and could vary. Instead we normalize
