@@ -10,6 +10,7 @@
 - Update version in eidors_obj.m
 - update version on web site (index.shtml)
 - update version on web site (download.shtml)
+- book a DOI at zenodo (within the EIDORS SW releases community)
 - write release announcment in news
 - update version in ./build/doc_template/intro.html
 - run build_docs.m in build set VERSION=0 #update docs on the website
