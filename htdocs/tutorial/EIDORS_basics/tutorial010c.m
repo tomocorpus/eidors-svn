@@ -21,4 +21,4 @@ rec_img.calc_colours.npoints = 128;
 show_slices(rec_img,[inf,inf,2.0,1,1; ...
                      inf,inf,1.0,1,2]);
 
-print_convert('tutorial010c.png', '-density 100', 0.5);
+print_convert('tutorial010c.png', '-density 100', '-p10x5');
