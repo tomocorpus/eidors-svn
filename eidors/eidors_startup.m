@@ -101,6 +101,9 @@ function archdir = set_paths(HOMEDIR, ver,path_array)
     if ~ver.isoctave && ver.ver < 9.008
         addpath([HOMEDIR, '/overloads/sparse']);
     end
+    if ~ver.isoctave && ver.ver < 9.0073
+        addpath([HOMEDIR, '/overloads/vecnorm']);
+    end
     if ver.isoctave 
         warning off Octave:shadowed-function
         addpath([HOMEDIR, '/overloads/octave']);
