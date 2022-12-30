@@ -100,7 +100,7 @@ function do_unit_test
 
          R   = calc_R_prior(imdl);
          RtR = calc_RtR_prior(imdl);  
-         unit_test_cmp(['P:',priors{i}], R'*R, RtR, 1e-10);
+         unit_test_cmp([models{j},':',priors{i}], R'*R, RtR, 1e-10);
       end
    end
 
