@@ -21,8 +21,8 @@ function [mapping, outside] = mk_analytic_c2f( f_mdl, c_mdl, opt)
 %  aligned, then they can be translated and mapped using
 %    coarse_xyz = (M* (fine_xyz - T)')'
 %  where
-%    T= c_mdl.mk_analytic_c2f.f2c_offset (1xN_dims)
-%    M= c_mdl.mk_analytic_c2f.f2c_project (N_dimsxN_dims)
+%    T= c_mdl.mk_coarse_fine_mapping.f2c_offset (1xN_dims)
+%    M= c_mdl.mk_coarse_fine_mapping.f2c_project (N_dimsxN_dims)
 %  by default T= [0,0,0] and M=eye(3)
 %
 % if c_mdl is 2D and f_mdl is 3D, then parameter
@@ -106,7 +106,7 @@ function f_mdl= offset_and_project( f_mdl, opt)
 
 function opt = assign_defaults( c_mdl, f_mdl, org )
    opt = struct;
-   try opt = c_mdl.mk_analytic_c2f; end
+   try opt = c_mdl.mk_coarse_fine_mapping; end
    fn = fieldnames(org);
    for f = 1:numel(fn)
       opt.(fn{f}) = org.(fn{f}); % explicit options override those on the model

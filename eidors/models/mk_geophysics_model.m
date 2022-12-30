@@ -297,9 +297,6 @@ else % 3D
       % c2f
       cmdl.mk_coarse_fine_mapping.f2c_offset  = [0 0 0];
       cmdl.mk_coarse_fine_mapping.f2c_project = [1 0 0; 0 0 1; 0 1 0];
-      % duplicate parameters since mk_analytic/approx_c2f have different names...
-      cmdl.mk_analytic_c2f.f2c_offset  = cmdl.mk_coarse_fine_mapping.f2c_offset;
-      cmdl.mk_analytic_c2f.f2c_project = cmdl.mk_coarse_fine_mapping.f2c_project;
    end
 end
 
