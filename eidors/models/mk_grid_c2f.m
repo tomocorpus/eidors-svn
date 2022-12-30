@@ -397,7 +397,7 @@ function [c2f, m] = separable_calculations(fmdl,rmdl,opt)
                 pts = pts ./ scale;
                 % force thorough search for initinal simplex and 
                 % supress precision warnings
-                [~, V(last_v)] = convhulln(pts,{'Qt Pp Qs'});
+                [~, V(last_v)] = convhulln_clean(pts);
                 V(last_v) = V(last_v) * scale^3; % undo scaling
             catch err
                 ok = false;
