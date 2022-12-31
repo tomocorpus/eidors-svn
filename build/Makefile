@@ -13,7 +13,8 @@ INCLDIRS =  data_contrib \
 WEBLINK= http://eidors3d.sourceforge.net/
 #EIDORSDL=http://localhost:80/~adler/eidors/index.shtml
 #CUTDL=1
- EIDORSDL=http://www.sce.carleton.ca/faculty/adler/eidors/index.shtml
+#EIDORSDL=http://www.sce.carleton.ca/faculty/adler/eidors/index.shtml
+ EIDORSDL=http://eidors3d.sourceforge.net/index.shtml
  CUTDL=3
 
 #all: $(REL) shtml other
@@ -181,7 +182,7 @@ step9a:
 	cp README $P/..
 	cp -r ../htdocs/doc $P
 
-VERSION=v3.10
+VERSION=v3.11
 step10:
 	mkdir -p $(REL)
 	rm -f $P/robots.txt

@@ -13,4 +13,5 @@ echo "# Template script" > script.sh
 ) >> script.sh
 # Now we need to remove the nulls from -z
 perl -i -pe 's/\000//g' script.sh
+echo "Delete nav-sidebar.shml!!!"
 
