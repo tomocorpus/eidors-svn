@@ -112,44 +112,49 @@ step0:
 	@echo "##### ENSURE YOU HAVE COPIED TO THE MIRROR ON sce.carleton.ca ####"
 
 # download eidors though a shtml web site to get the dyn html 
-step1:
-	( mkdir -p $P && cd $P && \
-        wget -r -nH -np --cut-dirs=$(CUTDL) $(EIDORSDL) && \
-	echo "################### 1 ####################" )  
+#step1:
+#	( mkdir -p $P && cd $P && \
+#        wget -r -nH -np --cut-dirs=$(CUTDL) $(EIDORSDL) && \
+#	echo "################### 1 ####################" )  
 
 # rename shtml to -s.html files
-step2:
-	find $P -name \*.shtml -print \
-         | while read a ; do \
-           mv $$a `dirname $$a`/`basename $$a .shtml`-s.html; \
-         done
-	@echo "################### 2 ####################"
-
-# rewrite internal links so  shtml to -s.html files
-step3:
-	find $P -name \*.html -exec \
-	 perl -i -pe's{\.shtml\s*"}{-s.html"}' \{} \;
-	@echo "################### 3 ####################"
+#step2:
+#	find $P -name \*.shtml -print \
+#         | while read a ; do \
+#           mv $$a `dirname $$a`/`basename $$a .shtml`-s.html; \
+#         done
+#	@echo "################### 2 ####################"
+#
+## rewrite internal links so  shtml to -s.html files
+#step3:
+#	find $P -name \*.html -exec \
+#	 perl -i -pe's{\.shtml\s*"}{-s.html"}' \{} \;
+#	@echo "################### 3 ####################"
 
 # fix rewrite for the mirror link
-step3a:
-	find $P -name \*.html -exec \
-	 perl -i -pe's{(http://\S*)-s\.html"}{\1.shtml"}' \{} \;
-	@echo "################### 3 ####################"
+#step3a:
+#	find $P -name \*.html -exec \
+#	 perl -i -pe's{(http://\S*)-s\.html"}{\1.shtml"}' \{} \;
+#	@echo "################### 3 ####################"
 
 # get rid of the bak files that are created in step3
-step4:
-	find $P -name \*-s.html.bak | xargs rm -f
-	@echo "################### 3 ####################"
+#step4:
+#	find $P -name \*-s.html.bak | xargs rm -f
+#	@echo "################### 3 ####################"
+
+step1:
+	( mkdir -p $P && cp -r ../htdocs/ $P/.. &&  \
+	echo "################### 1 ####################" )  
+
 
 # create and EIDORS-docs.html files
 step5:
-	cp $P/index-s.html $P/EIDORS-docs.html
+	cp $P/index.shtml $P/EIDORS-docs.html
 
 # create web links to big files
 step6:
 	bigfiles=`find $P -size +$(SZLIM) -and -not -iname \*html` ; \
-	find $P -name \*-s.html -exec \
+	find $P -name \*.shtml -exec \
 	perl -i -pe'BEGIN{' -e'print STDERR "PROC: $$ARGV[0]\n";' \
              -e"@bigf = qw{$$bigfiles};" \
              -e'for (@bigf) {s{%5C}{/}g; $$s=$$t= $$_;' \
