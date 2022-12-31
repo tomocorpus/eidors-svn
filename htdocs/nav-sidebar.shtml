@@ -68,7 +68,7 @@
    >Contrib Data</a><br>
 <a href="[% root %]GREIT/index.shtml"
    >GREIT</a><br>
-<a href="[% root %]doc/index.shtml"
+<a href="[% root %]doc/index.html"
    >Browse Docs</a><br>
 <a href="https://sourceforge.net/p/eidors3d/code/HEAD/tree/trunk/"
    >Browse SVN</a><br>
