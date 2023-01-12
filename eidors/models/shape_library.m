@@ -51,16 +51,30 @@ switch action
 	add_shape;
 end
 
+function files = get_shape_list()
+    % shapes are stored in dir shape_library/
+    pth = mfilename('fullpath');
+    file_list = dir([pth,'/*.mat']);
+    if isempty(file_list)
+        error('Can''t find shape_library');
+    end
+    for i=1:length(file_list)
+        % remove ".mat"
+        files{i,1} = file_list(i).name(1:end-4);
+    end
+
 function out = list_shapes(shape)
-out = '';
+    out = get_shape_list();
 if isempty(shape)
-    out = who('*','-file','shape_library.mat');
     disp('Available shapes:');
 else
-    s = load('shape_library.mat',shape);
-    try
-       out = fieldnames(s.(shape)); 
-    catch, not_found(shape); return; end
+%   s = load('shape_library.mat',shape);
+    s = cell2struct(out,out);
+    if ~isfield(s,shape)
+       not_found(shape); return;
+    else
+       out = get_shape(shape,'');
+    end
     disp(['Shape ' shape ' contains:']);     
 end
 disp(out);
@@ -109,19 +123,20 @@ hold off
 
 
 function out = get_shape(shape,fields)
-out = {};
 if isempty(shape)
     eidors_msg('SHAPE_LIBRARY: you must specify a shape to get');
     return
 end
 
-s = load('shape_library.mat',shape);
-if ~isfield(s,shape),not_found(shape); return; end
-if isempty(fields)
-    out =s.(shape); 
-else
+try
+  out=load([mfilename('fullpath'),'/',shape]);
+catch
+  not_found(shape); return;
+end
+
+if ~isempty(fields)
     if iscell(fields{1}) fields = fields{1}; end
-    s = s.(shape);
+    s = out; out = {};
     for i = 1:numel(fields)
 	out(i) = {s.(fields{i})};
     end
