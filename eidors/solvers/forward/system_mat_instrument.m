@@ -64,6 +64,16 @@ function s_mat = system_mat_instrument( img);
    s_mat.E = Eo;
 
 function do_unit_test
+%  do_unit_test_paper
+   do_unit_test_2d
+
+function do_unit_test_2d
+   img = mk_image(mk_common_model('a2C2',2));
+   s_mat = calc_system_mat(img) 
+   unit_test_cmp('basic',s_mat.E(1,:), ...
+      [4,-1,-1,-1,-1,zeros(1,num_nodes(img)-5+2)],1e-10);
+
+function do_unit_test_paper
    % Example from conference paper
    fmdl = eidors_obj('fwd_model','eg', ...
        'nodes',[0,0;0,1;2,0;2,1], ...
