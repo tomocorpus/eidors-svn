@@ -64,8 +64,36 @@ function s_mat = system_mat_instrument( img);
    s_mat.E = Eo;
 
 function do_unit_test
+%  do_unit_test_x; return %%%
    do_unit_test_paper
    do_unit_test_2d
+
+
+function do_unit_test_x
+   % Example from conference paper
+   fmdl = eidors_obj('fwd_model','eg', ...
+       'nodes',[0,0;0,1;2,0;2,1], ...
+       'elems',[1,2,3;2,3,4], ...
+       'gnd_node',1);
+   fmdl.solve      = @eidors_default;
+   fmdl.system_mat = @system_mat_instrument;
+   fmdl.system_mat_instrument.connect_list = [];
+   for i=1:2;
+      zc = 1/6/i;
+      eli=  struct('z_contact',zc);
+      eli.nodes= num_nodes(fmdl)+ 2*i-[5,4];
+      fmdl.electrode(i) = eli;
+   end
+   NewElectrode = num_elecs(fmdl)+1;
+   fmdl.electrode(NewElectrode) = ... 
+       struct('nodes','instrument','z_contact',NaN);
+   img = mk_image(fmdl,[1,2]);
+   img.fwd_model.stimulation = ...
+      stim_meas_list([1,3,1,3], ...
+      num_elecs(img) ); 
+
+   s_mat= calc_system_mat(img); 
+
 
 function do_unit_test_2d
    img = mk_image(mk_common_model('a2C2',2));
@@ -84,7 +112,7 @@ function do_unit_test_2d
    test = 1/(1/v0.meas + Y12);
    unit_test_cmp('',vv.meas,test,1e3*eps);
   
-   NewElectrode = 3; % add new electrode
+   NewElectrode = num_elecs(img)+1; % add new electrode
    Y13 = 1/ 5; % Y=1/ 5Ohms between E#1 and new elec
 %  c_list = [ 1,2,Y12;
 %             2,NewElectrode,Y13];
@@ -93,7 +121,7 @@ function do_unit_test_2d
        struct('nodes','instrument','z_contact',NaN);
    img.fwd_model.stimulation = stim_meas_list([1,2,1,3],NewElectrode);
    s_mat= calc_system_mat(img)  
-%  vv = fwd_solve(img) 
+   vv = fwd_solve(img) 
 
 function do_unit_test_paper
    % Example from conference paper
@@ -134,7 +162,7 @@ function do_unit_test_paper
 
 % NOTE: there is a bug in the paper,
 % actually, the connection is to newEl
-   NewElectrode = 3; % add new electrode
+   NewElectrode = num_elecs(img)+1;
    Y12 = 1/10; % Y=1/10Ohms between E#1 and new electrode
    Y13 = 1/ 5; % Y=1/ 5Ohms between E#1 and new elec
    c_list = [ 1,3,Y12;
@@ -149,6 +177,7 @@ function do_unit_test_paper
    img.fwd_model.system_mat = @system_mat_instrument;
    img.fwd_model.system_mat_instrument.connect_list = c_list;
    s_mat= calc_system_mat(img); 
+   save thisimg img
 
    Eok(:,7) = 0; Eok(7,:) = 0;
    Eok = Eok + [ 0 0 0 0 0 0 0;
