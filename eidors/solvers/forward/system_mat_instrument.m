@@ -64,14 +64,36 @@ function s_mat = system_mat_instrument( img);
    s_mat.E = Eo;
 
 function do_unit_test
-%  do_unit_test_paper
+   do_unit_test_paper
    do_unit_test_2d
 
 function do_unit_test_2d
    img = mk_image(mk_common_model('a2C2',2));
-   s_mat = calc_system_mat(img) 
-   unit_test_cmp('basic',s_mat.E(1,:), ...
-      [4,-1,-1,-1,-1,zeros(1,num_nodes(img)-5+2)],1e-10);
+   s_mat = calc_system_mat(img);
+   test= zeros(1,num_nodes(img)+2);
+   test(1,1:5)= [4,-1,-1,-1,-1];
+   unit_test_cmp('basic',s_mat.E(1,:),test,10*eps);
+
+   img.fwd_model.stimulation = stim_meas_list([1,2,1,2],2);
+   v0 = fwd_solve(img);
+   Y12 = 1/10; % Y=1/10Ohms between E#1 and new electrode
+   c_list = [ 1,2,Y12];
+   img.fwd_model.system_mat = @system_mat_instrument;
+   img.fwd_model.system_mat_instrument.connect_list = c_list;
+   vv = fwd_solve(img);
+   test = 1/(1/v0.meas + Y12);
+   unit_test_cmp('',vv.meas,test,1e3*eps);
+  
+   NewElectrode = 3; % add new electrode
+   Y13 = 1/ 5; % Y=1/ 5Ohms between E#1 and new elec
+%  c_list = [ 1,2,Y12;
+%             2,NewElectrode,Y13];
+   % Add instrument electrode
+   img.fwd_model.electrode(NewElectrode) = ... 
+       struct('nodes','instrument','z_contact',NaN);
+   img.fwd_model.stimulation = stim_meas_list([1,2,1,3],NewElectrode);
+   s_mat= calc_system_mat(img)  
+%  vv = fwd_solve(img) 
 
 function do_unit_test_paper
    % Example from conference paper
@@ -99,9 +121,11 @@ function do_unit_test_paper
      0  0 4 2 0 -6; 0 0  2  4 0 -6
     -3 -3 0 0 6  0; 0 0 -6 -6 0 12];
    unit_test_cmp('with CEM',s_mat.E,Eok,1e-13);
+   s_mat= calc_system_mat(img)  %%%% 
 
    img.fwd_model.stimulation = ...
-      stim_meas_list([1,2,1,2]); 
+      stim_meas_list([1,2,1,2], ...
+      num_elecs(img) ); 
 
    imgs = img; imgs.elem_data = [1;1];
    vv= fwd_solve(imgs);
@@ -119,7 +143,8 @@ function do_unit_test_paper
    img.fwd_model.electrode(NewElectrode) = ... 
        struct('nodes','instrument','z_contact',NaN);
    img.fwd_model.stimulation = ...
-      stim_meas_list([1,3,1,3]); 
+      stim_meas_list([1,3,1,3], ...
+      num_elecs(img) ); 
 
    img.fwd_model.system_mat = @system_mat_instrument;
    img.fwd_model.system_mat_instrument.connect_list = c_list;
