@@ -95,6 +95,9 @@ param.type = 'fwd_model';
 
 param.normalize_measurements = 0; % default
 
+param.solve = @eidors_default;
+param.system_mat = @eidors_default;
+
 return;
 
 % parse the elec_spec parameter
