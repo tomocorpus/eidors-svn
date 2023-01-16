@@ -31,7 +31,7 @@ function s_mat = system_mat_instrument( img);
    new_c_list = img.fwd_model.system_mat_instrument.connect_list;
 
 
-   img.fwd_model = remove_instrument_elecs(img.fwd_model);
+   img.fwd_model = remove_instrument_electrodes(img.fwd_model);
    s_mat= system_mat_1st_order(img);
    E = s_mat.E;
 
@@ -56,58 +56,54 @@ function s_mat = system_mat_instrument( img);
    
    s_mat.E = Eo;
 
-function fmdl = remove_instrument_elecs(fmdl)
-% pre-delete all 'instrument' nodes
-% system matrix can't handle them
-% NOTE: instrument nodes must be at end
-   rmelec = [];
-   for i=num_elecs(fmdl):-1:1
-      enodes = fmdl.electrode(i).nodes;
-      if ischar(enodes) && strcmp(enodes,'instrument');
-         rmelec(end+1) = i;
-      end
-   end
-   fmdl.electrode(rmelec)= [];
-   for i=1:length(fmdl.stimulation)
-      fmdl.stimulation(i).stim_pattern(rmelec) = []; 
-      fmdl.stimulation(i).meas_pattern(:,rmelec) = []; 
-      try % if it exists
-      fmdl.stimulation(i).volt_pattern(rmelec) = []; 
-      end
-   end
-
 function do_unit_test
-   do_unit_test_x; return %%%
+   do_unit_test_x;
    do_unit_test_paper
 %  do_unit_test_2d
 
 
 function do_unit_test_x
    % Example from conference paper
-   fmdl = eidors_obj('fwd_model','eg', ...
-       'nodes',[0,0;0,1;2,0;2,1], ...
-       'elems',[1,2,3;2,3,4], ...
-       'gnd_node',1);
-   fmdl = mdl_normalize(fmdl,0);
-   fmdl.solve      = @eidors_default;
+   fmdl = mk_circ_tank(1,[],2);
+   zC = 0.1;
+   for i=1:num_elecs(fmdl);
+      fmdl.electrode(i).nodes = num_nodes(fmdl) - 2*i + [1,2];
+      fmdl.electrode(i).z_contact = zC;
+   end
+
    fmdl.system_mat = @system_mat_instrument;
    fmdl.system_mat_instrument.connect_list = [];
-   for i=1:2;
-      zc = 1/6/i;
-      eli=  struct('z_contact',zc);
-      eli.nodes= num_nodes(fmdl)+ 2*i-[5,4];
-      fmdl.electrode(i) = eli;
-   end
+   img= mk_image(fmdl,1);
+   img.fwd_model.stimulation = ...
+      stim_meas_list([1,2,1,2], ...
+      num_elecs(img) ); 
+   s_mat= calc_system_mat(img);
+   vA = fwd_solve(img);
+   unit_test_cmp('square:', vA.meas, 1+sqrt(2)*zC,1e-14);
+
    NewElectrode = num_elecs(fmdl)+1;
    fmdl.electrode(NewElectrode) = ... 
        struct('nodes','instrument','z_contact',NaN);
-   img = mk_image(fmdl,[1,2]);
+   zC = 1000;
+   fmdl.system_mat_instrument.connect_list = ...
+        [1,3,1/zC];
+%       [2,3,.002;
+%        1,3,.001];
+   img = mk_image(fmdl,1);
    img.fwd_model.stimulation = ...
       stim_meas_list([1,3,1,3], ...
       num_elecs(img) ); 
 
-   s_mat= calc_system_mat(img); 
+%  show_fem(img)
+   vB = fwd_solve(img);
+   unit_test_cmp('square2:', vB.meas, zC,1e-12);
 
+   img.fwd_model.system_mat_instrument.connect_list = ...
+        [2,3,2/zC;
+         1,3,1/zC];
+   vC = fwd_solve(img);
+   test = 1/(1/zC + 1/(zC/2 + 1 + 0.1*sqrt(2)));
+   unit_test_cmp('square3:', vC.meas, test,1e-12);
 
 function do_unit_test_2d
    img = mk_image(mk_common_model('a2C2',2));

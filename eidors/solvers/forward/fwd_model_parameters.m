@@ -153,6 +153,13 @@ function VOLUME = element_volume( NODE, ELEM, e, d)
 function [N2E,cem_electrodes] = calculate_N2E( fwd_model, bdy, n_elec, n);
    cem_electrodes= 0; % num electrodes part of Compl. Elec Model
    N2E = sparse(n_elec, n+n_elec);
+   % Extra nodes are added if nodes for electronics components are added
+   % Better to use "instrument" electrodes
+   try
+      extra_nodes = fwd_model.extra_nodes;
+   catch
+      extra_nodes = 0;
+   end
    for i=1:n_elec
       eleci = fwd_model.electrode(i);
 % The faces field is used only if 
@@ -166,21 +173,22 @@ function [N2E,cem_electrodes] = calculate_N2E( fwd_model, bdy, n_elec, n);
         N2Ei_nodes = n+cem_electrodes;
 
       elseif isfield(eleci,'nodes') 
-          elec_nodes = fwd_model.electrode(i).nodes;
-         [N2Ei,N2Ei_nodes,cem_electrodes] =  ...
-             N2Ei_from_nodes(fwd_model, ...
-              bdy, elec_nodes, cem_electrodes,n);
+         elec_nodes = fwd_model.electrode(i).nodes;
+         if ~ischar(elec_nodes)
+            [N2Ei,N2Ei_nodes,cem_electrodes] =  ...
+                N2Ei_from_nodes(fwd_model, ...
+                 bdy, elec_nodes, cem_electrodes,n);
+         elseif strcmp(elec_nodes,'instrument')
+            extra_nodes = extra_nodes + 1; 
+            N2Ei_nodes = n+cem_electrodes+extra_nodes;
+         else
+            error('String "nodes" must be instrument');
+         end
       else
           eidors_msg('Warning: electrode %d has no nodes',i);
           break; %Not a real electrode so don't include
       end
       N2E(i, N2Ei_nodes) = N2Ei;
-   end
-   % Extra nodes are added if nodes for electronics components are added
-   try
-      extra_nodes = fwd_model.extra_nodes;
-   catch
-      extra_nodes = 0;
    end
    N2E = N2E(:, 1:(n+cem_electrodes+extra_nodes));
 
