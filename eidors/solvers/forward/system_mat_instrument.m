@@ -60,6 +60,7 @@ function do_unit_test
    do_unit_test_x;
    do_unit_test_paper
    do_unit_test_2d
+   do_unit_test_3d
 
 
 function do_unit_test_x
@@ -118,7 +119,7 @@ function do_unit_test_2d
    img.fwd_model.system_mat_instrument.connect_list = c_list;
    vv = fwd_solve(img);
    test = 1/(1/v0.meas + Y12);
-   unit_test_cmp('',vv.meas,test,1e3*eps);
+   unit_test_cmp('Resistor',vv.meas,test,1e3*eps);
   
    NewElectrode = num_elecs(img)+1; % add new electrode
    Y13 = 1/ 5; % Y=1/ 5Ohms between E#1 and new elec
@@ -222,3 +223,29 @@ function do_unit_test_paper
 
 %  disp(Eok)
 %  disp(full(s_mat.E))
+
+function do_unit_test_3d
+   fmdl = mk_common_model('n3r2',[16,2]);
+   % get the fwd_model. Remove stims to replace
+   fmdl = rmfield(fmdl.fwd_model,'stimulation');
+   gndE= num_elecs(fmdl) + 1;
+   fmdl.electrode(gndE) = struct('nodes','instrument','z_contact',NaN);
+   Zgnd = 1e-3;% Ohms -- impedance to ground
+   VoltIn = 10;
+   stim.meas_pattern = [eye(gndE-1), -Zgnd*ones(gndE-1,1)];
+   stim.meas_pattern(1:16,:) = [];
+
+   c_list =  [17:32]'*[1,0,0] + [0,gndE, 1/Zgnd];
+   fmdl.system_mat = @system_mat_instrument;
+   fmdl.system_mat_instrument.connect_list = c_list;
+   for i=1:16
+      stim.volt_pattern = [zeros(gndE,1)];
+      stim.stim_pattern = stim.volt_pattern;
+      stim.volt_pattern(i) = VoltIn;
+      stim.stim_pattern([i,gndE]) = NaN;
+      fmdl.stimulation(i) = stim;
+   end
+   img = mk_image(fmdl,1);
+   vv = fwd_solve(img);
+   unit_test_cmp('3D shape',[max(vv.meas) min(vv.meas)], ...
+    [ 1.152029995247298e-06, 1.150256267849528e-06], 1e-14);
