@@ -77,7 +77,7 @@ function fmdl = remove_instrument_elecs(fmdl)
    end
 
 function do_unit_test
-%  do_unit_test_x; return %%%
+   do_unit_test_x; return %%%
    do_unit_test_paper
 %  do_unit_test_2d
 
@@ -88,6 +88,7 @@ function do_unit_test_x
        'nodes',[0,0;0,1;2,0;2,1], ...
        'elems',[1,2,3;2,3,4], ...
        'gnd_node',1);
+   fmdl = mdl_normalize(fmdl,0);
    fmdl.solve      = @eidors_default;
    fmdl.system_mat = @system_mat_instrument;
    fmdl.system_mat_instrument.connect_list = [];
@@ -105,20 +106,7 @@ function do_unit_test_x
       stim_meas_list([1,3,1,3], ...
       num_elecs(img) ); 
 
-if 0
    s_mat= calc_system_mat(img); 
-else
-   for i=num_elecs(img):-1:1
-      enodes = img.fwd_model.electrode(i).nodes;
-      if ischar(enodes) && strcmp(enodes,'instrument');
-         img.fwd_model.electrode(i)= [];
-      end
-   end
-%  img.fwd_model.electrode(1).z_contact= ...
-%  img.fwd_model.electrode(1).z_contact+eps
-   pp = fwd_model_parameters(img.fwd_model);
-   s_mat= system_mat_1st_order(img);
-end
 
 
 function do_unit_test_2d
