@@ -149,6 +149,8 @@ function [img,mdl,opts] = proc_params( mdl, options );
    else 
       img = [];
    end
+   % Remove instrument nodes
+   mdl = remove_instrument_electrodes(mdl);
    
    opts.transparency_thresh = calc_colours('transparency_thresh');
    try
@@ -156,6 +158,7 @@ function [img,mdl,opts] = proc_params( mdl, options );
    end
    
    opts.dims = size(mdl.nodes,2);
+
 
 % 2D Case
 function hh= show_2d(img,mdl,opts)
