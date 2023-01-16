@@ -59,7 +59,7 @@ function s_mat = system_mat_instrument( img);
 function do_unit_test
    do_unit_test_x;
    do_unit_test_paper
-%  do_unit_test_2d
+   do_unit_test_2d
 
 
 function do_unit_test_x
@@ -87,8 +87,6 @@ function do_unit_test_x
    zC = 1000;
    fmdl.system_mat_instrument.connect_list = ...
         [1,3,1/zC];
-%       [2,3,.002;
-%        1,3,.001];
    img = mk_image(fmdl,1);
    img.fwd_model.stimulation = ...
       stim_meas_list([1,3,1,3], ...
@@ -124,8 +122,9 @@ function do_unit_test_2d
   
    NewElectrode = num_elecs(img)+1; % add new electrode
    Y13 = 1/ 5; % Y=1/ 5Ohms between E#1 and new elec
-%  c_list = [ 1,2,Y12;
-%             2,NewElectrode,Y13];
+   c_list = [ 1,2,Y12;
+              2,NewElectrode,Y13];
+   img.fwd_model.system_mat_instrument.connect_list = c_list;
    % Add instrument electrode
    img.fwd_model.electrode(NewElectrode) = ... 
        struct('nodes','instrument','z_contact',NaN);
