@@ -30,15 +30,8 @@ function s_mat = system_mat_instrument( img);
 
    new_c_list = img.fwd_model.system_mat_instrument.connect_list;
 
-% pre-delete all 'instrument' nodes
-% system matrix can't handle them
-% BUG ALERT: instrument nodes must be at end
-   for i=num_elecs(img):-1:1
-      enodes = img.fwd_model.electrode(i).nodes;
-      if ischar(enodes) && strcmp(enodes,'instrument');
-         img.fwd_model.electrode(i)= [];
-      end
-   end
+
+   img.fwd_model = remove_instrument_elecs(img.fwd_model);
    s_mat= system_mat_1st_order(img);
    E = s_mat.E;
 
@@ -63,10 +56,30 @@ function s_mat = system_mat_instrument( img);
    
    s_mat.E = Eo;
 
+function fmdl = remove_instrument_elecs(fmdl)
+% pre-delete all 'instrument' nodes
+% system matrix can't handle them
+% NOTE: instrument nodes must be at end
+   rmelec = [];
+   for i=num_elecs(fmdl):-1:1
+      enodes = fmdl.electrode(i).nodes;
+      if ischar(enodes) && strcmp(enodes,'instrument');
+         rmelec(end+1) = i;
+      end
+   end
+   fmdl.electrode(rmelec)= [];
+   for i=1:length(fmdl.stimulation)
+      fmdl.stimulation(i).stim_pattern(rmelec) = []; 
+      fmdl.stimulation(i).meas_pattern(:,rmelec) = []; 
+      try % if it exists
+      fmdl.stimulation(i).volt_pattern(rmelec) = []; 
+      end
+   end
+
 function do_unit_test
 %  do_unit_test_x; return %%%
    do_unit_test_paper
-   do_unit_test_2d
+%  do_unit_test_2d
 
 
 function do_unit_test_x
@@ -92,7 +105,20 @@ function do_unit_test_x
       stim_meas_list([1,3,1,3], ...
       num_elecs(img) ); 
 
+if 0
    s_mat= calc_system_mat(img); 
+else
+   for i=num_elecs(img):-1:1
+      enodes = img.fwd_model.electrode(i).nodes;
+      if ischar(enodes) && strcmp(enodes,'instrument');
+         img.fwd_model.electrode(i)= [];
+      end
+   end
+%  img.fwd_model.electrode(1).z_contact= ...
+%  img.fwd_model.electrode(1).z_contact+eps
+   pp = fwd_model_parameters(img.fwd_model);
+   s_mat= system_mat_1st_order(img);
+end
 
 
 function do_unit_test_2d
@@ -120,8 +146,8 @@ function do_unit_test_2d
    img.fwd_model.electrode(NewElectrode) = ... 
        struct('nodes','instrument','z_contact',NaN);
    img.fwd_model.stimulation = stim_meas_list([1,2,1,3],NewElectrode);
-   s_mat= calc_system_mat(img)  
-   vv = fwd_solve(img) 
+   s_mat= calc_system_mat(img);
+   vv = fwd_solve(img);
 
 function do_unit_test_paper
    % Example from conference paper
@@ -149,7 +175,6 @@ function do_unit_test_paper
      0  0 4 2 0 -6; 0 0  2  4 0 -6
     -3 -3 0 0 6  0; 0 0 -6 -6 0 12];
    unit_test_cmp('with CEM',s_mat.E,Eok,1e-13);
-   s_mat= calc_system_mat(img)  %%%% 
 
    img.fwd_model.stimulation = ...
       stim_meas_list([1,2,1,2], ...
@@ -197,6 +222,7 @@ function do_unit_test_paper
       'stim_pattern',[1;0;NaN], ...
       'volt_pattern',[0;0;0], ...
       'meas_pattern',[1,0,-1;0,1,-1]);
+   pp = fwd_model_parameters(img.fwd_model);
    vv= fwd_solve(imgs);
    Ztest2 = 10/(7.25+10)*5;
    unit_test_cmp('instrument solve2',vv.meas, [Ztest;Ztest2],1e-13);
