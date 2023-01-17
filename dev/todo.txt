@@ -1,4 +1,8 @@
 Plan for 3.12:
+ - speed up eidors_var_id => new hash?
+ - speed up fwd_model_parameters
+ - fix caching problem in system_mat_instrument test1
+ - clean up 'interior_sources' in fwd_model_parameters
  - img_point_mapper that works in Octave
  - Fix _higher_order to handle faces-type electrodes
  - Speed up / clean up _higher_order code
