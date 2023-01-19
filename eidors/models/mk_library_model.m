@@ -21,6 +21,7 @@ function out = mk_library_model(shape,elec_pos,elec_shape,maxsz,nfft,scale)
 %     calling netgen and scaling the resulting model back afterwards
 %     (default: 1). Note that electrode and maxh specifications are not
 %     scaled.
+%   if scale(2) is specified, this is the model height (default = 1)
 %
 % QUICK ACCESS TO COMMON MODELS:
 %   MK_LIBRARY_MODEL(str) where str is a single string specifying a model.
@@ -69,7 +70,7 @@ else
    if ~iscell(shapes), shapes = {shapes}; end
    %apply any indeces specified
    for i = 1:numel(shapes)
-      eval(sprintf('shapes{i} = %f*shapes{i}%s;',scale,s_shape{2,i}));
+      eval(sprintf('shapes{i} = %f*shapes{i}%s;',scale(1),s_shape{2,i}));
    end
    if ischar(elec_pos) && strcmp(elec_pos,'original')
       el = shape_library('get',shape{1},'electrodes');
@@ -77,14 +78,15 @@ else
       elec_pos = [electh,0.5*ones(size(electh))];
    end
    
+   scaleH = prod(scale); % scale x height
    if nfft > 0
-      [fmdl, mat_idx] = ng_mk_extruded_model({scale,shapes,[4,nfft],maxsz},...
+      [fmdl, mat_idx] = ng_mk_extruded_model({scaleH,shapes,[4,nfft],maxsz},...
          elec_pos,elec_shape);
    else
-      [fmdl, mat_idx] = ng_mk_extruded_model({scale,shapes,0,maxsz},...
+      [fmdl, mat_idx] = ng_mk_extruded_model({scaleH,shapes,0,maxsz},...
          elec_pos,elec_shape);
    end
-   fmdl.nodes = fmdl.nodes/scale;
+   fmdl.nodes = fmdl.nodes/scale(1);
    fmdl.mat_idx = mat_idx;
    store_model(fmdl,fname)
    out = fmdl;
@@ -301,9 +303,44 @@ switch str
          out.electrode = out.electrode([2:32,1]);
 %     case 'lamb_newborn_32el_organs'
     case 'horse_16el';
-      scale = 35; Nelec=16;
-      out = mk_library_model({'horse','boundary'},[Nelec,1.51,scale/2],[2,6,0.5],2,50,scale);
-      out.nodes = out.nodes/100;
+      scale = [100,.35 ]; Nelec=16;
+      elhig = prod(scale)/2;
+      out = mk_library_model({'horse','boundary'},[Nelec,1.51,elhig],[2,6,0.5],2,50,scale);
+    case 'horse_32el';
+      scale = [100,.35 ]; Nelec=32;
+      elhig = prod(scale)/2;
+      out = mk_library_model({'horse','boundary'},[Nelec,1.51,elhig],[2,6,0.5],2,50,scale);
+    case 'horse_2x16el';
+      scale = [100,.35 ]; Nelec=32;
+      elhig = [5,3]*prod(scale)/8;
+      out = mk_library_model({'horse','boundary'},[Nelec,1.51,elhig],[2,3,0.5],2,50,scale);
+
+
+
+
+
+
+    case 'horse_16el_lungs';
+      scale = [100,.35 ]; Nelec=16;
+      elhig = prod(scale)/2;
+      out = mk_library_model({'horse','boundary','left_lung','right_lung','heart'},[Nelec,1.51,elhig],[2,6,0.5],2,50,scale);
+    case 'horse_32el_lungs';
+      scale = [100,.35 ]; Nelec=32;
+      elhig = prod(scale)/2;
+      out = mk_library_model({'horse','boundary','left_lung','right_lung','heart'},[Nelec,1.51,elhig],[2,6,0.5],2,50,scale);
+    case 'horse_2x16el_lungs';
+      scale = [100,.35 ]; Nelec=32;
+      elhig = [5,3]*prod(scale)/8;
+      out = mk_library_model({'horse','boundary','left_lung','right_lung','heart'},[Nelec,1.51,elhig],[2,3,0.5],2,50,scale);
+
+
+
+
+
+
+
+
+
     case 'beagle_16el';
       scale = 49;
       out = mk_library_model({'beagle','boundary'}, ...
@@ -376,7 +413,7 @@ if ~isempty(nfft)
     str = [str '_nfft_' num2str(nfft)];
 end
 if ~isempty(scale)
-    str = [str '_scale' num2str(scale)];
+    str = [str '_scale' sprintf('%f_',scale)];
 end
 
 %remove colons
