@@ -16,7 +16,7 @@ function [C,th] = fourier_fit(points,N,start);
 %
 % xy = fourier_fit(points,'fit_spacing',spacing);
 % example
-%  xy = fourier_fit(point,'fit_spacing',0:.1:999);
+%  xy = fourier_fit(point,'fit_spacing',0:.1:.999);
 %  th = atan2(xy(:,2)-centroid(2),xy(:,1)-centroid(1));
 % 
 
