@@ -169,6 +169,12 @@ out = {
     'lamb_newborn_16el_organs';
     'lamb_newborn_32el_organs';
 %     'lamb_newborn_32el_organs';
+    'horse_16el';
+    'horse_32el';
+    'horse_2x16el';
+    'horse_16el_lungs';
+    'horse_32el_lungs';
+    'horse_2x16el_lungs';
     'beagle_16el';
     'beagle_32el';
     'beagle_16el_lungs';
@@ -294,6 +300,10 @@ switch str
          out = mk_library_model({'lamb_newborn','boundary','lungs','heart'},[32,1.980,104],[1],15,50,208);
          out.electrode = out.electrode([2:32,1]);
 %     case 'lamb_newborn_32el_organs'
+    case 'horse_16el';
+      scale = 35; Nelec=16;
+      out = mk_library_model({'horse','boundary'},[Nelec,1.51,scale/2],[2,6,0.5],2,50,scale);
+      out.nodes = out.nodes/100;
     case 'beagle_16el';
       scale = 49;
       out = mk_library_model({'beagle','boundary'}, ...
