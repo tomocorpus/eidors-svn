@@ -314,12 +314,6 @@ switch str
       scale = [100,.35 ]; Nelec=32;
       elhig = [5,3]*prod(scale)/8;
       out = mk_library_model({'horse','boundary'},[Nelec,1.51,elhig],[2,3,0.5],2,50,scale);
-
-
-
-
-
-
     case 'horse_16el_lungs';
       scale = [100,.35 ]; Nelec=16;
       elhig = prod(scale)/2;
@@ -332,15 +326,6 @@ switch str
       scale = [100,.35 ]; Nelec=32;
       elhig = [5,3]*prod(scale)/8;
       out = mk_library_model({'horse','boundary','left_lung','right_lung','heart'},[Nelec,1.51,elhig],[2,3,0.5],2,50,scale);
-
-
-
-
-
-
-
-
-
     case 'beagle_16el';
       scale = 49;
       out = mk_library_model({'beagle','boundary'}, ...
