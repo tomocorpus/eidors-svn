@@ -18,7 +18,7 @@ function fmdl = remove_unused_nodes( fmdl );
    fmdl.nodes(nidx==0,:) = [];
    fmdl.elems = remap(nidx, fmdl.elems);
 
-   for i=1:length(fmdl.electrode)
+   for i=1:num_elecs(fmdl)
       fmdl.electrode(i).nodes =  remap(nidx, fmdl.electrode(i).nodes);
       removed = fmdl.electrode(i).nodes == 0;
       fmdl.electrode(i).nodes( removed ) = [];
