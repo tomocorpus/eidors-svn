@@ -417,7 +417,7 @@ unit_test_cmp('firststep=bbb',isempty( ...
 function unit_test_MSZ
    shape_str =  ...
      'solid mainobj = orthobrick(-9,-9,-9;9,9,9);';
-   i=0; while(true); i=i+1; switch i
+   i=8; while(true); i=i+1; switch i
        case 1; n_exp = 8;
            ng_write_opt('very_coarse');
        case 2; n_exp = 22;
@@ -434,7 +434,8 @@ function unit_test_MSZ
            ng_write_opt('MSZCYLINDER',[5,5,5,8,8,8,5,1]);
        case 8; n_exp = 23;
            ng_write_opt('MSZCYLINDER',[5,5,5,8,8,8,5,5]);
-         
+       case 9; n_exp = 23;
+           ng_write_opt('MSZCYLINDER',[5,5,5,5,5,8,1,5]);
        otherwise; break
        end
        eidors_cache clear

@@ -12,6 +12,7 @@ Plan for 3.12:
  - Remove NODE / ELEM use nodes elems
  - Make simplified fwd_model_parameters
  - test netgen 6.2 for linux and windows
+ - seems to be some bugs in MSZCYLINDER if r<maxh. See ng_write_opt #9
 
 Plan for 3.11
  + Fix use of full FFdata in update_system_mat_fields
