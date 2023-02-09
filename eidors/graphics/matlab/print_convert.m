@@ -37,6 +37,7 @@ function print_convert(filename, varargin)
 %   print_convert outname.png -r150      % set dpi=150
 %   print_convert outname.png -p10x20    % pagesize 10x20
 %   print_convert outname.png -pauto     % pagesize = size on screen
+%   print_convert outname.png -ssf2 -ssf1% supersampling_factor=2,1
 %   print_convert('outname.png',opts);   % use options
 %
 % See also IMWRITE
@@ -266,6 +267,12 @@ function pp = parse_options(filename,varargin)
           val =regexp(opt,'-p(\d+)x(\d+)','tokens');
           if ~isempty(val);
              pp.pagesize = [str2num(val{1}{1}), str2num(val{1}{2})];
+             parseok=true;
+          end
+
+          val =regexp(opt,'-ssf(\d+)','tokens');
+          if ~isempty(val);
+             pp.supersampling_factor = str2num(val{1}{1});
              parseok=true;
           end
 
