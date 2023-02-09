@@ -29,6 +29,11 @@ function out = mk_library_model(shape,elec_pos,elec_shape,maxsz,nfft,scale)
 %
 % PATH TO LIBRARY MODELS
 %   'LIBRARY_PATH' - get or set library path
+%   mk_library_model LIBRARY_PATH => get library path
+%   mk_library_model LIBRARY_PATH new_path => set library path
+%   mk_library_model LIBRARY_PATH '' => don't store models
+%
+% 
 
 % (C) 2011 Bartlomiej Grychtol. License: GPL version 2 or version 3
 % $Id$
@@ -98,7 +103,10 @@ end
 
 function out = load_stored_model(fname)
 out = [];
-fname = [get_path '/' fname '.mat'];
+library_path = get_path();
+if isempty(library_path); return; end
+
+fname = [library_path '/' fname '.mat'];
 if exist(fname,'file')
    eidors_msg('MK_LIBRARY_MODEL: Using stored model');
    if exist('OCTAVE_VERSION');
@@ -110,7 +118,9 @@ if exist(fname,'file')
 end
 
 function store_model(fmdl,fname)
-   fname = [get_path '/' fname '.mat'];
+   library_path = get_path();
+   if isempty(library_path); return; end
+   fname = [library_path '/' fname '.mat'];
    if exist('OCTAVE_VERSION');
       savver = '-v7';
    else
@@ -417,6 +427,7 @@ out = eidors_objects.model_cache;
 function set_path(val)
 global eidors_objects
 eidors_objects.model_cache = val;
+if isempty(val); return; end % val=='' means don't use
 %if folder doesn't exist, create it
 if ~exist(val,'dir')
     ver= eidors_obj('interpreter_version');
