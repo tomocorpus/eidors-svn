@@ -417,7 +417,7 @@ unit_test_cmp('firststep=bbb',isempty( ...
 function unit_test_MSZ
    shape_str =  ...
      'solid mainobj = orthobrick(-9,-9,-9;9,9,9);';
-   i=8; while(true); i=i+1; switch i
+   i=0; while(true); i=i+1; switch i
        case 1; n_exp = 8;
            ng_write_opt('very_coarse');
        case 2; n_exp = 22;
