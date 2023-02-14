@@ -12,9 +12,11 @@ function fmdl = remove_instrument_electrodes(fmdl)
    end
    rmelec = [];
    for i=num_elecs(fmdl):-1:1
-      enodes = fmdl.electrode(i).nodes;
-      if ischar(enodes) && strcmp(enodes,'instrument');
-         rmelec(end+1) = i;
+      try
+         enodes = fmdl.electrode(i).nodes;
+         if ischar(enodes) && strcmp(enodes,'instrument');
+            rmelec(end+1) = i;
+         end
       end
    end
    fmdl.electrode(rmelec)= [];
