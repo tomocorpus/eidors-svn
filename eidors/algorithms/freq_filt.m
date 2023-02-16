@@ -5,7 +5,8 @@ function vfilt = freq_filt(vin, fresp, FR, dim)
 %     = data structure (with field vin.meas)
 %     = image structure (with field vin.elem_data)
 % fresp = function of freq filter
-%      e.g. fresp = @(f) f<10;  % values in Hz
+%   e.g. fresp = @(f) f<10;  % values in Hz
+%   e.g. fresp = @(f) (1+(f/10).^6).^(-0.5);  % Butter 2*3rd order
 % FR  = frame rate (or use FR parameter on data structures)
 %    or FR is a structure with fields
 %     .FR = Frame Rate
@@ -19,7 +20,7 @@ function vfilt = freq_filt(vin, fresp, FR, dim)
 
 if ischar(vin) && strcmp(vin,'UNIT_TEST'); do_unit_test; return; end
 
-p.padding = 1; % seconds;
+p.padding = 10; % seconds default;
 if nargin<3; 
    p.FR = vin.FR;
 else
