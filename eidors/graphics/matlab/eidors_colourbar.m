@@ -5,6 +5,7 @@ function hh= eidors_colourbar(max_scale,ref_lev, cb_shrink_move, greyscale)
 %
 % usage: hh= eidors_colourbar( img )
 %    return a handle to colourbar created 
+%    handle can be modified: set(hh,'ylim', ...)
 %
 % usage: eidors_colourbar( img );
 %   img.calc_colours.ref_level =  %  centre of the colour scale
@@ -12,7 +13,7 @@ function hh= eidors_colourbar(max_scale,ref_lev, cb_shrink_move, greyscale)
 %
 % usage: eidors_colourbar( img ); % Set own tick positions
 %   img.eidors_colourbar.tick_vals = [-20:20]/10;
-
+%
 % usage: eidors_colourbar( img ); % Set own tick positions
 %   img.eidors_colourbar.tick_divisions = 5; % Extra tick divisions
 %
@@ -20,6 +21,7 @@ function hh= eidors_colourbar(max_scale,ref_lev, cb_shrink_move, greyscale)
 %    cb_shrink_move(1) = horizontal shrink (relative)
 %    cb_shrink_move(2) = vertial shrink (relative)
 %    cb_shrink_move(3) = horizontal move (absolute screen units)
+%  img.calc_colours.cb_shrink_move = [1,2,0];
 %
 % Make sure you use 'axis tight' in order for cb_shrink_move to
 %    give a correct looking image
