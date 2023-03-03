@@ -156,8 +156,7 @@ if ~isempty(opt.noise_figure) || ~isempty(opt.image_SNR)
     xyzr = opt.noise_figure_targets;
     [jnk,vi_NF] = simulate_movement(imgs,xyzr');
     vi_NF = sum(vi_NF,2); % sum the targets
-    eidors_msg(['mk_GREIT_model: Finding noise weighting for given ', NoisPerfName],1);
-    eidors_msg('mk_GREIT_model: This will take a while...',1);
+    progress_msg(['mk_GREIT_model: ', NoisPerfName,':'],0,10000,struct('log_level',1));
     f = @(X) to_optimise(vh,vi,xyz, radius, X, opt, imdl, target, vi_NF);
     fms_opts.TolFun = 0.01*target; %don't need higher accuracy
     % The first call can take a long time. Take it out of the loop to 
@@ -168,8 +167,8 @@ if ~isempty(opt.noise_figure) || ~isempty(opt.image_SNR)
        log_level = eidors_msg( 'log_level', 1); % suppress messages
     end
     [weight, NF] = bounded_search(f, weight,fms_opts);
-    eidors_msg(['mk_GREIT_model: Optimal solution gives ', NoisPerfName, '=' ... 
-        num2str(NF+target) ' with weight=' num2str(weight)],1);
+    progress_msg(['Optimal solution gives ', NoisPerfName, '=' ... 
+        num2str(NF+target) ' with weight=' num2str(weight)],inf);
     assert((sqrt(NF) / target) < 0.01, ...
             ['Cannot find an accurate enough match for desired ', NoisPerfName]');
      eidors_msg( 'log_level', log_level); % restore
@@ -228,13 +227,15 @@ function out = to_optimise(vh,vi,xy,radius,weight, opt, imdl, ...
 %    imdl.solve_use_matrix.RM = resize_if_reqd(RM,inside,imdl.rec_model);
    if ~isempty(opt.noise_figure)
       NF = calc_noise_figure(imdl,vh, vi_NF);
-      eidors_msg(['NF = ', num2str(NF), ' weight = ', num2str(weight)],1);
    elseif ~isempty(opt.image_SNR)
       NF = calc_image_SNR(imdl);
-      eidors_msg(['SNR = ', num2str(NF), ' weight = ', num2str(weight)],1);
    else
       error('internal bug: shouldn''t get here');       
    end
+%  eidors_msg(['NF = ', num2str(NF), ' weight = ', num2str(weight)],1);
+%  pmsg = sprintf('NF=%6.4f weight=%6.4f',NF,weight) 
+%  progress_msg(pmsg,0);
+   progress_msg(round(NF*1e4),10000)
    out = (NF - target)^2;
 %    out = (mean(NF) - target)^2 + std(NF);
 
