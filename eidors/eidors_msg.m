@@ -50,7 +50,7 @@ function log_level = eidors_msg( message, varargin )
 %  eidors_msg('@@@ a message',1);
 %     >> EIDORS:[eidors_msg/do_unit_test: a message]
 %
-%  See also EIDORS_DEBUG, EIDORS_CACHE.
+%  See also EIDORS_DEBUG, EIDORS_CACHE, PROGRESS_MSG.
 
 % (C) 2005-2014 Andy Adler and Bartlomiej Grychtol
 % License: GPL version 2 or version 3
