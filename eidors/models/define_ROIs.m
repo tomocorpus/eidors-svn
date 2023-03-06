@@ -11,6 +11,12 @@ function [ROIs, imgR, imdl] = define_ROIs(imdl, varargin)
 %   imgR: image of ROIs (mostly for debugging)
 %   imdl: inv_model which reconstructs onto ROIs (if possible)
 %
+% Example:
+%  fmdl = mk_library_model('neonate_16el_lungs');
+%  fmdl.stimulation = mk_stim_patterns(16,1,[0,1],[0,1],{},1);
+%  imdl= select_imdl(fmdl,'GREIT:NF=0.500 32x32');
+%  opts.reorder = reshape(1:16,4,4)';
+%  [ROIs,imgR] = define_ROIs(imdl,-1:0.5:1,1:-0.5:-1,opts);
 
 % TODO: 
 %   - create imdl
@@ -45,9 +51,6 @@ else
    last = 0;
 end
 
-% TODO: Get an opt structure from varargin
-
-
 rmdl = mk_grid_model([],varargin{1:end-last});
 
 ROIa = mk_approx_c2f(fmdl,rmdl);
@@ -56,6 +59,15 @@ if isfield(opts,'reorder')
    ROIs = ROIs(opts.reorder(:),:);
 end
 imgR= mk_image(fmdl,ROIs.');
+
+% Can only replace in this case
+if strcmp(imdl.type,'inv_model') && ...
+   isfield(imdl,'rec_model') && ...
+   isfield(imdl,'solve_use_matrix')
+
+   imdl.rec_model.coarse2fine = ROIa;
+   imdl.solve_use_matrix.RM = ROIs*imdl.solve_use_matrix.RM;
+end
 
 function do_unit_test
    do_GREIT_test
