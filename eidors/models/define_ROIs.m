@@ -1,16 +1,19 @@
 function [ROIs, imgR, imdl] = define_ROIs(imdl, varargin)
 % DEFINE_ROIS: define ROI regions in image
 %
-% [ROIs, imgR, imdl] = define_ROIs(imdl, xcuts, ycuts, ...)
+% [ROIs, imgR, imdl] = define_ROIs(imdl, xcuts, ycuts, ..., opts)
 %   imdl: inv_ or fwd_model structure
 %   xcuts, ycuts: x and y cuts of ROI grid
+%   opts: options structure
+%     opts.reorder = reorder defined ROIs
 % 
-% ROIs: matrix [n_ROIs x n_elems]
-% imgR: image of ROIs (mostly for debugging)
-% imdl: inv_model which reconstructs onto ROIs (if possible)
+%   ROIs: matrix [n_ROIs x n_elems]
+%   imgR: image of ROIs (mostly for debugging)
+%   imdl: inv_model which reconstructs onto ROIs (if possible)
 %
 
 % TODO: 
+%   - create imdl
 %   - add 3D
 %   - create rec_model if not there
 %   - can it work for non-solve_use_matrix?
@@ -34,13 +37,24 @@ switch imdl.type
       error('define_ROIs: require fwd_ or inv_model');
 end
 
+if isstruct(varargin{end})
+   opts = varargin{end};
+   last = 1;
+else
+   opts = struct([]);
+   last = 0;
+end
+
 % TODO: Get an opt structure from varargin
 
 
-rmdl = mk_grid_model([],varargin{:});
+rmdl = mk_grid_model([],varargin{1:end-last});
 
 ROIa = mk_approx_c2f(fmdl,rmdl);
 ROIs = ROIa.' * recc2f;
+if isfield(opts,'reorder')
+   ROIs = ROIs(opts.reorder(:),:);
+end
 imgR= mk_image(fmdl,ROIs.');
 
 function do_unit_test
@@ -55,7 +69,12 @@ function do_GREIT_test
    fmdl.meas_select = msel;
    imdl= select_imdl(fmdl,'GREIT:NF=0.500 32x32');
    [ROIs,imgR] = define_ROIs(imdl,-1:0.5:1,-1:0.5:1);
-   subplot(121); show_slices(imgR)
+   subplot(221); show_slices(imgR)
    imdl= select_imdl(fmdl,'GREIT:NF=0.500 16x16');
    [ROIs,imgR] = define_ROIs(imdl,-1:0.5:1,-1:0.5:1);
-   subplot(122); show_slices(imgR)
+   subplot(222); show_slices(imgR)
+   opts.reorder = reshape(1:16,4,4)';
+   [ROIs,imgR] = define_ROIs(imdl,-1:0.5:1,-1:0.5:1,opts);
+   subplot(223); show_slices(imgR)
+   [ROIs,imgR] = define_ROIs(imdl,-1:0.5:1,1:-0.5:-1,opts);
+   subplot(224); show_slices(imgR)
