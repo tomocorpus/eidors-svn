@@ -4,7 +4,7 @@ function inv_mdl= select_imdl( mdl, options )
 %
 %   mdl - inv_model structure - parameters are replaced as specified
 %    OR
-%   mdl - fwd_model - a basic GN difference model is created, and parameters replaced
+%   mdl - fwd_model OR image
 %
 % OPTIONS => {'opt1','opt2'} options are processed in the order specified
 % if OPTIONS is char, treated as first option
