@@ -518,7 +518,6 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, tank_shape, hig, i
           case 1
               % piece_poly_fit doesn't seem to work very well
               if 1%tank_shape.curve_type == 4
-keyboard
                   pp = fourier_fit(tank_shape.vertices,...
                       size(tank_shape.vertices,1) - 1,tank_shape.vertices(1,:));
                   p = linspace(0,1,n_elecs+1)'; p(end) = [];
@@ -851,7 +850,6 @@ function write_geo_file(geofn, tank_height, tank_shape, ...
     %  elecs(i).maxh  = '-maxh=#' or '';
     %  elecs(i).edg_no = i (index of the edge on which the electrode lies)
     pts_elecs_idx = [];
-    %^keyboard
     for i=1:n_elecs
         name = sprintf('elec%04d',i);
         pos = elecs(i).pos;
