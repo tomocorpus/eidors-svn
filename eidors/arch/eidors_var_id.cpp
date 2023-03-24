@@ -460,9 +460,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
   hash_final( &c, digest);
 
+#define SHA1BUFSZ (3 + 8*5 + 1)
   { char *
-  sha1buf = (char *) mxMalloc(44* sizeof(char));
-  sprintf(sha1buf, "id_%08X%08X%08X%08X%08X", 
+  sha1buf = (char *) mxMalloc(SHA1BUFSZ * sizeof(char));
+  snprintf(sha1buf, SHA1BUFSZ, "id_%08X%08X%08X%08X%08X", 
           digest[0], digest[1], digest[2], digest[3], digest[4] );
   plhs[0] = mxCreateString(sha1buf);
   mxFree( sha1buf );
