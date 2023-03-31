@@ -1,7 +1,10 @@
 #! /bin/bash
+# Install/compile netgen on linux.
+# Run as ./install-netgen-6.0-beta
 
-echo "last tested: 2017-04-18 with Ubuntu xenial 16.04.2 LTS, also Gentoo Linux"
+echo "last tested: 2023-03-31 with Ubuntu 22.04 LTS"
 echo "run $(date)"
+
 
 SFDL=https://sourceforge.net/projects
 
@@ -43,7 +46,8 @@ set -x
 [ "x$(grep DISTRIB_ID /etc/lsb-release | sed 's/.*=//')" != "xUbuntu" ] || \
    sudo apt install libxmu-dev mesa-common-dev libglu1-mesa-dev libx11-dev python2-dev \
       liboce-foundation-dev liboce-foundation11 liboce-modeling-dev liboce-modeling11 liboce-ocaf-dev \
-      liboce-ocaf-lite-dev liboce-ocaf-lite11 liboce-ocaf11 liboce-visualization-dev liboce-visualization11
+      liboce-ocaf-lite-dev liboce-ocaf-lite11 liboce-ocaf11 liboce-visualization-dev \
+      liboce-visualization11 python3-distutils
 
 
 # ${MAKE} working directories if they don't exist
