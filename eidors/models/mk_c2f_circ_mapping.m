@@ -51,7 +51,7 @@ function [mapping, failed] = circ_mapping(mdl,xyzr,copt)
     % Correct
     vol = get_elem_volume(mdl,-2)'; %-2 => don't use c2f
 
-    mapping = bsxfun(@times, mapping, correctmap./(vol*mapping));
+    mapping = mapping .* (correctmap./(vol*mapping));
     
 % Mapping depends only on nodes and elems - remove the other stuff
 function c_obj = cache_obj(mdl, xyzr)
