@@ -9,6 +9,10 @@
  * http://www.mathworks.com/support/tech-notes/1600/1605.html
  * http://www.mathworks.com/access/helpdesk/help/techdoc/matlab_external/f11333.html
 
+ * New version uses xxHash
+ * Download from:
+https://raw.githubusercontent.com/Cyan4973/xxHash/dev/xxhash.h
+
  * This code was created to solve the issue that Matlab doesn't save
  *   variables to disk consistently
  * OLD TEST CODE:
@@ -34,7 +38,8 @@
  * defines for SHA1.c code
  */
 
-#define HW 5
+#define USE_SHA1_HASH
+
 #if (defined WIN32)
   #define LITTLE_ENDIAN_DEF 5
 #elif (__BYTE_ORDER == __LITTLE_ENDIAN ) 
@@ -83,12 +88,15 @@ typedef unsigned long  uint32_t; //sizeof(unsigned short)=2
 
 
 
+
+#ifdef USE_SHA1_HASH
+
 typedef struct {
     unsigned_int32 state[5];
     unsigned_int32 count[2];
     unsigned char buffer[64];
 } hash_context;
-
+#define HW 5
 static void
 hash_initial( hash_context * c );
 static void
@@ -97,6 +105,10 @@ static void
 hash_final( hash_context * c, unsigned_int32[HW] );
 static void
 recurse_hash( hash_context *c, const mxArray *var );
+
+#else
+
+#endif
 
 // This is the core function. Iterate over the variable
 //   to calculate the in-memory SHA1 hash
@@ -656,12 +668,4 @@ unsigned char finalcount[8];
     SHA1Transform(context->state, context->buffer);
 #endif
 }
-
-
-static void
-hash_initial( hash_context * c );
-static void
-hash_process( hash_context * c, unsigned char * data, unsigned len );
-static void
-hash_final( hash_context * c, unsigned_int32[HW] );
 
