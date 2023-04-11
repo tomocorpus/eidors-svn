@@ -495,6 +495,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[])
 {
   hash_context c;
+  
+// the xxHash library recomends 
+// mallocing the state like this, but
+// static allocs are cleaner and don't
+// require checking errors. Timing
+// test show it exactly the same
+//XXH3_state_t* cp= XXH3_createState();
+//XXH3_state_t c = *cp;
+//XXH3_freeState(cp);
+  
   unsigned_int32 digest[5];
 
   if ( !nrhs )  {
