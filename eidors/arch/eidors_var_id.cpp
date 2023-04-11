@@ -38,7 +38,7 @@ https://raw.githubusercontent.com/Cyan4973/xxHash/dev/xxhash.h
  * defines for SHA1.c code
  */
 
-#define USE_SHA1_HASH
+// #define USE_SHA1_HASH
 
 #if (defined WIN32)
   #define LITTLE_ENDIAN_DEF 5
@@ -99,16 +99,45 @@ typedef struct {
 #define HW 5
 static void
 hash_initial( hash_context * c );
+
 static void
 hash_process( hash_context * c, unsigned char * data, unsigned len );
+
 static void
 hash_final( hash_context * c, unsigned_int32[HW] );
+
+#else
+// Here we use xxHash instead
+
+#define XXH_STATIC_LINKING_ONLY
+#define XXH_IMPLEMENTATION   /* access definitions */
+#include "xxhash.h"
+#define hash_context XXH3_state_t
+
+static void
+hash_initial( hash_context * c ){
+  XXH3_128bits_reset_withSeed(c, (XXH64_hash_t)0);
+}
+
+static void
+hash_process( hash_context * c, unsigned char * data, unsigned len ){
+  XXH3_128bits_update(c, data, len);
+}
+
+static void
+hash_final( XXH3_state_t* c, unsigned_int32 *digest )
+{
+   XXH128_hash_t u128s = XXH3_128bits_digest(c);
+   digest[0]= (unsigned long)(u128s.high64 >> 32);
+   digest[1]= (unsigned long)(u128s.high64 & 0xffffffff);
+   digest[2]= (unsigned long)(u128s.low64 >> 32);
+   digest[3]= (unsigned long)(u128s.low64  & 0xffffffff);
+   digest[4]= 0;  
+}
+#endif
 static void
 recurse_hash( hash_context *c, const mxArray *var );
 
-#else
-
-#endif
 
 // This is the core function. Iterate over the variable
 //   to calculate the in-memory SHA1 hash
@@ -483,6 +512,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
   return;
 }
 
+#ifdef USE_SHA1_HASH
 /*
 SHA1 Calculation Code
 
@@ -669,3 +699,4 @@ unsigned char finalcount[8];
 #endif
 }
 
+#endif // USE_SHA1_HASH
