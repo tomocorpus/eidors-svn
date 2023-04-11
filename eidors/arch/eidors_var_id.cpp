@@ -121,18 +121,27 @@ hash_initial( hash_context * c ){
 
 static void
 hash_process( hash_context * c, unsigned char * data, unsigned len ){
-  XXH3_128bits_update(c, data, len);
+   XXH3_128bits_update(c, data, len);
 }
 
 static void
 hash_final( XXH3_state_t* c, unsigned_int32 *digest )
 {
-   XXH128_hash_t u128s = XXH3_128bits_digest(c);
+   XXH128_hash_t u128s;
+  // Code from xxhash 6248
+   u128s = XXH3_128bits_digest(c);
    digest[0]= (unsigned long)(u128s.high64 >> 32);
    digest[1]= (unsigned long)(u128s.high64 & 0xffffffff);
    digest[2]= (unsigned long)(u128s.low64 >> 32);
    digest[3]= (unsigned long)(u128s.low64  & 0xffffffff);
-   digest[4]= 0;  
+
+  // Get 4 more bytes, put all the
+  // state back into the hash. Since there
+  // are > 256 bits in the state, we 
+  // can get at them here
+   XXH3_128bits_update(c, c, sizeof(XXH3_state_t));
+   u128s = XXH3_128bits_digest(c);
+   digest[4]= (unsigned long)(u128s.high64 & 0xffffffff);
 }
 #endif
 static void
