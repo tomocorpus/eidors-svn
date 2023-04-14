@@ -14,7 +14,7 @@ function [br,pos]= calc_posn_resolution( img, fwd_model)
 % In 3D calc_posn_resolution does a 2D z-slice in the 
 % centre of the medium. This may not be appropriate
 
-% (C) 2006 Andy Adler. Licensed under GPL version 2
+% (C) 2006 Andy Adler. Licensed under GPL version 2 or 3
 % $Id$
 
 if nargin>=2
