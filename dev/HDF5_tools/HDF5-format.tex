@@ -1,0 +1,231 @@
+\documentclass[10pt,a4paper]{article}
+% ========================== DO NOT MODIFY =================================== %
+\usepackage[a4paper,left=2.0cm,top=2.0cm,right=2.0cm,bottom=2.0cm]{geometry}
+\usepackage{amssymb,amsmath} % If amsmath is required
+\usepackage[implicit=false]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{titling}
+\usepackage{authblk}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+}
+    
+\usepackage{fancyhdr}
+\fancyhf{}
+\setlength{\headheight}{3em}
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt} % remove lines as well
+\fancyhead[L]{\footnotesize{23\textsuperscript{st} International Conference on Biomedical Applications of Electrical Impedance Tomography (EIT 2023), Aachen, Germany}}
+\fancypagestyle{firstpage}{%
+  \lhead{\footnotesize{23\textsuperscript{st} International Conference on Biomedical Applications of Electrical Impedance Tomography (EIT 2023), Aachen, Germany}}
+}
+
+\usepackage[small,compact]{titlesec}
+% Fix titlesec for the 2.10.1 version in ubuntu 16.04
+%  https://bugs.launchpad.net/ubuntu/+source/texlive-extra/+bug/1574052
+\makeatletter
+\@ifpackagelater{titlesec}{2016/03/21}{%
+ % Package titlesec is on version 2.10.2 or higher, nothing to do %
+}{%
+ % Check if package titlesec is on version 2.10.1 %
+ \@ifpackagelater{titlesec}{2016/03/15}{%
+  % Package titlesec on version 2.10.1, patch accordingly %
+  \usepackage{etoolbox}%
+  \makeatletter
+  \patchcmd{\ttlh@hang}{\parindent\z@}{\parindent\z@\leavevmode}{}{}%
+  \patchcmd{\ttlh@hang}{\noindent}{}{}{}%
+  \makeatother
+ }{%
+  % Package titlsecon is on version 2.10.0 or lower, nothing to do %
+ }%
+}
+\makeatother
+\titlespacing*{\section}{0pt}{5pt}{5pt}  % If you need different spacing
+
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[small,bf,tableposition=top,figureposition=bottom,skip=2pt]{caption}
+
+
+% limit space between floats and text
+\setlength{\textfloatsep}{10pt plus 1.0pt minus 2.0pt}
+% shrink the list environments
+\setlist{noitemsep}
+\setlist{nolistsep}
+
+% Shrink the bibliography
+  \let\oldthebibliography=\thebibliography
+  \let\endoldthebibliography=\endthebibliography
+  \renewenvironment{thebibliography}[1]{%
+    \begin{oldthebibliography}{#1}%
+      \setlength{\parskip}{0ex}%
+      \setlength{\itemsep}{0ex}%
+  }%
+  {%
+    \end{oldthebibliography}%
+  }
+
+% Format of the front matter
+\renewcommand{\Affilfont}{\small}
+\setlength{\affilsep}{1ex}
+\renewcommand\Authands{, }
+\setlength{\droptitle}{-2cm}
+% ============================================================================ %
+
+
+
+
+%------------------------------- FRONT MATTER -------------------------------- %
+\title{HDF5-based data format for EIT data%
+\vspace{-0.5ex}} %remove vertical space
+\author[1]{Lucas Possner}
+\author[1]{Martin Bulst}
+\author[2]{Andy Adler}
+\affil[1]{Sciospec Scientific Instruments GmbH, Leipzig, Germany}
+\affil[2]{Carleton University, Ottawa, Canada}
+\date{}
+%----------------------------------------------------------------------------- %
+%\protect\url
+
+
+\begin{document}
+\maketitle
+\thispagestyle{firstpage}
+\vspace{-1.5cm}
+%\thispagestyle{empty}
+
+\begin{multicols}{2}
+
+\noindent {\bf Abstract:}
+Many devices, both research and commercial, have been
+made for EIT and bioimpedance applications. We propose
+a new, flexible data format which can allow data
+interchange, based on the HDF5 data standard.
+
+\section{Introduction}
+EIT and bioimpedance applications are growing. For 
+research applications, there is an increasing
+complexity of configurations in which complex
+configurations and multi data streams are used.
+We have previously proposed an openEIT data format\cite{Jones2014Open},
+which received little traction because of the difficulties
+of using XML as a data container.
+%
+For a new data format, our requirements are:
+\begin{itemize}[itemsep=0ex, leftmargin=5mm,topsep=2mm]
+\item Simplicity:
+  writing data in $<50$ code lines. 
+\item Self-documenting: 
+  core data element is the ``frame''.
+\item Streaming: suitable for large
+  and online data.
+\item Extensibility:
+  easy to add additional data and elements.
+\end{itemize}
+Here, we propose a data format based on HDF5 \cite{HDF5Group},
+a hierarchical format designed for numerical data.
+
+
+%HDF5 stores data in row major order:
+
+% HDF5 uses C storage conventions, assuming that the last listed
+% dimension is the fastest-changing dimension and the first-listed
+% dimension is the slowest changing
+
+\section{Format}
+
+The format (Version 2023-02) is illustrated in Fig\,\ref{fig:system}.
+Data sets are stored as frames of data, where each is a sequence
+of measurements (corresponding to stimulations)
+which are repeated over time. For complex data, 
+{\tt Meas.U.Real}
+and 
+{\tt Meas.U.Imag}
+data sets are stored.
+ Multiple data sets can be stored in one file,
+and each measurement configuration is documented in a 
+{\tt /data/\{Data set name\}/protocol} field. In the
+protocol, the field
+ {\tt Stim.I.01(A)} indicates the excitation current into electrode\#1 in (A);
+ the $4^{\rm th}$ element shows $0.01$\,A is injected
+during the 
+     $4^{\rm th}$ measurement in each frame.
+Excitation (stimulation) information is stored into fields that start with
+{\tt Stim} and specify the kind of excitation after a dot.
+Similary, measurement information are stored into fields that start with {\tt Meas}.
+Measurement data are stored as a matrix N$_{\rm frame}\times$L$_{\rm frame}$,
+with an extension indicating the type (.Abs, .Real, .Imag).
+Times (if known) can be stored as shown.
+Optional or vendor-specific information
+ (e.g. {\tt /instrument}, or
+       {\tt /data/initialize})
+can be stored in the file.
+Multiple recordings with potentially different protocols are stored with different 
+{\tt /data/\{Data set name\}}.
+
+\section{Discussion}
+
+We describe an HDF5-based data format for EIT data.
+It documented with code examples at \cite{Adler2023HDF5}.
+The data format is supported in EIDORS \cite{Adler2006EIDORS}
+and will be part of the next release.
+
+
+\footnotesize
+% Instead of using thebibliography, you can also type the references
+% using bibtex, and uncomment the following lines
+%\bibliographystyle{compact}
+%\bibliography{eit2018}
+\begin{thebibliography}{}
+\bibitem{Jones2014Open}
+C Jones \emph{et al},
+%Open Electrical Impedance Tomography (OEIT) File Format
+\href{https://cudo.carleton.ca/eit2014/3311}{p.20}, Conf EIT 2014
+%http://www.sce.carleton.ca/faculty/adler/publications/2014/jones-EIT2014-OpenEIT.pdf
+
+\bibitem{Adler2006EIDORS}
+A Adler, WRB Lionheart, 
+%EIDORS
+Physiol Meas 27:S25--42, 2006
+
+\bibitem{Adler2023HDF5}
+A Adler \emph{et al},
+\href{https://sourceforge.net/p/eidors3d/code/HEAD/tree/trunk/dev/HDF5\_tools}
+                      {sf.net/p/eidors3d/code/HEAD/tree/trunk/dev/HDF5\_tools/}
+``HDF5 tools", 2023
+
+\bibitem{HDF5Group}
+The HDF Group,
+%    title = "{Hierarchical data format version 5}",
+1997--2023,
+\href{http://www.hdfgroup.org/HDF5}
+                {hdfgroup.org/HDF5}
+
+\end{thebibliography}
+\end{multicols}
+
+\begin{figure*}[h]
+\centering
+% Use the following line with your images
+\includegraphics[page=13,width=.92\textwidth]{figures.pdf}
+\caption{
+Structure of the proposed HDF5 file. All data sets must contain
+a {\tt protocol} defining the configuration for each measurement
+in a frame. Frame data is a single file (e.g.\,{\tt Meas.V.abs}).
+Times for measurements or frames are provided if available.
+Items in {\em italics} have example names (can be named differently).
+}
+\label{fig:system}
+\end{figure*}
+
+\end{document}
