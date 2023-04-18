@@ -139,7 +139,12 @@ hash_final( XXH3_state_t* c, unsigned_int32 *digest )
   // state back into the hash. Since there
   // are > 256 bits in the state, we 
   // can get at them here
-   XXH3_128bits_update(c, c, sizeof(XXH3_state_t));
+  // But the state is not stable beyond the 256 bits, it seems
+// printf("[%d]\n",sizeof(XXH3_state_t));
+// {int i;for(i=0;i<sizeof(XXH3_state_t);i++) printf("%02X",c[i]);}
+// {int i;for(i=0;i<10;i++) printf("%02X",c[i]);}
+// XXH3_128bits_update(c, c, sizeof(XXH3_state_t)/4);
+   XXH3_128bits_update(c, c, 32);
    u128s = XXH3_128bits_digest(c);
    digest[4]= (unsigned long)(u128s.high64 & 0xffffffff);
 }
