@@ -301,7 +301,10 @@ function ok = eidors_var_id_ok;
     id0 = '';
     try id0 = eidors_var_id([]); end
     if strcmp(id0, ...
-      'id_DA39A3EE5E6B4B0D3255BFEF95601890AFD80709')  % SHA1 of nothing
+      'id_DA39A3EE5E6B4B0D3255BFEF95601890AFD80709')  % SHA1 of []
+       ok = 1;
+    elseif strcmp(id0, ...
+      'id_99AA06D3014798D86001C324468D497F8C010DD2')  % xxHash of []
        ok = 1;
     else
        ok = 0;
