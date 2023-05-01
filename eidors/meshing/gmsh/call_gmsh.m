@@ -32,7 +32,8 @@ end
 
 % Gmsh executable filename
 if  islinux
-   gmsh_name = 'gmsh';
+   % Matlab plays with libraries
+   gmsh_name = 'LD_LIBRARY_PATH="" gmsh';
 else
    gmsh_name = [cache_path,'/gmsh'];
 end
