@@ -128,7 +128,7 @@ For a new data format, our requirements are:
 \item Self-documenting: 
   core data element is the ``frame''.
 \item Streaming: suitable for large
-  and online data.
+  and online data sets.
 \item Extensibility:
   easy to add additional data and elements.
 \end{itemize}
@@ -144,41 +144,48 @@ a hierarchical format designed for numerical data.
 
 \section{Format}
 
-The format (Version 2023-02) is illustrated in Fig\,\ref{fig:system}.
+The format (Version 2023.4) is illustrated in Fig\,\ref{fig:system};
+updated versions will be documented at \cite{Adler2023HDF5}.
 Data sets are stored as frames of data, where each is a sequence
-of measurements (corresponding to stimulations)
+of measurements,
 which are repeated over time. For complex data, 
-{\tt Meas.U.Real}
+{\tt Meas.V.Real}
 and 
-{\tt Meas.U.Imag}
+{\tt Meas.V.Imag}
 data sets are stored.
  Multiple data sets can be stored in one file,
 and each measurement configuration is documented in a 
-{\tt /data/\{Data set name\}/protocol} field. In the
+{\tt /data/\emph{\{Data set name\}}/protocol} field.
+Electrodes can be numbered or named. In the
 protocol, the field
- {\tt Stim.I.01(A)} indicates the excitation current into electrode\#1 in (A);
- the $4^{\rm th}$ element shows $0.01$\,A is injected
+ {\tt Stim.I.01(A)} indicates the excitation current into electrode {\tt 01} in Amps;
+ the $4^{\rm th}$ element shows $10$\,mA=$0.01$\,A is injected
 during the 
      $4^{\rm th}$ measurement in each frame.
 Excitation (stimulation) information is stored into fields that start with
 {\tt Stim} and specify the kind of excitation after a dot.
 Similary, measurement information are stored into fields that start with {\tt Meas}.
-Measurement data are stored as a matrix N$_{\rm frame}\times$L$_{\rm frame}$,
-with an extension indicating the type (.Abs, .Real, .Imag).
+Measurements normally correspond to stimulations, but this
+is not required e.g.\ for biopotential measurements, where
+{\tt Meas.V.freq(Hz)}=0.
+Measurement data are stored as a matrix
+ $N_{\rm frames}\times L_{\rm frame}$,
+with an extension indicating the type
+({\tt .Abs}, {\tt .Real}, {\tt .Imag}).
 Times (if known) can be stored as shown.
-Optional or vendor-specific information
- (e.g. {\tt /instrument}, or
+Optional / vendor-specific information
+ (e.g.\ {\tt /instrument}, or
        {\tt /data/initialize})
-can be stored in the file.
-Multiple recordings with potentially different protocols are stored with different 
-{\tt /data/\{Data set name\}}.
+can be stored.
+Additional recordings with their own protocols are stored with different 
+{\tt /data/\emph{\{Data set name\}}}.
 
 \section{Discussion}
 
 We describe an HDF5-based data format for EIT data.
 It documented with code examples at \cite{Adler2023HDF5}.
 The data format is supported in EIDORS \cite{Adler2006EIDORS}
-and will be part of the next release.
+and will be part of the next software release.
 
 
 \footnotesize
@@ -214,14 +221,18 @@ The HDF Group,
 \end{thebibliography}
 \end{multicols}
 
+\vspace{-5mm}
+
 \begin{figure*}[h]
 \centering
 % Use the following line with your images
 \includegraphics[page=13,width=.92\textwidth]{figures.pdf}
+\vspace{-1mm}
 \caption{
-Structure of the proposed HDF5 file. All data sets must contain
+Structure of the proposed HDF5 file (Version 2023.4).
+All data sets must contain
 a {\tt protocol} defining the configuration for each measurement
-in a frame. Frame data is a single file (e.g.\,{\tt Meas.V.abs}).
+in a frame. Frame data is a single file (e.g.\ {\tt Meas.V.abs}).
 Times for measurements or frames are provided if available.
 Items in {\em italics} have example names (can be named differently).
 }
