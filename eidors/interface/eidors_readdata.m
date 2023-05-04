@@ -40,7 +40,10 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %           - output: [vv] = eidors_readdata( fname, 'DIXTAL', [], encodepage );
 %    - New Carefusion "EIT" file format
 %        format = "GOEIIMF-EIT" or "carefusion"
-
+%    - HDF5-based format
+%        format = 'h5' or 'hdf5' documented at
+%       Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
+%
 %    - Sheffield MK I "RAW" file format
 %        format = "RAW" or "sheffield"
 %    - ITS (International Tomography Systems)
@@ -96,7 +99,11 @@ end
 
 auxdata = []; % default, can be overriden if the format has it
 fmt = pre_proc_spec_fmt( format, fname );
-switch fmt
+switch lower(fmt)
+   case {'h5','hdf5'};
+      % Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
+      [vv, auxdata, stim]= h5_readdata( fname );
+
    case 'mceit';
       [vv,curr,volt,auxdata_out,auxtime,rawdata] = mceit_readdata( fname );
       auxdata.auxdata = auxdata_out;
@@ -213,6 +220,15 @@ switch fmt
    otherwise
       error('eidors_readdata: file "%s" format unknown', format);
 end
+
+% HDF5 format. 
+%  vv is the voltages
+%  auxdata is all the data
+%  stim is reconstructed stim
+function [vv, auxdata, stim]= h5_readdata( fname );
+   vv=1;
+   auxdata=[];
+   stim=[];
 
 function stim = basic_stim(N_el);
    stim= mk_stim_patterns(16,1,[0,1],[0,1], ... \
