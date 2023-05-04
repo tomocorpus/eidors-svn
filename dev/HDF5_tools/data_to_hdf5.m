@@ -7,12 +7,22 @@ function data_to_hdf5(example_no)
 switch example_no;
   case 'montreal_data_1995';
     montreal_data_1995();
+    montreal_data_1995_test();
   otherwise;
     error('no such example');
 end
     
 % h5disp(h5f)
 
+function montreal_data_1995_test();
+  montreal_data_1995();
+  fname = 'montreal_data_1995.h5';
+  [vv, auxdata, stim]= eidors_readdata( fname );
+  imdl = mk_common_model('c2t2',16);
+  imdl.hyperparameter.value = 3e-5;
+  imdl.fwd_model.stimulation = stim;
+  imgr= inv_solve(imdl,vv,vv(:,1));
+  show_slices(imgr);
 
 function montreal_data_1995()
   fn = 'montreal_data_1995';
@@ -61,6 +71,9 @@ function montreal_data_1995()
   
   text = string(fileread(which('montreal_data_1995.readme')));   
   h5createwrite(h5f,['/instrument/montreal_data_1995.readme'],text,'string');
+
+
+  
   
 function h5createwrite(fname,dataset,data,dtype)
     if nargin<4; dtype = 'double'; end
