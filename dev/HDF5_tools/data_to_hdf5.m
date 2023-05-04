@@ -32,7 +32,7 @@ function montreal_data_1995()
   FR =  5.7652;% See analysis 2023-04-22 (frames/s)
   Dtime = linspace(0,1/FR,256+1); Dtime(end) = [];
   ds = '/data/DS1';
-  h5createwrite(h5f,[ds,'/Meas.V.abs'],data,'int16')
+  h5createwrite(h5f,[ds,'/Meas.V.Abs'],data,'int16')
   time = (0:size(data,2)-1)/7; % 7 FPS
   h5createwrite(h5f,[ds,'/Time.Meas(s)'],time,'double')
   prot=[ds,'/protocol'];

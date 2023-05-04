@@ -43,6 +43,7 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %    - HDF5-based format
 %        format = 'h5' or 'hdf5' documented at
 %       Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
+%        after filename, add ":DataSetName" or all are loaded
 %
 %    - Sheffield MK I "RAW" file format
 %        format = "RAW" or "sheffield"
@@ -81,9 +82,7 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 
 if nargin>=1 && strcmp(fname,'UNIT_TEST'); do_unit_test; return; end
 
-if ~exist(fname,'file')
-   error([fname,' does not exist']);
-end
+check_file_exists(fname);
 
 if nargin < 2
 % unspecified file format, autodetect
@@ -99,7 +98,7 @@ end
 
 auxdata = []; % default, can be overriden if the format has it
 fmt = pre_proc_spec_fmt( format, fname );
-switch lower(fmt)
+switch fmt
    case {'h5','hdf5'};
       % Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
       [vv, auxdata, stim]= h5_readdata( fname );
@@ -221,13 +220,58 @@ switch lower(fmt)
       error('eidors_readdata: file "%s" format unknown', format);
 end
 
+function check_file_exists(fname)
+   if ~exist(fname,'file')
+      error([fname,' does not exist']);
+   end
+
 % HDF5 format. 
 %  vv is the voltages
 %  auxdata is all the data
 %  stim is reconstructed stim
-function [vv, auxdata, stim]= h5_readdata( fname );
-   vv=1;
-   auxdata=[];
+function [vv, auxdata, stim]= h5_readdata( fname, datasetname );
+   if nargin==1; datasetname = false; end
+   version = h5read(fname, '/VERSION');
+   if version<2023.4; error('HDF5 version too old'); end
+   try
+      info = h5info(fname,'/data');
+   catch
+      error('HDF5 files must have /data group');
+   end
+
+   Data = info.Groups;
+   if length(Data)==1;
+      ff=1;
+   else %% TODO, figure it out
+      ff = find({Data(:).Name}==["/data/",fname{2}]);
+   end
+   Data = Data(ff);
+
+   auxdata= struct();
+   for i=1:length(Data.Datasets)
+      name = Data.Datasets(i).Name;
+      data = h5read(fname, [Data.Name, '/', name]);
+      outname = ['auxdata.',name];
+      outname( (outname == ')') | (outname == '(') ) = '_';
+      eval([outname,'=data;']);
+   end
+
+   try
+      vv = auxdata.Meas.V;
+   catch
+      error('h5 file has no Meas.V field');
+   end
+   if isfield(vv,'Real') 
+      if isfield(vv,'Imag') 
+         vv = vv.Real + 1j*vv.Imag;
+      else
+         vv = vv.Real;
+      end
+   elseif isfield(vv,'Abs') 
+      vv = vv.Abs;
+   else
+      error('no Abs, Real or Imag field');
+   end
    stim=[];
 
 function stim = basic_stim(N_el);
@@ -1385,3 +1429,7 @@ function do_unit_test
    unit_test_cmp('LQ2',dd(100,100), -8.820502983940973e-04 - 8.022670735677084e-04i,1e-16);
    unit_test_cmp('LQ2:elecZ', auxdata.elec_impedance(3), -6.883231000000000e+06 - 1.805360000000000e+05i,1e-10);
    unit_test_cmp('LQ2:t_rel', auxdata.t_rel(2), 38442185);
+
+  
+   pth = which('montreal_data_1995.h5');
+   [dd,auxdata,stim]= eidors_readdata(pth);
