@@ -272,7 +272,44 @@ function [vv, auxdata, stim]= h5_readdata( fname, datasetname );
    else
       error('no Abs, Real or Imag field');
    end
-   stim=[];
+
+   try
+      protocol = [Data.Name,'/protocol'];
+      info = h5info(fname,protocol);
+   catch
+      error('HDF5 files must have /data/{Dataset}/protocol group');
+   end
+
+   % Tested that Datasets are in sort order
+   Meas=[]; Stim=[];
+   for i=1:length(info.Datasets)
+      dsn= info.Datasets(i).Name;
+      ni=  regexp(dsn,'Stim.I.(?<n>\d+)\(A\)','names');
+      if ~isempty(ni)
+         Stim(str2num(ni.n),:) = h5read(fname, [protocol, '/', dsn]);
+      end
+      ni=  regexp(dsn,'Meas.V.(?<n>\d+)\(V\)','names');
+      if ~isempty(ni)
+         Meas(str2num(ni.n),:) = h5read(fname, [protocol, '/', dsn]);
+      end
+   end
+   if size(Meas,2) ~= size(Stim,2);
+      error('inconsistent frame size');
+   end
+   if size(Meas,1) > size(Stim,1);
+      Stim(size(Meas,1),1) = 0; % increase size
+   end
+   if size(Meas,1) < size(Stim,1);
+      Meas(size(Stim,1),1) = 0; % increase size
+   end
+   Nstims = size(Meas,2);
+   stim=repmat( ...
+          struct('stim_pattern',[],'meas_pattern',[]), ...
+          1,Nstims);
+   for i=1:Nstims
+      stim(i) = struct('stim_pattern',Stim(:,i), ...
+                       'meas_pattern',Meas(:,i).');
+   end
 
 function stim = basic_stim(N_el);
    stim= mk_stim_patterns(16,1,[0,1],[0,1], ... \
