@@ -33,7 +33,7 @@ function montreal_data_1995()
   Dtime = linspace(0,1/FR,256+1); Dtime(end) = [];
   ds = '/data/DS1';
   h5createwrite(h5f,[ds,'/Meas.V.abs'],data,'int16')
-  time = (0:size(data,2))'/7; % 7 FPS
+  time = (0:size(data,2)-1)/7; % 7 FPS
   h5createwrite(h5f,[ds,'/Time.Meas(s)'],time,'double')
   prot=[ds,'/protocol'];
   k=0;for i=1:length(stim);
@@ -46,17 +46,17 @@ function montreal_data_1995()
        Mfreq(k) = 13000;
     end
   end
-  h5createwrite(h5f,[prot,'/Ifreq(Hz)'],Ifreq);
+  h5createwrite(h5f,[prot,'/Stim.I.freq(Hz)'],Ifreq);
   for i=1:Nel;
-      dset = sprintf([prot,'/I%02d(A)'],i);
+      dset = sprintf([prot,'/Stim.I.%02d(A)'],i);
       h5createwrite(h5f,dset,I(:,i));
   end
-  h5createwrite(h5f,[prot,'/Mfreq(Hz)'],Mfreq);
+  h5createwrite(h5f,[prot,'/Meas.V.freq(Hz)'],Mfreq);
   for i=1:Nel;
-      dset = sprintf([prot,'/MI%02d(V)'],i);
+      dset = sprintf([prot,'/Meas.V.%02d(V)'],i);
       h5createwrite(h5f,dset,M(:,i));
   end
-  h5createwrite(h5f,[prot,'/Dtime(s)'],Dtime);
+  h5createwrite(h5f,[prot,'/Meas.Dtime(s)'],Dtime);
 
   
   text = string(fileread(which('montreal_data_1995.readme')));   
