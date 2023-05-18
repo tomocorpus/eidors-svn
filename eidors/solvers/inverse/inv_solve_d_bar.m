@@ -21,7 +21,8 @@ function img = inv_solve_d_bar(inv_model, data1, data2)
 
     citeme(mfilename);
 
-    n_elec = length(inv_model.fwd_model.electrode);
+    fmdl = inv_model.fwd_model;
+    n_elec = length(fmdl.electrode);
     
     %either calcualte or give, as this is rather imporant for scaling of
     %the output of the d-bar algorithm.
@@ -34,20 +35,12 @@ function img = inv_solve_d_bar(inv_model, data1, data2)
     end
 
     %% Calculations regarding the Dirichlet to Neumann map
-    stim_pattern_mat = create_stim_pattern_matrix(inv_model.fwd_model);
+    stim_pattern_mat = create_stim_pattern_matrix(fmdl);
     stim_pattern_mat = stim_pattern_mat./sqrt(sum(stim_pattern_mat.^2,1));
 
-    try
-        if data1.type == 'data'
-            data1= data1.meas;
-        end;
-    end
+    data1 = calc_difference_data(0,data1,fmdl);
+    data2 = calc_difference_data(0,data2,fmdl);
 
-    try
-        if data2.type == 'data'
-            data2= data2.meas;
-        end;
-    end
     % reshaping voltages for easy BN matrix assembly
     data1 = reshape(data1, [n_elec, n_elec-1]);
     data2 = reshape(data2, [n_elec, n_elec-1]);
@@ -65,7 +58,7 @@ function img = inv_solve_d_bar(inv_model, data1, data2)
     DN2 = inv(NtoD2);
     
     %% Calculations regarding the scattering transformation
-    elec_pos_angle = get_elec_pos_angle(inv_model.fwd_model);
+    elec_pos_angle = get_elec_pos_angle(fmdl);
     
     %compute the grid size
     M = 2^grid_size;
@@ -131,7 +124,7 @@ function img = inv_solve_d_bar(inv_model, data1, data2)
     % Construct right hand side of the Dbar equation as the initial guess
     right_side_eq = [ones(num_pts_in_R,1);zeros(num_pts_in_R,1)];
     
-    recon_cords = interp_mesh(inv_model.fwd_model, 0);
+    recon_cords = interp_mesh(fmdl);
     % transform the reconstruction points into complex coordiantes
     recon_pts = recon_cords(:, 1) + 1i*recon_cords(:, 2);
     num_rec_pts  = length(recon_pts);
@@ -165,7 +158,7 @@ function img = inv_solve_d_bar(inv_model, data1, data2)
     img = struct;
     img.name= ['solved by D-Bar'];
     img.elem_data = get_conductivity(mu_final);
-    img.fwd_model= inv_model.fwd_model;
+    img.fwd_model= fmdl;
 end
 
 function data_mat_free = make_voltage_mean_free(data_mat)
@@ -237,7 +230,7 @@ function [fmdl, inv_model] = mk_dbar_model(num_electrs)
     [stim, ~]= mk_stim_patterns(num_electrs, 1, '{trig}', '{mono}', {'meas_current'}, 0.1);
     fmdl.stimulation = stim;
     
-    fmdl_2d = ng_mk_cyl_models(0,[num_electrs,0],[0.075]);
+    fmdl_2d = ng_mk_cyl_models([0,1,0.05],[num_electrs,0],[0.075]);
     fmdl_2d.stimulation = stim;
 
     inv_model = struct;
