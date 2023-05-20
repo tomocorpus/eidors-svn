@@ -184,6 +184,7 @@ switch fmt
       auxdata.elec_impedance = elecImps;
       auxdata.t_abs = tStampsAbs;
       auxdata.t_rel = tStampsRel;
+      auxdata.frame_rate = 1e6/median(diff(tStampsRel)); %median in case there are jumps
 
       stim = mk_stim_patterns(32,1,[0,5],[0,5],{'no_rotate_meas','no_meas_current'},.005);
      
@@ -1037,7 +1038,6 @@ function [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname )
             fseek(fid,header_size + i*frame_length,'bof');
             i = i +1;
          end
-
       end
    catch err
       fclose(fid);
