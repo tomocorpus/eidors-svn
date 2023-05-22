@@ -19,6 +19,8 @@ function opt = ng_write_opt(varargin)
 %  NG_WRITE_OPT(PATH) copies the file specified in PATH as ng.opt to the
 %  current directory.
 %
+%  NG_WRITE_OPT('EXIST:ng.opt'): test if ng.opt file written to the current dir
+%
 % 
 %  Note: some options only take effect when meshoptions.fineness is 6
 %  (custom).
@@ -54,6 +56,12 @@ if nargin == 1 && ischar(varargin{1}) && strcmp(varargin{1},'UNIT_TEST')
 
 if nargin == 1 && ischar(varargin{1}) &&  exist(varargin{1},'file') % a path
    copyfile(varargin{1},'ng.opt');
+   return
+end
+
+%  NG_WRITE_OPT('EXIST:ng.opt'): test if ng.opt file written to the current dir
+if nargin == 1 && ischar(varargin{1}) && strcmp(varargin{1},'EXIST:ng.opt')
+   opt = isfile('./ng.opt');
    return
 end
 
