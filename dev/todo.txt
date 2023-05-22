@@ -1,4 +1,8 @@
 Plan for 3.12:
+ - move minimum matlab version to 2017b (isfile)
+ + Library model: don't cache to disk if ng.opt set
+ - Add 'none' to edge width of show_fem_enhanced
+ - can we remove isOctave in fwd_solve_2p5d_1st_order.m
  - write tests for hdf5 in eidors_readdata
  - more careful errors in hdf5/eidors_readdata
  - Control padding type in freq_filt

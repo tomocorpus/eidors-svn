@@ -103,6 +103,12 @@ end
 
 function out = load_stored_model(fname)
 out = [];
+% If ng.opt has been specified, this this is a custom model:
+% Don't load from store
+if ng_write_opt('EXIST:ng.opt')
+   eidors_msg('Custom ng.opt defined. Not using store',2);
+   return
+end
 library_path = get_path();
 if isempty(library_path); return; end
 
@@ -118,6 +124,10 @@ if exist(fname,'file')
 end
 
 function store_model(fmdl,fname)
+   if ng_write_opt('EXIST:ng.opt')
+      eidors_msg('Custom ng.opt defined. Not saving to store',2);
+      return
+   end
    library_path = get_path();
    if isempty(library_path); return; end
    fname = [library_path '/' fname '.mat'];
