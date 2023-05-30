@@ -59,6 +59,7 @@ if isfield(opts,'reorder')
    ROIs = ROIs(opts.reorder(:),:);
 end
 imgR= mk_image(fmdl,ROIs.');
+imgR.calc_colours.ref_level = 0;
 
 % Can only replace in this case
 if strcmp(imdl.type,'inv_model') && ...
