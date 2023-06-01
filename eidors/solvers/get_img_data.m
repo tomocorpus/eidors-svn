@@ -5,6 +5,8 @@ function [img_data, n_images]= get_img_data(img)
 %   get_img_data looks at the elem_data or node_data
 %   parameters in the image. If a course2fine parameter
 %   exists in img.fwd_model, then it is used. 
+% img.get_img_data.frame_select: Show these frames
+% img.get_img_data.frame_skip: Skip frames
 
 % (C) 2008 Andy Adler. License: GPL version 2 or version 3
 % $Id$
@@ -29,7 +31,14 @@ end
 if isfield(img(1),'elem_data')
    for i=1:length(img(:))
       try 
-         img_data{i}= [img(i).elem_data(:,img(i).get_img_data.frame_select)];
+         gidi = img(i).get_img_data;
+         iied = img(i).elem_data;
+         if ~isfield(iied,'frame_select')
+            img_data{i}= [iied(:,gidi.frame_select)];
+         else
+% try a frame_skip
+            img_data{i}= [iied(:,1:gidi.frame_skip:end)];
+         end
       catch
          % concatenate img.elem_data for each img
          img_data{i}= [img(i).elem_data];
@@ -39,7 +48,14 @@ if isfield(img(1),'elem_data')
 elseif isfield(img,'node_data')
    for i=1:length(img(:))
       try 
-         img_data{i}= [img(i).node_data(:,img(i).get_img_data.frame_select)];
+         gidi = img(i).get_img_data;
+         iind = img(i).node_data;
+         if ~isfield(iind,'frame_select')
+            img_data{i}= [iind(:,gidi.frame_select)];
+         else
+% try a frame_skip
+            img_data{i}= [iind(:,1:gidi.frame_skip:end)];
+         end
       catch
          img_data{i}= [img(i).node_data];
       end
