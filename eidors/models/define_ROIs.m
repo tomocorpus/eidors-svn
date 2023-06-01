@@ -6,6 +6,7 @@ function [ROIs, imgR, imdl] = define_ROIs(imdl, varargin)
 %   xcuts, ycuts: x and y cuts of ROI grid
 %   opts: options structure
 %     opts.reorder = reorder defined ROIs
+%     opts.normalize = set ROI of each =1
 % 
 %   ROIs: matrix [n_ROIs x n_elems]
 %   imgR: image of ROIs (mostly for debugging)
@@ -57,6 +58,9 @@ ROIa = mk_approx_c2f(fmdl,rmdl);
 ROIs = ROIa.' * recc2f;
 if isfield(opts,'reorder')
    ROIs = ROIs(opts.reorder(:),:);
+end
+if isfield(opts,'normalize')
+   ROIs = ROIs ./ sum(ROIs,2);
 end
 imgR= mk_image(fmdl,ROIs.');
 imgR.calc_colours.ref_level = 0;
