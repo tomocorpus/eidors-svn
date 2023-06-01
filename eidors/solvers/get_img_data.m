@@ -33,7 +33,7 @@ if isfield(img(1),'elem_data')
       try 
          gidi = img(i).get_img_data;
          iied = img(i).elem_data;
-         if ~isfield(iied,'frame_select')
+         if isfield(gidi,'frame_select')
             img_data{i}= [iied(:,gidi.frame_select)];
          else
 % try a frame_skip
@@ -50,7 +50,7 @@ elseif isfield(img,'node_data')
       try 
          gidi = img(i).get_img_data;
          iind = img(i).node_data;
-         if ~isfield(iind,'frame_select')
+         if isfield(gidi,'frame_select')
             img_data{i}= [iind(:,gidi.frame_select)];
          else
 % try a frame_skip
