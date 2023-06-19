@@ -108,9 +108,15 @@ function v2meas = get_v2meas(n_elec,n_stim,stim)
     v2meas = sparse(n_elec*n_stim,0);
     for i=1:n_stim
         meas_pat= stim(i).meas_pattern;
-        n_meas  = size(meas_pat,1);
-        if n_elec ~= size(meas_pat,2)
-           error('meas_pattern %d ~= n_elec',i)
+        [n_meas,n_mpat]  = size(meas_pat);
+        if n_elec ~= n_mpat
+           error('meas_pattern#%d uses %d electrodes, but model has %d', ...
+                 i, n_mpat, n_elec);
+        end
+        n_spat = size(stim(i).stim_pattern,1);
+        if n_elec ~= n_spat
+           error('stim_pattern#%d uses %d electrodes, but model has %d', ...
+                 i, n_spat, n_elec);
         end
         v2meas((i-1)*n_elec + 1: i*n_elec,end+(1:n_meas)) = meas_pat.';
     end
