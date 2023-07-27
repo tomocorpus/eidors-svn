@@ -262,58 +262,13 @@ function [vi,vh,xyz,opt]= stim_targets(imgs, Nsim, opt );
    else
        switch opt.distr
            case 0 % original
-               r = linspace(0,0.9, Nsim);
-               th = r*4321; % want object to jump around in radius
-               xyzr = [maxx*r.*cos(th); maxy*r.*sin(th);
-                   opt.target_plane*ones(1,Nsim);
-                   0.05*mean([maxx,maxy])*ones(1,Nsim)];
-               
+               xyzr=mk_distributions0(Nsim,opt,ctr,maxx,maxy);
            case 1 %centre-heavy
-               F = fourier_fit(opt.contour_boundary(:,1:2));
-               v = linspace(0,1,Nsim*100+1); v(end)=[];
-               pts = fourier_fit(F,v);
-               idx_p = floor(rand(Nsim,1)*Nsim*100);
-               xyzr = pts(idx_p,:)'.*repmat(rand(Nsim,1),[1 2])';
-               xyzr(3,:) = calc_offset(opt.target_plane,opt,Nsim);
-               
-               % TODO: What size is good here and how to figure it out?
-               xyzr(4,:) = calc_radius(mean([maxx maxy]),opt,Nsim);
+               xyzr=mk_distributions1(Nsim,opt,ctr,maxx,maxy);
            case 2 %uniform
-               %            F = fourier_fit(opt.contour_boundary(:,1:2));
-               %            v = linspace(0,1,101); v(end)=[];
-               %            pts = fourier_fit(F,v);
-               pts = opt.contour_boundary(:,1:2);
-               % avoid edges
-               pts = 0.9*( pts - repmat(ctr(1:2),length(pts),1) ) + repmat(ctr(1:2),length(pts),1);
-               % using maxx and maxy below would in general not produce a
-               % uniform distribution
-               lim = max(maxx, maxy);
-               x = ctr(1) + (rand(Nsim*10,1)-0.5)*2*lim;
-               y = ctr(2) + (rand(Nsim*10,1)-0.5)*2*lim;
-               IN = inpolygon(x,y,pts(:,1),pts(:,2));
-               xyzr(1,:) = x(find(IN,Nsim));
-               xyzr(2,:) = y(find(IN,Nsim));
-               xyzr(3,:) = calc_offset(opt.target_plane,opt,Nsim);
-               % TODO: What size is good here and how to figure it out?
-               xyzr(4,:) = calc_radius(mean([maxx maxy]),opt,Nsim);
+               xyzr=mk_distributions2(Nsim,opt,ctr,maxx,maxy);
            case 3 % uniform, non-random
-               %            F = fourier_fit(opt.elec_loc(:,1:2));
-               %            v = linspace(0,1,101); v(end)=[];
-               %            pts = fourier_fit(F,v);
-               pts = opt.contour_boundary(:,1:2);
-               lim = max(maxx, maxy);
-               frac = polyarea(pts(:,1),pts(:,2)) / (2*lim)^2;
-               [x,y] = ndgrid( linspace(-lim,lim,ceil(sqrt(Nsim/frac))), ...
-                   linspace(-lim,lim,ceil(sqrt(Nsim/frac))));
-               
-               x = x+ctr(1); y = y + ctr(2);
-               IN = inpolygon(x,y,pts(:,1),pts(:,2));
-               xyzr(1,:) = x(find(IN));
-               xyzr(2,:) = y(find(IN));
-               xyzr(3,:) = calc_offset(opt.target_plane,opt,size(xyzr,2));
-               % TODO: What size is good here and how to figure it out?
-               xyzr(4,:) = calc_radius(mean([maxx maxy]),opt,size(xyzr,2));
-               eidors_msg(['mk_GREIT_model: Using ' num2str(size(xyzr,2)) ' points']);
+               xyzr=mk_distributions3(Nsim,opt,ctr,maxx,maxy);
            otherwise; error('GREIT: opt.distr no such case=%d',opt.distr);
        end
    end
@@ -481,6 +436,66 @@ function [imdl,fmdl,imgs] = parse_fmdl(fmdl);
     bnd = find_boundary(slc.fwd_model);
     opt.contour_boundary = order_loop(slc.fwd_model.nodes(unique(bnd),:));
     
+% case 0 % original
+function xyzr=mk_distributions0(Nsim,opt,ctr,maxx,maxy)
+    r = linspace(0,0.9, Nsim);
+    th = r*4321; % want object to jump around in radius
+    xyzr = [maxx*r.*cos(th); maxy*r.*sin(th);
+        opt.target_plane*ones(1,Nsim);
+        0.05*mean([maxx,maxy])*ones(1,Nsim)];
+
+% case 1 %centre-heavy
+function xyzr=mk_distributions1(Nsim,opt,ctr,maxx,maxy)
+    F = fourier_fit(opt.contour_boundary(:,1:2));
+    v = linspace(0,1,Nsim*100+1); v(end)=[];
+    pts = fourier_fit(F,v);
+    idx_p = floor(rand(Nsim,1)*Nsim*100);
+    xyzr = pts(idx_p,:)'.*repmat(rand(Nsim,1),[1 2])';
+    xyzr(3,:) = calc_offset(opt.target_plane,opt,Nsim);
+               
+    % TODO: What size is good here and how to figure it out?
+    xyzr(4,:) = calc_radius(mean([maxx maxy]),opt,Nsim);
+
+% case 2 %uniform
+function xyzr=mk_distributions2(Nsim,opt,ctr,maxx,maxy)
+    %            F = fourier_fit(opt.contour_boundary(:,1:2));
+    %            v = linspace(0,1,101); v(end)=[];
+    %            pts = fourier_fit(F,v);
+    pts = opt.contour_boundary(:,1:2);
+    % avoid edges
+    pts = 0.9*( pts - repmat(ctr(1:2),length(pts),1) ) + repmat(ctr(1:2),length(pts),1);
+    % using maxx and maxy below would in general not produce a
+    % uniform distribution
+    lim = max(maxx, maxy);
+    x = ctr(1) + (rand(Nsim*10,1)-0.5)*2*lim;
+    y = ctr(2) + (rand(Nsim*10,1)-0.5)*2*lim;
+    IN = inpolygon(x,y,pts(:,1),pts(:,2));
+    xyzr(1,:) = x(find(IN,Nsim));
+    xyzr(2,:) = y(find(IN,Nsim));
+    xyzr(3,:) = calc_offset(opt.target_plane,opt,Nsim);
+    % TODO: What size is good here and how to figure it out?
+    xyzr(4,:) = calc_radius(mean([maxx maxy]),opt,Nsim);
+
+% case 3 % uniform, non-random
+function xyzr=mk_distributions3(Nsim,opt,ctr,maxx,maxy)
+    %            F = fourier_fit(opt.elec_loc(:,1:2));
+    %            v = linspace(0,1,101); v(end)=[];
+    %            pts = fourier_fit(F,v);
+opt
+    pts = opt.contour_boundary(:,1:2);
+    lim = max(maxx, maxy);
+    frac = polyarea(pts(:,1),pts(:,2)) / (2*lim)^2;
+    [x,y] = ndgrid( linspace(-lim,lim,ceil(sqrt(Nsim/frac))), ...
+        linspace(-lim,lim,ceil(sqrt(Nsim/frac))));
+    
+    x = x+ctr(1); y = y + ctr(2);
+    IN = inpolygon(x,y,pts(:,1),pts(:,2));
+    xyzr(1,:) = x(find(IN));
+    xyzr(2,:) = y(find(IN));
+    xyzr(3,:) = calc_offset(opt.target_plane,opt,size(xyzr,2));
+    % TODO: What size is good here and how to figure it out?
+    xyzr(4,:) = calc_radius(mean([maxx maxy]),opt,size(xyzr,2));
+    eidors_msg(['mk_GREIT_model: Using ' num2str(size(xyzr,2)) ' points']);
 
 function do_unit_test
    do_very_basic_test
