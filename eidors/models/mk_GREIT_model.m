@@ -481,7 +481,6 @@ function xyzr=mk_distributions3(Nsim,opt,ctr,maxx,maxy)
     %            F = fourier_fit(opt.elec_loc(:,1:2));
     %            v = linspace(0,1,101); v(end)=[];
     %            pts = fourier_fit(F,v);
-opt
     pts = opt.contour_boundary(:,1:2);
     lim = max(maxx, maxy);
     frac = polyarea(pts(:,1),pts(:,2)) / (2*lim)^2;
