@@ -1,6 +1,6 @@
-function [cmdl, c2f]= mk_grid_model(fmdl, xvec, yvec, zvec);
+function [cmdl, c2f]= mk_grid_model(fmdl, xvec, yvec, zvec, removefn);
 % MK_GRID_MODEL: Create reconstruction model on pixelated grid 
-%  [cmdl,coarse2fine]= mk_grid_model(fmdl, xvec, yvec, zvec);
+%  [cmdl,coarse2fine]= mk_grid_model(fmdl, xvec, yvec, zvec, removefn);
 %
 % Outputs:
 %  cmdl - eidors reconstruction model (coarse model)
@@ -11,10 +11,15 @@ function [cmdl, c2f]= mk_grid_model(fmdl, xvec, yvec, zvec);
 %  xvec - x edges
 %  yvec - y edges
 %  zvec - z edges (optional - to create 3D model)
+%  removefn(xyzc) - which elements to remove, given xyzctr
 %
 % if fmdl == [], then just create the grid model without c2f
 %
 % See also MK_COARSE_FINE_MAPPING, MK_PIXEL_SLICE
+
+% Example: for circular model
+%  grid= linspace(-2,2,20);     % x,y grid
+%  [gmdl]= mk_grid_model([],grid,grid,[], @(xyz) rssq(xyz,2)>1);
 %
 % Example: for constructing an inverse model
 %  grid{1}= linspace(-2,2,20);     % x grid
@@ -32,12 +37,21 @@ function [cmdl, c2f]= mk_grid_model(fmdl, xvec, yvec, zvec);
 if ischar(fmdl) && strcmp(fmdl,'UNIT_TEST'); do_unit_test; return; end
 
 
-if nargin == 3
-   cmdl = mk_2d_grid(xvec,yvec);
-elseif nargin ==4
-   cmdl = mk_3d_grid(xvec,yvec,zvec);
+if nargin<5 % removefn not provided
+   removefn = [];
+end
+if nargin == 3 || isempty(zvec)
+   do3d= false;
+elseif nargin > 3
+   do3d=true;
 else
    error('check nargin');
+end
+
+if ~do3d
+   cmdl = mk_2d_grid(xvec,yvec,removefn);
+else
+   cmdl = mk_3d_grid(xvec,yvec,zvec,removefn);
 end
 
 % this had too many side effects
@@ -51,15 +65,15 @@ cmdl.gnd_node = c_idx(1);
 
 if ~isempty( fmdl)
     if size(fmdl.nodes,2) == 2
-        assert(nargin==3);
+        assert(~do3d);
         c2f= calc_c2f_2d( fmdl, xvec, yvec);
         
     else
-        if nargin == 3
+        if ~do3d
             % here we could incorporate z_depth
             zvec = [ min(fmdl.nodes(:,3)) - 1; max(fmdl.nodes(:,3))+1 ];
-            tmp = mk_3d_grid(xvec,yvec,zvec);
-        elseif nargin == 4
+            tmp = mk_3d_grid(xvec,yvec,zvec,removefn);
+        else
             tmp = cmdl;
         end
         c2f = mk_grid_c2f(fmdl,tmp);
@@ -120,7 +134,7 @@ function c2f= calc_c2f_3d( fmdl, xvec, yvec, zvec);
    end
    c2f= sparse(c2fiidx,c2fjidx,c2fdata, length(in_pts), jidx);
 
-function cmdl= mk_2d_grid(xvec, yvec);
+function cmdl= mk_2d_grid(xvec, yvec, removefn);
    xlen = length(xvec);
    ylen = length(yvec);
    cmdl= eidors_obj('fwd_model', ...
@@ -137,6 +151,13 @@ function cmdl= mk_2d_grid(xvec, yvec);
       cmdl.elems=  [cmdl.elems; elem_frac + xlen*j];
    end
 
+   if ~isempty(removefn)
+      % Ensure we get centre of each grid square from triangles
+      xyzc = interp_mesh(cmdl);
+      xyzc = kron(xyzc(1:2:end,:) + xyzc(2:2:end,:),[1;1]/2);
+      cmdl.elems( removefn(xyzc), : ) = [];
+   end
+
    cmdl.boundary = find_boundary( cmdl.elems);
 
 % assign one single parameter to each square element
@@ -145,7 +166,7 @@ function cmdl= mk_2d_grid(xvec, yvec);
    cmdl.coarse2fine = sparse(1:e,params,1,e,max(params));
 
 
-function cmdl= mk_3d_grid(xvec, yvec, zvec)
+function cmdl= mk_3d_grid(xvec, yvec, zvec,removefn)
    xlen = length(xvec);
    ylen = length(yvec);
    zlen = length(zvec);
@@ -178,6 +199,18 @@ function cmdl= mk_3d_grid(xvec, yvec, zvec)
    for k=0:zlen-2
       idx = (1:sz_row_frac(1)) + k*sz_row_frac(1);
       cmdl.elems(idx,:) =  row_frac + up*k;
+   end
+
+   if ~isempty(removefn)
+      % Ensure we get centre of each grid square from triangles
+      xyzc = interp_mesh(cmdl);
+      xyzc = kron(xyzc(1:6:end,:) + ...
+                  xyzc(2:6:end,:) + ...
+                  xyzc(3:6:end,:) + ...
+                  xyzc(4:6:end,:) + ...
+                  xyzc(5:6:end,:) + ...
+                  xyzc(6:6:end,:),[1;1;1;1;1;1]/6);
+      cmdl.elems( removefn(xyzc), : ) = [];
    end
 
    cmdl.boundary = find_boundary( cmdl.elems);
