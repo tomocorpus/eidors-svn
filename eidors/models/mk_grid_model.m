@@ -291,8 +291,10 @@ show_fem(img2)
 
 subplot(338)
 rmfn = @(xyz) rssq(xyz(:,1:2),2)>1;
-[cmdl, c2f]= mk_grid_model(img.fwd_model, -1:.1:1, -1:.1:1, 0:.5:3,rmfn );
-v = c2f'*(img.elem_data-1)+1;
-img2 = mk_image(cmdl, v);
+[imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
+    mk_grid_model(img.fwd_model, -1:.1:1, -1:.1:1, 0:.5:3,rmfn );
+%v = imdl.fwd_model.coarse2fine'*(img.elem_data-1)+1;
+%img2 = mk_image(imdl.rec_model, v);
+img2= inv_solve(imdl,vh,vi);
 show_fem(img2)
 
