@@ -1,4 +1,4 @@
-function [NF,SE] = calc_noise_figure( inv_model, hp, iterations)
+function [NF,SE] = calc_noise_figure( inv_model, hp, iterations, extraparam)
 % CALC_NOISE_FIGURE: calculate the noise amplification (NF) of an algorithm
 % [NF,SE] = calc_noise_figure( inv_model, hp, iterations)
 %    inv_model  => inverse model object
@@ -30,6 +30,11 @@ function [NF,SE] = calc_noise_figure( inv_model, hp, iterations)
 % [NF,SE] = calc_noise_figure( inv_model, vh, vi)
 %    interface provided for compatibility with the deprecated
 %    calc_noise_params
+%
+% NF = calc_noise_figure(inv_model, vh, vi, NF) for use as
+%   a way to search for NFREQ in range 10^-5 to 10^0
+%   [hpx] = fminbnd(@(hpx) abs(NFREQ -  ...
+%             calc_noise_figure(imdl,vh,vi,10^hpx)), -5,0);
 
 % (C) 2005 Andy Adler. License: GPL version 2 or version 3
 % $Id$
@@ -67,6 +72,11 @@ elseif nargin == 3 && isstruct(hp);
     if isstruct(c_data) && strcmp(c_data.type,'data'); 
        c_data = c_data.meas;
     end
+elseif nargin == 4
+% NF = nf_calc_linear( inv_model, h_data, c_data, hp);
+   h_data = hp;
+   c_data = iterations;
+   inv_model.hyperparameter.value= extraparam;
 else
     [inv_model, h_data, c_data] = process_parameters( inv_model );
 end
