@@ -80,6 +80,10 @@ if ~isempty( fmdl)
         c2f = mk_grid_c2f(fmdl,tmp);
     end
     % now remove elements outsize shape
+    if ischar(rmelems{2}) && strcmp(rmelems{2},'OUTSIDE')
+       rmelems{2} = (sum(c2f,1) < eps);
+       rmelems{1} = logical(kron(rmelems{2}, true(1,rmelems{1})));
+    end
     cmdl.elems( rmelems{1}, : ) = [];
     cmdl.coarse2fine( rmelems{1},     :      ) = [];
     cmdl.coarse2fine(    :      , rmelems{2} ) = [];
@@ -164,8 +168,8 @@ function [cmdl,rmelems]= mk_2d_grid(xvec, yvec, removefn);
       rmelems{1} = [];
       rmelems{2} = [];
    elseif ischar(removefn) && strcmp(upper(removefn),'OUTSIDE') 
-      rmelems{1} = 'OUTSIDE'; % solve later
-      rmelems{2} = 2; % divide factor
+      rmelems{2} = 'OUTSIDE'; % solve later
+      rmelems{1} = 2; % divide factor
    else % it's a function
       % Ensure we get centre of each grid square from triangles
       xyzc = interp_mesh(cmdl);
@@ -219,8 +223,8 @@ function [cmdl,rmelems]= mk_3d_grid(xvec, yvec, zvec,removefn)
       rmelems{1} = [];
       rmelems{2} = [];
    elseif ischar(removefn) && strcmp(upper(removefn),'OUTSIDE') 
-      rmelems{1} = 'OUTSIDE'; % solve later
-      rmelems{2} = 6; % divide factor
+      rmelems{2} = 'OUTSIDE'; % solve later
+      rmelems{1} = 6; % divide factor
    else % it's a function
       % Ensure we get centre of each grid square from triangles
       xyzc = interp_mesh(cmdl);
@@ -267,12 +271,18 @@ grid = linspace(-1,1,33);
 subplot(333); show_fem(inv_solve(imdl, vh, vi));
 hold on; hh=show_fem(img); set(hh,'FaceAlpha',0,'EdgeColor',[0,0,1]); hold off;
 
-outside = find(sum(imdl.fwd_model.coarse2fine,1) < eps);
-imdl.fwd_model.coarse2fine(:,outside) = [];
-imdl.rec_model.coarse2fine(:,outside) = [];
-rec_out = [2*outside-1,2*outside];
-imdl.rec_model.coarse2fine(rec_out,:) = [];
-imdl.rec_model.elems(rec_out,:) = [];
+if 0
+  outside = find(sum(imdl.fwd_model.coarse2fine,1) < eps);
+  imdl.fwd_model.coarse2fine(:,outside) = [];
+  imdl.rec_model.coarse2fine(:,outside) = [];
+  rec_out = [2*outside-1,2*outside];
+  imdl.rec_model.coarse2fine(rec_out,:) = [];
+  imdl.rec_model.elems(rec_out,:) = [];
+else
+  rmfn = 'outside';
+  [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
+       mk_grid_model( imdl.fwd_model, grid, grid, [],rmfn );
+end
 subplot(334); show_fem(inv_solve(imdl, vh, vi));
 hold on; hh=show_fem(img); set(hh,'FaceAlpha',0,'EdgeColor',[0,0,1]); hold off;
 
@@ -297,7 +307,7 @@ img2 = mk_image(cmdl, v);
 show_fem(img2)
 
 subplot(338)
-rmfn = @(xyz) rssq(xyz(:,1:2),2)>1;
+rmfn = @(xyz) rssq(xyz(:,1:2),2)>1.0;
 [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
     mk_grid_model(img.fwd_model, -1:.1:1, -1:.1:1, 0:.5:3,rmfn );
 %v = imdl.fwd_model.coarse2fine'*(img.elem_data-1)+1;
@@ -305,3 +315,10 @@ rmfn = @(xyz) rssq(xyz(:,1:2),2)>1;
 img2= inv_solve(imdl,vh,vi);
 show_fem(img2)
 
+subplot(339)
+[imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
+    mk_grid_model(img.fwd_model, -1:.1:1, -1:.1:1, 0:.5:3,'outside');
+%v = imdl.fwd_model.coarse2fine'*(img.elem_data-1)+1;
+%img2 = mk_image(imdl.rec_model, v);
+img2= inv_solve(imdl,vh,vi);
+show_fem(img2)
