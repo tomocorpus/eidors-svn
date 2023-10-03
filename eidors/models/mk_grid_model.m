@@ -11,7 +11,8 @@ function [cmdl, c2f]= mk_grid_model(fmdl, xvec, yvec, zvec, removefn);
 %  xvec - x edges
 %  yvec - y edges
 %  zvec - z edges (optional - to create 3D model)
-%  removefn(xyzc) - which elements to remove, given xyzctr
+%  removefn(xyzc) - function which elements to remove, given xyzctr
+%  removefn = 'outside' => remove elements outside the fmdl
 %
 % if fmdl == [], then just create the grid model without c2f
 %
@@ -159,15 +160,18 @@ function [cmdl,rmelems]= mk_2d_grid(xvec, yvec, removefn);
       cmdl.elems=  [cmdl.elems; elem_frac + xlen*j];
    end
 
-   if ~isempty(removefn)
+   if isempty(removefn)
+      rmelems{1} = [];
+      rmelems{2} = [];
+   elseif ischar(removefn) && strcmp(upper(removefn),'OUTSIDE') 
+      rmelems{1} = 'OUTSIDE'; % solve later
+      rmelems{2} = 2; % divide factor
+   else % it's a function
       % Ensure we get centre of each grid square from triangles
       xyzc = interp_mesh(cmdl);
       xyzc = kron(xyzc(1:2:end,:) + xyzc(2:2:end,:),[1;1]/2);
       rmelems{1} = removefn(xyzc);
       rmelems{2} = rmelems{1}(1:2:end);
-   else
-      rmelems{1} = [];
-      rmelems{2} = [];
    end
 
 % assign one single parameter to each square element
@@ -211,7 +215,13 @@ function [cmdl,rmelems]= mk_3d_grid(xvec, yvec, zvec,removefn)
       cmdl.elems(idx,:) =  row_frac + up*k;
    end
 
-   if ~isempty(removefn)
+   if isempty(removefn)
+      rmelems{1} = [];
+      rmelems{2} = [];
+   elseif ischar(removefn) && strcmp(upper(removefn),'OUTSIDE') 
+      rmelems{1} = 'OUTSIDE'; % solve later
+      rmelems{2} = 6; % divide factor
+   else % it's a function
       % Ensure we get centre of each grid square from triangles
       xyzc = interp_mesh(cmdl);
       xyzc = kron(xyzc(1:6:end,:) + ...
@@ -222,9 +232,6 @@ function [cmdl,rmelems]= mk_3d_grid(xvec, yvec, zvec,removefn)
                   xyzc(6:6:end,:),[1;1;1;1;1;1]/6);
       rmelems{1} = removefn(xyzc);
       rmelems{2} = rmelems{1}(1:6:end);
-   else
-      rmelems{1} = [];
-      rmelems{2} = [];
    end
 
 % assign one single parameter to each square element
