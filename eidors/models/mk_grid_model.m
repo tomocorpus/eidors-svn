@@ -49,9 +49,9 @@ else
 end
 
 if ~do3d
-   cmdl = mk_2d_grid(xvec,yvec,removefn);
+   [cmdl,rmelems] = mk_2d_grid(xvec,yvec,removefn);
 else
-   cmdl = mk_3d_grid(xvec,yvec,zvec,removefn);
+   [cmdl,rmelems] = mk_3d_grid(xvec,yvec,zvec,removefn);
 end
 
 % this had too many side effects
@@ -78,6 +78,9 @@ if ~isempty( fmdl)
         end
         c2f = mk_grid_c2f(fmdl,tmp);
     end
+    % now remove elements outsize shape
+    cmdl.elems( rmelems, : ) = [];
+    c2f(:,rmelems) = [];
 end
 
 cmdl.normalize_measurements = 0;% @eidors_default;
@@ -134,7 +137,7 @@ function c2f= calc_c2f_3d( fmdl, xvec, yvec, zvec);
    end
    c2f= sparse(c2fiidx,c2fjidx,c2fdata, length(in_pts), jidx);
 
-function cmdl= mk_2d_grid(xvec, yvec, removefn);
+function [cmdl,rmelems]= mk_2d_grid(xvec, yvec, removefn);
    xlen = length(xvec);
    ylen = length(yvec);
    cmdl= eidors_obj('fwd_model', ...
@@ -155,7 +158,9 @@ function cmdl= mk_2d_grid(xvec, yvec, removefn);
       % Ensure we get centre of each grid square from triangles
       xyzc = interp_mesh(cmdl);
       xyzc = kron(xyzc(1:2:end,:) + xyzc(2:2:end,:),[1;1]/2);
-      cmdl.elems( removefn(xyzc), : ) = [];
+      rmelems = removefn(xyzc);
+   else
+      rmelems = []; % remove none
    end
 
    cmdl.boundary = find_boundary( cmdl.elems);
@@ -166,7 +171,7 @@ function cmdl= mk_2d_grid(xvec, yvec, removefn);
    cmdl.coarse2fine = sparse(1:e,params,1,e,max(params));
 
 
-function cmdl= mk_3d_grid(xvec, yvec, zvec,removefn)
+function [cmdl,rmelems]= mk_3d_grid(xvec, yvec, zvec,removefn)
    xlen = length(xvec);
    ylen = length(yvec);
    zlen = length(zvec);
@@ -210,7 +215,9 @@ function cmdl= mk_3d_grid(xvec, yvec, zvec,removefn)
                   xyzc(4:6:end,:) + ...
                   xyzc(5:6:end,:) + ...
                   xyzc(6:6:end,:),[1;1;1;1;1;1]/6);
-      cmdl.elems( removefn(xyzc), : ) = [];
+      rmelems = removefn(xyzc);
+   else
+      rmelems = [];
    end
 
    cmdl.boundary = find_boundary( cmdl.elems);
