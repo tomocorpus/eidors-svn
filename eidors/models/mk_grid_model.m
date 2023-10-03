@@ -83,6 +83,9 @@ if ~isempty( fmdl)
     cmdl.coarse2fine( rmelems{1},     :      ) = [];
     cmdl.coarse2fine(    :      , rmelems{2} ) = [];
     c2f(:,rmelems{2}) = [];
+    cmdl.boundary = find_boundary( cmdl.elems);
+
+%   cmdl.remover = rmelems; % debugging
 end
 
 cmdl.normalize_measurements = 0;% @eidors_default;
@@ -167,8 +170,6 @@ function [cmdl,rmelems]= mk_2d_grid(xvec, yvec, removefn);
       rmelems{2} = [];
    end
 
-   cmdl.boundary = find_boundary( cmdl.elems);
-
 % assign one single parameter to each square element
    e= size(cmdl.elems,1);
    params= ceil(( 1:e )/2);
@@ -226,8 +227,6 @@ function [cmdl,rmelems]= mk_3d_grid(xvec, yvec, zvec,removefn)
       rmelems{2} = [];
    end
 
-   cmdl.boundary = find_boundary( cmdl.elems);
-
 % assign one single parameter to each square element
    e= size(cmdl.elems,1);
    params= ceil(( 1:e )/6);
@@ -270,19 +269,30 @@ imdl.rec_model.elems(rec_out,:) = [];
 subplot(334); show_fem(inv_solve(imdl, vh, vi));
 hold on; hh=show_fem(img); set(hh,'FaceAlpha',0,'EdgeColor',[0,0,1]); hold off;
 
+rmfn = @(xyz) rssq(xyz,2)>1;
 [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
-     mk_grid_model( imdl.fwd_model, grid, grid, [],@(xyz) rssq(xyz,2)>1 );
+     mk_grid_model( imdl.fwd_model, grid, grid, [],rmfn );
 subplot(335); show_fem(inv_solve(imdl, vh, vi));
 hold on; hh=show_fem(img); set(hh,'FaceAlpha',0,'EdgeColor',[0,0,1]); hold off;
 
 subplot(336)
 imdl = mk_common_model('n3r2',[16,2]);
-img = mk_image(imdl.fwd_model,1:size(imdl.fwd_model.elems,1));
+A= [390 391 393 396 402 478 479 480 484 486 664 665 666 667 668 670 671 672 676 677 678 755 760 761];
+B= [318 319 321 324 330 439 440 441 445 447 592 593 594 595 596 598 599 600 604 605 606 716 721 722];
+img = mk_image(imdl.fwd_model,1); vh = fwd_solve(img);
+img.elem_data(A)=1.5; img.elem_data(B)=0.5; vi=fwd_solve(img);
 show_fem(img);
 
 subplot(337)
-[cmdl, c2f]= mk_grid_model(img.fwd_model, -.5:.1:.5, -.5:.1:.5, 1:.1:2);
-v = c2f'*img.elem_data;
+[cmdl, c2f]= mk_grid_model(img.fwd_model, -.8:.1:.8, -.8:.1:.8, 0:.5:3);
+v = c2f'*(img.elem_data-1) + 1;
+img2 = mk_image(cmdl, v);
+show_fem(img2)
+
+subplot(338)
+rmfn = @(xyz) rssq(xyz(:,1:2),2)>1;
+[cmdl, c2f]= mk_grid_model(img.fwd_model, -1:.1:1, -1:.1:1, 0:.5:3,rmfn );
+v = c2f'*(img.elem_data-1)+1;
 img2 = mk_image(cmdl, v);
 show_fem(img2)
 
