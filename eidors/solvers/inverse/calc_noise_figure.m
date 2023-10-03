@@ -151,8 +151,13 @@ if 0 % old code with random noise
    noise = 0.01*std(vh)*randn(size(vh,1),Nnoise);
    vhn= vh*ones(1,Nnoise) + noise;
 else % use independent noise model on each channel
-   noise = 0.01*std(vh)*speye(size(vh,1));
-   vhn= vh*ones(1,size(vh,1)) + noise;
+   if isstruct(vh)
+      vhm = vh.meas;
+   else
+      vhm = vh;
+   end 
+   noise = 0.01*std(vhm)*speye(size(vhm,1));
+   vhn= vhm*ones(1,size(vhm,1)) + noise;
 end
 
 signal_y = calc_difference_data( vh, vi,  imdl.fwd_model);
@@ -440,6 +445,14 @@ function do_unit_test
     imdl = mk_common_model('a2c2',16); test2(imdl);
     imdl = mk_common_model('d2c2',16); test2(imdl);
     ll = eidors_msg('log_level',ll);
+
+    imdl = mk_common_model('a2c2',16);
+    img = mk_image(imdl,1); vh=fwd_solve(img);
+    img.elem_data(1:4)=1.1; vi=fwd_solve(img);
+    NFREQ = 0.5;
+    [hpx] = fminbnd(@(hpx) abs(NFREQ -  ...
+              calc_noise_figure(imdl,vh,vi,10^hpx)), -5,0);
+
 
 function test1
     % big model with c2f and supposedly an NF of 0.5
