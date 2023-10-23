@@ -1,6 +1,8 @@
 Plan for 3.12:
  - bad error from show_slices(img,0); => don't call levl model slice
  - move minimum matlab version to 2017b (isfile)
+ - complete testing of xxhash as replacement hash
+ - commit xxhash.h and build new mex files
  + Library model: don't cache to disk if ng.opt set
  - Add 'none' to edge width of show_fem_enhanced
  - can we remove isOctave in fwd_solve_2p5d_1st_order.m
