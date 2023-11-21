@@ -71,7 +71,7 @@ else
 %   s = load('shape_library.mat',shape);
     s = cell2struct(out,out);
     if ~isfield(s,shape)
-       not_found(shape); return;
+       not_found(shape); out=[]; return;
     else
        out = get_shape(shape,'');
     end
@@ -123,13 +123,14 @@ hold off
 function out = get_shape(shape,fields)
 if isempty(shape)
     eidors_msg('SHAPE_LIBRARY: you must specify a shape to get');
+    out=[];
     return
 end
 
 try
   out=load([mfilename('fullpath'),'/',shape]);
 catch
-  not_found(shape); return;
+  not_found(shape); out=[]; return;
 end
 
 if ~isempty(fields)
@@ -160,8 +161,8 @@ function do_unit_test
     shape_library('show','pig_23kg');
     shape_library('get'); %fail gracefully
     shape_library('get','a-shape-we-dont-have');% give error
-    shape_library('get','pig_23kg') % give a struct
-    shape_library('get','pig_23kg','heart') % give array
-    shape_library('get','pig_23kg','boundary','lungs') % give cell array
-    shape_library('get','pig_23kg',{'boundary','lungs'}) % give cell array
+    out=shape_library('get','pig_23kg');% give a struct
+    out=shape_library('get','pig_23kg','heart');% give array
+    out=shape_library('get','pig_23kg','boundary','lungs');% give cell array
+    out=shape_library('get','pig_23kg',{'boundary','lungs'});% give cell array
     shape_library('add');
