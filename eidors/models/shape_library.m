@@ -85,17 +85,15 @@ if isempty(shape)
     eidors_msg('SHAPE_LIBRARY: you must specify a shape to show');
     return
 end
-s = load('shape_library.mat',shape);
-try
-    fields = fieldnames(s.(shape)); 
-catch, not_found(shape); return; end
-s = s.(shape);
+s = get_shape(shape,'');
 %figure 
 colormap gray
 imagesc(s.pic.X, s.pic.Y, s.pic.img);
 set(gca,'YDir','normal');
 hold all
 str = {};
+
+fields = fieldnames(s);
 for i = 1:numel(fields)
     if strcmp(fields{i},'electrodes'), continue, end
     if isnumeric(s.(fields{i})) && size(s.(fields{i}),2)==2
