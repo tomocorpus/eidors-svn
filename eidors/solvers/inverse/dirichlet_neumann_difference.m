@@ -5,6 +5,12 @@ function del_L = dirichlet_neumann_difference(fmdl,data1,data2);
 %
 % (C) 2023 Joeran Rixen. Licensed under GPL version 2 or 3
 
+% TODO: allow choosing the approach, only have one for now
+del_L =  d2n_from_full_data(fmdl,data1,data2);
+
+end
+
+function del_L = d2n_from_full_data(fmdl,data1,data2);
     %% Calculations regarding the Dirichlet to Neumann map
     stim_pattern_mat = create_stim_pattern_matrix(fmdl);
     stim_pattern_mat = stim_pattern_mat./sqrt(sum(stim_pattern_mat.^2,1));
