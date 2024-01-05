@@ -1,4 +1,5 @@
 Plan for 3.12:
+ - make no_meas_current_next0 => no_meas_current
  - in calc_GREIT_RM ... why use M'? Why keep X?
  - bad error from show_slices(img,0); => don't call levl model slice
  - move minimum matlab version to 2017b (isfile)
