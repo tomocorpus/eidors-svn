@@ -44,6 +44,8 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %        format = 'h5' or 'hdf5' documented at
 %       Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
 %        after filename, add ":DataSetName" or all are loaded
+%    - Sciospec text 'EIT' format
+%        format = 'Sciospec-EIT'
 %
 %    - Sheffield MK I "RAW" file format
 %        format = "RAW" or "sheffield"
@@ -216,6 +218,14 @@ switch fmt
       vv      = vv([1:1024],:);
       stim= mk_stim_patterns(32,1,[0,4],[0,4], ... 
               {'meas_current','no_rotate_meas'}, 1);
+
+   case 'sciospec-eit'
+      %% TODO: very early code for 16 electrode
+      %% Not very robust
+      auxdata = sciospec_eit_loader(fname);
+      d=cat(3,auxdata(:).data);
+      d=d(:,1:16,1:end);
+      vv=reshape(d,256,[]);
 
    otherwise
       error('eidors_readdata: file "%s" format unknown', format);
@@ -1458,6 +1468,53 @@ end
    % End of function
    progress_msg(inf);
    fclose(fid);
+
+% Call with the name of the folder. It looks for all eit files
+function s=sciospec_eit_loader(fname);
+  if isdir(fname);
+    files = dir([fname,'/*.eit']);
+    nfiles= length(files);
+    progress_msg('Sciospec Load:', 0,nfiles);
+    for i=nfiles:-1:1
+       progress_msg(nfiles-i+1,nfiles);
+       s(i) = sciospec_frame([fname,'/',files(i).name]);
+    end
+    progress_msg(inf); 
+  else
+    error 'not dir'
+  end
+    
+
+
+function s=sciospec_frame(fname);
+  fid = fopen(fname,'r');
+  indata = 0;
+  s.inj=[];
+  s.data=[];
+  while(~feof(fid))
+    line = fgetl(fid);
+    if indata
+      num = textscan(line, '%f', 'Delimiter',' ');
+      num = cell2mat(num)';
+      if rem(indata,2)==1; %odd is inj
+         s.inj(end+1,:) = num;
+      else
+         s.data(end+1,:) = num(1:2:end) + 1j*num(2:2:end);
+      end
+      indata = indata+1;
+    end
+    if length(line)>20 && strcmp(line(1:20),'MeasurementChannels:');
+       num = textscan(line(21:end), '%f', 'Delimiter',',');
+       s.MeasurementChannels=cell2mat(num);
+    end
+    if length(line)>51 && strcmp(line(1:51),'MeasurementChannelsIndependentFromInjectionPattern:');
+       num = textscan(line(52:end), '%f', 'Delimiter',',');
+       s.MeasurementChannelsIndependentFromInjectionPattern=cell2mat(num);
+       indata = 1;
+    end
+  end
+  fclose(fid);
+
 
 function do_unit_test
    % LQ2 test
