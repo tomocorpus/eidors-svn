@@ -164,8 +164,8 @@ function val = msz_cylinder(val)
     % [x1, y1, z1, x2, y2, z2, radius, maxh])
     len2= norm(val(1:3) - val(4:6))/2;
     ctr =     (val(1:3) + val(4:6))/2;
-    maxh = val(8);
     radius = val(7);
+    maxh = min(val(8),radius);
     xsp= space_around_zero(radius, maxh);
     ysp= space_around_zero(radius, maxh);
     zsp= space_around_zero(len2, maxh);
