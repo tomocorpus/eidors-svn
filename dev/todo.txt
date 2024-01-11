@@ -1,17 +1,17 @@
 Plan for 3.12:
- - make no_meas_current_next0 => no_meas_current
- - in calc_GREIT_RM ... why use M'? Why keep X?
- - bad error from show_slices(img,0); => don't call levl model slice
- - move minimum matlab version to 2017b (isfile)
+ + make no_meas_current_next0 => no_meas_current
+ + in mk_GREIT_model ... why use M'? Why keep X?
+ + error from calc_slices(img3D,0); => don't call levl model slice
+ + move minimum matlab version to 2017b (isfile)
  - complete testing of xxhash as replacement hash
  - commit xxhash.h and build new mex files
  + Library model: don't cache to disk if ng.opt set
- - Add 'none' to edge width of show_fem_enhanced
- - can we remove isOctave in fwd_solve_2p5d_1st_order.m
+ + Add 'none' to edge width of show_fem_enhanced - Just use 0 and shortcut
+ + can we remove isOctave in fwd_solve_2p5d_1st_order.m
  - write tests for hdf5 in eidors_readdata
  - more careful errors in hdf5/eidors_readdata
  - Control padding type in freq_filt
- - minimum version R2017a => support for "strings"
+ + minimum version R2017a => support for "strings"
  + test octave 8.x with new delaunayn. Maybe remove cruft
  - speed up eidors_var_id => new hash?
  - speed up fwd_model_parameters
@@ -26,7 +26,7 @@ Plan for 3.12:
  - Remove NODE / ELEM use nodes elems
  - Make simplified fwd_model_parameters
  - test netgen 6.2 for linux and windows
- - seems to be some bugs in MSZCYLINDER if r<maxh. See ng_write_opt #9
+ + seems to be some bugs in MSZCYLINDER if r<maxh. See ng_write_opt #9
  - mk_grid_model accept 2D fmdl (like mk_approx_c2f)
  - use progress_msg for mk_GREIT_model and NF
  - remove private directories. Update Matlab/Octave req's
