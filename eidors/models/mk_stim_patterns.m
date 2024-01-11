@@ -54,7 +54,8 @@ function [stim, meas_sel]= mk_stim_patterns( ...
 %   options: cell array of options, eg {'no_meas_current'}
 %     if contradictory options are specified, only the last applies
 %      'no_meas_current' / 'meas_current'
-%         -> do / don't make mesurements on current carrying electrodes
+%         -> do / don't make mesurements on current carrying electrodes 
+%      'no_meas_current_next0' is same as 'no_meas_current'
 %         -> to not make measurements on the electrodes next to the current carrying,
 %            use 'no_meas_current_next1'
 %         -> to not make measurements on the two electrodes next to the current carrying,
@@ -327,37 +328,39 @@ v= parse_options(v, options);
 function v= parse_options(v, options);
 % iterate through the options cell array
 for opt = options
-   if     strcmp(opt, 'no_meas_current')
+   switch opt{1};
+   case {'no_meas_current', ...
+         'no_meas_current_next0'};
       v.use_meas_current = 0;
       v.use_meas_current_next = 0;
-   elseif strcmp(opt, 'no_meas_current_next1')
+   case 'no_meas_current_next1';
       v.use_meas_current = 0;
       v.use_meas_current_next = 1;
-   elseif strcmp(opt, 'no_meas_current_next2')
+   case 'no_meas_current_next2';
       v.use_meas_current = 0;
       v.use_meas_current_next = 2;
-   elseif strcmp(opt, 'no_meas_current_next3')
+   case 'no_meas_current_next3';
       v.use_meas_current = 0;
       v.use_meas_current_next = 3;
-   elseif strcmp(opt, 'meas_current')
+   case 'meas_current';
       v.use_meas_current = 1;
-   elseif strcmp(opt, 'rotate_meas')
+   case 'rotate_meas';
       v.rotate_meas = 1;
-   elseif strcmp(opt, 'no_rotate_meas')
+   case 'no_rotate_meas';
       v.rotate_meas = 0;
-   elseif strcmp(opt, 'do_redundant')
+   case 'do_redundant';
       v.do_redundant = 1;
-   elseif strcmp(opt, 'no_redundant')
+   case 'no_redundant';
       v.do_redundant = 0;
-   elseif strcmp(opt, 'balance_inj')
+   case 'balance_inj';
       v.balance_inj = 1;
-   elseif strcmp(opt, 'no_balance_inj')
+   case 'no_balance_inj';
       v.balance_inj = 0;
-   elseif strcmp(opt, 'balance_meas')
+   case 'balance_meas';
       v.balance_meas= 1;
-   elseif strcmp(opt, 'no_balance_meas')
+   case 'no_balance_meas';
       v.balance_meas= 0;
-   else
+   otherwise
       error(['option parameter opt=',opt,' not understood']);
    end
 end
@@ -596,6 +599,10 @@ function do_unit_test
    unit_test_cmp('meas_sel: nnp01',msel(:,[2,5]), [0,0;0,0;0,0;1,0;1,0;1,0]);
 
    [stim,msel] = mk_stim_patterns(6,1,[0,2],'{mono}',{'no_meas_current','no_rotate_meas'},2);
+   msel = reshape(msel, 6, 6);
+   unit_test_cmp('meas_sel: nnp2436',msel(:,[4,5]), [1,0;1,1;1,1;0,1;1,0;0,1]);
+
+   [stim,msel] = mk_stim_patterns(6,1,[0,2],'{mono}',{'no_meas_current_next0'},2);
    msel = reshape(msel, 6, 6);
    unit_test_cmp('meas_sel: nnp2436',msel(:,[4,5]), [1,0;1,1;1,1;0,1;1,0;0,1]);
 
