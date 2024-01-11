@@ -54,9 +54,13 @@ if mdl_dim(img(1))==2
         end
     end
     levels= [Inf,Inf,0];
-elseif mdl_dim(img(1))==3 && isempty(levels)
-   levels = [Inf Inf mean(img.fwd_model.nodes(:,3))];
-   eidors_msg('calc_slices: no levels specified, assuming an xy plane',2);
+elseif mdl_dim(img(1))==3
+   if isempty(levels)
+      levels = [Inf Inf mean(img.fwd_model.nodes(:,3))];
+      eidors_msg('calc_slices: no levels specified, using mid-z xy plane',2);
+   elseif levels<=0
+      error('param "levels" can''t be interpreted');
+   end
 end
 
 
