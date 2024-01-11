@@ -22,7 +22,7 @@ function hh = show_fem_enhanced(mdl, options)
 %     options.viewpoint.el (30.0)
 % 
 %     options.edge.color ([0 0 0])
-%     options.edge.width (0.5)
+%     options.edge.width (0.5) => 0 means don't show edge
 %     options.edge.significant.show (true)
 %     options.edge.significant.color ([0 0 0])
 %     options.edge.significant.width (2)
@@ -509,6 +509,9 @@ function hh = draw_markers(points, colour, marker_size)
     end
         
 function hh = draw_edges(edges, vertices, width_data, color_data)
+    if all(width_data==0)
+       return % don't draw these edges
+    end
     [unique_width_color_data, unused, width_color_idx] = ... 
                                    unique([width_data color_data], 'rows'); 
     hh = [];
