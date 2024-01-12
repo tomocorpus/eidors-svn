@@ -20,6 +20,8 @@ function hh = show_fem_enhanced(mdl, options)
 %
 %     options.viewpoint.az (-37.5)
 %     options.viewpoint.el (30.0)
+%
+%     options.body.triangle_alpha = 0.5 % transparency in body
 % 
 %     options.edge.color ([0 0 0])
 %     options.edge.width (0.5) => 0 means don't show edge
@@ -125,6 +127,8 @@ function [img, mdl, opts] = proc_params(mdl, src_opts)
     opts.viewpoint.az = -37.5;
     opts.viewpoint.el =  30.0;
 
+    opts.body.triangle_alpha = 0.5;
+ 
     % Assign default edge option values.
     opts.edge.color   = [0 0 0];
     opts.edge.width   = 0.5;
@@ -175,7 +179,11 @@ function [img, mdl, opts] = proc_params(mdl, src_opts)
             opts = copy_field(opts, src_opts, 'viewpoint', 'el');
             opts = copy_field(opts, src_opts, 'edge', 'color');
             opts = copy_field(opts, src_opts, 'edge', 'width');
+            opts = copy_field(opts, src_opts, 'body', 'triangle_alpha');
             
+            if (isfield(src_opts, 'body'))
+            end
+
             if (isfield(src_opts, 'edge'))
                 opts.edge = copy_field(opts.edge, src_opts.edge, 'significant', 'show');
                 opts.edge = copy_field(opts.edge, src_opts.edge, 'significant', 'color');
@@ -316,7 +324,9 @@ function hh = draw_fem(img, mdl, opts)
             elems = mdl.boundary;
             electrode_field = 'boundary';
         end
-        triangle_alpha = 0.5*ones(size(elems, 1), 1);
+
+        alpha_level = opts.body.triangle_alpha;
+        triangle_alpha = alpha_level*ones(size(elems, 1), 1);
         triangle_edge_color = 'none';
         triangle_edge_width = 0.5;
         
@@ -403,12 +413,13 @@ function hh = draw_fem(img, mdl, opts)
             triangle_alpha = alpha_map3(triangle_color);
             
             % Restore transparency for boundary elements;
+            alpha_level = 0.5;
             if size(img_data,1) == size(mdl.elems,1)
-                alpha_idx =  triangle_alpha(mdl.boundary_to_sub_element_idx, :) < 0.5;
-                triangle_alpha(mdl.boundary_to_sub_element_idx(alpha_idx), :) = 0.5;
+                alpha_idx =  triangle_alpha(mdl.boundary_to_sub_element_idx, :) < alpha_level;
+                triangle_alpha(mdl.boundary_to_sub_element_idx(alpha_idx), :) = alpha_level;
             else
-                alpha_idx = triangle_alpha(mdl.boundary_node_idx, :) < 0.5;
-                triangle_alpha(mdl.boundary_node_idx(alpha_idx), :) = 0.5;
+                alpha_idx = triangle_alpha(mdl.boundary_node_idx, :) < alpha_level;
+                triangle_alpha(mdl.boundary_node_idx(alpha_idx), :) = alpha_level;
             end
         else
             triangle_color = calc_colours(img);
