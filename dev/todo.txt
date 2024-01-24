@@ -3,17 +3,19 @@ Plan for 3.12:
  + in mk_GREIT_model ... why use M'? Why keep X?
  + error from calc_slices(img3D,0); => don't call levl model slice
  + move minimum matlab version to 2017b (isfile)
+ - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
+ - speed up eidors_var_id => new hash?
  - complete testing of xxhash as replacement hash
  - commit xxhash.h and build new mex files
  + Library model: don't cache to disk if ng.opt set
  + Add 'none' to edge width of show_fem_enhanced - Just use 0 and shortcut
  + can we remove isOctave in fwd_solve_2p5d_1st_order.m
+ - HDF5 file format
  - write tests for hdf5 in eidors_readdata
  - more careful errors in hdf5/eidors_readdata
  - Control padding type in freq_filt
  + minimum version R2017a => support for "strings"
  + test octave 8.x with new delaunayn. Maybe remove cruft
- - speed up eidors_var_id => new hash?
  - speed up fwd_model_parameters
  - fix caching problem in system_mat_instrument test1
  - clean up 'interior_sources' in fwd_model_parameters
@@ -22,7 +24,6 @@ Plan for 3.12:
  - Speed up / clean up _higher_order code
  - Set image position cleanly, via something like:
       img = set_slices(img, level, hlim, vlim, res)
- - HDF5 file format
  - Remove NODE / ELEM use nodes elems
  - Make simplified fwd_model_parameters
  - test netgen 6.2 for linux and windows
