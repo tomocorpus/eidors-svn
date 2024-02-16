@@ -89,7 +89,14 @@ function V= non_iterative(E,I);
 %        rnotzeros = any(R~=0,2);
 %        Q= Q(:,rnotzeros);
 %        R= R(rnotzeros,:);
-        V= (E \ Q)*R;
+
+%       Conditioning of solution
+        if 0 %no conditioning
+            V= (E \ Q)*R;  %% OLD
+        else
+            P= spdiag(sqrt(1./diag(E)));
+            V= P*((P*E*P) \ (P*Q))*R;
+        end
         
     else
         if isreal(E)
@@ -99,8 +106,14 @@ function V= non_iterative(E,I);
                 % (J.'*W*J + hp^2*R.'R) and is real
                 opts.SYM=true;
                 opts.POSDEF=true;
-                
-                V= linsolve(E,I,opts);
+
+                if 0 % conditioning
+                    V= linsolve(E,I,opts);
+                else
+                    P= spdiag(sqrt(1./diag(E)));
+                    EP = P*E*P; EP=0.5*(EP+EP'); %force symmetric
+                    V= P*linsolve(EP,P*I,opts);
+                end
             catch Mexcp
                 
                 % error handling 
@@ -168,6 +181,7 @@ function V=iterative_solve(E,I,tol,V,fmdl)
 % Test code
 function do_unit_test
 %do_timing_unit_tests; return
+conditioning_test;
 
 % test solvers are unaffected 
 inv_solve('UNIT_TEST')
@@ -196,6 +210,21 @@ hp  = calc_hyperparameter(imdl);
 LHS = (J'*W*J +  hp^2*RtR);
 RHS = J'*W;
 unit_test_cmp('dense chol',LHS\RHS,left_divide(LHS,RHS),1e-13)
+
+% Test if left divide correctly conditions
+function conditioning_test
+    Y = calc_jacobian(mk_image(mk_common_model('d2c2',16)));
+    Sn = randn(208); Sn=Sn*Sn'; %speye(N_meas) * opt.noise_covar; % Noise covariance
+    PJt= Y'; noiselev = 1;
+    Sn(140,140)= 1e20;
+    M  = (Y*Y' + noiselev^2*Sn);
+%   subplot(211); semilogy(diag(M));
+    RM = (M\(PJt'))';    %PJt/M;
+%   subplot(212); semilogy(diag(M));
+    RM2=  left_divide(M',PJt')';    %PJt/M;
+
+
+    unit_test_cmp('Conditioning',RM,RM2,1e-11)
 
 
 function do_timing_unit_tests
