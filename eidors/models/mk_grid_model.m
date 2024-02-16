@@ -88,10 +88,10 @@ if ~isempty( fmdl)
     cmdl.coarse2fine( rmelems{1},     :      ) = [];
     cmdl.coarse2fine(    :      , rmelems{2} ) = [];
     c2f(:,rmelems{2}) = [];
-    cmdl.boundary = find_boundary( cmdl.elems);
 
 %   cmdl.remover = rmelems; % debugging
 end
+cmdl.boundary = find_boundary( cmdl.elems);
 
 cmdl.normalize_measurements = 0;% @eidors_default;
 cmdl.solve =      @eidors_default;
@@ -183,6 +183,7 @@ function [cmdl,rmelems]= mk_2d_grid(xvec, yvec, removefn);
    params= ceil(( 1:e )/2);
    cmdl.coarse2fine = sparse(1:e,params,1,e,max(params));
 
+   cmdl.boundary = find_boundary( cmdl.elems);
 
 function [cmdl,rmelems]= mk_3d_grid(xvec, yvec, zvec,removefn)
    xlen = length(xvec);
