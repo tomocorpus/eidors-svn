@@ -81,11 +81,6 @@ function V= non_iterative(E,I);
         % Don't need to cache, this is fast
         [Qi,R] = qr(I(inotzeros,:),0);
         rnotzeros = logical(any(R,2));
-        % Bug in octave sparse for v6.4
-        % Not needed for v7.3
-        % if exist('OCTAVE_VERSION')
-        %    rnotzeros = full(rnotzeros);
-        % end
         R= R(rnotzeros,:);
         Q = zeros(size(I,1), size(R,1)); % Faster if not sparse
         Q(inotzeros,:) = Qi(:,rnotzeros);
