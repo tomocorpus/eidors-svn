@@ -42,6 +42,9 @@ function opt = ng_write_opt(varargin)
 %  ng_write_opt('MSZCYLINDER', [x1, y1, z1, x2, y2, z2, radius, maxh])
 %     where (x1,y1,z1) and (x2,y2,z2) are the limits on the axis
 %
+% It is possible to have a refined region inside a coarse region
+%  ng_write_opt('MSZSPHERE', [x, y, z, rinner, minner],'MSZSPHERE', [x, y, z, router, mouter])
+%
 %  See also CALL_NETGEN
 
 % (C) 2012 Bartlomiej Grychtol. License: GPL version 2 or version 3
@@ -102,6 +105,7 @@ function opt = process_input(varargin)
 if mod(nargin,2)~=0
    error('EIDORS:WrongInput','Even number of inputs expected');
 end
+mszpoints = [];
 for i = 1:nargin/2
    idx = (i-1)*2 +1;
    val = varargin{idx+1};
@@ -109,24 +113,21 @@ for i = 1:nargin/2
 %  ng_write_opt('MSZPOINTS', [list of x,y,z,maxh])
    case 'MSZPOINTS'
     %  ng_write_opt('MSZPOINTS', [list of x,y,z,maxh])
-       tmpname = write_tmp_mszfile( val );
-       opt.options.meshsizefilename = tmpname;
+       mszpoints = [mszpoints;val];
    case 'MSZBRICK'
-       val = msz_brick(val);
-       tmpname = write_tmp_mszfile( val );
-       opt.options.meshsizefilename = tmpname;
+       mszpoints = [mszpoints; msz_brick(val)];;
    case 'MSZSPHERE'
-       val = msz_sphere(val);
-       tmpname = write_tmp_mszfile( val );
-       opt.options.meshsizefilename = tmpname;
+       mszpoints = [mszpoints; msz_sphere(val)];;
    case 'MSZCYLINDER'
-       val = msz_cylinder(val);
-       tmpname = write_tmp_mszfile( val );
-       opt.options.meshsizefilename = tmpname;
+       mszpoints = [mszpoints; msz_cylinder(val)];;
    otherwise
        eval(sprintf('opt.%s = val;',varargin{idx}));
    end
 end
+   if ~isempty(mszpoints);
+       tmpname = write_tmp_mszfile( mszpoints );
+       opt.options.meshsizefilename = tmpname;
+   end
 
 function val = msz_brick(val)
 %  ng_write_opt('MSZBRICK', [xmin, xmax, ymin, ymax, zmin, zmax, maxh])
@@ -448,6 +449,10 @@ function unit_test_MSZ
            ng_write_opt('MSZSPHERE',[6,6,6,2.2,0.2]);
        case 11; n_exp = 13242; % extra options
            ng_write_opt('fine','MSZSPHERE',[6,6,6,2.2,0.2]);
+       case 12; n_exp = 3303; % extra options
+           ng_write_opt('MSZSPHERE',[8,8,0,1.1,0.2],'MSZSPHERE',[-8,-8,0,1.1,0.2]);
+       case 13; n_exp = 14821;
+           ng_write_opt('fine','MSZSPHERE',[6,6,6,2.2,0.2],'MSZPOINTS',[0,0,0,0.1]);
        otherwise; break
        end
        eidors_cache clear
