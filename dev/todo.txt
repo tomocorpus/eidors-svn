@@ -5,6 +5,8 @@ Plan for 3.12:
  + move minimum matlab version to 2017b (isfile)
  - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
  - speed up eidors_var_id => new hash?
+ - ng_write_opt: allow multiple refinements
+ - ng_write_opt: MSZTORUS
  - complete testing of xxhash as replacement hash
  - commit xxhash.h and build new mex files
  + Library model: don't cache to disk if ng.opt set

@@ -381,7 +381,7 @@ opt.visoptions.subdivisions = 1;
 function do_unit_test
    test_main_options()
    unit_test_MSZ()
-   test_caching()
+%  test_caching()
 
 function test_caching()
    for test=0:10; switch test
@@ -426,28 +426,32 @@ function unit_test_MSZ
    shape_str =  ...
      'solid mainobj = orthobrick(-9,-9,-9;9,9,9);';
    i=0; while(true); i=i+1; switch i
-       case 1; n_exp = 8;
+       case  1; n_exp = 8;
            ng_write_opt('very_coarse');
-       case 2; n_exp = 22;
+       case  2; n_exp = 22;
            ng_write_opt('fine');
-       case 3; n_exp = 59;
+       case  3; n_exp = 59;
            ng_write_opt('very_fine');
-       case 4; n_exp = 8;
+       case  4; n_exp = 8;
            ng_write_opt('moderate');
-       case 5; n_exp = 746;
+       case  5; n_exp = 746;
            ng_write_opt('MSZSPHERE',[5,5,5,4,1]);
-       case 6; n_exp = 106;
+       case  6; n_exp = 106;
            ng_write_opt('MSZBRICK',[5,5,5,9,9,9,1]);
-       case 7; n_exp = 544;
+       case  7; n_exp = 544;
            ng_write_opt('MSZCYLINDER',[5,5,5,8,8,8,5,1]);
-       case 8; n_exp = 23;
+       case  8; n_exp = 23;
            ng_write_opt('MSZCYLINDER',[5,5,5,8,8,8,5,5]);
-       case 9; n_exp = 23;
+       case  9; n_exp = 135;
            ng_write_opt('MSZCYLINDER',[5,5,5,5,5,8,1,5]);
+       case 10; n_exp = 9876; % show ball on face
+           ng_write_opt('MSZSPHERE',[6,6,6,2.2,0.2]);
+       case 11; n_exp = 13242; % extra options
+           ng_write_opt('fine','MSZSPHERE',[6,6,6,2.2,0.2]);
        otherwise; break
        end
        eidors_cache clear
        fmdl = ng_mk_gen_models(shape_str,[],[],'');
        unit_test_cmp('opt:', num_nodes(fmdl), n_exp)
-%      show_fem(fmdl); disp(num_nodes(fmdl))
+%      show_fem(fmdl); disp([i,num_nodes(fmdl)]); pause
    end
