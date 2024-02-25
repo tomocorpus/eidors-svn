@@ -134,7 +134,10 @@ switch fmt
      ft = [.00098242, .00019607];% estimated AA: 2016-04-07
      vv = ft(1)*vvOrig(1:208,:) - ft(2)*vvOrig(322+(1:208),:);
      auxdata.vv = vvOrig; % the actual voltages
-     auxdata.tstamp = tstamp;
+     auxdata.tstamp = tstamp; % timestamp in number of days
+
+     T_int = mean(diff(tstamp))*24*3600; % in S
+     auxdata.frame_rate = 1/T_int;
      auxdata.event = event;
      auxdata.signals = signals;
      % Based on correlating and scaling with outputs of *.get file
@@ -1523,7 +1526,12 @@ function do_unit_test
    unit_test_cmp('LQ2',dd(100,100), -8.820502983940973e-04 - 8.022670735677084e-04i,1e-16);
    unit_test_cmp('LQ2:elecZ', auxdata.elec_impedance(3), -6.883231000000000e+06 - 1.805360000000000e+05i,1e-10);
    unit_test_cmp('LQ2:t_rel', auxdata.t_rel(2), 38442185);
+   unit_test_cmp('LQ2:frame_rate', auxdata.frame_rate, 28.041838422927,1e-10);
 
   
-   pth = which('montreal_data_1995.h5');
+return % TODO Add tests
+% TODO Add Draeger tests
+% TODO split h5 data
+% TODO frame_rate tests
+   pth = get_contrib_data('aa_montreal_data','montreal_data_1995.h5');
    [dd,auxdata,stim]= eidors_readdata(pth);

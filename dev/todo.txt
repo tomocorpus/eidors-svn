@@ -3,6 +3,9 @@ Plan for 3.12:
  + in mk_GREIT_model ... why use M'? Why keep X?
  + error from calc_slices(img3D,0); => don't call levl model slice
  + move minimum matlab version to 2017b (isfile)
+ - have aux.frame_rate for all eidors_readdata
+ - Post sample h5 data
+ - Post sample Dräger eit data
  - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
  - speed up eidors_var_id => new hash?
  + ng_write_opt: allow multiple refinements
