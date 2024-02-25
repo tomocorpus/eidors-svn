@@ -23,6 +23,7 @@ function J = calc_jacobian( fwd_model, img)
 % (C) 2005-08 Andy Adler. License: GPL version 2 or version 3
 % $Id$
 
+if ischar(fwd_model) && strcmp(fwd_model,'UNIT_TEST'); do_unit_test; return; end
 
 if nargin == 1
    img= fwd_model;
@@ -94,3 +95,85 @@ function fwd_model_check(fmdl)
    if pp.n_meas == 0
        error('Cannot calculate Jacobian. No measurements found.');
    end
+
+function do_unit_test
+    delta = 1e-5;
+    testvec= [5,20,40,130];
+    mdl= test_aa_mdl2;
+    run_jacobian_test( mdl, delta, testvec );
+    % TODO: import tests from calc_jacobian_test
+
+function run_jacobian_test( mdl, delta, testvec ); 
+    img= mk_image(mdl,1);
+    homg_data=fwd_solve( img);
+
+    J= calc_jacobian( img );
+
+    % J = dF/dx = [F(x+d)  - F(x)]/d
+    sumdiff= 0;
+    bkgnd_elem_data= img.elem_data;
+    for testelem = testvec
+       img.elem_data= bkgnd_elem_data;
+       img.elem_data(testelem)= bkgnd_elem_data(testelem)+delta;
+       inh_data=fwd_solve( img);
+
+       if mdl_normalize(mdl)
+          simJ= 1/delta* (inh_data.meas ./ homg_data.meas - 1);
+       else
+          simJ= 1/delta* (inh_data.meas-homg_data.meas);
+       end
+       
+       plot([J(:,testelem) simJ]);
+       sumdiff = sumdiff + std( J(:,testelem) - simJ );
+    end
+
+    tol= 1e-4*std(J(:));
+    dif= sumdiff/length(testvec);
+    if sumdiff/length(testvec) > tol
+       eidors_msg('Jacobian calculation error (%s) tol(%3.2g)>diff(%3.2g)', ...
+                mdl.name,tol,dif, 1);
+       ok=0;
+    else
+       ok=1;
+    end
+
+function mdl= test_aa_mdl2;
+    n_elec= 16;
+    n_rings= 1;
+    options = {'no_meas_current','no_rotate_meas'};
+    params= mk_circ_tank(8, [], n_elec);
+
+    params.stimulation= mk_stim_patterns(n_elec, n_rings, '{ad}','{ad}', ...
+                                options, 10);
+    params.solve=      'fwd_solve_1st_order';
+    params.system_mat= 'system_mat_1st_order';
+    params.jacobian=   'jacobian_adjoint';
+    params.normalize_measurements = 0;
+    mdl = eidors_obj('fwd_model', params);
+    mdl.name= 'AA_1996 mdl';
+
+function mdl= test_aa_mdl3;
+    i_mdl = mk_common_model('b3cz2',16);
+    mdl= i_mdl.fwd_model;
+    mdl.name= 'AA_1996 mdl';
+    mdl.solve=      'fwd_solve_1st_order';
+    mdl.system_mat= 'system_mat_1st_order';
+    mdl.jacobian=   'jacobian_adjoint';
+    
+    
+
+function mdl= test_np_mdl;
+    i_mdl = mk_common_model('n3r2',16);
+    mdl= i_mdl.fwd_model;
+    mdl.name=     'NP_2003 mdl';
+    mdl.solve=      'np_fwd_solve';
+    mdl.system_mat= 'np_calc_system_mat';
+    mdl.jacobian=   'np_calc_jacobian';
+
+function mdl= test_ms_mdl;
+    i_mdl = mk_common_model('n3r2',16);
+    mdl= i_mdl.fwd_model;
+    mdl.name=       'MS_2005 mdl';
+    mdl.solve=      'np_fwd_solve';
+    mdl.system_mat= 'np_calc_system_mat';
+    mdl.jacobian=   'ms_calc_jacobian';

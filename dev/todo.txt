@@ -7,6 +7,10 @@ Plan for 3.12:
  - Post sample h5 data
  - Post sample Dräger eit data
  - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
+ - pull calc_jacobian_test into calc_jacobian && remove
+ - pull perturb_jacobian_test into calc_jacobian && remove
+ - pull calc_model_prior_test into NEW_TEST_FUNCTION && remove
+ 
  - speed up eidors_var_id => new hash?
  + ng_write_opt: allow multiple refinements
  - complete testing of xxhash as replacement hash
