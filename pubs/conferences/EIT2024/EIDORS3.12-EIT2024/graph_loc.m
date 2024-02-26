@@ -8,7 +8,7 @@ function graph_loc
    plot(t,1e-3*dat(:,2)          ,'-','Color',[1,1,0]/3,'LineWidth',3,'DisplayName','Eidors');
    plot(t,1e-3*dat(:,4),          '-','Color',[0,0,2]/3,'LineWidth',3,'DisplayName','Dev');
 
-   k=1;for yy=2004:2022;
+   k=1;for yy=2004:2024;
      tt(k) = (datenum(yy,1,1)-datenum(1970,1,1))*86400;
      tl{k} = num2str(yy); if rem(yy,2)==0; tl{k}=''; end
    k=k+1; end
