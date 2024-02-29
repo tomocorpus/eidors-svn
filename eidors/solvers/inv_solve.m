@@ -47,6 +47,10 @@ function img = inv_solve( inv_model, data1, data2)
 %   inv_model.inv_solve.scale_solution.scale
 %  Disable solution error calculations
 %   inv_model.inv_solve.calc_solution_error = 0
+%
+% img.time is frame sequence number. It is in seconds if
+%   imdl.fwd_model.frame_rate is specified
+
 
 % (C) 2005-2010 Andy Adler. License: GPL version 2 or version 3
 % $Id$
@@ -102,6 +106,11 @@ end
 
 if opts.select_parameters;
    img.elem_data = img.elem_data( opts.select_parameters, :);
+end
+
+img.time = 1:size(img.elem_data,2);
+if isfield(inv_model.fwd_model,'frame_rate');
+   img.time = img.time / inv_model.fwd_model.frame_rate;
 end
 
 if ~opts.reconst_to_elems
