@@ -1,0 +1,46 @@
+<html>
+[% PROCESS "../../header.html" %]
+<body>
+
+<H2>Contributed EIT Data:</H2>
+   <table>
+   <tr><th valign="top"> Authors:
+       <td> Eckhard Teschner 
+       <hr>
+   <tr><th valign="top"> Date:
+       <td> 2024-02-27
+       <hr>
+   <tr><th valign="top"> Brief Description:
+       <td> 
+Recordings in a healthy subject with the Draeger PulmoVista 500, SW1.30: regular breathing followed by +expiratory and inspiratory breath holds.
+       <hr>
+   <tr><th valign="top"> License:
+       <td> Creative Commons License: CC-ND
+       <hr>
+   <tr><th valign="top"> Attribution Requirement:
+       <td> 
+ Attribution is not required.
+   <tr><th valign="top"> Format:
+       <td> Data files are stored in the PulmoVista 500 *.eit format and the MCEIT *.get format. Fraame rate is 20 frames/sec.
+       <hr>
+   <tr><th valign="top"> Methods:
+       <td> 
+The subject (healthy adult male) was seated with the Draeger PulmoVista 500
+belt in the recommended position (4th to 5th intercostal space at the
+midclavicular line). EIT measurements were performed while the subject
+performed tidal breathing, followed by a deeper breath, as well as a short
+expiratory and inspiratory breath hold.
+       <hr>
+   <tr><th valign="top"> Data:
+       <td> <a href="./ET_Test_File_Healthy_Lung_01.eit"
+            >Data (Draeger EIT format)</a>
+       <td> <a href="./ET_Test_File_Healthy_Lung_01_01.get"
+            >Data (Draeger EIT format)</a>
+       <hr>
+   </table>
+
+<small>
+    Last Modified: $Date$ by $Author$
+</small>
+</body></html>
+
