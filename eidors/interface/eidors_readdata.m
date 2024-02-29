@@ -111,6 +111,7 @@ switch fmt
       auxdata.auxtime = auxtime;
       auxdata.curr    = curr;
       auxdata.volt    = volt;
+      auxdata.frame_rate = NaN; % This info is only in the *.prl file
 
 
       if strcmp(lower(format),'get-raw')
