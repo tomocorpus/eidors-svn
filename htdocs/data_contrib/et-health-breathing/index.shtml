@@ -34,8 +34,8 @@ expiratory and inspiratory breath hold.
    <tr><th valign="top"> Data:
        <td> <a href="./ET_Test_File_Healthy_Lung_01.eit"
             >Data (Draeger EIT format)</a>
-       <td> <a href="./ET_Test_File_Healthy_Lung_01_01.get"
-            >Data (Draeger EIT format)</a>
+       <br> <a href="./ET_Test_File_Healthy_Lung_01_01.get"
+            >Data (MCEIT GET format)</a>
        <hr>
    </table>
 
