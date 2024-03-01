@@ -70,7 +70,7 @@ function s = do_freq_filt(s,fresp, p)
   f = f .* fshape(p,fax);
   s= ifft(f,[],p.dim);
   if rs % is signal is real
-     if norm(imag(s(:))) > 1e-11
+     if norm(imag(s(:))) / norm(real(s(:))) > 1e-14
         error('FFT filter has imag output');
      end
      s = real(s);
