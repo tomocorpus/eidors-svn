@@ -39,6 +39,22 @@ expiratory and inspiratory breath hold.
        <hr>
    </table>
 
+<H2>Example analysis</H2>
+
+The data may be analyzed with the following code:
+<pre>
+[% PROCESS "analyze01.m" %]
+</pre>
+
+<br>
+<center>
+   <img src="analyze01a.jpg">
+<br>
+Top: Waveforms in regions of interest vs time (s).
+Bottom: Image sequences corresponding to vertical line segments in the data.
+</center>
+
+
 <small>
     Last Modified: $Date$ by $Author$
 </small>
