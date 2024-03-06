@@ -1,7 +1,9 @@
 # use tpage from template toolkit to build each shtml file
 
+# This will overwrite the htdocs folder into static html files
+
 echo "# Template script" > script.sh
-(find ../htdocs -name \*shtml \
+(find ../htdocs -name \*shtml -not -name nav_sidebar.shtml \
   -exec echo -n "( cd " \;  \
   -exec dirname -z {} \; \
   -exec echo -n " && tpage " \;  \
@@ -13,5 +15,5 @@ echo "# Template script" > script.sh
 ) >> script.sh
 # Now we need to remove the nulls from -z
 perl -i -pe 's/\000//g' script.sh
-echo "Delete nav-sidebar.shml!!!"
+echo "rm ../htdocs/nav-sidebar.shml" >> script.sh
 
