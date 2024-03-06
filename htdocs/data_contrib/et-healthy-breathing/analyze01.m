@@ -15,7 +15,7 @@ imdl = select_imdl(fmdl,{'GREIT:NF=0.3 64x64 rad=0.25'});
 
 [ROIs,imgR] = define_ROIs(imdl,[-2,0,2],[-2,0,2]);
 imgr = inv_solve(imdl, mean(dd,2), dd);
-% choose 33<t<37 for reference
+% choose reference between t=33 and t=37
 dh = mean(dd(:,abs(imgr.time-35)<2),2);
 imgr = inv_solve(imdl, dh, dd);
 
