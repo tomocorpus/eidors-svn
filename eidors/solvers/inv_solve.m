@@ -108,7 +108,12 @@ if opts.select_parameters;
    img.elem_data = img.elem_data( opts.select_parameters, :);
 end
 
-img.time = 1:size(img.elem_data,2);
+if isfield(img,'elem_data')
+   img.time = 1:size(img.elem_data,2);
+else
+   img.time = 1:size(img.node_data,2);
+end
+
 if isfield(inv_model.fwd_model,'frame_rate');
    img.time = img.time / inv_model.fwd_model.frame_rate;
 end
