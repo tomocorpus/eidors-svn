@@ -1,4 +1,4 @@
-function inv_mdl= select_imdl( mdl, options )
+function [inv_mdl,opt_out]= select_imdl( mdl, options )
 % SELECT_IMDL: select pre-packaged inverse model features
 % inv_mdl= select_imdl( mdl, options )
 %
@@ -25,7 +25,7 @@ function inv_mdl= select_imdl( mdl, options )
 %                   model
 % 'Choose NF=1.0';  Choose hyperparameter value appropriate for specified noise figure (NF)
 
-% (C) 2010 Andy Adler. License: GPL version 2 or version 3
+% (C) 2010-2024 Andy Adler. License: GPL version 2 or version 3
 % $Id$
 
 if ischar(mdl) && strcmp(mdl,'UNIT_TEST'); do_unit_test; return; end
@@ -38,6 +38,7 @@ switch mdl.type
   otherwise;        error('select_imdl: expects inv_model or fwd_model input');
 end
 
+opt_out = struct(); % default setting
 if ischar(options); options = {options}; end
 for i=1:length(options);
   % split the option on an equals sign
@@ -57,7 +58,7 @@ for i=1:length(options);
     case 'TV solve dif';    inv_mdl = TV_solve_Dif( inv_mdl );
     case 'Elec Move GN';    inv_mdl = Elec_Move_GN( inv_mdl );
     case 'Choose NF';       inv_mdl = Choose_NF( inv_mdl, str2num(opt{2}) );
-    case 'GREIT';           inv_mdl = GREIT(inv_mdl, opt{2});
+    case 'GREIT';           [inv_mdl,opt_out] = GREIT(inv_mdl, opt{2});
     
     otherwise; error('option {%s} not understood', options{i});
   end
@@ -142,7 +143,7 @@ function imdl = Elec_Move_GN( imdl );
 function imdl = Nodal_GN_Dif( imdl );
    imdl.solve = @nodal_solve;
 
-function imdl = GREIT(inv_mdl, opts)
+function [imdl,opt] = GREIT(inv_mdl, opts)
    opt.square_pixels = true;
    opt.noise_figure = 0.5;
    opt.imgsz = [32 32];
