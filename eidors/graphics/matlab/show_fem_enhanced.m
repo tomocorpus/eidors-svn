@@ -747,45 +747,51 @@ function do_unit_test
 
    img=calc_jacobian_bkgnd(mk_common_model('a2c0',8)); 
    img.elem_data= 3*sin(linspace(-2,2,num_elems(img))');
-   subplot(3,4,1); show_fem_enhanced(img.fwd_model,[0,0,1]) 
+   subplot(4,4,1); show_fem_enhanced(img.fwd_model,[0,0,1]) 
    title('regular mesh numbered');
 
 if ~ver.isoctave 
    imgn = rmfield(img,'elem_data');
    imgn.node_data= 3*sin(linspace(-5,5,num_nodes(img))');
-   subplot(3,4,9); show_fem_enhanced(imgn) 
+   subplot(4,4,9); show_fem_enhanced(imgn) 
    title('interpolated node colours');
 end
 
    img2(1) = img; img2(2) = img;
-   subplot(3,4,2); show_fem_enhanced(img,[1]);
+   subplot(4,4,2); show_fem_enhanced(img,[1]);
    title('colours with legend');
-   subplot(3,4,3); show_fem_enhanced(img2,[0,1]);
+   subplot(4,4,3); show_fem_enhanced(img2,[0,1]);
    title('colours with legend');
    img.calc_colours.mapped_colour = 0; % USE RGB colours
-   subplot(3,4,4); show_fem_enhanced(img,[0,1,1]);
+   subplot(4,4,4); show_fem_enhanced(img,[0,1,1]);
    title('RGB colours');
-   subplot(3,4,4); show_fem_enhanced(img);
+   subplot(4,4,4); show_fem_enhanced(img);
    title('RGB colours');
 
    img.elem_data = [1:10];
-   subplot(3,4,12);show_fem_enhanced(img); %Should show grey
+   subplot(4,4,12);show_fem_enhanced(img); %Should show grey
    title('error -> show grey');
 
 if ~ver.isoctave
    imgn.calc_colours.mapped_colour = 0; % USE RGB colours
-   subplot(3,4,10);show_fem_enhanced(imgn,[0,1]) 
+   subplot(4,4,10);show_fem_enhanced(imgn,[0,1]) 
    title('interpolated node colours');
 
 
-   subplot(3,4,11);hh=show_fem_enhanced(imgn); set(hh(1),'EdgeColor',[0,0,1]);
+   subplot(4,4,11);hh=show_fem_enhanced(imgn); set(hh(1),'EdgeColor',[0,0,1]);
    title('with edge colours');
 
 end
 
    img3=calc_jacobian_bkgnd(mk_common_model('n3r2',[16,2]));
    img3.elem_data= randn(828,1);                       
-   subplot(3,4,5); show_fem_enhanced(img3.fwd_model) 
-   subplot(3,4,6); show_fem_enhanced(img3,[1])
-   subplot(3,4,7); show_fem_enhanced(img3,[1,1])
-   subplot(3,4,8); show_fem_enhanced(img3,[1,1,1])
+   subplot(4,4,5); show_fem_enhanced(img3.fwd_model) 
+   subplot(4,4,6); show_fem_enhanced(img3,[1])
+   subplot(4,4,7); show_fem_enhanced(img3,[1,1])
+   subplot(4,4,8); show_fem_enhanced(img3,[1,1,1])
+
+   img3.elem_data(:) = 1;
+   opts.viewpoint = struct('az',10,'el',10);
+   subplot(4,4,13); show_fem_enhanced(img3,opts);
+   opts.edge.width = 0;
+   subplot(4,4,14); show_fem_enhanced(img3,opts);
