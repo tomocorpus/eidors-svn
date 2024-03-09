@@ -9,6 +9,8 @@ function hh = show_fem_enhanced(mdl, options)
 %   is true)
 %
 % options may be specified by a list (for compatibility purposes)
+% options may also be specified as
+%  fwd_model.show_fem_enhanced.field = value
 %
 % options specifies a set of options
 %   options(1) => show colourbar
@@ -84,10 +86,19 @@ switch nargin
             refresh_current_axis; 
             return; 
         end
-        if (isstruct(mdl) && isfield(mdl, 'show_fem'))
-            options = mdl.show_fem;
-        else
-            options = [];
+        options = [];
+        % overwrite options from field, if it exists
+        try options = ...
+            mdl.show_fem;
+        end
+        try options = ...
+            mdl.show_fem_enhanced;
+        end
+        try options = ...
+            mdl.fwd_model.show_fem;
+        end
+        try options = ...
+            mdl.fwd_model.show_fem_enhanced;
         end
     case 2
         % No special processing
@@ -795,3 +806,6 @@ end
    subplot(4,4,13); show_fem_enhanced(img3,opts);
    opts.edge.width = 0;
    subplot(4,4,14); show_fem_enhanced(img3,opts);
+   
+   img3.fwd_model.show_fem_enhanced = opts;
+   subplot(4,4,15); show_fem_enhanced(img3);
