@@ -55,9 +55,10 @@ function [imdl, weight]= mk_GREIT_model( fmdl, radius, weight, options )
 %         image. It must have the signature:
 %         D = my_function( xyc, radius, options); 
 %         See CALC_GREIT_RM for details.
-%     keep_intermediate_results - if true, stores additional data of 
+%     keep_model_components  - if true, stores additional data of 
 %         reconstruction matrix computation to be used later on, 
 %         e.g. for faulty electrode compensation
+%     keep_intermediate_results (DEPRECATED) - like keep_model_components, but calculates expensive parameters. For backward compatibility
 %     show_NF_chosen - Show the NF value chosen
 %
 % NOTE
@@ -176,11 +177,14 @@ end
 % 
 [RM, PJt, M] = calc_GREIT_RM(vh,vi, xyz, radius, weight, opt );
 imdl.solve_use_matrix.RM = RM;
-if opt.keep_intermediate_results
+if opt.keep_model_components || opt.keep_intermediate_results
    % store additional data to be used for faulty electrode compensation
    imdl.solve_use_matrix.PJt = PJt;
    imdl.solve_use_matrix.M = M;
-   imdl.solve_use_matrix.X = inv(M); % Not sure why we are keeping X - perhaps remove(AA)
+end
+if opt.keep_intermediate_results
+   % DEPRECATED but compatible for older code
+   imdl.solve_use_matrix.X = inv(M);
 end
 % imdl.solve_use_matrix.RM = resize_if_reqd(RM,inside,imdl.rec_model);
 imdl.jacobian_bkgnd = imgs;
@@ -420,9 +424,12 @@ function [imdl,fmdl,imgs] = parse_fmdl(fmdl);
     end
 
        
+    if ~isfield(opt,'keep_model_components');
+       opt.keep_model_components = false;
+    end
     if ~isfield(opt,'keep_intermediate_results');
        opt.keep_intermediate_results = false;
-	end
+    end
     
 	
     try, opt.normalize = fmdl.normalize_measurements;
@@ -613,13 +620,24 @@ unit_test_cmp('Expect no PJT or X', ~isfield(imdl1.solve_use_matrix, 'PJt') & ..
                                     ~isfield(imdl1.solve_use_matrix, 'X'), true);
 
 weight = [];
+opt.keep_model_components = true;
+imdl1 = mk_GREIT_model(img_2, 0.25, weight, opt);
+sumat = imdl1.solve_use_matrix;
+unit_test_cmp('Expect PJT and M', ...
+  isfield(sumat, 'PJt') & ...
+ ~isfield(sumat, 'X') & ...
+  isfield(sumat, 'M'), true);
+
 opt.keep_intermediate_results = true;
 imdl1 = mk_GREIT_model(img_2, 0.25, weight, opt);
+sumat = imdl1.solve_use_matrix;
+unit_test_cmp('Expect PJT, X and M', ...
+  isfield(sumat, 'PJt') & ...
+  isfield(sumat, 'X') & ...
+  isfield(sumat, 'M'), true);
+
 img1= inv_solve(imdl1,vh,vi);  
 sidx= sidx+1; subplot(4,4,sidx); show_slices(img1);
-
-unit_test_cmp('Expect PJT and X', isfield(imdl1.solve_use_matrix, 'PJt') & ...
-                                  isfield(imdl1.solve_use_matrix, 'X'), true);
 
 opt = rmfield(opt,{'image_SNR', 'keep_intermediate_results'}); opt.noise_figure = 0.5;
 
@@ -723,3 +741,4 @@ opt.desired_solution_fn = 'GREIT_desired_img_original';
 imdl_org = mk_GREIT_model(fmdl,0.2,[],opt);
 
 test_performance( { imdl_v1, imdl_gr, imdl_def, imdl_org},fmdl );
+legend({'v1', 'gr', 'def', 'org'});
