@@ -69,10 +69,12 @@ function [RM, M] = calc_RM(PJt, Y, noiselev, opt)
    % This implements RM = D*Y'/(J*Sx*J + Sn);
    Sn = speye(N_meas) * opt.noise_covar; % Noise covariance
 %    PJt= D*Y';
+   % Conjugate transpose here
    M  = (Y*Y' + noiselev^2*Sn);
-   RM =  left_divide(M',PJt')';    %PJt/M;
+   % Ensure to use transpose not conjugate'
+   RM =  left_divide(M.',PJt.').';    %PJt/M;
    % This implements RM = D*Y'/(Y*Y');
-   if 0
+   if 0 % OLD CODE and Test
       Y = [Y, noiselev*eye(N_meas)];
       D = [D,          zeros(size(D,1),N_meas)];
 
