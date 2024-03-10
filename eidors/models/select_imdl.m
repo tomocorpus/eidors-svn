@@ -147,6 +147,8 @@ function [imdl,opt] = GREIT(inv_mdl, opts)
    opt.square_pixels = true;
    opt.noise_figure = 0.5;
    opt.imgsz = [32 32];
+   % Allow error compensation afterward
+   opt.keep_model_components = true;
    radius = 0.2;
    matches = regexp(opts,'\S+','match');
    for i=1:length(matches); mi = matches{i};
