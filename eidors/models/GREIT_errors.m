@@ -1,4 +1,4 @@
-function imdl= GREIT_errors(imdli, options )
+function imdl= GREIT_errors(imdli, opts )
 % GREIT_errors: Add Error Compensation to GREIT-type model
 % imdl= imdl_errors(imdli, options )
 %  imdl - inv_model structure
@@ -8,7 +8,7 @@ function imdl= GREIT_errors(imdli, options )
 %
 % Available options are:
 %
-% 'Channel=[list]';   
+% 'Channel:[list]' or 'Channel:[list] SNR=100'
 %
 % See also: select_imdl
 %
@@ -20,12 +20,49 @@ function imdl= GREIT_errors(imdli, options )
 
 if ischar(imdli) && strcmp(imdli,'UNIT_TEST'); do_unit_test; return; end
 
+imdl = imdli;
+for i=1:length(opts);
+   if iscell(opts); opti = opts{i};
+   else           ; opti = opts; end
+   imdl = process(imdl, opti);
+end
 
+function imdl = process(imdli, opti);
+   if ~ischar(opti); error('Expecting string options'); end
+   SNR = 100; % Default values
+   imdl = imdli;
+
+   % split the option on an equals sign
+   opt= regexp(opti,'(.[^:]*):?(.\S+)\s*(.*)','tokens'); opt= opt{1};
+   matches = regexp(opt{3},'(\S+)=(\S+)','tokens');
+   for i=1:length(matches); switch matches{i}{1}
+      case 'SNR'; SNR = num2str(matches{i}{2});
+      otherwise;  error('unknown parameter');
+   end; end
+
+   switch lower(opt{1});
+      case 'channel';
+      case 'electrode';
+         imdli.meas_icov_rm_elecs.elec_list = str2num(opt{2});
+         imdli.meas_icov_rm_elecs.exponent  = -1;
+         imdli.meas_icov_rm_elecs.SNR       = SNR;
+         imdli.meas_icov_rm_elecs
+         noise_covar = meas_icov_rm_elecs(imdli);
+      otherwise error('option not understood');
+   end
+
+   PJt = imdli.solve_use_matrix.PJt;
+   M   = imdli.solve_use_matrix.M;
+   M   = M + noise_covar;
+   imdl.solve_use_matrix.RM = left_divide(M.',PJt.').';    %PJt/M;
+   
 
 function do_unit_test
    for sp=1:9; switch sp
       case 1; [vv,imdl] = test_data(1);
       case 2; [vv,imdl] = test_data(2);
+      case 3; [vv,imdl] = test_data(2);
+         imdl = GREIT_errors(imdl,'Electrode:[1]');
       otherwise; break;
   
       end
