@@ -1,4 +1,4 @@
-function imdl= GREIT_errors(imdli, opts )
+function imdl= GREIT_errors(imdli, opts, data )
 % GREIT_errors: Add Error Compensation to GREIT-type model
 % imdl= imdl_errors(imdli, options )
 %  imdl - inv_model structure
@@ -8,7 +8,11 @@ function imdl= GREIT_errors(imdli, opts )
 %
 % Available options are:
 %
-% 'Channel:[list]' or 'Channel:[list] SNR=100'
+% 'Channel:[list]' or 'Channel:[list] SNR=100'  # remove individual channels
+% 'Electrode:[list]' or 'Electrode:[list] SNR=100' # remove electrodes
+% 'RecipError:' or 'RecipError: Tau=1e-3'       # use calc_reciproc_error
+%
+% Data is a sequence of measured data to model electrode errors with
 %
 % See also: select_imdl
 %
@@ -19,28 +23,31 @@ function imdl= GREIT_errors(imdli, opts )
 % $Id$
 
 if ischar(imdli) && strcmp(imdli,'UNIT_TEST'); do_unit_test; return; end
+if nargin<3; data=[]; end
 
 imdl = imdli;
 if ischar(opts); opts = {opts}; end
 for i=1:length(opts);
    if iscell(opts); opti = opts{i};
    else           ; opti = opts; end
-   imdl = process(imdl, opti);
+   imdl = process(imdl, opti, data);
 end
 
-function imdl = process(imdli, opti);
+function imdl = process(imdli, opti, data);
    if ~ischar(opti); error('Expecting string options'); end
-   SNR = 100; % Default values
+   SNR = 1000; % Default values
+   Tau = -3e-4;
    imdl = imdli;
    PJt        = imdli.solve_use_matrix.PJt;
    M          = imdli.solve_use_matrix.M;
    noiselev   = imdli.solve_use_matrix.noiselev;
 
    % split the option on an equals sign
-   opt= regexp(opti,'(.[^:]*):?(.\S+)\s*(.*)','tokens'); opt= opt{1};
+   opt= regexp(opti,'(.[^:]*):?(.\S*)\s*(.*)','tokens'); opt= opt{1};
    matches = regexp(opt{3},'(\S+)=(\S+)','tokens');
    for i=1:length(matches); switch matches{i}{1}
       case 'SNR'; SNR = str2num(matches{i}{2});
+      case 'Tau'; Tau =-abs(str2num(matches{i}{2})) 
       otherwise;  error('unknown parameter');
    end; end
 
@@ -55,6 +62,9 @@ function imdl = process(imdli, opti);
          imdli.meas_icov_rm_elecs.exponent  = -1;
          imdli.meas_icov_rm_elecs.SNR       = SNR;
          noise_covar = meas_icov_rm_elecs(imdli);
+      case 'reciperror';
+         imdl.calc_reciproc_error.tau = Tau;
+         noise_covar= calc_reciproc_error( imdl, data );
       otherwise error('option not understood');
    end
 
@@ -72,6 +82,10 @@ function do_unit_test
          imdl = GREIT_errors(imdl,'Channel:[3]');
       case 5; [vv,imdl] = test_data(2);
          imdl = GREIT_errors(imdl,'Channel:[3] SNR=10000');
+      case 6; [vv,imdl] = test_data(2);
+         imdl = GREIT_errors(imdl,'RecipError: Tau=.0001',vv);
+      case 7; [vv,imdl] = test_data(2);
+         imdl = GREIT_errors(imdl,'RecipError:',vv);
       otherwise; break;
   
       end
