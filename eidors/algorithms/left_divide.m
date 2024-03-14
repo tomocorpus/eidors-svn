@@ -112,6 +112,7 @@ function V= non_iterative(E,I);
                 else
                     P= spdiag(sqrt(1./diag(E)));
                     EP = P*E*P; EP=0.5*(EP+EP'); %force symmetric
+% TODO: Test for error=MATLAB:posdef and remove opts.POSDEF=true => rerun
                     V= P*linsolve(EP,P*I,opts);
                 end
             catch Mexcp
