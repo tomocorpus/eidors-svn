@@ -48,7 +48,7 @@ for i=1:length(options);
 %    opt{t} = options{i}(tok(t,1):tok(t,2));
 % end
   % split the option on an equals sign
-  opt= regexp(options{i},'(.[^=]*)=?(.*)','tokens'); opt= opt{1};
+  opt= regexp(options{i},'(.[^=:]*)[=:]?(.*)','tokens'); opt= opt{1};
   switch opt{1}
     case 'NOSER dif';       inv_mdl = NOSER_dif( inv_mdl );
     case 'Basic GN dif';    inv_mdl = Basic_GN_Dif( inv_mdl );
