@@ -105,25 +105,25 @@ function V= non_iterative(E,I);
                 % matrix E is symmetric if it is of the form
                 % (J.'*W*J + hp^2*R.'R) and is real
                 opts.SYM=true;
+% TODO: refactor this for the complex case
                 opts.POSDEF=true;
 
                 if 0 % conditioning
                     V= linsolve(E,I,opts);
                 else
+                    E(E>+1e100)=+1e100;
+                    E(E<-1e100)=-1e100;
                     P= spdiag(sqrt(1./diag(E)));
                     EP = P*E*P; EP=0.5*(EP+EP'); %force symmetric
-% TODO: Test for error=MATLAB:posdef and remove opts.POSDEF=true => rerun
                     V= P*linsolve(EP,P*I,opts);
                 end
             catch Mexcp
                 
                 % error handling 
                 if(strcmp(Mexcp.identifier,'MATLAB:posdef'))
-                    
                     warning('EIDORS:leftDivideSymmetry',...
                         ['left_divide is optimised for symmetric ',...
                         'positive definite matrices.']);
-                    
                 else 
                     warning(['Error with linsolve in left_divide, trying backslash.\n',...
                         'Error identifier: ',Mexcp.identifier]);
