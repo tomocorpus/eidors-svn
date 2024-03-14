@@ -41,15 +41,14 @@ end
 opt_out = struct(); % default setting
 if ischar(options); options = {options}; end
 for i=1:length(options);
+% Pre matlab v7 code
+% [s,f,tok]= regexp(options{i},'(.[^=:]*)[=:]?(.*)');
+% tok = tok{1};
+% for t=1:size(tok,1);
+%    opt{t} = options{i}(tok(t,1):tok(t,2));
+% end
   % split the option on an equals sign
-  [s,f,tok]= regexp(options{i},'(.[^=:]*)[=:]?(.*)');
-  tok = tok{1};
-  for t=1:size(tok,1);
-     opt{t} = options{i}(tok(t,1):tok(t,2));
-  end
-% This is the Mat7 only code:
-%   opt= regexp(options{i},'(.[^=]*)=?(.*)','tokens');
-%   opt= opt{1};
+  opt= regexp(options{i},'(.[^=]*)=?(.*)','tokens'); opt= opt{1};
   switch opt{1}
     case 'NOSER dif';       inv_mdl = NOSER_dif( inv_mdl );
     case 'Basic GN dif';    inv_mdl = Basic_GN_Dif( inv_mdl );
