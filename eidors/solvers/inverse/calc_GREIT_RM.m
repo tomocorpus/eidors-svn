@@ -1,4 +1,4 @@
-function [RM, PJt, M] = calc_GREIT_RM(vh,vi, xyc, radius, weight, options)
+function [RM, PJt, M, noiselev] = calc_GREIT_RM(vh,vi, xyc, radius, weight, options)
 % CALCULATE GREIT reconstruction matrix
 %   RM= calc_GREIT_RM(vh,vi, xyc, radius, weight, normalize)
 % 
@@ -58,12 +58,12 @@ function [RM, PJt, M] = calc_GREIT_RM(vh,vi, xyc, radius, weight, options)
    PJt = eidors_cache(@calc_PJt,{Y,D},copt);
    
    if isscalar(weight)
-       [RM, M] = calc_RM(PJt, Y, weight, opt);
+       [RM, M, noiselev] = calc_RM(PJt, Y, weight, opt);
    else
        error('use of weight matrix is not yet available');
    end
 
-function [RM, M] = calc_RM(PJt, Y, noiselev, opt)
+function [RM, M, noiselev] = calc_RM(PJt, Y, noiselev, opt)
 
    noiselev = noiselev * mean(abs(Y(:)));
    % Desired soln for noise is 0

@@ -21,6 +21,7 @@ function imdl= GREIT_errors(imdli, opts )
 if ischar(imdli) && strcmp(imdli,'UNIT_TEST'); do_unit_test; return; end
 
 imdl = imdli;
+if ischar(opts); opts = {opts}; end
 for i=1:length(opts);
    if iscell(opts); opti = opts{i};
    else           ; opti = opts; end
@@ -31,14 +32,15 @@ function imdl = process(imdli, opti);
    if ~ischar(opti); error('Expecting string options'); end
    SNR = 100; % Default values
    imdl = imdli;
-   PJt = imdli.solve_use_matrix.PJt;
-   M   = imdli.solve_use_matrix.M;
+   PJt        = imdli.solve_use_matrix.PJt;
+   M          = imdli.solve_use_matrix.M;
+   noiselev   = imdli.solve_use_matrix.noiselev;
 
    % split the option on an equals sign
    opt= regexp(opti,'(.[^:]*):?(.\S+)\s*(.*)','tokens'); opt= opt{1};
    matches = regexp(opt{3},'(\S+)=(\S+)','tokens');
    for i=1:length(matches); switch matches{i}{1}
-      case 'SNR'; SNR = num2str(matches{i}{2});
+      case 'SNR'; SNR = str2num(matches{i}{2});
       otherwise;  error('unknown parameter');
    end; end
 
@@ -56,18 +58,20 @@ function imdl = process(imdli, opti);
       otherwise error('option not understood');
    end
 
-   M   = M + noise_covar;
+   M   = M + noiselev^2 * noise_covar;
    imdl.solve_use_matrix.RM = left_divide(M.',PJt.').';    %PJt/M;
    
 
 function do_unit_test
-   for sp=1:9; switch sp
+   for sp=5:9; switch sp
       case 1; [vv,imdl] = test_data(1);
       case 2; [vv,imdl] = test_data(2);
       case 3; [vv,imdl] = test_data(2);
          imdl = GREIT_errors(imdl,'Electrode:[2]');
       case 4; [vv,imdl] = test_data(2);
          imdl = GREIT_errors(imdl,'Channel:[3]');
+      case 5; [vv,imdl] = test_data(2);
+         imdl = GREIT_errors(imdl,'Channel:[3] SNR=10000');
       otherwise; break;
   
       end
@@ -87,6 +91,7 @@ function [vv,imdl] = test_data(mode);
    end
    imdl = select_imdl(fmdl,{'GREIT:NF=0.3 64x64 rad=0.25'});
 
+   rng('default');
    switch mode
       case 1;
       case 2; vv(3,:) = 0.1*randn(size( vv(3,:) ));

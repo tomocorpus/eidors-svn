@@ -175,12 +175,13 @@ if ~isempty(opt.noise_figure) || ~isempty(opt.image_SNR)
      eidors_msg( 'log_level', log_level); % restore
 end
 % 
-[RM, PJt, M] = calc_GREIT_RM(vh,vi, xyz, radius, weight, opt );
+[RM, PJt, M, noiselev] = calc_GREIT_RM(vh,vi, xyz, radius, weight, opt );
 imdl.solve_use_matrix.RM = RM;
 if opt.keep_model_components || opt.keep_intermediate_results
    % store additional data to be used for faulty electrode compensation
    imdl.solve_use_matrix.PJt = PJt;
    imdl.solve_use_matrix.M = M;
+   imdl.solve_use_matrix.noiselev = noiselev;
 end
 if opt.keep_intermediate_results
    % DEPRECATED but compatible for older code
