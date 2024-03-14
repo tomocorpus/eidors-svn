@@ -31,6 +31,8 @@ function imdl = process(imdli, opti);
    if ~ischar(opti); error('Expecting string options'); end
    SNR = 100; % Default values
    imdl = imdli;
+   PJt = imdli.solve_use_matrix.PJt;
+   M   = imdli.solve_use_matrix.M;
 
    % split the option on an equals sign
    opt= regexp(opti,'(.[^:]*):?(.\S+)\s*(.*)','tokens'); opt= opt{1};
@@ -42,17 +44,18 @@ function imdl = process(imdli, opti);
 
    switch lower(opt{1});
       case 'channel';
+         noise_covar = sparse(size(M,1),size(M,2));
+         for ch= str2num(opt{2});
+            noise_covar(ch,ch) = SNR;
+         end
       case 'electrode';
          imdli.meas_icov_rm_elecs.elec_list = str2num(opt{2});
          imdli.meas_icov_rm_elecs.exponent  = -1;
          imdli.meas_icov_rm_elecs.SNR       = SNR;
-         imdli.meas_icov_rm_elecs
          noise_covar = meas_icov_rm_elecs(imdli);
       otherwise error('option not understood');
    end
 
-   PJt = imdli.solve_use_matrix.PJt;
-   M   = imdli.solve_use_matrix.M;
    M   = M + noise_covar;
    imdl.solve_use_matrix.RM = left_divide(M.',PJt.').';    %PJt/M;
    
@@ -62,7 +65,9 @@ function do_unit_test
       case 1; [vv,imdl] = test_data(1);
       case 2; [vv,imdl] = test_data(2);
       case 3; [vv,imdl] = test_data(2);
-         imdl = GREIT_errors(imdl,'Electrode:[1]');
+         imdl = GREIT_errors(imdl,'Electrode:[2]');
+      case 4; [vv,imdl] = test_data(2);
+         imdl = GREIT_errors(imdl,'Channel:[3]');
       otherwise; break;
   
       end
