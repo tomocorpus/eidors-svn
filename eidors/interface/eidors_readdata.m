@@ -1029,12 +1029,13 @@ function [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname )
          
          %%% Read frames
          i = 1;
-         while fseek(fid, 1,'cof') ~= -1
+         % check there is 'frame_length' ahead in the file
+         while fseek(fid, frame_length,'cof') ~= -1
             if mod(i, 100) == 0
                 progress_msg(i, nFrames);
             end
             
-            fseek(fid, -1,'cof');
+            fseek(fid, -frame_length,'cof');
             % read absolute timestamp (milliseconds resolution)
             tStampsAbs(i) = fread(fid,1,'int64','ieee-be');
             pl = fread(fid,1,'int32','ieee-le');    % payload length (i.e. frame length)
@@ -1132,12 +1133,13 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
          %%% Read frames
          i = 1;
          evti = 1;
-         while fseek(fid, 1,'cof') ~= -1
+         % Check there is at least 'eit_frame_offset' ahead in file
+         while fseek(fid, eit_frame_offset,'cof') ~= -1
             if mod(i, 100) == 0
                 progress_msg(i, nFrames);
             end
             
-            fseek(fid, -1,'cof');
+            fseek(fid, -eit_frame_offset,'cof');
             % drop frame header and some payload:
             % read absolute timestamp (milliseconds resolution)
             tStampsAbs(i) = fread(fid,1,'int64','ieee-le'); 
