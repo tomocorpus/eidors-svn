@@ -202,15 +202,14 @@ end
 % Here we search for a good NF to match
 function [weight, NF] = bounded_search(f, weight,fms_opts);
     % Use bounded search, but widen if necessary
-    weight = inf;
     uplim = 2; dnlim = -2;
     while (1)
         [weight, NF] = fminbnd(@(x) f(10^x), ...
              dnlim,uplim,fms_opts);
         % Check if need to widen boundary
-        if     norm(weight - uplim)<0.1
+        if     abs(norm(weight - uplim))<0.1
            uplim = uplim + 2;
-        elseif norm(weight - dnlim)<0.1
+        elseif abs(norm(weight - dnlim))<0.1
            dnlim = dnlim - 2;
         else
            weight = 10^weight;
@@ -219,9 +218,9 @@ function [weight, NF] = bounded_search(f, weight,fms_opts);
     end
 
 
-    % original search
     return
-    [weight, NF] = fminsearch(f, weight,fms_opts);
+%   % original search
+%   [weight, NF] = fminsearch(f, weight,fms_opts);
 
 function out = to_optimise(vh,vi,xy,radius,weight, opt, imdl, ...
     target,vi_NF)
