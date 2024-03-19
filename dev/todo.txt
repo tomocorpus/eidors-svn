@@ -1,5 +1,7 @@
 Plan for 3.12:
- - have aux.frame_rate for all eidors_readdata
+ - check mk_library_models datatypes not working in Octave
+	mk_library_model cylinder_16x1el_coarse
+ - have aux.frame_rate for all eidors_readdata 
 
  - Post sample h5 data
  - HDF5 file format
