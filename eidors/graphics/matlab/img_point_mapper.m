@@ -12,11 +12,13 @@ function val = img_point_mapper(img, pts, maptype )
 %   defined on elements or nodes as appropriate for the chosen MAPTYPE.
 %   If MAPTYPE is not specified, 'elem' or 'nodeinterp' is selected.
 %
-% NOTE: Only works in Matlab. There are numerical issues before R2022b.
+% NOTES:
+%  - There are numerical issues before Matlab R2022b.
+%  - May be slow in Octave for large models.
 %
 % See also: GET_IMG_DATA, MDL_SLICE_MAPPER
 
-% (C) 2021 Bartek Grychtol. License: GPL version 2 or version 3
+% (C) 2021-2024 Bartek Grychtol. License: GPL version 2 or version 3
 % $Id$
 
 
@@ -34,6 +36,15 @@ if nargin < 3
         maptype = 'elem';
     end
 end
+
+if ~exist('OCTAVE_VERSION')
+    val = img_point_mapper_matlab(fmdl, pts, maptype, data);
+else
+    val = img_point_mapper_octave(fmdl, pts, maptype, data);
+end
+
+
+function val = img_point_mapper_matlab(fmdl, pts, maptype, data)
 
 TR = eidors_cache(@triangulation,{fmdl.elems, fmdl.nodes});
 
@@ -53,10 +64,33 @@ switch maptype
         error('maptype must be ''elem'', ''node'', or ''nodeinterp''.')
 end
 
+function val = img_point_mapper_octave(fmdl, pts, maptype, data)
+switch maptype
+    case 'elem'
+        id = tsearchn(fmdl.nodes, fmdl.elems, pts);
+        val = data(id,:);
+    case 'node'
+        id = dsearchn(fmdl.nodes, fmdl.elems, pts);
+        val = data(id,:);
+    case 'nodeinterp'
+        [id, bc] = tsearchn(fmdl.nodes, fmdl.elems, pts);
+        n_pts = size(pts,1);
+        map = builtin('sparse', repelem((1:n_pts)',1,4), fmdl.elems(id,:), bc, n_pts, size(fmdl.nodes,1));
+        val = map * data;
+    otherwise
+        error('maptype must be ''elem'', ''node'', or ''nodeinterp''.')
+end
+
+
 
 function do_unit_test
 
     slc = mk_grid_model([], 0:10,0:10, 0:1);
     img = mk_image(slc, 1:100);
-    unit_test_cmp('3D c2f elem',img_point_mapper(img, [5.5 5.5 .5], 'elem'), 56)
+    unit_test_cmp('3D c2f elem',img_point_mapper(img, [5.5 5.5 .5], 'elem'), 56);
+    img = rmfield(img, 'elem_data');
+    img.node_data = 1:242;
+    unit_test_cmp('3D c2f node',img_point_mapper(img, [5.6 5.6 .6], 'node'), 194);
+    unit_test_cmp('3D c2f nodeinterp',img_point_mapper(img, [5.6 5.6 .6], 'nodeinterp'), 140.8, 1e-9);
+
 
