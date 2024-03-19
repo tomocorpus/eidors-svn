@@ -1,6 +1,6 @@
 function print_convert(filename, varargin)
 %PRINT_CONVERT: print figures with anti-aliasing and trim them
-%  PRINT_CONVERT(FILENAME,OPT) prints current figure to FILENAME, which 
+%  PRINT_CONVERT(FILENAME,OPT) prints current figure to FILENAME, which
 %  must include extenstion.
 %
 %  OPT is either a string specifying dpi in the format '-r150' or a struct
@@ -41,7 +41,7 @@ function print_convert(filename, varargin)
 %   print_convert('outname.png',opts);   % use options
 %
 % See also IMWRITE
- 
+
 % (C) Andy Adler and Bartlomiej Grychtol 2010-2021. License: GPL v2 or v3.
 % $Id$
 %
@@ -51,20 +51,20 @@ function print_convert(filename, varargin)
 %
 %  FILENAME : filename to print to file type is the extension
 %  OPTIONS  : specify dpi as '-density N'
-%  
+%
 %   print_convert('outname.png','-density 150') % resolution to 150 dpi
- 
+
 if ischar(filename) && strcmp(filename,'UNIT_TEST'); do_unit_test; return; end
 
 pp = parse_options(filename, varargin{:});
 
 
-% change properties 
+% change properties
 pp = set_prop(pp,'InvertHardCopy','off');
 pp = set_prop(pp,'Color','w');
 pp = set_pagesize(pp);
 
-% revert changed properties at exit 
+% revert changed properties at exit
 cleanupObj = onCleanup(@() set(pp.figno, pp.old{:})); % current state of pp.old only!
 
 % print to array
@@ -110,7 +110,7 @@ else
         'PaperPositionMode','manual', ...
         'PaperSize', pp.pagesize+1, ... % big enough
         'PaperPosition', pos);
-end    
+end
 
 function pp = set_prop(pp, varargin)
     prop = {};
@@ -120,11 +120,11 @@ function pp = set_prop(pp, varargin)
     end
     pp.old = [fliplr(prop), pp.old]; % store in reverse order to revert correctly
     set(pp.figno, varargin{:})
-        
+
 
 function copy2clipboard(pp)
    if isunix()
-      cmd = sprintf(['xclip -selection ' ... 
+      cmd = sprintf(['xclip -selection ' ...
           'clipboard -t image/%s -i %s'], ...
             pp.fmt, pp.filename);
       [status] = system(cmd);
@@ -147,12 +147,12 @@ function im = crop_image(im,pp)
 
    szim = size(im);
    bdr = squeeze(mean(double(im(1,:,:)),2));
- 
+
    isbdr = true(szim(1),szim(2));
    for i=1:szim(3);
      isbdr = isbdr & (im(:,:,i) == bdr(i));
    end
- 
+
    horz = [true,all(isbdr,1),true];
    horzpt = find(diff(horz)) - 1; % first 'true'
    if isempty(horzpt)
@@ -169,7 +169,7 @@ function im = crop_image(im,pp)
       end
    end
    im(:,1:horzpt(1)-lu ,:)= [];
- 
+
    vert = [true,all(isbdr,2)',true];
    vertpt = find(diff(vert)) - 1; % first 'true'
    im(vertpt(end)+bu:end,:,:)= [];
@@ -182,8 +182,8 @@ function im = crop_image(im,pp)
       end
    end
    im(1:vertpt(1)-tu ,:,:)= [];
- 
-    
+
+
 % factor = 1 if all plots only contain images, 2 otherwise
 function f = default_factor
    f = 1; % default for images
@@ -195,9 +195,9 @@ function f = default_factor
          f = 2;
          return;
       end
-   end 
-   
-function fmt = parse_format(filename)   
+   end
+
+function fmt = parse_format(filename)
     ext = lower(regexp(filename,'(?<=\.).+$','match'));
     if isempty(ext); error('no filename extension detected (%s)',filename); end
     switch ext{1}
@@ -210,13 +210,13 @@ function fmt = parse_format(filename)
        otherwise
           fmt = ext{1};
     end
-       
+
 function pp = parse_options(filename,varargin)
-   
+
    pp.fmt = parse_format(filename);
    if strcmp(filename, ['{clipboard}.',pp.fmt])
       pp.clip = true;
-      pp.filename = [tempname(),'.',pp.fmt]; 
+      pp.filename = [tempname(),'.',pp.fmt];
    else
       pp.clip = false;
       pp.filename = filename;
@@ -231,19 +231,15 @@ function pp = parse_options(filename,varargin)
    pp.factor = default_factor;
    pp.resolution = sprintf('-r%d',125 * pp.factor);
    pp.crop_slack = [0,0,0,0];
-   if exist('OCTAVE_VERSION')
-      pp.figno = gcf;
-   else
-      pp.figno = get(gcf,'Number');
-   end
+   pp.figno = get(gcf,'Number');
    pp.old = {};
-   
- 
+
+
 % Old options
-   if nargin == 1   
-      return; 
+   if nargin == 1
+      return;
    end
- 
+
    opt = varargin{1};
    if ischar(opt)
       for i = 1:length(varargin); opt = varargin{i}; parseok=false;
@@ -259,7 +255,7 @@ function pp = parse_options(filename,varargin)
              parseok=true;
           end
 
-          if strcmp(opt,'-pauto') 
+          if strcmp(opt,'-pauto')
              pp.pagesize = 'auto';
              parseok=true;
           end
@@ -300,7 +296,7 @@ function pp = parse_options(filename,varargin)
         pp.jpeg_quality = opt.jpeg_quality;
      end
      if strcmp(pp.fmt,'jpg')
-        pp.imwrite_opts = {'quality',pp.jpeg_quality}; 
+        pp.imwrite_opts = {'quality',pp.jpeg_quality};
      end
      if isfield(opt,'imwrite_opts');
         pp.imwrite_opts = opt.imwrite_opts;
@@ -308,7 +304,7 @@ function pp = parse_options(filename,varargin)
            pp.imwrite_opts(end+1:end+2) = {'quality',pp.jpeg_quality};
         end
      end
-    
+
      if isfield(opt,'horz_cut');
          pp.horz_cut = opt.horz_cut;
      end
@@ -335,8 +331,8 @@ function pp = parse_options(filename,varargin)
    else
       error('Can''t parse options');
    end
- 
- 
+
+
 function do_unit_test
    fprintf('Doing UNIT_TEST for print_convert\n');
    fid = fopen('print_convert_test.html','w');
@@ -352,76 +348,76 @@ function do_unit_test
    fprintf(fid,'</BODY></HTML>\n');
    fclose(fid);
    eidors_msg('TO VIEW OUTPUT, OPEN FILE print_convert_test.html',1);
- 
+
    im = mk_image( ng_mk_cyl_models(1,[16,.5],.05),1);
    clf; show_fem(im);
    print_convert pc01.png
- 
+
    im = mk_image( mk_common_model('b2c2',8), 1:256);
    clf; show_fem(im);
    print_convert pc02.png
- 
- 
-   clf; subplot(221); show_fem(im); 
-        subplot(224); show_slices(im); 
+
+
+   clf; subplot(221); show_fem(im);
+        subplot(224); show_slices(im);
    print_convert pc03.png
- 
+
    print_convert pc04.png '-density 50'
    print_convert pc05.png '-r100'
 
    print_convert pc05.png '-p10x20'
    print_convert pc05.png '-pauto'
    print_convert pc06.png '-r100' '-p10x20'
- 
+
 % No longer supported ... not useful
-%  print_convert('pc06.png', '-r100' , 1/8) 
+%  print_convert('pc06.png', '-r100' , 1/8)
 %  print_convert('pc06.png', '-r100' , 3/1)
- 
+
    opt.resolution = 100;
    print_convert('pc07.png', opt);
    opt.pagesize = [8,2];
    print_convert('pc08.png', opt);
- 
+
    print_convert('pc09a.jpg');
-   
+
    opt.pagesize = [8,6];
    print_convert('pc09.jpg', opt);
-  
-   
+
+
    opt.imwrite_opts = {'Quality',20};
    print_convert('pc10.jpg', opt);
-   
+
    opt.imwrite_opts = {'Quality',100};
    print_convert('pc10b.jpg', opt);
- 
+
    opt.imwrite_opts = {};
    opt.horz_cut = 50;
    print_convert('pc11.png', opt);
- 
+
    opt.vert_cut = 50;
    print_convert('pc12.png', opt);
- 
-   clf; subplot(331); show_fem(im); 
-        subplot(335); show_slices(im); 
-        subplot(339); show_slices(im); 
+
+   clf; subplot(331); show_fem(im);
+        subplot(335); show_slices(im);
+        subplot(339); show_slices(im);
    opt.vert_cut = 30;
    print_convert('pc13.png', opt);
-   
+
    im = mk_image( ng_mk_cyl_models(1,[16,.5],.05),1);
    clf; show_fem(im);
    clear opt; opt.supersampling_factor = 1;
    print_convert('pc14.png', opt);
- 
+
    clear opt; opt.supersampling_factor = 2;
    print_convert('pc15.png', opt);
- 
+
    clear opt; opt.supersampling_factor = 3;
    print_convert('pc16.png', opt);
-   
+
    clear opt; opt.supersampling_factor = 4;
    print_convert('pc17.png', opt);
-   
+
    clear opt; opt.supersampling_factor = 8;
    print_convert('pc18.png', opt);
- 
+
 

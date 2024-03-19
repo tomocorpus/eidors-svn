@@ -173,11 +173,7 @@ function names = parse_names( fid, version )
     names = struct('tag',{},'dim',{},'name',{});
     for i = 1:n_rows
         tline = fgetl(fid);
-        if exist('OCTAVE_VERSION')
-            parts = strsplit(tline,' ');
-        else
-            parts = regexp(tline,' ','split');
-        end
+        parts = regexp(tline,' ','split');
         nsz = size(names,2)+1;
         names(nsz).dim = str2double( parts(1) );
         names(nsz).tag = str2double( parts(2) );

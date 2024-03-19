@@ -7,12 +7,6 @@ isOctave= exist('OCTAVE_VERSION');
 datareal= 'datareal.mat';
 datacom=  'datacom.mat';
 drt=      'demo_real_test.mat';
-if isOctave
-    datareal= file_in_loadpath(datareal);
-    datacom=  file_in_loadpath(datacom);
-    drt    =  file_in_loadpath(drt);
-    page_screen_output= 0;
-end
 
 % create FEM model structure
 

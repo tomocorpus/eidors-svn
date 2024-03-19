@@ -1,5 +1,5 @@
 function out = mk_library_model(shape,elec_pos,elec_shape,maxsz,nfft,scale)
-%MK_LIBRARY_MODEL - FEM models based on library shapes 
+%MK_LIBRARY_MODEL - FEM models based on library shapes
 %
 % MK_LIBRARY_MODEL(shape,elec_pos,elec_shape,maxsz,nfft) where:
 %   shape -  a cell array of strings and
@@ -17,7 +17,7 @@ function out = mk_library_model(shape,elec_pos,elec_shape,maxsz,nfft,scale)
 %   maxsz - maximum FEM size (default: course mesh)
 %   nfft  - number of points to create along the boundary (default: 50)
 %     If nfft==0, no interpolation takes place.
-%   scale - avoids some Netgen issues by scaling the contours before 
+%   scale - avoids some Netgen issues by scaling the contours before
 %     calling netgen and scaling the resulting model back afterwards
 %     (default: 1). Note that electrode and maxh specifications are not
 %     scaled.
@@ -33,7 +33,7 @@ function out = mk_library_model(shape,elec_pos,elec_shape,maxsz,nfft,scale)
 %   mk_library_model LIBRARY_PATH new_path => set library path
 %   mk_library_model LIBRARY_PATH '' => don't store models
 %
-% 
+%
 
 % (C) 2011 Bartlomiej Grychtol. License: GPL version 2 or version 3
 % $Id$
@@ -82,7 +82,7 @@ else
       electh= atan2(el(:,2),el(:,1))*180/pi;
       elec_pos = [electh,0.5*ones(size(electh))];
    end
-   
+
    scaleH = prod(scale); % scale x height
    if nfft > 0
       [fmdl, mat_idx] = ng_mk_extruded_model({scaleH,shapes,[4,nfft],maxsz},...
@@ -115,11 +115,7 @@ if isempty(library_path); return; end
 fname = [library_path '/' fname '.mat'];
 if exist(fname,'file')
    eidors_msg('MK_LIBRARY_MODEL: Using stored model');
-   if exist('OCTAVE_VERSION');
-      load(file_in_loadpath(fname));
-   else
-      load(fname);
-   end
+   load(fname);
    out = fmdl;
 end
 
@@ -134,7 +130,7 @@ function store_model(fmdl,fname)
    if exist('OCTAVE_VERSION');
       savver = '-v7';
    else
-      savver = '-v7.3';  
+      savver = '-v7.3';
    end
    save(fname,savver,'fmdl');
 
@@ -143,7 +139,7 @@ out = load_stored_model(str);
 if isempty(out)
    if ~iscell(cmd)
       cmd = {cmd};
-   end 
+   end
    for i = 1:length(cmd)
       if i ==1
          eval(['out = ' cmd{i} ';']);
@@ -172,7 +168,7 @@ out = {
     'adult_female_thorax_2x16';
     'cylinder_16x1el_coarse';
     'cylinder_16x1el_fine';
-    'cylinder_16x1el_vfine';   
+    'cylinder_16x1el_vfine';
     'cylinder_16x2el_coarse';
     'cylinder_16x2el_fine';
     'cylinder_16x2el_vfine';
@@ -255,27 +251,27 @@ switch str
        ep1= 360*eth16' - 90; ep1(:,2) = 200;
        ep2= 360*eth16' - 90; ep2(:,2) = 150;
        out = mk_thorax_model('female',[ep1;ep2],[5 0 .5],10);
-        
+
     case 'cylinder_16x1el_coarse'
        out = build_if_needed(...
           'ng_mk_cyl_models([10,15],[16,5],[0.5,0,0.18])', str);
-    case 'cylinder_16x1el_fine' 
+    case 'cylinder_16x1el_fine'
        out = build_if_needed(...
           'ng_mk_cyl_models([10,15,1.1],[16,5],[0.5,0,0.15])',str);
-    case 'cylinder_16x1el_vfine' 
+    case 'cylinder_16x1el_vfine'
         out = build_if_needed(...
            'ng_mk_cyl_models([10,15,0.8],[16,5],[0.5,0,0.08])',str);
-    case 'cylinder_16x2el_coarse' 
+    case 'cylinder_16x2el_coarse'
         out = build_if_needed(...
            'ng_mk_cyl_models([30,15],[16,10,20],[0.5,0,0.18])',str);
-    case 'cylinder_16x2el_fine'  
+    case 'cylinder_16x2el_fine'
         out = build_if_needed(...
            'ng_mk_cyl_models([30,15,1.5],[16,10,20],[0.5,0,0.15])',str);
-    case 'cylinder_16x2el_vfine' 
+    case 'cylinder_16x2el_vfine'
         out = build_if_needed(...
            'ng_mk_cyl_models([30,15,0.8],[16,10,20],[0.5,0,0.08])',str);
-        
-        
+
+
     case 'neonate_16el'
         out = mk_library_model({'neonate','boundary'},[16 1 0.5],[0.1 0 -1 0 60],0.08,49);
     case 'neonate_32el'
@@ -284,7 +280,7 @@ switch str
         out = mk_library_model({'neonate','boundary','left_lung','right_lung'},[16 1 0.5],[0.1 0 -1 0 60],0.08,49);
     case 'neonate_32el_lungs'
         out = mk_library_model({'neonate','boundary','left_lung','right_lung'},[32 1 0.5],[0.06 0 -1 0 60],0.08,49);
-        
+
     case 'pig_23kg_16el'
         out = mk_library_model({'pig_23kg','boundary'},...
             [16 1 0.5],[0.05 0 -1 0 60],0.08);
@@ -296,7 +292,7 @@ switch str
             [16 1 0.5],[0.05 0 -1 0 60],0.08);
     case 'pig_23kg_32el_lungs'
         out = mk_library_model({'pig_23kg','boundary','lungs(1:2:end,:)'},...
-            [32 1 0.5],[0.05 0 -1 0 60],0.08);    
+            [32 1 0.5],[0.05 0 -1 0 60],0.08);
 
     case 'lamb_newborn_16el'
 %        out = build_if_needed(...
@@ -382,7 +378,7 @@ switch str
       scale = 49;
       out = mk_library_model({'beagle','boundary','left_lung','right_lung'}, ...
          [32 1 scale*0.5],8*[0.25,1,0.05],10,0,49);
-         
+
     otherwise
         error('No such model');
 end
@@ -445,7 +441,7 @@ if ~exist(val,'dir')
        mkdir(val);
     else
  % matlab 6.x has a stupid mkdir function
-       system(['mkdir ',val]); 
+       system(['mkdir ',val]);
     end
 end
 
@@ -457,10 +453,10 @@ for i = 1:numel(models)
     eidors_msg('\n\n\n DOING  MODEL (%s)\n\n\n',models{i},0);
     mdl = mk_library_model(models{i});
     img = mk_image(mdl,1);
-    try   
-        n = numel(mdl.mat_idx); 
+    try
+        n = numel(mdl.mat_idx);
     catch
-        n =1; 
+        n =1;
     end
     if n >1
         for j = 2:n

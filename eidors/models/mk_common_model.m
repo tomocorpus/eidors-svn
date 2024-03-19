@@ -4,11 +4,11 @@ function inv_mdl= mk_common_model( str, n_elec, varargin )
 % Utility function to create common EIT FEM models,
 % so that users do not need to re-write common code
 %
-% Usage: 
+% Usage:
 %      inv_mdl = mk_common_model( mdl_string, [n_elec/plane, n_planes])
 %
 % 2D Models using distmesh (D = show distmesh graphics, d= no graphics)
-%   mk_common_model('a2d0c',16)  - 2D circ model using distmesh 
+%   mk_common_model('a2d0c',16)  - 2D circ model using distmesh
 %   mk_common_model('b2d1c',16)  - 2D circ model using distmesh ~ 1300 elems
 %   mk_common_model('d2d4c',16)  - 2D circ model using distmesh ~ 3200 elems
 %      a-j => mesh density
@@ -19,7 +19,7 @@ function inv_mdl= mk_common_model( str, n_elec, varargin )
 %       deformed to T2 thorax shape
 %
 % 2D Models using distmesh using fixed point electrodes (faster but worse refinement)
-%   mk_common_model('a2d0d',16)  - 2D circ model using distmesh 
+%   mk_common_model('a2d0d',16)  - 2D circ model using distmesh
 %
 % 2D Models circular models:
 %   mk_common_model('a2C',16)   - 2D circ model (64 elems) with 16 elecs
@@ -33,7 +33,7 @@ function inv_mdl= mk_common_model( str, n_elec, varargin )
 %   mk_common_model('i2C',16)   - 2D circ model (5184 elems)
 %   mk_common_model('j2C',16)   - 2D circ model (6400 elems)
 %
-%   models with 'c' are point electrode models, 
+%   models with 'c' are point electrode models,
 %   models with 'C' use the complete electrode model (with 2 nodes/elec)
 %
 %   models ??c or ??c0 are rotated by zero.
@@ -71,7 +71,7 @@ function inv_mdl= mk_common_model( str, n_elec, varargin )
 %           elecs in 'planar' pattern. Stim treats this as 16x1 pattern
 %
 %   mk_common_model('a3cr',16)      - 64 elems * 4 planes
-%   mk_common_model('b3cr',16)      - 256 elems * 10 planes 
+%   mk_common_model('b3cr',16)      - 256 elems * 10 planes
 %   mk_common_model('c3cr',16)      - 576 elems * 20 planes
 %   mk_common_model('d3cr',16)      - 1024 elems * 40 planes
 %   mk_common_model('e3cr',16)      - 1600 elems * 60 planes
@@ -93,7 +93,7 @@ end
 if length(n_elec)==1
     n_elec= [n_elec,1]; % default
 end
-    
+
 if length(str)<3
    error('format specified not recognized')
 end
@@ -117,10 +117,10 @@ if strcmp(str(2:3),'2c') || strcmp(str(2:3),'2C')
       otherwise; error(['don`t know what to do with option=%s',str]);
    end
 
-   inv_mdl = mk_2c_model( n_elec, layers, options );   
+   inv_mdl = mk_2c_model( n_elec, layers, options );
 
    if length(str)==3; str= [str,'0'];end
-      
+
    inv_mdl = rotate_model( inv_mdl, str2num(str(4)));
 
    if str(3)=='C' % complete electrode model
@@ -160,7 +160,7 @@ elseif str(2:3)=='2s'
    else;  error('don`t know what to do with option=%s',str);
    end
 
-   if rem( layers, n_elec(1)/2)~=0; 
+   if rem( layers, n_elec(1)/2)~=0;
       error('the %s model can`t support %d electrodes',str,n_elec(1));
    end
    inv_mdl = mk_2r_model( n_elec, layers, options);
@@ -179,7 +179,7 @@ elseif ( strcmp(str(2:3),'2t') || strcmp(str(2:3),'2T')) && length(str)==4
    else;  error(['don`t know what to do with option(1)=',str]);
    end
 
-   inv_mdl = mk_2c_model( n_elec, layers, options );   
+   inv_mdl = mk_2c_model( n_elec, layers, options );
    inv_mdl = rotate_model( inv_mdl, 2); % 45 degrees
 
    if length(str)==0; str= [str,' '];end
@@ -187,7 +187,7 @@ elseif ( strcmp(str(2:3),'2t') || strcmp(str(2:3),'2T')) && length(str)==4
    if str(3)=='T' % complete electrode model
       inv_mdl = mk_complete_elec_mdl( inv_mdl, layers);
    end
-      
+
    inv_mdl.fwd_model = thorax_geometry( inv_mdl.fwd_model, str2num(str(4)));
 
 elseif strcmp( str, 'n3r2')
@@ -242,12 +242,12 @@ else
     error(['Don`t know what to do with option=',str]);
 end
 
-inv_mdl.name= ['EIDORS common_model_',str]; 
+inv_mdl.name= ['EIDORS common_model_',str];
 inv_mdl= eidors_obj('inv_model', inv_mdl);
 
 % check we are giving back a good specimen
 valid_inv_model(inv_mdl);
-    
+
 function inv_mdl = distmesh_2d_model(str, n_elec, options);
 % This function is an interface to distmesh_2d_model for some common values
 % fmdl = dm_2d_circ_pt_elecs( elec_pts, pfix, spacing);
@@ -315,7 +315,7 @@ function inv_mdl = distmesh_2d_model(str, n_elec, options);
       otherwise; error('don`t know what to do with option=%s',str);
    end
    ea = Elec_width/2 *(2*pi/360);
-   for i=1:n_elec(1); 
+   for i=1:n_elec(1);
      ai = (i-1)/n_elec(1) * 2*pi;
      elec_pts{i} = [sin(ai+ea),cos(ai+ea);sin(ai-ea),cos(ai-ea)];
    end
@@ -337,7 +337,7 @@ function inv2d = distmesh_2d_model_depr(str, n_elec, options);
       case 'j'; n_nodes=4000;
       otherwise; error('don`t know what to do with option=%s',str);
    end
- 
+
    refine_level= abs(str(4))-'0';
 
    elec_width= .1;
@@ -357,9 +357,9 @@ function inv2d = distmesh_2d_model_depr(str, n_elec, options);
 function inv2d= mk_2c_model( n_elec, n_circles, options )
 
     n_elec= n_elec(1);
-    params= mk_circ_tank(n_circles, [], n_elec); 
+    params= mk_circ_tank(n_circles, [], n_elec);
     inv2d= add_params_2d_mdl( params, n_elec, options);
-   
+
 
 function inv2d= mk_2r_model( n_elec, xy_size, options)
     if length(xy_size)==1; xy_size= xy_size*[1,1]; end
@@ -369,24 +369,24 @@ function inv2d= mk_2r_model( n_elec, xy_size, options)
     yvec = linspace(-1,1,xy_size(2));
     fmdl = mk_grid_model([],xvec,yvec);
 
-    % put 1/4 of elecs on each side 
-    tb_elecs= linspace(1, xy_size(1), 1+2*n_elec(1)/4); 
+    % put 1/4 of elecs on each side
+    tb_elecs= linspace(1, xy_size(1), 1+2*n_elec(1)/4);
     tb_elecs= tb_elecs(2:2:end);
     sd_elecs= linspace(1, xy_size(2), 1+2*n_elec(1)/4);
     sd_elecs= sd_elecs(2:2:end);
-    
+
     el_nodes= [];
     % Top nodes -left to right
-    bdy_nodes= (1:xy_size(1)) + xy_size(1)*(xy_size(2)-1); 
+    bdy_nodes= (1:xy_size(1)) + xy_size(1)*(xy_size(2)-1);
     el_nodes= [el_nodes, bdy_nodes(tb_elecs)];
     % Right nodes - top to bottom
-    bdy_nodes= (1:xy_size(2))*xy_size(1); 
+    bdy_nodes= (1:xy_size(2))*xy_size(1);
     el_nodes= [el_nodes, bdy_nodes(fliplr(sd_elecs))];
     % Bottom nodes - right to left
-    bdy_nodes= 1:xy_size(1); 
+    bdy_nodes= 1:xy_size(1);
     el_nodes= [el_nodes, bdy_nodes(fliplr(tb_elecs))];
     % Left nodes - bottom to top
-    bdy_nodes= (0:xy_size(2)-1)*xy_size(1)+1; 
+    bdy_nodes= (0:xy_size(2)-1)*xy_size(1)+1;
     el_nodes= [el_nodes, bdy_nodes(sd_elecs)];
 
 %   trimesh(fmdl.elems,fmdl.nodes(:,1), fmdl.nodes(:,2));
@@ -475,11 +475,9 @@ function inv_mdl = mk_n3r2_model( n_elec, options );
       warning(sprintf(['You have requested an "n3" model with [%d,%d] electrodes.' ...
          'Note that these models always have 32 electrodes (16x2)'], n_elec));
    end; end
-   if ~exist('OCTAVE_VERSION');
-      load( 'datareal.mat' );
-   else
-      load( file_in_loadpath( 'datareal.mat' ));
-   end
+
+   load( 'datareal.mat' );
+
    fmdl.nodes= vtx;
    fmdl.elems= simp;
    fmdl.boundary= find_boundary( simp );
@@ -516,13 +514,13 @@ function inv_mdl = mk_n3r2_model( n_elec, options );
    inv_mdl.reconst_type= 'difference';
    inv_mdl.jacobian_bkgnd.value= 1;
    inv_mdl.fwd_model= fmdl;
-  
+
 
 
 function inv3d= mk_b3r1_model( n_elec, options )
     n_rings= 1;
-    levels= [-.5:.1:.5]; 
-    e_levels= 6; 
+    levels= [-.5:.1:.5];
+    e_levels= 6;
     nr= 8;
 
     params= mk_circ_tank( nr, levels, { 'planes', n_elec, e_levels } );
@@ -549,10 +547,10 @@ function inv3d= mk_b3r1_model( n_elec, options )
 function inv3d= mk_b3r2_model( n_elec, nr, options )
     n_rings= 2;
     z_axis = [0:.1:1];
-    e_levels= [4,8]; 
+    e_levels= [4,8];
     nr= 4;
     n_elec = 8;
-   
+
     params= mk_circ_tank( nr, z_axis, { 'planes', n_elec, e_levels } );
     [st, els]= mk_stim_patterns(n_elec, n_rings, '{ad}','{ad}', options, 10);
 
@@ -563,15 +561,15 @@ function inv3d= mk_b3r2_model( n_elec, nr, options )
     params.jacobian=   'jacobian_adjoint';
     params.normalize_measurements= 0;
     mdl_3d = eidors_obj('fwd_model', params);
-    
+
     % Specify number of levels in mesh for imaging slices
     num_levs = length(e_levels);
     levels = inf*ones(num_levs,3);
     levels(:,3) = e_levels / (length(z_axis)-1);
     levels(:,4) = ones(num_levs,1);
-    levels(:,5) = (1:num_levs)';    
+    levels(:,5) = (1:num_levs)';
     mdl_3d.levels = levels;
-    
+
     inv3d.name = 'EIT inverse: 3D';
     inv3d.solve=       'inv_solve_diff_GN_one_step';
     %inv3d.solve=       'aa_inv_conj_grad';
@@ -623,7 +621,7 @@ test_distmesh_models
 function test_np_get_3d_meas
    imdl=mk_common_model('n3r2',[16,2]); st1=imdl.fwd_model.stimulation;
    fmdl = imdl.fwd_model;
-   
+
    % get the measurement patterns, only indH is used in this model
    %   here we only want to get the meas pattern from 'get_3d_meas',
    %   not the voltages, so we enter zeros
@@ -646,17 +644,17 @@ function test_np_get_3d_meas
               n_meas, n_elec );
    end
    st2 = fmdl.stimulation;
-   
 
-   sp1=[]; sp2=[]; mp1=[]; mp2=[]; 
+
+   sp1=[]; sp2=[]; mp1=[]; mp2=[];
    for i=1:32;
       sp1= [sp1, st1(i).stim_pattern]; mp1= [mp1, st1(i).meas_pattern];
       sp2= [sp2, st2(i).stim_pattern]; mp2= [mp2, st2(i).meas_pattern];
    end
    unit_test_cmp('STIM_PAT:',sp1,sp2);
    unit_test_cmp('MEAS_PAT:',mp1,mp2);
-     
-      
+
+
 
 function test_circ_models
 % 2D Circular Models
@@ -675,12 +673,12 @@ function test_3d_models
 % 3D Models:
     mk_common_model('n3r2',[16,2]);
  %  mk_common_model('n3z',[16,2]);
- 
+
     mk_common_model('b3cr',[16,3]);
     mk_common_model('b3t2r',[16,1]);
     mk_common_model('b3cz2',[16,1]);
     mk_common_model('b3cp2',16);
- 
+
     mk_common_model('a3cr',16);
     mk_common_model('b3cr',16);
     mk_common_model('c3cr',16);

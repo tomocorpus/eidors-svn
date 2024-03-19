@@ -5,14 +5,14 @@ function varargout=eidors_cache( command, varargin )
 %        chashing in m-files
 %
 % USAGE:
-%   eidors_cache( 'clear_all' ) 
+%   eidors_cache( 'clear_all' )
 %   eidors_cache  clear
 %
 %   eidors_cache( 'list' )
 %   eidors_cache( 'show_objs' )
 %       - list all objects
 %   eidors_cache(___, order)
-%       - sort by specific order. Valid values are 
+%       - sort by specific order. Valid values are
 %         {time}, size, effort, count, rank
 %
 %   eidors_cache( 'clear_old'. timestamp );
@@ -32,13 +32,13 @@ function varargout=eidors_cache( command, varargin )
 %
 %   eidors_cache( 'clear_name', cache_name )
 %      - eg. eidors_cache( 'clear_name', 'inv_solve_diff_GN_one_step')
-%      - clear all variables with name 
+%      - clear all variables with name
 %
 %   eidors_cache( 'clear_model_library' );
 %      - clear the eidors model library directory
-%      - NOTE: this function is experimental. 
+%      - NOTE: this function is experimental.
 %      - TODO: add a way to specify what to clear
-%  
+%
 %   eidors_cache( 'boost_priority', value)
 %      - modify the priority of the next cached items
 %      - low priority variables will be deleted first when memory is tight
@@ -85,7 +85,7 @@ function varargout=eidors_cache( command, varargin )
 %      be used for as a caching object by default. The following options
 %      are available:
 %        opt.cache_obj
-%            - a single value, or a cell array of values to cache on, 
+%            - a single value, or a cell array of values to cache on,
 %              rather than all the inputs (e.g. not all values of an input
 %              struct may be used in the function)
 %        opt.boost_priority
@@ -95,7 +95,7 @@ function varargout=eidors_cache( command, varargin )
 %        opt.log_level
 %            - message level to use with eidors_msg. By default, it's 4 for
 %              'setting cache' and 3 for 'using cached value'
-%        opt.cache_to_disk = true or '.'  
+%        opt.cache_to_disk = true or '.'
 %        opt.cache_to_disk = 'path/to/cache/dir'
 %            - Save the cached file to disk and reload it when called
 %            - The file is named 'eidors_cache_id????.mat' or opt.fstr,'_id???'
@@ -128,26 +128,26 @@ if nargin==1 && ischar(command) && strcmp(command,'UNIT_TEST');
 global eidors_objects;
 if nargin<1
    fprintf('EIDORS_CACHE: current max memory = %.0f MB\n', ...
-         eidors_objects.max_cache_size/(1024*1024)); 
+         eidors_objects.max_cache_size/(1024*1024));
    ww= whos('eidors_objects');
    fprintf('EIDORS_CACHE: cache memory used = %.0f MB\n', ...
-         ww.bytes/(1024*1024)); 
+         ww.bytes/(1024*1024));
    fprintf('EIDORS_CACHE: current priority = %d\n', ...
-         eidors_objects.cache_priority); 
+         eidors_objects.cache_priority);
    return;
-elseif nargin > 1 
+elseif nargin > 1
    limit = varargin{1};
 end
 
 
 % In order to do caching, we need to have an existing
-% function, as a string which exists as a function 
+% function, as a string which exists as a function
 % handle.
 if isa(command, 'function_handle') || ...
   (ischar(command) && ...
    any(exist(command) == [2,3])) % m or mex-file
    % Test if we're being asked to cache on anonymous function
-   %   and issue error 
+   %   and issue error
    if isa(command, 'function_handle')
       str = func2str(command);
       if str(1) == '@'
@@ -159,7 +159,7 @@ if isa(command, 'function_handle') || ...
    return
 end
 
-    
+
 switch command
    case 'init'
       eidors_objects.cache_enable = 1;
@@ -167,7 +167,7 @@ switch command
       eidors_objects.cache_debug_enable = 0;
       eidors_objects.cache_debug_enabled_on = [];
       eidors_obj('cache_init');
-      
+
    case 'clear_all'
       remove_objids
 
@@ -180,7 +180,7 @@ switch command
        otherwise
          error('Wrong number of inputs');
      end
-      
+
    case 'cache_size'
       if nargin==2
       if ischar(limit); limit= str2num(limit); end
@@ -225,7 +225,7 @@ switch command
            if isfield(eidors_objects,'cache_disabled_on')
                idx = strcmp(eidors_objects.cache_disabled_on, limit);
                eidors_objects.cache_disabled_on(idx) = [];
-           else 
+           else
                eidors_objects.cache_disabled_on = [];
            end
            if isempty(eidors_objects.cache_disabled_on)
@@ -296,25 +296,25 @@ switch command
       end
       eidors_objects.cache_priority = varargout{1};
 
-   case {'list', 'show_objs'} 
-      if nargin == 2 
+   case {'list', 'show_objs'}
+      if nargin == 2
          cache_list(limit);
       else
          cache_list;
       end
-      
-      
+
+
    case 'clear_max'
       if ischar(limit); limit= str2double(limit); end
       try
          c = eidors_objects.cache.cols;
-      catch 
+      catch
          return
       end
-      
+
       priidx = get_cache_priority;
       [jnk, idx] = sort(priidx);
-      tot=     cumsum([eidors_objects.cache.meta{idx,c.size}]); 
+      tot=     cumsum([eidors_objects.cache.meta{idx,c.size}]);
       rmidx  = idx(tot > limit);
       remove_objids( rmidx );
 
@@ -345,13 +345,13 @@ switch command
    case 'clear_name'
       idx = clear_names_cache( limit );
       remove_objids( idx );
-      
+
    case 'dump'
       varargout{1} = eidors_objects;
-      
+
    case 'load'
       eidors_objects = limit;
-      
+
    otherwise
       error('command %s not understood',command);
 end
@@ -366,7 +366,7 @@ function cache_list (order)
    if nargin == 0
        order = 'time';
    end
-   
+
    c = eidors_objects.cache.cols;
    if isempty(meta)
       fprintf('No objects in cache\n');
@@ -375,25 +375,25 @@ function cache_list (order)
    meta(:,c.time) = cellstr(datestr([meta{:,c.time}],'yyyy-mm-dd HH:MM:SS.FFF'));
    N = size(meta,2);
    %    [jnk, priidx] = sortrows(meta(:,[c.score_eff c.score_sz c.time]),[-1 2 -3]);
-   
+
    meta(:,N+1) = num2cell(get_cache_priority);
    switch order
        case 'time'
-           meta = mysortrows(meta,c.time); % sort by time
+           meta = sortrows(meta,c.time); % sort by time
        case {'prop','name'}
-           meta = mysortrows(meta,c.prop); % sort by name
+           meta = sortrows(meta,c.prop); % sort by name
        case 'rank'
-           meta = mysortrows(meta,N+1); % sort by rank
+           meta = sortrows(meta,N+1); % sort by rank
        case 'size'
-           meta = mysortrows(meta,-c.size); % sort by rank
+           meta = sortrows(meta,-c.size); % sort by rank
        case 'effort'
-           meta = mysortrows(meta,-c.effort);
+           meta = sortrows(meta,-c.effort);
        case 'count'
-           meta = mysortrows(meta,-c.count);
+           meta = sortrows(meta,-c.count);
        otherwise
            error('Unrecognized sort order');
    end
-   
+
    meta = meta';
    fprintf('CACHE__:  Date+Time     bytes       Score_szPrio CountXEffort   Score_eff   #  obj_id ___\n');
    fprintf('%s b=%9.0d [%4d]  p=%02d t=%3dx%.2e [%4d] i=%4d: %s { %s }\n', ...
@@ -405,12 +405,12 @@ function priidx = get_cache_priority
    if isfield(eidors_objects.cache, 'meta') && isfield(eidors_objects.cache, 'cols')
       meta = eidors_objects.cache.meta;
       c = eidors_objects.cache.cols;
-      [jnk, priidx] = mysortrows(meta,[-c.score_eff c.score_sz -c.time]);
+      [jnk, priidx] = sortrows(meta,[-c.score_eff c.score_sz -c.time]);
       priidx(priidx) = 1:size(meta,1);
    end
 
-      
-   
+
+
 function objid = clear_names_cache( name )
    objid=[];
    global eidors_objects;
@@ -418,14 +418,14 @@ function objid = clear_names_cache( name )
       c = eidors_objects.cache.cols;
       objid = find(strcmp(name, eidors_objects.cache.meta(:,c.prop)));
    end
-   
-   
+
+
 function remove_objids(idx, names, sizes)
    global eidors_objects;
    try
    c = eidors_objects.cache.cols;
    catch
-      eidors_obj('cache_init'); 
+      eidors_obj('cache_init');
       return % nothing else to do
    end
    if nargin == 0
@@ -443,7 +443,7 @@ function remove_objids(idx, names, sizes)
          debug_msg(  eidors_objects.cache.meta(idx(db),c.obj_id), ...
                      eidors_objects.cache.meta(idx(db),c.prop), 'removed');
    end
-   total_size = sum(cell2mat(eidors_objects.cache.meta(idx,c.size)));   
+   total_size = sum(cell2mat(eidors_objects.cache.meta(idx,c.size)));
    N = numel(idx);
    if numel(idx) == size(eidors_objects.cache.meta,1)
       eidors_objects = rmfield(eidors_objects,'cache');
@@ -454,11 +454,11 @@ function remove_objids(idx, names, sizes)
       eidors_objects.cache.meta(idx,:) = [];
       eidors_objects.cache.size = eidors_objects.cache.size - total_size;
    end
-   
+
    eidors_msg('Removed %d objects with %d bytes from cache', ...
       N, total_size, 2 );
-   
-       
+
+
 %   v1 = eidors_cache( @function_handle, {param1, param2, ...})
 function varargout = cache_shorthand(fhandle, varargin)
 % Will cache on all function inputs, unless opt.cache_obj is specified
@@ -466,7 +466,7 @@ function varargout = cache_shorthand(fhandle, varargin)
    if ~iscell(args)
       args = {args};
    end
-   
+
    if nargin >2
       opt = varargin{2};
    else
@@ -523,7 +523,7 @@ function varargout = cache_shorthand(fhandle, varargin)
        savename = [cache_locn,'/',cache_str,'_',obj_id,'.mat'];
        if exist(savename,'file')
           load(savename)
-       end  
+       end
    end
    if numel(varargout) < nargout
       eidors_msg('@@ (Re)calculating %s',fstr, level_in);
@@ -535,7 +535,7 @@ function varargout = cache_shorthand(fhandle, varargin)
       if isfield(opt,'boost_priority');
          eidors_cache('boost_priority',opt.boost_priority);
       end
-      
+
 
       if cache_to_disk
          eidors_msg('@@ Caching to %s', savename, level_in+1);
@@ -543,7 +543,7 @@ function varargout = cache_shorthand(fhandle, varargin)
       else
          eidors_obj('set-cache', cache_obj, fstr, varargout, t);
       end
-      
+
       if isfield(opt,'boost_priority');
          eidors_cache('boost_priority',-opt.boost_priority);
       end
@@ -563,7 +563,7 @@ function bytes = cache_ng_opt_bytes
    mszstr = 'options.meshsizefilename  ';
    ff = strfind(bytes,mszstr);
    if isempty(ff); return; end
-   if length(ff)>1 
+   if length(ff)>1
       eidors_msg('Unexpected bug. Check ng.opt writer',1);
    end
    bytescut(1) = ff(1)+length(mszstr);
@@ -590,7 +590,7 @@ function bytes = cache_ng_opt_bytes
 
 function debug_msg(id,name,action)
 global eidors_objects;
-if nargin < 3 
+if nargin < 3
    action = name;
    name = fieldnames(eidors_objects.(id));
 end
@@ -599,12 +599,12 @@ if ~iscell(name) name = {name}; end
 if ~iscell(id) id = {id}; end
 
 str = sprintf('EIDORS_CACHE: %s %%s { %%s }\\n', action);
-arr = [id, name]'; 
+arr = [id, name]';
 
 fprintf(str, arr{:});
 % dbstack could be useful too
 
-function do_unit_test   
+function do_unit_test
    ll= eidors_msg('log_level');
    eidors_msg('log_level',5);
    eidors_cache
@@ -652,21 +652,10 @@ function do_unit_test
    test_debug
    test_priority
    test_disk_caching
- 
+
 function [v1 v2] = test_function(a,b,c,d)
    v1 = rand(1);
    v2 = rand(1);
-   
-function [meta,idx] = mysortrows(meta, cols)
-   if ~exist('OCTAVE_VERSION') % octave doesn't sort cells (valid jun 2019)
-      [meta,idx] = sortrows(meta, cols);
-   else
-      metm = cell2mat(meta(:,3:end));
-      cols = ( abs(cols) - 2 ) .* sign(cols);
-      [~,idx] = sortrows(metm, cols);
-      meta = meta(idx,:);
-   end
-
 
 function test_debug
    fprintf('\n\n************************\n        CACHE DEBUG: VERBOSE OUTPUT\n************************\n');
@@ -688,7 +677,7 @@ function test_debug
    eidors_cache('show_objs')
    eidors_cache debug_off
    fprintf('\n\n************************\n        CACHE DEBUG: DEBUG FINISHED\n************************\n');
-   
+
 function test_disk_caching
    tstdir = 'eidors_cache_test_dir1234321';
    [~]=rmdir(tstdir,'s');
@@ -704,7 +693,7 @@ function test_disk_caching
       length(fieldnames(eidors_objects.cache))-esz);
    obj_id = eidors_var_id({1:100,'sin'});
    cfname = [tstdir,'/eidors_cache_',obj_id,'.mat'];
-   unit_test_cmp('disk 03',length(dir(cfname)),1); 
+   unit_test_cmp('disk 03',length(dir(cfname)),1);
    loader = load(cfname);
    unit_test_cmp('disk 04',loader.varargout{1},v1);
 
@@ -732,7 +721,7 @@ function test_disk_caching
    unit_test_cmp('not disk 05',1, ...
       length(fieldnames(eidors_objects.cache))-esz);
 
-   
+
 function test_priority
    eidors_cache clear
    eidors_obj('set-cache',{1}, 'slow_small', zeros(10) ,10); pause(.1)
@@ -753,9 +742,9 @@ function test_priority
    eidors_obj('set-cache',{1}, 'fast_big',   zeros(100), 1); pause(.1)
 %    eidors_cache list
 %    fprintf('\n');
-   eidors_obj('get-cache',{1}, 'slow_new'); 
-   
+   eidors_obj('get-cache',{1}, 'slow_new');
+
    eidors_cache list
 
-   
+
 %    obj= eidors_obj('get-cache',{5}, 'test1');
