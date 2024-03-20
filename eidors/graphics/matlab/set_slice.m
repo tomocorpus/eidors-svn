@@ -32,6 +32,8 @@ function img = set_slice(img, level, spec)
 %
 %   SET_SLICE does not modify the mdl_slice_mapper.model_2d field.
 %
+%   SET_SLICE sets img.show_slices.axes_msm = true. See SHOW_SLICES.
+%
 % Example:
 %       img = set_slice(img, LEVEL, [npx, npy]);
 %   is equivalent to:
@@ -62,6 +64,7 @@ fmdl = do_set_slice(fmdl, level, spec);
 
 if isimage
     img.fwd_model = fmdl;
+    img.show_slices.axes_msm = true;
 else
     img = fmdl;
 end
@@ -106,9 +109,13 @@ end
 
 
 function do_unit_test()
-    figure(11)
+    figure(1)
+    show_slices('UNIT_TEST');
+    figure(2)
     do_unit_test_show_slices()
-    figure(12);
+    figure(3);
+    mdl_slice_mapper('UNIT_TEST');
+    figure(4);
     do_unit_test_mdl_slice_mapper()
     
 
@@ -353,13 +360,5 @@ function do_unit_test_mdl_slice_mapper()
 %    img.fwd_model.mdl_slice_mapper.npy= 30;
 %    img.fwd_model.mdl_slice_mapper.level= [inf,inf,0];
    img = set_slice(img, [inf,inf,0], [20, 30]);
-   
-   subplot(233);show_slices(img);
-%    img.fwd_model.mdl_slice_mapper.x_pts = [linspace(-1,1,23),.5];
-%    img.fwd_model.mdl_slice_mapper.y_pts = [linspace( 1,-1,34),.5];
-   img = set_slice(img, [], {[linspace(-1,1,23),.5], [linspace( 1,-1,34),.5]});
-   subplot(234);show_slices(img);
-   % the last plot looks different than in mdl_slice_mapper, because it's
-   % overwritten there with show_3d_slices
    
 % Remaining tests in mdl_slice_mapper are not relevant to set_slice
