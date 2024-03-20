@@ -19,6 +19,8 @@ function out_img= show_slices( img, levels, vh )
 %   img.calc_colours.npoints = pixel width/height to map to
 %   img.get_img_data.frame_select = which frames of image to display
 %   img.show_slices.axes_msm = use mdl_slice_mapper for x,y axes
+%        (only works for single images and when level is specified on the 
+%        image struct)
 %        %% Example
 %        img.fwd_model.mdl_slice_mapper = struct('level',[inf,0,inf], ...
 %          'x_pts', linspace(-2,2,50), 'y_pts',linspace(2,10,100));
@@ -110,18 +112,19 @@ out_img= reshape(c_img, size(r_img,1), size(r_img,2) ,[]);
 
 
 axes_msm = false;
+pts = [];
 try axes_msm = img.show_slices.axes_msm; end
+try pts = mdl_slice_mapper(img.fwd_model,'get_points'); end 
 
-if ~axes_msm
-   image(out_img);
-   axis image
-   axis off
-else
-   pts = mdl_slice_mapper(img.fwd_model,'get_points');
+if axes_msm && size(rimg,3)==1 && ~isempty(pts)
    msm.x_pts = pts{1}; msm.y_pts = pts{2};
    image(msm.x_pts, msm.y_pts, out_img);
    set(gca,'Ydir','normal');
+else
+   image(out_img);
+   axis image
 end
+axis off
 axis equal
 axis tight
 
