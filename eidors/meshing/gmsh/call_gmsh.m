@@ -65,8 +65,8 @@ while( 1 )
             'http://www.geuz.org/gmsh/\n\n' ]);
         
         gmsh_path = input('gmsh_path? [or i=ignore, e=error] ','s');
-        if strcmp(gmsh_name,'i'); break;end
-        if strcmp(gmsh_name,'e'); error('user requested'),end;
+        if strcmp(gmsh_path,'i'); break;end
+        if strcmp(gmsh_path,'e'); error('user requested'),end;
         if exist( sprintf('%s/gmsh.exe',gmsh_path) , 'file' ) || ...
                 exist( sprintf('%s/bin/gmsh.exe',gmsh_path) , 'file' )
             disp('Found gmsh');
