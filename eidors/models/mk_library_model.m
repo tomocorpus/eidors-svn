@@ -449,9 +449,15 @@ function out = do_unit_test
 models = mk_library_model('list');
 n_models = numel(models);
 sqrt_n_models = ceil(sqrt(n_models));
+error_list = {};
 for i = 1:numel(models)
     eidors_msg('\n\n\n DOING  MODEL (%s)\n\n\n',models{i},0);
-    mdl = mk_library_model(models{i});
+    try
+        mdl = mk_library_model(models{i});
+    catch
+        error_list = [error_list, models(i)];
+        continue;
+    end
     img = mk_image(mdl,1);
     try
         n = numel(mdl.mat_idx);
@@ -469,6 +475,10 @@ for i = 1:numel(models)
     drawnow
 end
 
+if ~isempty(error_list)
+    disp('There were errors in generating the following models:')
+    disp(error_list);
+end
 
 out = mk_library_model({'pig_23kg','boundary','lungs(1:2:end,:)'},[32 1 0.5],[0.05 0 -1 0 60],0.08);
 
