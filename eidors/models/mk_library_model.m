@@ -227,7 +227,7 @@ switch str
         out = out.fwd_model;
     case 'adult_male_thorax_1x32'
        eth32 = cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45;
-       ep = 360*eth32' - 90; ep(:,2) = 15;
+       ep = 360*eth32' - 90; ep(:,2) = 175;
        out = mk_thorax_model('male',ep,[5 0 .5],10);
     case 'adult_male_thorax_1x16'
        eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
