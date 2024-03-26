@@ -319,6 +319,7 @@ switch str
          out.electrode = out.electrode([2:32,1]);
 %     case 'lamb_newborn_32el_organs'
     case 'horse_16el';
+% Horse models are on their back. Ventral is up
       scale = [100,.35 ]; Nelec=16;
       elhig = prod(scale)/2;
       out = mk_library_model({'horse','boundary'},[Nelec,1.51,elhig],[2,6,0.5],2,50,scale);
@@ -327,11 +328,11 @@ switch str
       elhig = prod(scale)/2;
       out = mk_library_model({'horse','boundary'},[Nelec,1.51,elhig],[2,6,0.5],2,50,scale);
     case 'horse_2x16el';
-      scale = [100,.35 ]; Nelec=32;
+      scale = [100,.35 ]; Nelec=16;
       elhig = [5,3]*prod(scale)/8;
       out = mk_library_model({'horse','boundary'},[Nelec,1.51,elhig],[2,3,0.5],2,50,scale);
     case 'horse_16el_lungs';
-      scale = [100,.35 ]; Nelec=16;
+      scale = [100,.5 ]; Nelec=16;
       elhig = prod(scale)/2;
       out = mk_library_model({'horse','boundary','left_lung','right_lung','heart'},[Nelec,1.51,elhig],[2,6,0.5],2,50,scale);
     case 'horse_32el_lungs';
@@ -339,7 +340,7 @@ switch str
       elhig = prod(scale)/2;
       out = mk_library_model({'horse','boundary','left_lung','right_lung','heart'},[Nelec,1.51,elhig],[2,6,0.5],2,50,scale);
     case 'horse_2x16el_lungs';
-      scale = [100,.35 ]; Nelec=32;
+      scale = [100,.5 ]; Nelec=16;
       elhig = [5,3]*prod(scale)/8;
       out = mk_library_model({'horse','boundary','left_lung','right_lung','heart'},[Nelec,1.51,elhig],[2,3,0.5],2,50,scale);
     case 'beagle_16el';
