@@ -8,6 +8,10 @@ function out = mk_library_model(shape,elec_pos,elec_shape,maxsz,nfft,scale)
 %     shape{2} is the the boundary. If absent, 'boundary' is assumed.
 %     shape{3..} are strings specifying additional inclusions (such as
 %     lungs)
+%   shape may have a modifier
+%      shape_name:ctr => center the shape at 0,0,0
+%      shape_name:hctr => horizontal center shape
+%      shape_name:vctr => vertical center shape
 %   elec_pos - a vector specifying electrode positions. See
 %     NG_MK_EXTRUDED_MODEL for details. To use the electrode positions
 %     stored in the 'electrode' field in the shape_libary, specify elec_pos
@@ -56,7 +60,23 @@ if ischar(shape)
         case 'UNIT_TEST'
             out = do_unit_test; return;
         otherwise
+            fcol = find(shape==':');
+            extra = false;
+            if length(fcol)>=1;
+               extra = shape(fcol+1:end);
+               shape = shape(1:fcol-1);
+            end
             out = predef_model(shape);
+            switch extra
+               case false; % pass
+               case 'ctr'; 
+                  out.nodes = out.nodes - mean(out.nodes);
+               case 'hctr'; 
+                  out.nodes(:,1:2) = out.nodes(:,1:2) - mean(out.nodes(:,1:2));
+               case 'vctr'; 
+                  out.nodes(:,3) = out.nodes(:,3) - mean(out.nodes(:,3));
+               otherwise; error(['parameter "',extra,'" not recognized']);
+            end
             out = mdl_normalize(out, 0); % not normalized by default
     end
 else
