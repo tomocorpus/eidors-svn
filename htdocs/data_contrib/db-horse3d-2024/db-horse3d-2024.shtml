@@ -63,11 +63,16 @@ See referenced paper
        <hr>
    </table>
 
+The data may be analyzed with the following code:
+<pre>
+[% PROCESS "analyze01.m" %]
+</pre>
+
+
 <center>
-<a href="http://www.springerlink.com/content/yt01jjp4d8tj3e65"
-   ><img src="if-experimental-lung-injury-fig3.png" alt="figure 3"></a>
+   <img src="db-horse3d-2024-01.jpg"
 <br>
-Figure 4 (from Byrne <i>et al</i>, 2024):
+Figure similar to Figure 4 (from Byrne <i>et al</i>, 2024).
 </center>
 
 <p>
