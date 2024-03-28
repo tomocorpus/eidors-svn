@@ -1,0 +1,67 @@
+[% root = "../../" %]
+[% show_tut = "1" %]
+[% PROCESS "../../nav-sidebar.shtml" %]
+
+<h2>3D GREIT Reconstruction with a non-extruded volume</h2>
+
+
+<h3> 
+Forward model with 3 rings of 12 electrodes
+</h3>
+
+<pre>
+[% PROCESS "GREIT3D_arbitrary_01.m" %]
+</pre>
+
+
+<h3> 
+Simulate data
+</h3>
+
+<pre>
+[% PROCESS "GREIT3D_arbitrary_02.m" %]
+</pre>
+
+<center>
+<img src="GREIT3D_arbitrary_02a.jpg">
+<img src="GREIT3D_arbitrary_02b.jpg">
+<img src="GREIT3D_arbitrary_02c.png">
+<br><i>Figure:</i>
+Three different views of the simulation model with targets
+</center>
+
+<h3> 
+Create reconstruction model
+</h3>
+
+Create a 3D voxel model to reconstruct on. Note that we commit the 
+inverse crime by using the same forward model for simulation 
+and reconstruction.
+
+<pre>
+[% PROCESS "GREIT3D_arbitrary_03.m" %]
+</pre>
+
+<h3> 
+Reconstruct and show images
+</h3>
+
+<pre>
+[% PROCESS "GREIT3D_arbitrary_04.m" %]
+</pre>
+
+<center>
+<img src="GREIT3D_arbitrary_04a.jpg">
+<img src="GREIT3D_arbitrary_04b.jpg">
+<img src="GREIT3D_arbitrary_04c.png">
+<br><i>Figure:</i>
+Three different views of the reconstruction image.
+</center>
+
+<p>
+<small>
+    Last Modified: $Date$ by $Author$
+</small>
+</BODY></HTML>
+<!--
+      -->
