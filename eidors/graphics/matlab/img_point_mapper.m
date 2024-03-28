@@ -51,7 +51,9 @@ TR = eidors_cache(@triangulation,{fmdl.elems, fmdl.nodes});
 switch maptype
     case 'elem'
         id = pointLocation(TR, pts);
-        val = data(id,:);
+        val = NaN(size(id));
+        valid = ~isnan(id);
+        val(valid,:) = data(id(valid),:);
     case 'node'
         id = nearestNeighbor(TR, pts);
         val = data(id,:);
