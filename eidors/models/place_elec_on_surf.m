@@ -58,6 +58,7 @@ end
 
 opt.fstr = 'place_elec_on_surf';
 mdl2 = eidors_cache(@do_place_elec_on_surf,{mdl,elec_pos, elec_spec,ng_opt_file, maxh},opt);
+mdl2 = mdl_normalize(mdl2, 'default');
 
 
 
