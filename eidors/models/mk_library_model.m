@@ -501,5 +501,18 @@ if ~isempty(error_list)
     disp(error_list);
 end
 
+out = mk_library_model('pig_23kg_16el');
+unit_test_cmp('pig_23kg_16el', max(out.nodes),[1.004200000000000,0.998200000000000,1.000000000000000],1e-10);
+
+out = mk_library_model('pig_23kg_16el:ctr');
+unit_test_cmp('pig_23kg_16el:ctr', max(out.nodes),[0.995060653391834,1.064458637676478,0.501929982309894],1e-10);
+
+out = mk_library_model('pig_23kg_16el:hctr');
+unit_test_cmp('pig_23kg_16el:hctr', max(out.nodes),[0.995060653391834,1.064458637676478,1.000000000000000],1e-10);
+
+out = mk_library_model('pig_23kg_16el:vctr');
+unit_test_cmp('pig_23kg_16el:vctr', max(out.nodes),[1.004200000000000,0.998200000000000,0.501929982309894],1e-10);
+
 out = mk_library_model({'pig_23kg','boundary','lungs(1:2:end,:)'},[32 1 0.5],[0.05 0 -1 0 60],0.08);
+unit_test_cmp('pig_23kg', max(out.nodes),[1.004200000000000 0.998200000000000 1.000000000000000],1e-10);
 
