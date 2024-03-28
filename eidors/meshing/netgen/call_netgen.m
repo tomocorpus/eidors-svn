@@ -128,8 +128,8 @@ while( 1 )
                'If you don''t have a copy, download it from' ...
                'http://sourceforge.net/projects/netgen-mesher/ \n\n']);
             netgen_path = input('netgen_path? [or i=ignore, e=error] ','s');
-            if strcmp(ng_name,'i'); break;end
-            if strcmp(ng_name,'e'); error('user requested'),end;
+            if strcmp(netgen_path,'i'); break;end
+            if strcmp(netgen_path,'e'); error('user requested'),end;
             if exist( sprintf('%s/netgen.exe',netgen_path) , 'file' ) || ...
                   exist( sprintf('%s/bin/netgen.exe',netgen_path) , 'file' )
                disp('Found netgen version 4.4 or higher');
