@@ -157,12 +157,12 @@ if ~isempty(opt.noise_figure) || ~isempty(opt.image_SNR)
     xyzr = opt.noise_figure_targets;
     [jnk,vi_NF] = simulate_movement(imgs,xyzr');
     vi_NF = sum(vi_NF,2); % sum the targets
-    progress_msg(['mk_GREIT_model: ', NoisPerfName,':'],0,10000,struct('log_level',1));
     f = @(X) to_optimise(vh,vi,xyz, radius, X, opt, imdl, target, vi_NF);
     fms_opts.TolFun = 0.01*target; %don't need higher accuracy
     % The first call can take a long time. Take it out of the loop to 
     % allow progress messages. 
     imdl.solve_use_matrix.RM = calc_GREIT_RM(vh,vi,xyz, radius, weight, opt);
+    progress_msg(['mk_GREIT_model: ', NoisPerfName,':'],0,10000,struct('log_level',1));
     log_level = eidors_msg('log_level');
     if  log_level > 1
        log_level = eidors_msg( 'log_level', 1); % suppress messages
