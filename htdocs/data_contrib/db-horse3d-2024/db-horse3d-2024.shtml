@@ -1,0 +1,78 @@
+<html>
+[% PROCESS "../../header.html" %]
+<body>
+
+<H2>Contributed EIT Data:</H2>
+   <table>
+   <tr><th valign="top"> Authors:
+       <td>
+David P Byrne,
+Nicole Studer,
+Cristy Secombe,
+Alexander Cieslewicz,
+Giselle Hosgood,
+Anthea Raisis,
+Andy Adler, Martina Mosing
+       <hr>
+   <tr><th valign="top"> Date:
+       <td> 2024
+       <hr>
+   <tr><th valign="top"> Brief Description:
+       <td> 
+These are the data for the calculation of figure 4 in the referenced paper. Two-planes of 16 electrodes each were placed onto a healthy horse and EIT data acquired with a "square" electrode pattern with skip-4 using a Sentec BBVet EIT system. The horse was standing and breathing at rest. A rebreathing mask was placed and the animal increased tidal volume and breathing frequency increased.
+
+A 3 minute section of the real (in-phase) component of data was extracted. Data were filtered at 5 Hz with an anti-aliasing filter and subsampled by a factor of 5 (to 9.53 samples/sec).
+
+<p>
+Data were published in: <br>
+DP Byrne, N Studer, C Secombe, A Cieslewicz, G Hosgood, A Raisis, A Adler, M Mosing
+<a href="https://doi.org/10.1088/1361-6579/ad2eb3"
+>Validation of three-dimensional thoracic electrical impedance tomography of horses during normal and increased tidal volumes</a>
+  <i>Physiol Meas</i>  45:035010, 2024.
+       <hr>
+   <tr><th valign="top"> License:
+       <td> Creative Commons Artistic License (with Attribution)
+       <hr>
+   <tr><th valign="top"> Attribution Requirement:
+       <td> 
+ Use or presentation of these data must acknowledge
+David Byrne, and cite this publication:
+<ul>
+DP Byrne, N Studer, C Secombe, A Cieslewicz, G Hosgood, A Raisis, A Adler, M Mosing
+<a href="https://doi.org/10.1088/1361-6579/ad2eb3"
+>Validation of three-dimensional thoracic electrical impedance tomography of horses during normal and increased tidal volumes</a>
+  <i>Physiol Meas</i>  45:035010, 2024.
+</ul>
+   <tr><th valign="top"> Format:
+       <td>
+Data are stored in Matlab v7 file format with
+the fields 
+<br>&minus;data3d : Data (32&times;32)&times;frames
+<br>&minus;time3d : Time (in seconds)
+<br>&minus;frame_rate 
+<br>&minus;description
+       <hr>
+   <tr><th valign="top"> Methods:
+       <td>
+See referenced paper
+</pre>
+       <hr>
+   <tr><th valign="top"> Data:
+       <td> <a href="./byrne2024-horse-data3d.mat")
+            >Data</a>
+       <hr>
+   </table>
+
+<center>
+<a href="http://www.springerlink.com/content/yt01jjp4d8tj3e65"
+   ><img src="if-experimental-lung-injury-fig3.png" alt="figure 3"></a>
+<br>
+Figure 4 (from Byrne <i>et al</i>, 2024):
+</center>
+
+<p>
+<small>
+    Last Modified: $Date$ by $Author$
+</small>
+</body></html>
+
