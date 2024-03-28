@@ -10,7 +10,7 @@ function [imdl,distr] = GREIT3D_distribution(fmdl, vopt)
 %
 % INPUTS:
 %  fmdl => EIDORS forward model structure
-%  vopt => Vertical options (see mk_voxel_volume help)
+%  vopt => Volume options (see mk_voxel_volume help)
 %
 % Options for vopt
 %   1: Simple
@@ -25,9 +25,21 @@ function [imdl,distr] = GREIT3D_distribution(fmdl, vopt)
 %        vopt.yvec = linspace(-.95,.95,32);
 %        vopt.zvec = linspace( .1,3.9,11);
 %
+% Reducing the density of target distributions:
+%   By default, GREIT3D_distribution places one target in each voxel. The
+%   density can be decreased by downsampling:
+%       vopt.downsample = [N, PHASE]; 
+%   for uniform downsampling, or
+%       vopt.downsample = [xN, xPHASE; yN, yPHASE; zN, zPHASE];
+%   for different factors in each dimension. PHASE can be omitted and 
+%   defaults to 0.
+% Downsampling returns every Nth element, starting from 1+PHASE.
+%
 % NOTE: mk_voxel_volume is slow and uses lots of memory
 %   To reduce the memory footprint, try
 %   vopt.save_memory = 1; %(or try 10)
+%
+% See also MK_VOXEL_VOLUME, MK_GREIT_MODEL, DOWNSAMPLE
 
 % (C) 2015-2018 Andy Adler and Bartlomiej Grychtol
 % License: GPL version 2 or version 3
@@ -40,10 +52,14 @@ if ischar(fmdl) && strcmp(fmdl,'UNIT_TEST'); do_unit_test; return; end
    msm = imdl.rec_model.mdl_slice_mapper;
    imdl.rec_model.mdl_slice_mapper.y_pts = ...
        fliplr(imdl.rec_model.mdl_slice_mapper.y_pts);
-   [x, y, z] = ndgrid(msm.x_pts, msm.y_pts, msm.z_pts);
+   
+   [xpts, ypts, zpts] = downsample_distr(msm.x_pts, msm.y_pts, msm.z_pts, vopt);
+
+   [x, y, z] = ndgrid(xpts, ypts, zpts);
+
 
    IN = point_in_vox(imdl.rec_model,[x(:),y(:),z(:)]);
-   INdesity = nnz(IN)/prod(size(IN));
+   INdesity = nnz(IN)/numel(IN);
    if INdesity==0
       error('GREIT3D_distribution: grid doesn''t match model');
    elseif INdesity<0.5
@@ -77,6 +93,38 @@ function out = point_in_vox(fmdl,points, epsilon)
       bnd = order_loop(jnk.nodes(unique(bnd(:)),:));
       out(idx) = out(idx) | inpolygon(points(idx,1),points(idx,2),bnd(:,1),bnd(:,2));
    end
+
+function [xpts, ypts, zpts] = downsample_distr(xpts, ypts, zpts, vopt)
+   if ~isfield(vopt, 'downsample')
+      return
+   end
+
+   P = zeros(3,1); % phase
+   N = ones(3,1);  % downsample factor
+   switch numel(vopt.downsample)
+      case {1, 2} % same for all dimensions
+         N(:) = vopt.downsample(1);
+         try P(:) = vopt.downsample(2); end
+      case 3
+         N(:) = vopt.downsample(:);
+      case 6
+         N(:) = vopt.downsample(:,1);
+         P(:) = vopt.downsample(:,2);
+      otherwise
+         error('EIDORS:WrongInput','vopt.downsample is wrong size.')
+   end
+   xpts = downsample(xpts,N(1),P(1));
+   ypts = downsample(ypts,N(2),P(2));
+   zpts = downsample(zpts,N(3),P(3));
+
+      
+function pts = downsample(pts, N, P)
+% Implements downsample, which is part of the signal processing toolbox
+% Coded independently, without consulting Mathwork's sourcecode
+if nargin < 3, P = 0; end
+pts = pts(1+P:N:end);
+        
+
 
 function do_small_test
    fmdl= ng_mk_cyl_models([4,1],[16,1.5,2.5],[0.10]);
