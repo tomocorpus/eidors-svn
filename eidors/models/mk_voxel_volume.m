@@ -105,13 +105,10 @@ function [rmdl, c2f] = do_voxel_volume(fmdl,opt)
     bnd_fcs = ones(1,nnz(inside))*m.vox2face(inside,:) == 1;
     rmdl.boundary = m.faces(bnd_fcs,:);
     rmdl.inside   = inside; % the inside array is useful in other functions
-    x_pts = opt.xvec(1:end-1) + 0.5*diff(opt.xvec);
-    y_pts = opt.yvec(1:end-1) + 0.5*diff(opt.yvec);
-    z_pts = opt.zvec(1:end-1) + 0.5*diff(opt.zvec);
-
-    rmdl.mdl_slice_mapper.x_pts = x_pts;
-    rmdl.mdl_slice_mapper.y_pts = y_pts;
-    rmdl.mdl_slice_mapper.z_pts = z_pts;
+    
+    rmdl.mdl_slice_mapper.x_pts = opt.x_pts;
+    rmdl.mdl_slice_mapper.y_pts = opt.y_pts;
+    rmdl.mdl_slice_mapper.z_pts = opt.z_pts;
     
     
 %-------------------------------------------------------------------------%
@@ -128,7 +125,7 @@ function cache_obj = get_cache_obj(fmdl, opt)
 %-------------------------------------------------------------------------%
 % Parse option struct
  function opt = parse_opts(fmdl, opt)
-    if ~isfield(opt, 'imgsz'),     
+    if ~isfield(opt, 'imgsz')     
         opt.imgsz = [32 32 4]; 
     end
     if ~isfield(opt, 'square_pixels')
@@ -149,58 +146,8 @@ function cache_obj = get_cache_obj(fmdl, opt)
     if ~isfield(opt, 'prune_model')
         opt.prune_model = true;
     end
-    if isempty(opt.xvec) && isempty(opt.imgsz)
-        error('EIDORS:WrongInput', 'opt.imgsz must not be empty if opt.xvec is empty or absent');
-    end
-    if isempty(opt.yvec) && numel(opt.imgsz) < 2
-        error('EIDORS:WrongInput', 'opt.imgsz must have at least 2 elements if opt.yvec is empty or absent');
-    end
-    if isempty(opt.zvec) && numel(opt.imgsz) < 3
-        error('EIDORS:WrongInput', 'opt.imgsz must have 3 elements if opt.zvec is empty or absent');
-    end
     
-    mingrid = min(fmdl.nodes);
-    maxgrid = max(fmdl.nodes);
-    mdl_sz = maxgrid - mingrid;
-    
-    allempty = isempty(opt.xvec) & isempty(opt.yvec) & isempty(opt.zvec);
-    if opt.cube_voxels && ~allempty
-        warning('EIDORS:IncompatibleOptions','Option cube_voxels is ignored when xvec, yvec or zvec is specifed');
-    end
-    if opt.cube_voxels && allempty
-        side_sz = max(mdl_sz ./ opt.imgsz(1:3));
-        n_steps = ceil(mdl_sz / side_sz);
-        mdl_ctr = mingrid + mdl_sz/2;
-        mingrid = mdl_ctr - n_steps/2 * side_sz;
-        maxgrid = mdl_ctr + n_steps/2 * side_sz;
-        opt.imgsz = n_steps;
- 
-    elseif opt.square_pixels
-        if ~isempty(opt.xvec) || ~isempty(opt.yvec)
-            warning('EIDORS:IncompatibleOptions','Option square_pixels is ignored when xvec or yvec is specifed');
-        else
-            mdl_AR = mdl_sz(1)/mdl_sz(2);
-            img_AR = opt.imgsz(1)/opt.imgsz(2);
-            if mdl_AR < img_AR
-                delta = (mdl_sz(2) * img_AR - mdl_sz(1)) /2;
-                mingrid(1) = mingrid(1) - delta;
-                maxgrid(1) = maxgrid(1) + delta;
-            elseif mdl_AR > img_AR
-                delta = (mdl_sz(1)/img_AR - mdl_sz(2)) / 2;
-                mingrid(2) = mingrid(2) - delta;
-                maxgrid(2) = maxgrid(2) + delta;
-            end
-        end
-    end
-    if isempty(opt.xvec)
-        opt.xvec = linspace(mingrid(1), maxgrid(1), opt.imgsz(1)+1);
-    end      
-    if isempty(opt.yvec)
-        opt.yvec = linspace(mingrid(2), maxgrid(2), opt.imgsz(2)+1);
-    end
-    if isempty(opt.zvec)
-        opt.zvec = linspace(mingrid(3), maxgrid(3), opt.imgsz(3)+1);
-    end
+    [~,~,~,opt] = define_voxels(fmdl, opt);
     
     if ~isfield(opt, 'do_coarse2fine')
         opt.do_coarse2fine = 1;
