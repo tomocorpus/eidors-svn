@@ -70,7 +70,9 @@ function val = img_point_mapper_octave(fmdl, pts, maptype, data)
 switch maptype
     case 'elem'
         id = tsearchn(fmdl.nodes, fmdl.elems, pts);
-        val = data(id,:);
+        val = NaN(size(id));
+        valid = ~isnan(id);
+        val(valid,:) = data(id(valid),:);
     case 'node'
         id = dsearchn(fmdl.nodes, fmdl.elems, pts);
         val = data(id,:);
