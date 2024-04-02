@@ -6,7 +6,7 @@ function J= jacobian_perturb( fwd_model, img)
 %
 % J         = Jacobian matrix
 % fwd_model = forward model
-% fwd_model.jacobian_perturb.delta   - delta perturbation to use
+% fwd_model.jacobian_perturb.delta   - delta perturbation to use (default 1e-6)
 % img = image background for jacobian calc
 
 % (C) 2006 Andy Adler. License: GPL version 2 or version 3
@@ -79,8 +79,11 @@ function do_unit_test
 % $Id$
 
   models ={'c2c2','a3cr','n3r2'};
-  for i = 1:length(models)
-     imdl= mk_common_model(models{i},16);
+  for delta = [1e-7,1e-6,1e-5,1e-4];
+     fprintf('Using delta = %6.3g\n',delta);
+  for i = 1:length(models);
+     Nel = 16; if i==3; Nel=[16,2]; end
+     imdl= mk_common_model(models{i},Nel);
      imdl.fwd_model.nodes = imdl.fwd_model.nodes*.25;
      img= calc_jacobian_bkgnd(imdl);
 
@@ -89,16 +92,19 @@ function do_unit_test
      img.fwd_model.jacobian=   @jacobian_adjoint;
      img.fwd_model.system_mat= @system_mat_1st_order;
      img.fwd_model.solve=      @fwd_solve_1st_order;
-     J_aa= calc_jacobian( img ); % 2 for bug in my code
+     J_aa= calc_jacobian( img );
+%    display_jacobian_deltas(img, J_aa) % show perturbation size
 
      img.fwd_model.jacobian=   @jacobian_perturb;
-     J_aa_p= calc_jacobian( img ); % 2 for bug in my code
+     img.fwd_model.jacobian_perturb.delta = delta;
+     J_aa_p= calc_jacobian( img );
 
-     unit_test_cmp('J_ - J_p', norm(J_aa - J_aa_p,'fro')/norm(J_aa,'fro'), 0, 1e-3);
+     unit_test_cmp(['J_ - J_p:', img.fwd_model.name] , J_aa, J_aa_p, 1e-4);
+   end
    end
 
 
-function display_jacobian_deltas
+function display_jacobian_deltas(img, J);
 % Calculate the perturbation Jacobian
   vh= fwd_solve(img);
 
@@ -109,7 +115,7 @@ function display_jacobian_deltas
         img_i.elem_data(el)= img_i.elem_data(el) + delta;
         vi= fwd_solve(img_i);
         J_p = (vi.meas - vh.meas)/delta; % perturb Jacobian
-        fprintf(' %8.6f', norm(J_p - J_np(:,el))/norm(J_np(:,el)));
+        fprintf(' %8.6f', norm(J_p - J(:,el))/norm(J(:,el)));
      end
   end
 

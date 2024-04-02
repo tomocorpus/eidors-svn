@@ -16,7 +16,7 @@ Plan for 3.12:
 
  + pull calc_jacobian_test into calc_jacobian
  + pull calc_jacobian_test into calc_meas_icov && remove
- - pull perturb_jacobian_test into calc_jacobian && remove
+ + pull perturb_jacobian_test into jacobian_perturb && remove
  - pull calc_model_prior_test into NEW_TEST_FUNCTION && remove
  
  + speed up eidors_var_id => new hash?
