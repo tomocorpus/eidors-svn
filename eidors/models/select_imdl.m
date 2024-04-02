@@ -197,7 +197,7 @@ function do_unit_test
    load montreal_data_1995;
    imdl = mk_common_model('b2t3',16); 
 
-   for i=1:100; % Break when finished
+   i=0;while true; i=i+1; % Break when finished
       vh = zc_resp(:,1); vi= zc_resp(:,23);
       fprintf('solver #%d\n',i);
       switch i
@@ -247,7 +247,17 @@ function do_unit_test
             imdl0 = mk_common_model('b2C2',16); 
             imdl0 = select_imdl( imdl0, {'Basic GN abs'} );
             [vh,vi] = simulate_movement(mk_image(imdl0), [0;0.5;0.05]);
-         case 17; break
+         case 17;
+            imdl = mk_common_model('n3r2',[16,2]); fmdl = imdl.fwd_model;
+            fmdl.nodes(:,3) = fmdl.nodes(:,3) - 1.5;
+            imdl0= select_imdl(fmdl,{'GREIT:NF=0.3 64x64 rad=0.25'});
+            img = mk_image(fmdl,1); vh = fwd_solve(img);
+            img.elem_data(fmdl.demo_targ_elems.A) = 1.2;
+            img.elem_data(fmdl.demo_targ_elems.B) = 0.8;
+                                    vi = fwd_solve(img);
+           
+            
+         case 18; break
       end;
 
 %     disp([i,imdl0.hyperparameter.value]);
@@ -256,5 +266,5 @@ function do_unit_test
       else
          imgr = inv_solve( imdl0, vh, vi);
       end
-      subplot(4,4,i); show_slices( imgr );
+      subplot(4,5,i); show_slices( imgr, [inf,inf,0] );
    end
