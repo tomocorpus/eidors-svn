@@ -505,6 +505,7 @@ function inv_mdl = mk_n3r2_model( n_elec, options );
    fmdl.stimulation = mk_stim_patterns(16,2,[0,1],[0,1], ...
              {'no_meas_current','no_rotate_meas'},-1);
 
+   fmdl.name= 'NP 3D model';
    fmdl= eidors_obj('fwd_model', fmdl);
 
    inv_mdl.name=         'Nick Polydorides EIT inverse';
