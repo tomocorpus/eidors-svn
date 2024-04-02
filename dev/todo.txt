@@ -39,7 +39,7 @@ Plan for 3.12:
  - remove private directories. Update Matlab/Octave req's
 
  + have aux.frame_rate for all eidors_readdata 
- - Add Draeger, Sentec, Get, HD5 tests for eidors_readdata
+ + Add Draeger, Sentec, Get tests for eidors_readdata
 
  + test netgen 6.2 for linux and windows => See mailing list: 2024-04
  + fix get_contrib_data list output

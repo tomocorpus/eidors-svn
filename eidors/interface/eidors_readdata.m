@@ -1535,12 +1535,10 @@ function do_unit_test
    unit_test_cmp('LQ2:t_rel', auxdata.t_rel(2), 38442185);
    unit_test_cmp('LQ2:frame_rate', auxdata.frame_rate, 28.041838422927,1e-10);
 
-  
-return % TODO Add tests
-% TODO Add Draeger tests
-% TODO split h5 data
-% TODO frame_rate tests
    pth = get_contrib_data('et-healthy-breathing','ET_Test_File_Healthy_Lung_01.eit');
    [dd,auxdata,stim]= eidors_readdata(pth);
+   unit_test_cmp('Draeger.eit:frame_rate', auxdata.frame_rate, 20,1e-10);
+
    pth = get_contrib_data('et-healthy-breathing','ET_Test_File_Healthy_Lung_01_01.get');
    [dd,auxdata,stim]= eidors_readdata(pth);
+   unit_test_cmp('Draeger.get:frame_rate', isnan(auxdata.frame_rate), true);
