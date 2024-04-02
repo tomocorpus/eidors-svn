@@ -98,7 +98,7 @@ if nargin < 2
 end
 
 
-auxdata = []; % default, can be overriden if the format has it
+auxdata = struct(); % default, can be overriden if the format has it
 fmt = pre_proc_spec_fmt( format, fname );
 switch fmt
    case {'h5','hdf5'};
@@ -233,6 +233,10 @@ switch fmt
 
    otherwise
       error('eidors_readdata: file "%s" format unknown', format);
+end
+
+if ~isfield(auxdata,'frame_rate');
+   auxdata.frame_rate = NaN; % NaN for unknown
 end
 
 function check_file_exists(fname)
@@ -1536,5 +1540,7 @@ return % TODO Add tests
 % TODO Add Draeger tests
 % TODO split h5 data
 % TODO frame_rate tests
-   pth = get_contrib_data('aa_montreal_data','montreal_data_1995.h5');
+   pth = get_contrib_data('et-healthy-breathing','ET_Test_File_Healthy_Lung_01.eit');
+   [dd,auxdata,stim]= eidors_readdata(pth);
+   pth = get_contrib_data('et-healthy-breathing','ET_Test_File_Healthy_Lung_01_01.get');
    [dd,auxdata,stim]= eidors_readdata(pth);

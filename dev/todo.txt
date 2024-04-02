@@ -1,12 +1,12 @@
 Plan for 3.12:
  - check mk_library_models datatypes not working in Octave
 	mk_library_model cylinder_16x1el_coarse
- - have aux.frame_rate for all eidors_readdata 
 
  - Post sample h5 data
  - HDF5 file format
- - write tests for hdf5 in eidors_readdata
  - more careful errors in hdf5/eidors_readdata
+
+ - write tests for hdf5 in eidors_readdata
 
  - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
  - Write tests for posdef in left_divide
@@ -35,9 +35,14 @@ Plan for 3.12:
  - Remove NODE / ELEM use nodes elems
  - Make simplified fwd_model_parameters
 
- - test netgen 6.2 for linux and windows
  - mk_grid_model accept 2D fmdl (like mk_approx_c2f)
  - remove private directories. Update Matlab/Octave req's
+
+ + have aux.frame_rate for all eidors_readdata 
+ - Add Draeger, Sentec, Get, HD5 tests for eidors_readdata
+
+ + test netgen 6.2 for linux and windows => See mailing list: 2024-04
+ + fix get_contrib_data list output
 
  + use progress_msg for mk_GREIT_model and NF
  + make no_meas_current_next0 => no_meas_current
