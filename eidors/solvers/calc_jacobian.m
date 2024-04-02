@@ -97,17 +97,32 @@ function fwd_model_check(fmdl)
    end
 
 function do_unit_test
-    delta = 1e-5;
+    delta = 1e-6;
     testvec= [5,20,40,130];
     mdl= test_aa_mdl2;
     run_jacobian_test( mdl, delta, testvec );
-    % TODO: import tests from calc_jacobian_test
+    mdl = mdl_normalize(mdl,1); mdl.name = [mdl.name,':normalize'];
+    run_jacobian_test( mdl, delta, testvec );
 
-function run_jacobian_test( mdl, delta, testvec ); 
+    mdl= test_aa_mdl3;
+    run_jacobian_test( mdl, delta, testvec );
+    mdl = mdl_normalize(mdl,1); mdl.name = [mdl.name,':normalize'];
+    run_jacobian_test( mdl, delta, testvec );
+
+    warning('off','EIDORS:deprecated');
+    mdl= test_np_mdl;
+    % Need lower tol because np models use a solver with lower tol
+    run_jacobian_test( mdl, delta, testvec, 1e-3 );
+    mdl = mdl_normalize(mdl,1); mdl.name = [mdl.name,':normalize'];
+    run_jacobian_test( mdl, delta, testvec, 1e-3 );
+
+function run_jacobian_test( mdl, delta, testvec,tol ); 
     img= mk_image(mdl,1);
     homg_data=fwd_solve( img);
 
     J= calc_jacobian( img );
+    if nargin<4;tol= 1e-5;end
+    tol = tol*std(J(:));
 
     % J = dF/dx = [F(x+d)  - F(x)]/d
     sumdiff= 0;
@@ -127,15 +142,8 @@ function run_jacobian_test( mdl, delta, testvec );
        sumdiff = sumdiff + std( J(:,testelem) - simJ );
     end
 
-    tol= 1e-4*std(J(:));
     dif= sumdiff/length(testvec);
-    if sumdiff/length(testvec) > tol
-       eidors_msg('Jacobian calculation error (%s) tol(%3.2g)>diff(%3.2g)', ...
-                mdl.name,tol,dif, 1);
-       ok=0;
-    else
-       ok=1;
-    end
+    unit_test_cmp(['Jacobian calc: ',mdl.name],sumdiff/length(testvec),0,tol);
 
 function mdl= test_aa_mdl2;
     n_elec= 16;
@@ -152,6 +160,8 @@ function mdl= test_aa_mdl2;
     mdl = eidors_obj('fwd_model', params);
     mdl.name= 'AA_1996 mdl';
 
+
+
 function mdl= test_aa_mdl3;
     i_mdl = mk_common_model('b3cz2',16);
     mdl= i_mdl.fwd_model;
@@ -163,7 +173,7 @@ function mdl= test_aa_mdl3;
     
 
 function mdl= test_np_mdl;
-    i_mdl = mk_common_model('n3r2',16);
+    i_mdl = mk_common_model('n3r2',[16,2]);
     mdl= i_mdl.fwd_model;
     mdl.name=     'NP_2003 mdl';
     mdl.solve=      'np_fwd_solve';

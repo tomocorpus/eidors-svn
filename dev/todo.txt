@@ -1,3 +1,6 @@
+Plan for 3.13:
+ - Speed up / clean up _higher_order code
+
 Plan for 3.12:
  - check mk_library_models datatypes not working in Octave
 	mk_library_model cylinder_16x1el_coarse
@@ -5,20 +8,22 @@ Plan for 3.12:
  - Post sample h5 data
  - HDF5 file format
  - more careful errors in hdf5/eidors_readdata
-
  - write tests for hdf5 in eidors_readdata
 
  - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
  - Write tests for posdef in left_divide
  - Refactor left_divide and add timing tests
 
- - pull calc_jacobian_test into calc_jacobian && remove
+ + pull calc_jacobian_test into calc_jacobian
+ - pull calc_jacobian_test into calc_meas_icov && remove
  - pull perturb_jacobian_test into calc_jacobian && remove
  - pull calc_model_prior_test into NEW_TEST_FUNCTION && remove
  
- - speed up eidors_var_id => new hash?
- - complete testing of xxhash as replacement hash
- - commit xxhash.h and build new mex files
+ + speed up eidors_var_id => new hash?
+ + complete testing of xxhash as replacement hash
+     #define USE_SHA1_HASH => approx 5x speedup
+ + commit xxhash.h and build new mex files
+
 
  - Control padding type in freq_filt
 
@@ -27,7 +32,6 @@ Plan for 3.12:
 
  - img_point_mapper that works in Octave
  - Fix _higher_order to handle faces-type electrodes
- - Speed up / clean up _higher_order code
  - Set image position cleanly, via something like:
       img = set_slices(img, level, hlim, vlim, res)
 
