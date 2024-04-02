@@ -1,5 +1,9 @@
 Plan for 3.13:
  - Speed up / clean up _higher_order code
+ - Fix _higher_order to handle faces-type electrodes
+ - Test speed of fwd_model_parameters: what fraction of time
+ - Remove NODE / ELEM use nodes elems
+ - Make simplified fwd_model_parameters
 
 Plan for 3.12:
  - check mk_library_models datatypes not working in Octave
@@ -31,16 +35,13 @@ Plan for 3.12:
  - clean up 'interior_sources' in fwd_model_parameters
 
  - img_point_mapper that works in Octave
- - Fix _higher_order to handle faces-type electrodes
  - Set image position cleanly, via something like:
       img = set_slices(img, level, hlim, vlim, res)
 
- - speed up fwd_model_parameters
- - Remove NODE / ELEM use nodes elems
- - Make simplified fwd_model_parameters
-
  - mk_grid_model accept 2D fmdl (like mk_approx_c2f)
+
  - remove private directories. Update Matlab/Octave req's
+ - Clean out overloads
 
  + have aux.frame_rate for all eidors_readdata 
  + Add Draeger, Sentec, Get tests for eidors_readdata
