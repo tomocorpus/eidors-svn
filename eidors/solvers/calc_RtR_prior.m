@@ -120,3 +120,88 @@ function do_unit_test
         mk_grid_model( imdl.fwd_model, grid, grid);
    RtR = calc_RtR_prior(imdl);
    disp('cache should only be called once');
+
+   calc_model_prior_test;
+
+
+
+function calc_model_prior_test;
+% Verify model prior calcs
+% Imported from: calc_model_prior_test.m 3127 2012-06-08 16:19:25Z bgrychtol
+
+% TODO: also test the various inverse prior calls
+
+   imdl= mk_common_model('c2c2',16);
+   try; imdl= rmfield(imdl,'RtR_prior'); end
+   try; imdl= rmfield(imdl,'R_prior');   end
+
+   any_priors= {@prior_tikhonov, ...
+                @prior_noser, ...
+                @prior_gaussian_HPF, ...
+                @prior_laplace};
+
+  test_R=[ 1
+     2.732103882203515e+03
+     8.850018174577896e+05
+     6.507717114906363e+16
+     3.982064506094820e+17];
+
+     test_RtR=[ 1
+     52.269531107553618
+     1.348001186822805e+03
+     2.209672229284556e+18];
+
+     test_R_=[ 1
+     52.269531107553632
+     1.248717554051021e+06
+     4.032673973698143e+16];
+
+   R_priors=   {any_priors{:}, ...
+                @prior_TV};
+
+   % Call R_priors as R_priors
+   eidors_cache clear
+   for i = 1:length(R_priors); p = R_priors{i};
+      inv_mdl= imdl;
+      inv_mdl.R_prior= p;
+      R= calc_R_prior(inv_mdl);
+%     fprintf('R_prior: %20s  R_condest= %5.4g\n', func2str(p), condest(R'*R));
+      unit_test_cmp(['R_prior (R''*R): ', func2str(p)], condest(R'*R)/test_R(i), 1, 1e-5)
+   end
+      
+   % Call R_priors as RtR_priors
+   eidors_cache clear
+   for i = 1:length(R_priors); p = R_priors{i};
+      inv_mdl= imdl;
+      inv_mdl.R_prior= p;
+      RtR= calc_RtR_prior(inv_mdl);
+%     fprintf('R_prior: %20s  RtR_condest= %5.4g\n', func2str(p), condest(RtR));
+      unit_test_cmp(['R_prior (RtR): ', func2str(p)], condest(RtR)/test_R(i), 1, 1e-5)
+   end
+      
+   % Call RtR_priors as RtR_priors
+   eidors_cache clear
+   for i = 1:length(R_priors); p = R_priors{i};
+      inv_mdl= imdl;
+      inv_mdl.RtR_prior= p;
+      RtR= calc_RtR_prior(inv_mdl);
+      if diff(size(RtR))~=0  % non-square
+         fprintf('RtR_prior: %20s  RtR_condest= NON-SQUARE\n', func2str(p) );
+      else
+         fprintf('RtR_prior: %20s  RtR_condest= %5.4g\n', func2str(p), condest(RtR));
+         unit_test_cmp(['RtR_prior (RtR): ', func2str(p)], condest(RtR)/test_RtR(i), 1, 1e-5)
+      end
+   end
+
+   % Call RtR_priors as R_priors
+   eidors_cache clear
+   for i = 1:length(R_priors); p = R_priors{i};
+      inv_mdl= imdl;
+      inv_mdl.RtR_prior= p;
+      if strcmp(func2str(p), 'prior_TV')
+         continue; % not fair to ask it to ichol a non-square matrix
+      end
+      R= calc_R_prior(inv_mdl);
+%     fprintf('RtR_prior: %20s  R_condest= %5.4g\n', func2str(p), condest(R'*R));
+      unit_test_cmp(['RtR_prior (R): ', func2str(p)], condest(R'*R)/test_R_(i), 1, 1e-5)
+   end
