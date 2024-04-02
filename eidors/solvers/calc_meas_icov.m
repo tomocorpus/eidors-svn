@@ -23,6 +23,7 @@ function meas_icov = calc_meas_icov( inv_model )
 % (C) 2005 Andy Adler. License: GPL version 2 or version 3
 % $Id$
 
+if ischar(inv_model) && strcmp(inv_model,'UNIT_TEST'); do_unit_test; return; end
 
 if isfield(inv_model,'meas_icov')
    if isnumeric(inv_model.meas_icov);
@@ -72,3 +73,43 @@ function homg_data = solve_homg_image( fwd_mdl )
     homg_img= eidors_obj('image', 'homogeneous image', ...
                          'elem_data', mat, 'fwd_model', fwd_mdl );
     homg_data=fwd_solve( homg_img);
+
+function do_unit_test
+   mdl= getfield( mk_common_model('a2c2',16), 'fwd_model');;
+   run_dataprior_test( mdl );
+
+   mdl = mdl_normalize(mdl,1); mdl.name = [mdl.name,':normalize'];
+   run_dataprior_test( mdl );
+
+   mdl= getfield( mk_common_model('n3r2',[16,2]), 'fwd_model');;
+   mdl = mdl_normalize(mdl,1); mdl.name = [mdl.name,':normalize'];
+
+% test dataprior
+%     Difference dataprior should be 1
+%     normalized difference dataprior should be homg_data.^2
+function ok= run_dataprior_test( mdl )
+    img= eidors_obj('image', 'homg image');
+    img.fwd_model= mdl;
+
+    img.elem_data= ones( size(mdl.elems,1) ,1);
+    homg_data=fwd_solve( img);
+
+    DP= calc_meas_icov( img );
+
+    % difference dataprior
+    testvec= diag(DP);
+    if mdl_normalize(mdl)
+%  from calc_meas_icov, we have the following
+%     meas_icov = sparse(1:n, 1:n, ( homg_data.meas ).^2 );
+        testvec = homg_data.meas.^2 ./ diag(DP);
+    end
+
+    mdiff = full(max(abs(diff( testvec ))));
+    if mdiff > 1e-12 
+       ok=0;
+       eidors_msg('Dataprior calculation error (%s) = %f', mdl.name, mdiff, 1);
+keyboard
+    else
+       ok=1;
+    end
+
