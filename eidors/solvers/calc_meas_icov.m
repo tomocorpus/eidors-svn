@@ -82,16 +82,15 @@ function do_unit_test
    run_dataprior_test( mdl );
 
    mdl= getfield( mk_common_model('n3r2',[16,2]), 'fwd_model');;
+   run_dataprior_test( mdl );
    mdl = mdl_normalize(mdl,1); mdl.name = [mdl.name,':normalize'];
+   run_dataprior_test( mdl );
 
 % test dataprior
 %     Difference dataprior should be 1
 %     normalized difference dataprior should be homg_data.^2
 function ok= run_dataprior_test( mdl )
-    img= eidors_obj('image', 'homg image');
-    img.fwd_model= mdl;
-
-    img.elem_data= ones( size(mdl.elems,1) ,1);
+    img= mk_image(mdl,1);
     homg_data=fwd_solve( img);
 
     DP= calc_meas_icov( img );
@@ -104,12 +103,5 @@ function ok= run_dataprior_test( mdl )
         testvec = homg_data.meas.^2 ./ diag(DP);
     end
 
-    mdiff = full(max(abs(diff( testvec ))));
-    if mdiff > 1e-12 
-       ok=0;
-       eidors_msg('Dataprior calculation error (%s) = %f', mdl.name, mdiff, 1);
-keyboard
-    else
-       ok=1;
-    end
+    unit_test_cmp(['dataprior ',mdl.name],testvec,1,1e-10);
 
