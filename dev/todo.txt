@@ -41,9 +41,11 @@ Plan for 3.12:
  - mk_grid_model accept 2D fmdl (like mk_approx_c2f)
 
  - remove private directories. Update Matlab/Octave req's
- - test overloads
+ + test overloads
     - stream2.m is still needed in octave9.1: Test in contact_impedance04!
-    - fminbnd
+    - fminbnd.m is still needed in octave9.1: Used by mk_GREIT_model
+    - remove vecnorm (min matlab version is now 2017b
+    - remove uniquetol (octave now has it)
 
  + have aux.frame_rate for all eidors_readdata 
  + Add Draeger, Sentec, Get tests for eidors_readdata
