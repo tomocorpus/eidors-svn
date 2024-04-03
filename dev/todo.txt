@@ -28,9 +28,6 @@ Plan for 3.12:
      #define USE_SHA1_HASH => approx 5x speedup
  + commit xxhash.h and build new mex files
 
-
- + Control padding type in freq_filt
-
  - fix caching problem in system_mat_instrument test1
  - clean up 'interior_sources' in fwd_model_parameters
 
@@ -48,6 +45,8 @@ Plan for 3.12:
     > remove vecnorm (min matlab version is now 2017b
     > remove uniquetol (octave now has it)
     > Some submitted as bug reports to octave and marked "Don't Fix". Therefore we keep an octave "overloads" in eidors.
+
+ + Control padding type in freq_filt
 
  + have aux.frame_rate for all eidors_readdata 
  + Add Draeger, Sentec, Get tests for eidors_readdata

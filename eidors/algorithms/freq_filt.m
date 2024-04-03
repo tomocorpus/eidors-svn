@@ -13,7 +13,7 @@ function vfilt = freq_filt(vin, fresp, FR, dim)
 %     .padding = length of padding (in seconds)
 % dim = dimension along which to filter (default is 2)
 %     .padding_type = zero|extend|linear
-%       pad with zeros, extend the last values, or linearly fit between start/end (default)
+%       pad with zeros, extend the last values (default), or linearly fit between start/end
 
 % (C) Andy Adler 2019. License: GPL v2 or v3.
 % $Id$
@@ -23,7 +23,7 @@ function vfilt = freq_filt(vin, fresp, FR, dim)
 if ischar(vin) && strcmp(vin,'UNIT_TEST'); do_unit_test; return; end
 
 p.padding = 30; % seconds default;
-p.padding_type = 'linear';
+p.padding_type = 'extend';
 if nargin<3; 
    p.FR = vin.FR;
 else
@@ -94,7 +94,7 @@ function s = padsignal(s,p);
   lsdn = linspace(1,0,pad_len(p)); lsdn=fshape(p,lsdn);
   switch p.padding_type
     case 'zero';
-      pad= calc_padding(s,0,0,p);
+      pad= calc_padding(s,0*lsdn,0*lsup,p);
     case 'extend';
       pad= calc_padding(s,lsdn,lsup,p);
     case 'linear';
@@ -138,9 +138,9 @@ function do_unit_test
   clf; subplot(3,1,1);
   FR = 100;
   t = (0:1.1e3)/FR;
-  s = sin(2*pi*5*t) + 2*cos(2*pi*15*t) +  3*sin(2*pi*0.1*t);
+  s = sin(2*pi*5*t) + 2*cos(2*pi*15*t) +  3*sin(2*pi*0.1*t) + 1;
   subplot(211); plot(t,s); hold on;
-  subplot(212); plot(t,s); hold on; xlim([0,1]);
+  subplot(212); plot(t,s); hold on; xlim(max(t)-[0.5,0]);
   pp.FR = FR;
   pp.padding_type = 'extend';
   pp.padding = 1;
@@ -170,19 +170,29 @@ function do_unit_test
 % TODO- debug for padding size differences
              p.FR = FR; p.padding = 3;
              sf= freq_filt(s,fresp, p);
-             sf12=[1.977191625314283, 1.912923819876781];
+             sf12=[1.231446973826249, 1.277407267967623]-2;
+     case 6; fresp = @(f) f<1;
+             p.padding_type = 'zero';
+% TODO- debug for padding size differences
+             p.FR = FR; p.padding = 1;
+             sf= freq_filt(s,fresp, p);
+             sf12=[1.818358872667770, 1.846165834456450]-2;
+     case 7; fresp = @(f) f<10;
+             sf= freq_filt(s,fresp, FR);
+             sf12=[1.884878325803839, 1.271527154193287];
      otherwise; break
      end
-     unit_test_cmp(sprintf('ff%02d',fnum),sf(1:2), sf12,1e-13)
+     unit_test_cmp(sprintf('ff%02d',fnum),sf(1:2)-1, sf12,1e-13)
      subplot(211); plot(t,sf);
      subplot(212); plot(t,sf);
   end
+  legend('0','1','2','3','4','5','6');
   hold off;
 
   sv = s.*[2;1;3;4];
   fresp = @(f) f<10;
   sf= freq_filt(sv,fresp, pp);
-  sf12=[1.879618111164496, 1.275026363303550];
+  sf12=[1.879618111164496, 1.275026363303550]+1;
   unit_test_cmp('ff10',sf(2,1:2), sf12,1e-13)
 
   sf= freq_filt(sv,fresp, pp, 2);
