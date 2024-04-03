@@ -895,7 +895,10 @@ function test_faces(rmdl, faces, opt)
 
 %-------------------------------------------------------------------------%
 % Center scale models
-function[fmdl,rmdl] = center_scale_models(fmdl,rmdl, opt)
+function [fmdl,rmdl] = center_scale_models(fmdl,rmdl, opt)
+    % ensure 3D
+    if size(fmdl.nodes,2)==2; fmdl.nodes(:,3)= 0; end
+    if size(rmdl.nodes,2)==2; rmdl.nodes(:,3)= 0; end
     ctr = mean([min(rmdl.nodes);max(rmdl.nodes)]);
     rmdl.nodes = bsxfun(@minus,rmdl.nodes,ctr);
     fmdl.nodes = bsxfun(@minus,fmdl.nodes,ctr);
@@ -961,7 +964,6 @@ function do_unit_test
     mk_grid_c2f('save_memory',0); do_small_test;
     mk_grid_c2f('save_memory',1); do_small_test;
     mk_grid_c2f('save_memory',10); do_small_test;
-    return
     do_realistic_test;
     figure
     do_case_tests;
