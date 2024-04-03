@@ -90,6 +90,8 @@
 
 ## Added ability to pass extra params to fn
 ## A Adler, Dec 2022
+## This was submitted to octave as https://savannah.gnu.org/bugs/?65551
+## However, it is marked as "Won't fix". We thus need to keep overloads
 
 function [x, fval, info, output] = fminbnd (fun, a, b, options = struct (), varargin = {})
 
