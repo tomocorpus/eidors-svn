@@ -12,6 +12,8 @@ function vfilt = freq_filt(vin, fresp, FR, dim)
 %     .FR = Frame Rate
 %     .padding = length of padding (in seconds)
 % dim = dimension along which to filter (default is 2)
+%     .padding_type = zero|extend|linear
+%       pad with zeros, extend the last values, or linearly fit between start/end (default)
 
 % (C) Andy Adler 2019. License: GPL v2 or v3.
 % $Id$
@@ -134,24 +136,31 @@ function fax = freq_axis_filt( FR, lD, fresp);
 
 function do_unit_test
   clf; subplot(3,1,1);
-  FR = 100; t = (0:1.1e3)/FR;
+  FR = 100;
+  t = (0:1.1e3)/FR;
   s = sin(2*pi*5*t) + 2*cos(2*pi*15*t) +  3*sin(2*pi*0.1*t);
   plot(t,s); hold on;
+  pp.FR = FR;
+  pp.padding_type = 'extend';
+  pp.padding = 1;
 
   for fnum = 1:4; switch fnum
      case 1; fresp = @(f) f<10;
-             sf= freq_filt(s,fresp, FR);
+             sf= freq_filt(s,fresp, pp);
              sf12=[1.879618111164496, 1.275026363303550];
 
      case 2; fresp = @(f) (f<1) + (f>=1)./(f+eps);
+             p.padding_type = 'extend';
              p.FR = FR; p.padding = 1;
              sf= freq_filt(s,fresp, p);
              sf12=[2.033878107482741, 1.790784258437183];
      case 3; fresp = @(f) f<1;
+             p.padding_type = 'extend';
              p.FR = FR; p.padding = 0;
              sf= freq_filt(s,fresp, p);
              sf12=[0.930430975008685, 0.910716555382052];
      case 4; fresp = @(f) f<1;
+             p.padding_type = 'extend';
              p.FR = FR; p.padding = 2;
              sf= freq_filt(s,fresp, p);
              sf12=[1.977191625314283, 1.912923819876781];
@@ -163,22 +172,22 @@ function do_unit_test
 
   sv = s.*[2;1;3;4];
   fresp = @(f) f<10;
-  sf= freq_filt(sv,fresp, FR);
+  sf= freq_filt(sv,fresp, pp);
   sf12=[1.879618111164496, 1.275026363303550];
   unit_test_cmp('ff10',sf(2,1:2), sf12,1e-13)
 
-  sf= freq_filt(sv,fresp, FR, 2);
+  sf= freq_filt(sv,fresp, pp, 2);
   unit_test_cmp('ff11',sf(2,1:2), sf12,1e-13)
 
-  sf= freq_filt(sv',fresp, FR, 1);
+  sf= freq_filt(sv',fresp, pp, 1);
   unit_test_cmp('ff12',sf(1:2,2), sf12',1e-13)
 
   so = struct('type','data','meas',sv);
-  sf= freq_filt(so,fresp, FR, 2);
+  sf= freq_filt(so,fresp, pp, 2);
   unit_test_cmp('ff21',sf.meas(2,1:2), sf12,1e-13)
   
   so = struct('type','image','elem_data',sv);
-  sf= freq_filt(so,fresp, FR, 2);
+  sf= freq_filt(so,fresp, pp, 2);
   unit_test_cmp('ff21',sf.elem_data(2,1:2), sf12,1e-13)
 
   % TODO add test for complex input
