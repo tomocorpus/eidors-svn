@@ -29,7 +29,7 @@ Plan for 3.12:
  + commit xxhash.h and build new mex files
 
 
- - Control padding type in freq_filt
+ + Control padding type in freq_filt
 
  - fix caching problem in system_mat_instrument test1
  - clean up 'interior_sources' in fwd_model_parameters

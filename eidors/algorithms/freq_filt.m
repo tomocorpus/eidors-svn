@@ -139,12 +139,13 @@ function do_unit_test
   FR = 100;
   t = (0:1.1e3)/FR;
   s = sin(2*pi*5*t) + 2*cos(2*pi*15*t) +  3*sin(2*pi*0.1*t);
-  plot(t,s); hold on;
+  subplot(211); plot(t,s); hold on;
+  subplot(212); plot(t,s); hold on; xlim([0,1]);
   pp.FR = FR;
   pp.padding_type = 'extend';
   pp.padding = 1;
 
-  for fnum = 1:4; switch fnum
+  fnum=0; while true; fnum=fnum+1; switch fnum
      case 1; fresp = @(f) f<10;
              sf= freq_filt(s,fresp, pp);
              sf12=[1.879618111164496, 1.275026363303550];
@@ -164,9 +165,17 @@ function do_unit_test
              p.FR = FR; p.padding = 2;
              sf= freq_filt(s,fresp, p);
              sf12=[1.977191625314283, 1.912923819876781];
+     case 5; fresp = @(f) f<1;
+             p.padding_type = 'linear';
+% TODO- debug for padding size differences
+             p.FR = FR; p.padding = 3;
+             sf= freq_filt(s,fresp, p);
+             sf12=[1.977191625314283, 1.912923819876781];
+     otherwise; break
      end
      unit_test_cmp(sprintf('ff%02d',fnum),sf(1:2), sf12,1e-13)
-     plot(t,sf,'LineWidth',2);
+     subplot(211); plot(t,sf);
+     subplot(212); plot(t,sf);
   end
   hold off;
 
