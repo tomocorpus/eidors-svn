@@ -21,6 +21,7 @@ function vfilt = freq_filt(vin, fresp, FR, dim)
 if ischar(vin) && strcmp(vin,'UNIT_TEST'); do_unit_test; return; end
 
 p.padding = 30; % seconds default;
+p.padding_type = 'linear';
 if nargin<3; 
    p.FR = vin.FR;
 else
@@ -89,23 +90,31 @@ function plen = pad_len(p);
 function s = padsignal(s,p);
   lsup = linspace(0,1,pad_len(p)); lsup=fshape(p,lsup);
   lsdn = linspace(1,0,pad_len(p)); lsdn=fshape(p,lsdn);
-if 0
+  switch p.padding_type
+    case 'zero';
+      pad= calc_padding(s,0,0,p);
+    case 'extend';
+      pad= calc_padding(s,lsdn,lsup,p);
+    case 'linear';
+      mn  = mean(s,p.dim); ss = s-mn;
+      xx  = linspace(-1,1,size(ss,p.dim));
+      perm = ones(1,5); perm(p.dim) = length(xx); % do we ever want d>5??
+      xx  = reshape(xx,perm);
+      a   = mean(ss.*xx,p.dim) ./mean(xx.^2,p.dim);
+      pad = (mn-a).*lsdn + (mn+a).*lsup;
+    otherwise; 
+      error('padding type not understood');
+  end
+  
+  s = cat(p.dim,s,pad);
+
+function pad= calc_padding(s,lsdn,lsup,p)
   switch p.dim % wish I knew how to generalize in m*lab
     case 1; pad = s(1,:,:).*lsdn + s(end,:,:).*lsup;
     case 2; pad = s(:,1,:).*lsdn + s(:,end,:).*lsup;
     case 3; pad = s(:,:,1).*lsdn + s(:,:,end).*lsup;
     otherwise; error('Problem with dim above 3');
   end
-else % pad to the fit
-  mn  = mean(s,p.dim); ss = s-mn;
-  xx  = linspace(-1,1,size(ss,p.dim));
-  perm = ones(1,5); perm(p.dim) = length(xx); % do we ever want d>5??
-  xx  = reshape(xx,perm);
-  a   = mean(ss.*xx,p.dim) ./mean(xx.^2,p.dim);
-  pad = (mn-a).*lsdn + (mn+a).*lsup;
-end
-  
-  s = cat(p.dim,s,pad);
 
 % Add padding connecting the last to the first sample
 function s = unpadsignal(s,p);
