@@ -73,6 +73,13 @@ The data may be analyzed with the following code:
    <img src="db-horse3d-2024-01.jpg"
 <br>
 Figure similar to Figure 4 (from Byrne <i>et al</i>, 2024).
+Multiplanar reconstruction of 3D EIT: Reconstruction of 3D EIT data from a
+horse during baseline (left) and rebreathing (right). The data at each
+timepoint is reconstructed into a parasagittal slice through the left lung, a
+modified frontal slice through the long axis of the lung fields  and three
+transverse slices (from left to right: caudal, middle and cranial;
+Middle images are normalized to the maximum in each image. 
+Bottom images are normalized to the same limit.
 </center>
 
 <p>
