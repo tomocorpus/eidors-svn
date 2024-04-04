@@ -1,5 +1,7 @@
 - build mex files for matlab versions
 - touch mex files to be older than *cpp
+- choose new background colour in: calc_colours('backgnd',[ ...
+- edit bg02 line in calc_colours UNIT_TEST ('bg02')
 - Test with tutorials_test.m
 - Test old tutorials 
 - set properties using build/set_properties.sh

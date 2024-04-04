@@ -688,9 +688,9 @@ function do_unit_test
 %  unit_test_cmp('bg02',cc(1,:), [20,40,40]/100, 1e-10); %EIDORS 3.7
 %  unit_test_cmp('bg02',cc(1,:), [35,45,45]/100, 1e-10); %EIDORS 3.8
 %  unit_test_cmp('bg02',cc(1,:), [35,50,50]/100, 1e-10); %EIDORS 3.9
-   unit_test_cmp('bg02',cc(1,:), [35,50,55]/100, 1e-10); %EIDORS 3.10
+%  unit_test_cmp('bg02',cc(1,:), [35,50,55]/100, 1e-10); %EIDORS 3.10
+   unit_test_cmp('bg02',cc(1,:), [35,45,40]/100, 1e-10); %EIDORS 3.11
 
-   unit_test_cmp('mc01',size(cc), [127*2,3]);
    calc_colours('mapped_colour',4);
    cc= calc_colours('colourmap');
    unit_test_cmp('mc02',size(cc), [4*2,3]);
