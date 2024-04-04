@@ -86,6 +86,7 @@ opt = eidors_cache(@parse_opts,{fmdl,rmdl, opt});
 copt.cache_obj = {fmdl.nodes,
                   fmdl.elems,
                   rmdl.nodes,
+                  rmdl.elems,
                   rmfield(opt,'save_memory')};
                
 copt.fstr = 'mk_grid_c2f';
@@ -897,8 +898,9 @@ function test_faces(rmdl, faces, opt)
 % Center scale models
 function [fmdl,rmdl] = center_scale_models(fmdl,rmdl, opt)
     % ensure 3D
-    if size(fmdl.nodes,2)==2; fmdl.nodes(:,3)= 0; end
-    if size(rmdl.nodes,2)==2; rmdl.nodes(:,3)= 0; end
+    if size(rmdl.nodes,2)==2;
+       rmdl = rmdl_3D(rmdl, fmdl);
+    end
     ctr = mean([min(rmdl.nodes);max(rmdl.nodes)]);
     rmdl.nodes = bsxfun(@minus,rmdl.nodes,ctr);
     fmdl.nodes = bsxfun(@minus,fmdl.nodes,ctr);
@@ -911,10 +913,40 @@ function [fmdl,rmdl] = center_scale_models(fmdl,rmdl, opt)
     fmdl.nodes = scale*fmdl.nodes;
     eidors_msg('@@ models scaled by %g', scale,2);
     
+
+% Make a 3D grid from 2D model
+% where the max and min enclose fmdl
+function rmdl = rmdl_3D(rmdl, fmdl)
+   fzmax = max(fmdl.nodes(:,3));
+   fzmin = min(fmdl.nodes(:,3));
+   rm_nodes = rmdl.nodes;
+   oo = 0*rm_nodes(:,1) + 1;
+   N = num_nodes(rmdl);
+   % nodes at top + bottom
+   rmdl.nodes = [ ...
+      rmdl.nodes,oo*fzmin;
+      rmdl.nodes,oo*fzmax];
+   rme = [
+      rmdl.elems(:,[1,2,3,1]) + [N,0,0,0];
+      rmdl.elems(:,[1,2,3,2]) + [N,N,0,0];
+      rmdl.elems(:,[1,2,3,3]) + [N,N,N,0]];
+   % put elem block together
+   rme = reshape(rme,[],3,4);
+   rme = permute(rme,[2,1,3]);
+   rmdl.elems = reshape(rme,[],4);
+   rmdl.coarse2fine = kron( ...
+        rmdl.coarse2fine,[1;1;1]);
+   return
+% Test code to see block
+   x = ones(6,1);
+   rmdl.boundary = find_boundary(rmdl);
+   x(3) = 2;
+   img = mk_image(rmdl,x);
+   show_fem(img);
+       
 %-------------------------------------------------------------------------%
 % Parse option struct
  function opt = parse_opts(fmdl,rmdl, opt)
-
     opt.xvec = unique(rmdl.nodes(:,1));
     opt.yvec = unique(rmdl.nodes(:,2));
     opt.zvec = unique(rmdl.nodes(:,3));
