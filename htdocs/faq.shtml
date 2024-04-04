@@ -290,6 +290,45 @@ many electrodes. If you're having troubles, try these ideas:
 		Location of the .geo file is one of the first things Netgen prints out. On Windows, this will be something like:<br>
 		<tt> Load geometry file C:\DOCUME~1\Username\LOCALS~1\Temp\tp054957.geo</tt><br>
 		Corresponding to the path C:\Documents and Settings\Username\Local Settings\Temp\tp054957.geo	
+
+<p><li id="gmshcompile"><b>
+Compiling Gmsh under Linux
+</b><p>
+
+Here are build instructions for gmsh on linux. Unfortunately, the
+version supplied with debian/ubuntu systems has been changed to
+not build the netgen interface. This means we can't use it for 
+place_elec_on_surf.
+
+Here is how to build a fixed copy:
+<Ol>
+<li> Remove liboce  ... this interferes with the build (don't know why)
+<pre>
+  $ sudo apt-get remove 'liboce.*'
+</pre>
+
+<li> Download and untar (check for the latest version):
+<pre>
+  $ wget http://gmsh.info/src/gmsh-4.12.2-source.tgz
+  $ tar xfz gmsh-4.12.2-source.tgz
+  $ cd gmsh-4.12.2-source
+</pre>
+
+<li> Configure and build (I like to put stuff in $HOME/local)
+<pre>
+  $ mkdir build
+  $ cd build
+  $ cmake -DCMAKE_INSTALL_PREFIX=$HOME/local -DCMAKE_PREFIX_PATH=$HOME/local ..
+  $ make
+  $ make install
+</pre>
+
+<li> Add to your path
+<pre>
+  $ PATH=$HOME/local/bin:$PATH
+</pre>
+</ol>
+
 </ul>
 <!--
 <p><li><b>
