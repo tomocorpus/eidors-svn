@@ -186,7 +186,7 @@ function set_colours_defaults;
    calc_colours('greylev',-.001);          % background colour = white
    calc_colours('sat_adj',.9);             % saturation of red and blue
    calc_colours('window_range', .7);       % windowing of colours
-   calc_colours('backgnd',[.35,.45,.40]);    % background colour
+   calc_colours('backgnd',[.35,.40,.35]);    % background colour
    calc_colours('mapped_colour',127);      % use 127*2+1 colourmap entries
    calc_colours('ref_level','auto');       % auto set background colour
    calc_colours('npoints',64);             % 64 raster points
@@ -689,7 +689,8 @@ function do_unit_test
 %  unit_test_cmp('bg02',cc(1,:), [35,45,45]/100, 1e-10); %EIDORS 3.8
 %  unit_test_cmp('bg02',cc(1,:), [35,50,50]/100, 1e-10); %EIDORS 3.9
 %  unit_test_cmp('bg02',cc(1,:), [35,50,55]/100, 1e-10); %EIDORS 3.10
-   unit_test_cmp('bg02',cc(1,:), [35,45,40]/100, 1e-10); %EIDORS 3.11
+%  unit_test_cmp('bg02',cc(1,:), [35,45,40]/100, 1e-10); %EIDORS 3.11
+   unit_test_cmp('bg02',cc(1,:), [35,40,35]/100, 1e-10); %EIDORS 3.12
 
    calc_colours('mapped_colour',4);
    cc= calc_colours('colourmap');
