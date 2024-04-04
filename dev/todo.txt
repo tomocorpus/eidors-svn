@@ -31,13 +31,14 @@ Plan for 3.12:
  - fix caching problem in system_mat_instrument test1
  - clean up 'interior_sources' in fwd_model_parameters
 
- - img_point_mapper that works in Octave
- - Set image position cleanly, via something like:
+ + img_point_mapper that works in Octave
+ + Set image position cleanly, via something like:
       img = set_slices(img, level, hlim, vlim, res)
 
  + mk_grid_c2f accept 2D fmdl (like mk_approx_c2f)
 
- - remove private directories. Update Matlab/Octave req's
+ + remove private directories. Update Matlab/Octave req's
+ + remove sparse overload. Fix anything that breaks
  + test overloads
     > stream2.m is still needed in octave9.1: Test in contact_impedance04!
     > fminbnd.m is still needed in octave9.1: Used by mk_GREIT_model
