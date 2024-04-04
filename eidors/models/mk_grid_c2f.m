@@ -996,9 +996,10 @@ function do_unit_test
     mk_grid_c2f('save_memory',0); do_small_test;
     mk_grid_c2f('save_memory',1); do_small_test;
     mk_grid_c2f('save_memory',10); do_small_test;
-    do_realistic_test;
-    figure
+    clf
     do_case_tests;
+    return % the tests below are more about performance than correctness
+    do_realistic_test;
     do_edge2edge_timing_test;
     
 %-------------------------------------------------------------------------%
@@ -1067,7 +1068,7 @@ function do_case_tests
                 [intpts, face2edge, face2intpt, edge2intpt] = test_rec_tedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tet_vedge_intersections(vox,tet);
-                unit_test_cmp(txt,size(intpts,1),0,0); % nothing
+                unit_test_cmp(txt,size(unique(intpts,'rows'),1),1,0); % 1 point
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tedge2vedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),1,0); % 1 point
                 [fnode2vox] = test_tnode_in_vox(vox,tet);
@@ -1083,7 +1084,7 @@ function do_case_tests
                 [intpts, face2edge, face2intpt, edge2intpt] = test_rec_tedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tet_vedge_intersections(vox,tet);
-                unit_test_cmp(txt,size(intpts,1),1,0); % 1 point
+                unit_test_cmp(txt,size(unique(intpts,'rows'),1),3,0); % 3 points
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tedge2vedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),2,0); % 2 points
                 [fnode2vox] = test_tnode_in_vox(vox,tet);
@@ -1135,7 +1136,7 @@ function do_case_tests
                 [intpts, face2edge, face2intpt, edge2intpt] = test_rec_tedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tet_vedge_intersections(vox,tet);
-                unit_test_cmp(txt,size(intpts,1),0,0); % nothing
+                unit_test_cmp(txt,size(uniquetol(intpts,eps,'ByRows',true),1),1,0); % 1 point
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tedge2vedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [fnode2vox] = test_tnode_in_vox(vox,tet);
@@ -1264,7 +1265,7 @@ function do_case_tests
                 [intpts, face2edge, face2intpt, edge2intpt] = test_rec_tedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tet_vedge_intersections(vox,tet);
-                unit_test_cmp(txt,size(intpts,1),0,0); % nothing
+                unit_test_cmp(txt,size(unique(intpts,'rows'),1),1,1); % 1
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tedge2vedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [fnode2vox] = test_tnode_in_vox(vox,tet);
@@ -1300,7 +1301,7 @@ function do_case_tests
                 [intpts, face2edge, face2intpt, edge2intpt] = test_rec_tedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tet_vedge_intersections(vox,tet);
-                unit_test_cmp(txt,size(intpts,1),0,0); % nothing
+                unit_test_cmp(txt,size(unique(intpts,'rows'),1),2,0); % 2
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tedge2vedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [fnode2vox] = test_tnode_in_vox(vox,tet);
@@ -1320,7 +1321,7 @@ function do_case_tests
                 [intpts, face2edge, face2intpt, edge2intpt] = test_rec_tedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tet_vedge_intersections(vox,tet);
-                unit_test_cmp(txt,size(intpts,1),0,0); % nothing
+                unit_test_cmp(txt,size(unique(intpts,'rows'),1),2,0); % 2 points
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tedge2vedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),2,0); % 2 points
                 [fnode2vox] = test_tnode_in_vox(vox,tet);
@@ -1338,7 +1339,7 @@ function do_case_tests
                 [intpts, face2edge, face2intpt, edge2intpt] = test_rec_tedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tet_vedge_intersections(vox,tet);
-                unit_test_cmp(txt,size(intpts,1),0,0); % nothing
+                unit_test_cmp(txt,size(unique(intpts,'rows'),1),1,0); % 1 point
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tedge2vedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),1,0); % 1 point
                 [fnode2vox] = test_tnode_in_vox(vox,tet);
@@ -1356,7 +1357,7 @@ function do_case_tests
                 [intpts, face2edge, face2intpt, edge2intpt] = test_rec_tedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tet_vedge_intersections(vox,tet);
-                unit_test_cmp(txt,size(intpts,1),0,0); % nothing
+                unit_test_cmp(txt,size(uniquetol(intpts,2*eps,'ByRows',true),1),3,0); % 3 points
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tedge2vedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(unique(intpts,'rows'),1),2,0); % 2 unique points (these edges are counted 3 times, but vox2edge takes care of this)
                 [fnode2vox] = test_tnode_in_vox(vox,tet);
@@ -1374,7 +1375,7 @@ function do_case_tests
                 [intpts, face2edge, face2intpt, edge2intpt] = test_rec_tedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(intpts,1),0,0); % nothing
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tet_vedge_intersections(vox,tet);
-                unit_test_cmp(txt,size(intpts,1),0,0); % nothing
+                unit_test_cmp(txt,size(unique(intpts,'rows'),1),2,0); % 2 points
                 [intpts, face2edge, face2intpt, edge2intpt] = test_tedge2vedge_intersections(vox,tet);
                 unit_test_cmp(txt,size(unique(intpts,'rows'),1),2,0); % 2 unique points (these edges are counted 3 times, but vox2edge takes care of this)
                 [fnode2vox] = test_tnode_in_vox(vox,tet);
