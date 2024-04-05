@@ -56,40 +56,70 @@ function dFC= calc_update_system_mat_fields( fwd_model0, fwd_model1 )
    de = unique(de);
    assert(all(all(fwd_model0.elems == fwd_model1.elems)), 'expected fmdl0 and fmdl1 to have the same element structure');
    assert(all(de <= e), 'invalid elem# found for delta nodes');
+   de = de(:);
 
    % TODO: use vectorized inverse from see system_mat_fields
 
-if 1 % Slow way
-   FFjidx= floor([0:d0*e-1]'/d0)*d1*ones(1,d1) + ones(d0*e,1)*(1:d1);
-   FFiidx= [1:d0*e]'*ones(1,d1);
-   FFdata= zeros(d0*e,d1);
-   dfact = (d0-1)*d0;
-   for j=de(:)'
-     a0=  inv([ ones(d1,1), p0.NODE( :, p0.ELEM(:,j) )' ]);
-     a1=  inv([ ones(d1,1), p1.NODE( :, p0.ELEM(:,j) )' ]);
-     idx= d0*(j-1)+1 : d0*j;
-     FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
-   end %for j=1:ELEMs
-   % Remove non-zero components
-   idx = all(FFdata==0,2);
-   FFdata(idx,:) = [];
-   FFiidx(idx,:) = [];
-   FFjidx(idx,:) = [];
+switch 1
+   case 1; %slow way
+      FFjidx= floor([0:d0*e-1]'/d0)*d1*ones(1,d1) + ones(d0*e,1)*(1:d1);
+      FFiidx= [1:d0*e]'*ones(1,d1);
+      dfact = (d0-1)*d0;
+      FFdata= zeros(d0*e,d1);
+      for j=de(:)'
+        a0=  inv([ ones(d1,1), p0.NODE( :, p0.ELEM(:,j) )' ]);
+        a1=  inv([ ones(d1,1), p1.NODE( :, p0.ELEM(:,j) )' ]);
+        idx= d0*(j-1)+1 : d0*j;
+        FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
+      end %for j=1:ELEMs
    
-else
-   ded0 = bsxfun(@plus,[de(:)-1]*d0,1:d0)'; 
-   ded0 = ded0(:); lded0= length(ded0);
-   FFjidx= floor([ded0-1]/d0)*d1*ones(1,d1) + ...
-           ones(lded0,1)*(1:d1);
-   FFiidx= ded0*ones(1,d1);
-   FFdata= zeros(lded0,d1);
-   dfact = (d0-1)*d0;
-   for i=1:length(de); j=de(i);
-     a0=  inv([ ones(d1,1), p0.NODE( :, p0.ELEM(:,j) )' ]);
-     a1=  inv([ ones(d1,1), p1.NODE( :, p0.ELEM(:,j) )' ]);
-     idx= d0*(i-1)+1 : d0*i;
-     FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
-   end %for j=1:ELEMs
+      % Remove non-zero components
+      idx = all(FFdata==0,2);
+      FFdata(idx,:) = [];
+      FFiidx(idx,:) = [];
+      FFjidx(idx,:) = [];
+   case 3; % Use vectorize
+      FFjidx= floor([0:d0*e-1]'/d0)*d1*ones(1,d1) + ones(d0*e,1)*(1:d1);
+      FFiidx= [1:d0*e]'*ones(1,d1);
+      dfact = (d0-1)*d0;
+      if 1 % OLD CODE
+         FFdata= zeros(d0*e,d1);
+         for j=de(:)'
+           a0=  inv([ ones(d1,1), p0.NODE( :, p0.ELEM(:,j) )' ]);
+           a1=  inv([ ones(d1,1), p1.NODE( :, p0.ELEM(:,j) )' ]);
+           idx= d0*(j-1)+1 : d0*j;
+           FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
+         end %for j=1:ELEMs
+         FFdata_old = FFdata;
+      end
+      M3 = ones(d1,d1,length(de));
+      M3(2:end,:,:)= reshape(p1.NODE(:,p1.ELEM(:,de)),d0,d1,[]);
+% To stabilize inverse, remove average
+% This is a multiple of row1 = 1
+% This affects row one only
+      M3(2:end,:,:) = bsxfun(@minus, M3(2:end,:,:), ...
+                 mean(M3(2:end,:,:),2));
+      [I,D] = vectorize_inverse(M3);
+      Is = bsxfun(@times, I, sqrt(abs(D)/dfact));
+      Is = permute(Is(:,2:d1,:),[2,3,1]);
+      FFdata= reshape(Is,[],d1);
+keyboard
+
+   case 2; %improved
+      ded0 = bsxfun(@plus,[de(:)-1]*d0,1:d0)'; 
+      ded0 = ded0(:); lded0= length(ded0);
+      FFjidx= floor([ded0-1]/d0)*d1*ones(1,d1) + ...
+              ones(lded0,1)*(1:d1);
+      FFiidx= ded0*ones(1,d1);
+      FFdata= zeros(lded0,d1);
+      dfact = (d0-1)*d0;
+      for i=1:length(de); j=de(i);
+        a0=  inv([ ones(d1,1), p0.NODE( :, p0.ELEM(:,j) )' ]);
+        a1=  inv([ ones(d1,1), p1.NODE( :, p0.ELEM(:,j) )' ]);
+        idx= d0*(i-1)+1 : d0*i;
+        FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
+      end %for j=1:ELEMs
+   otherwise error('no such path');
 end
 
    % TODO this could be better: we could look to see which, if any electrodes
