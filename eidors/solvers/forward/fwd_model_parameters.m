@@ -110,12 +110,14 @@ function v2meas = get_v2meas(n_elec,n_stim,stim)
         meas_pat= stim(i).meas_pattern;
         [n_meas,n_mpat]  = size(meas_pat);
         if n_elec ~= n_mpat
-           error('meas_pattern#%d uses %d electrodes, but model has %d', ...
+           error('EIDORS:fwd_model_parameters:meas_pattern', ...
+                 'meas_pattern#%d uses %d electrodes, but model has %d', ...
                  i, n_mpat, n_elec);
         end
         n_spat = size(stim(i).stim_pattern,1);
         if n_elec ~= n_spat
-           error('stim_pattern#%d uses %d electrodes, but model has %d', ...
+           error('EIDORS:fwd_model_parameters:stim_pattern', ...
+                 'stim_pattern#%d uses %d electrodes, but model has %d', ...
                  i, n_spat, n_elec);
         end
         v2meas((i-1)*n_elec + 1: i*n_elec,end+(1:n_meas)) = meas_pat.';
@@ -250,7 +252,8 @@ function [QQ, VV, n_meas] = calc_QQ_slow(N2E, stim, p)
        try;  src =       N2E' * stim(i).stim_pattern; end
        try;  src = src + stim(i).interior_sources;    end
        if all(size(src) == [1,1]) && src==0
-          error('no stim_patterns or interior_sources provided for pattern #%d',i);
+          error('EIDORS:fwd_model_parameters:stim_pattern', ...
+                'no stim_patterns or interior_sources provided for pattern #%d',i);
        end
        
        QQ(:,i) = src;
@@ -265,7 +268,8 @@ function [QQ, VV, n_meas] = calc_QQ_fast(N2E, stim, p)
    try
       ncols = arrayfun(@(x) size(x.stim_pattern,2), stim);
    catch
-      error('EIDORS:fwd_model_parameters stim_pattern not specified');
+      error('EIDORS:fwd_model_parameters:stim_pattern', ...
+            'EIDORS:fwd_model_parameters stim_pattern not specified');
    end
    if any(ncols>1);
       str = 'multiple columns in stim_pattern for patterns: ';
@@ -310,27 +314,38 @@ function do_unit_test
    unit_test_cmp('calc_VV1', norm(VV1,'fro'), 0, 1e-15);
    unit_test_cmp('calc_VV2', norm(VV2,'fro'), 0, 1e-15);
 
-   for i=1:6;
+   i=0; while true; i=i+1;
       imdl = mk_common_model('a2C0',4); fmdl = imdl.fwd_model;
       switch i
          case 1; fmdl.stimulation(3).stim_pattern = fmdl.stimulation(3).stim_pattern*[1,2]; 
                  expected_err = 'EIDORS:fwd_model_parameters:stim_pattern';
-         case 2; fmdl.stimulation(1).stim_pattern = [];
+         case 2; fmdl.stimulation(1).stim_pattern(:) = 0;
                  expected_err = ''; expected = zeros(45,4);
                  expected(42:45,2:4) = [0,0,1;-1,0,0;1,-1,0;0,1,-1]*10;
                  param = 'QQ';
-         case 3; fmdl.electrode(1).nodes = [];
+         case 2; fmdl.stimulation(1).stim_pattern(:) = 0;
+                 expected_err = ''; expected = zeros(45,4);
+                 expected(42:45,2:4) = [0,0,1;-1,0,0;1,-1,0;0,1,-1]*10;
+                 param = 'QQ';
+         case 3; fmdl.stimulation(1)= [];
+                 expected_err = ''; expected = zeros(45,3);
+                 expected(42:45,1:3) = [0,0,1;-1,0,0;1,-1,0;0,1,-1]*10;
+                 param = 'QQ';
+         case 4; fmdl.stimulation(1).stim_pattern = [];
+                 expected_err = 'EIDORS:fwd_model_parameters:stim_pattern';
+         case 5; fmdl.electrode(1).nodes = [];
                  expected_err = 'EIDORS:fwd_model_parameters:electrode';
-         case 4; fmdl.stimulation(1).volt_pattern = [zeros(3,1);6];
+         case 6; fmdl.stimulation(1).volt_pattern = [zeros(3,1);6];
                  expected_err = ''; expected = zeros(45,4); expected(45,1) = 6;
                  param = 'VV';
-         case 5; fmdl.stimulation(3).volt_pattern = [ones(4,2)];
+         case 7; fmdl.stimulation(3).volt_pattern = [ones(4,2)];
                  expected_err = 'EIDORS:fwd_model_parameters:volt_pattern';
-         case 6; fmdl.electrode(3).faces = [1,2;2,3;3,1];
+         case 8; fmdl.electrode(3).faces = [1,2;2,3;3,1];
                  fmdl.electrode(3).nodes = [];
                  expected_err = ''; expected = zeros(4,45);
                  expected(:,42:45) = eye(4);
                  param = 'N2E';
+         otherwise; break
       end
       err= '';
       try;  pp = fwd_model_parameters(fmdl);
