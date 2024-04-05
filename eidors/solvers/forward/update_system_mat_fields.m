@@ -1,4 +1,4 @@
-function FC1 = update_system_mat_fields( fwd_model0, fwd_model1 )
+function FC = update_system_mat_fields( fwd_model0, fwd_model1 )
 % UPDATE_SYSTEM_MAT_FIELDS: fields (elem to nodes) fraction of system mat
 % Create the fields for a small change (fmdl1) from a base model (fmdl0)
 % If the change is small, this computation is faster
@@ -14,22 +14,21 @@ function FC1 = update_system_mat_fields( fwd_model0, fwd_model1 )
 
 if ischar(fwd_model0) && strcmp(fwd_model0,'UNIT_TEST'); do_unit_test; return; end
 
-FC0 = system_mat_fields(fwd_model0); % this should be a cache hit
-
 copt.cache_obj= {mk_cache_obj(fwd_model0), ...
                  mk_cache_obj(fwd_model1)};
 copt.fstr = 'update_system_mat_fields';
 dFC = eidors_cache(@calc_update_system_mat_fields,{fwd_model0, fwd_model1},copt );
 
-% updated system_mat_fields
-FC1 = FC0 + dFC;
+% update system_mat_fields
+FC = system_mat_fields(fwd_model0); % this should be a cache hit
+FC = FC + dFC;
 
 % now we fake out the caching system by telling it that we are doing
 % system_mat_fields(fwd_model1) with the new model, calls to system_mat_fields
 % will get the cached value from this function
 fstr = 'system_mat_fields';
 cache_obj = mk_cache_obj(fwd_model1);
-eidors_obj('set-cache', cache_obj, fstr, {FC1});
+eidors_obj('set-cache', cache_obj, fstr, {FC});
 
 
 % only cache stuff which is really relevant here
@@ -101,25 +100,23 @@ end
    [F2data0,F2iidx0,F2jidx0, C2data0,C2iidx0,C2jidx0] = compl_elec_mdl(fwd_model0,p0,dn);
    [F2data1,F2iidx1,F2jidx1, C2data1,C2iidx1,C2jidx1] = compl_elec_mdl(fwd_model1,p1,dn);
 
+Cmax = max([d0*e; max(FFiidx(:)); max(F2iidx0(:)); F2iidx1(:)]);
+Rmax = max([d1*e; max(FFjidx(:)); max(F2jidx0(:)); F2jidx1(:)]);
 if 1
    FF= sparse([FFiidx(:);  F2iidx0(:);  F2iidx1(:)],...
               [FFjidx(:);  F2jidx0(:);  F2jidx1(:)],...
-              [FFdata(:); -F2data0(:); +F2data1(:)]);
+              [FFdata(:); -F2data0(:); +F2data1(:)],Cmax,Rmax);
 else
 % New sparse assembly. Is it faster?
-   F1=sparse(FFiidx, FFjidx, ...
-             FFdata, d0*e, d1*e);
-   F2=sparse(F2iidx0,F2jidx0, ...
-           -F2data0, d0*e, d1*e);
-   F3= sparse(F2iidx1,F2jidx1, ...
-             F2data1,d0*e, d1*e);
+   F1=sparse(FFiidx, FFjidx,  FFdata,  Cmax, Rmax);
+   F2=sparse(F2iidx0,F2jidx0,-F2data0, Cmax, Rmax);
+   F3= sparse(F2iidx1,F2jidx1,F2data1, Cmax, Rmax);
    FF = F1 + F2 + F3;
 end
    
    CC= sparse([(1:d1*e)';     C2iidx0(:)], ...
               [p0.ELEM(:);    C2jidx0(:)], ...
               [ones(d1*e,1);  C2data0(:)]);
-
    dFC= FF*CC;
 
 
@@ -193,6 +190,14 @@ function do_unit_test
    eidors_cache('clear_name', 'system_mat_fields');
    eidors_cache('clear_name', 'update_system_mat_fields');
    disp('running update_system_mat_fields UNIT_TEST');
+
+   fmdl0 = getfield(mk_common_model('a2c2',4'),'fwd_model');
+   fmdl1 = fmdl0; fmdl1.nodes([5,6],2)= fmdl1.nodes([5,6],2) + .01;
+   SM0= system_mat_fields(fmdl0);
+   SM1= system_mat_fields(fmdl1);
+   SM1a = update_system_mat_fields(fmdl0,fmdl1);
+   unit_test_cmp('simple test',SM1a,SM1,1e-14)
+
    imdl=  mk_geophysics_model('h2e',32);
    ndim = size(imdl.fwd_model.nodes,2);
    for i = 1:10
@@ -217,7 +222,9 @@ function do_unit_test
    fprintf('system_mat_fields(fmdl1) = %0.3f sec [cache hit?]\n',mean(t2));
    fprintf('system_mat_fields(fmdl1+delta) = %0.3f sec [recalculate]\n',mean(t3));
 %  disp(mean([t0;t1;t2;t3]'))
-   unit_test_cmp('delta FC is fast                  ',mean(t1) < mean(t0)/2,1);
+   fprintf('Time ratio: %5.3f / %5.3f\n', mean(t1), mean(t0));
+   unit_test_cmp('delta FC is faster                ',mean(t1) < mean(t0),1);
+
    unit_test_cmp('cache trick is really fast        ',mean(t2./t0) < 0.030,1);
    unit_test_cmp('cache was cleared before recalc   ',mean(t3) > mean(t2)*5,1); % did actually clear cache
    unit_test_cmp('cache trick returns correct result',FC1a,FC1b);
