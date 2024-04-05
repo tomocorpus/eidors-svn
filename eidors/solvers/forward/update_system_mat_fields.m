@@ -44,10 +44,10 @@ function cache_obj = mk_cache_obj(fwd_model)
 function dFC= calc_update_system_mat_fields( fwd_model0, fwd_model1 )
    p0= fwd_model_parameters( fwd_model0, 'skip_VOLUME' );
    p1= fwd_model_parameters( fwd_model1, 'skip_VOLUME' );
-   d0= p0.n_dims+0;
-   d1= p0.n_dims+1;
    e= p0.n_elem;
    n= p0.n_node;
+   d0= p0.n_dims+0;
+   d1= p0.n_dims+1;
 
    % find moved nodes, then the elements affected by those moved nodes
    [dn,~] = find(abs(fwd_model0.nodes - fwd_model1.nodes) > eps);
@@ -56,11 +56,60 @@ function dFC= calc_update_system_mat_fields( fwd_model0, fwd_model1 )
    de = unique(de);
    assert(all(all(fwd_model0.elems == fwd_model1.elems)), 'expected fmdl0 and fmdl1 to have the same element structure');
    assert(all(de <= e), 'invalid elem# found for delta nodes');
-   de = de(:);
+   [FFiidx,FFjidx,FFdata] = assemble_elements(p1,p0,de(:),1);
 
-   % TODO: use vectorized inverse from see system_mat_fields
+   % TODO this could be better: we could look to see which, if any electrodes
+   % have been modified and only update those ones... currently the
+   % implementation here is pretty brain dead on the assumption this part is
+   % fast
+   % TODO currently can't handle electrode node number changes
+   [F2data0,F2iidx0,F2jidx0, C2data0,C2iidx0,C2jidx0] = compl_elec_mdl(fwd_model0,p0,dn);
+   [F2data1,F2iidx1,F2jidx1, C2data1,C2iidx1,C2jidx1] = compl_elec_mdl(fwd_model1,p1,dn);
 
-switch 1
+Cmax = max([d0*e; max(FFiidx(:)); max(F2iidx0(:)); F2iidx1(:)]);
+Rmax = max([d1*e; max(FFjidx(:)); max(F2jidx0(:)); F2jidx1(:)]);
+if 0
+   FF= sparse([FFiidx(:);  F2iidx0(:);  F2iidx1(:)],...
+              [FFjidx(:);  F2jidx0(:);  F2jidx1(:)],...
+              [FFdata(:); -F2data0(:); +F2data1(:)],Cmax,Rmax);
+else
+% New sparse assembly. Is it faster?
+   F1=sparse(FFiidx, FFjidx,  FFdata,  Cmax, Rmax);
+   F2=sparse(F2iidx0,F2jidx0,-F2data0, Cmax, Rmax);
+   F3= sparse(F2iidx1,F2jidx1,F2data1, Cmax, Rmax);
+   FF = F1 + F2 + F3;
+end
+   
+   CC= sparse([(1:d1*e)';     C2iidx0(:)], ...
+              [p0.ELEM(:);    C2jidx0(:)], ...
+              [ones(d1*e,1);  C2data0(:)]);
+   dFC= FF*CC;
+
+function [FFiidx,FFjidx,FFdata] = assemble_elements(p1,p0,de,approach)
+   if nargin<4; approach=1; end
+
+   d0= p0.n_dims+0;
+   d1= p0.n_dims+1;
+   e= p0.n_elem;
+   n= p0.n_node;
+   switch approach
+   case 3; % Use vectorize
+      ded0 = reshape((de-1) + [1:d0], [],1);
+      FFjidx= floor((ded0-1)/d0)*d1 + (1:d1);
+      FFiidx= ded0*ones(1,d1);
+      M3 = ones(d1,d1,length(de));
+      M3(2:end,:,:)= reshape(p1.NODE(:,p1.ELEM(:,de)),d0,d1,[]);
+% To stabilize inverse, remove average
+% This is a multiple of row1 = 1
+% This affects row one only
+      M3(2:end,:,:) = bsxfun(@minus, M3(2:end,:,:), ...
+                 mean(M3(2:end,:,:),2));
+      [I,D] = vectorize_inverse(M3);
+      dfact = (d0-1)*d0; % d factorial for 2 or 3d
+      Is = bsxfun(@times, I, sqrt(abs(D)/dfact));
+      Is = permute(Is(:,2:d1,:),[2,3,1]);
+      FFdata= reshape(Is,[],d1);
+
    case 1; %slow way
       FFjidx= floor([0:d0*e-1]'/d0)*d1*ones(1,d1) + ones(d0*e,1)*(1:d1);
       FFiidx= [1:d0*e]'*ones(1,d1);
@@ -78,33 +127,6 @@ switch 1
       FFdata(idx,:) = [];
       FFiidx(idx,:) = [];
       FFjidx(idx,:) = [];
-   case 3; % Use vectorize
-      FFjidx= floor([0:d0*e-1]'/d0)*d1*ones(1,d1) + ones(d0*e,1)*(1:d1);
-      FFiidx= [1:d0*e]'*ones(1,d1);
-      dfact = (d0-1)*d0;
-      if 1 % OLD CODE
-         FFdata= zeros(d0*e,d1);
-         for j=de(:)'
-           a0=  inv([ ones(d1,1), p0.NODE( :, p0.ELEM(:,j) )' ]);
-           a1=  inv([ ones(d1,1), p1.NODE( :, p0.ELEM(:,j) )' ]);
-           idx= d0*(j-1)+1 : d0*j;
-           FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
-         end %for j=1:ELEMs
-         FFdata_old = FFdata;
-      end
-      M3 = ones(d1,d1,length(de));
-      M3(2:end,:,:)= reshape(p1.NODE(:,p1.ELEM(:,de)),d0,d1,[]);
-% To stabilize inverse, remove average
-% This is a multiple of row1 = 1
-% This affects row one only
-      M3(2:end,:,:) = bsxfun(@minus, M3(2:end,:,:), ...
-                 mean(M3(2:end,:,:),2));
-      [I,D] = vectorize_inverse(M3);
-      Is = bsxfun(@times, I, sqrt(abs(D)/dfact));
-      Is = permute(Is(:,2:d1,:),[2,3,1]);
-      FFdata= reshape(Is,[],d1);
-keyboard
-
    case 2; %improved
       ded0 = bsxfun(@plus,[de(:)-1]*d0,1:d0)'; 
       ded0 = ded0(:); lded0= length(ded0);
@@ -120,34 +142,7 @@ keyboard
         FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
       end %for j=1:ELEMs
    otherwise error('no such path');
-end
-
-   % TODO this could be better: we could look to see which, if any electrodes
-   % have been modified and only update those ones... currently the
-   % implementation here is pretty brain dead on the assumption this part is
-   % fast
-   % TODO currently can't handle electrode node number changes
-   [F2data0,F2iidx0,F2jidx0, C2data0,C2iidx0,C2jidx0] = compl_elec_mdl(fwd_model0,p0,dn);
-   [F2data1,F2iidx1,F2jidx1, C2data1,C2iidx1,C2jidx1] = compl_elec_mdl(fwd_model1,p1,dn);
-
-Cmax = max([d0*e; max(FFiidx(:)); max(F2iidx0(:)); F2iidx1(:)]);
-Rmax = max([d1*e; max(FFjidx(:)); max(F2jidx0(:)); F2jidx1(:)]);
-if 1
-   FF= sparse([FFiidx(:);  F2iidx0(:);  F2iidx1(:)],...
-              [FFjidx(:);  F2jidx0(:);  F2jidx1(:)],...
-              [FFdata(:); -F2data0(:); +F2data1(:)],Cmax,Rmax);
-else
-% New sparse assembly. Is it faster?
-   F1=sparse(FFiidx, FFjidx,  FFdata,  Cmax, Rmax);
-   F2=sparse(F2iidx0,F2jidx0,-F2data0, Cmax, Rmax);
-   F3= sparse(F2iidx1,F2jidx1,F2data1, Cmax, Rmax);
-   FF = F1 + F2 + F3;
-end
-   
-   CC= sparse([(1:d1*e)';     C2iidx0(:)], ...
-              [p0.ELEM(:);    C2jidx0(:)], ...
-              [ones(d1*e,1);  C2data0(:)]);
-   dFC= FF*CC;
+   end
 
 
 % Add parts for complete electrode model
