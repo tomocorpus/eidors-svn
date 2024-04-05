@@ -56,7 +56,7 @@ function dFC= calc_update_system_mat_fields( fwd_model0, fwd_model1 )
    de = unique(de);
    assert(all(all(fwd_model0.elems == fwd_model1.elems)), 'expected fmdl0 and fmdl1 to have the same element structure');
    assert(all(de <= e), 'invalid elem# found for delta nodes');
-   [FFiidx,FFjidx,FFdata] = assemble_elements(p1,p0,de(:),1);
+   [FFiidx,FFjidx,FFdata] = assemble_elements(p1,p0,de(:),3); % Use vectorized mode=3
 
    % TODO this could be better: we could look to see which, if any electrodes
    % have been modified and only update those ones... currently the
@@ -68,7 +68,7 @@ function dFC= calc_update_system_mat_fields( fwd_model0, fwd_model1 )
 
 Cmax = max([d0*e; max(FFiidx(:)); max(F2iidx0(:)); F2iidx1(:)]);
 Rmax = max([d1*e; max(FFjidx(:)); max(F2jidx0(:)); F2jidx1(:)]);
-if 0
+if 1
    FF= sparse([FFiidx(:);  F2iidx0(:);  F2iidx1(:)],...
               [FFjidx(:);  F2jidx0(:);  F2jidx1(:)],...
               [FFdata(:); -F2data0(:); +F2data1(:)],Cmax,Rmax);
@@ -80,9 +80,17 @@ else
    FF = F1 + F2 + F3;
 end
    
+if 0 % don't assemble whole CC matrix
    CC= sparse([(1:d1*e)';     C2iidx0(:)], ...
               [p0.ELEM(:);    C2jidx0(:)], ...
               [ones(d1*e,1);  C2data0(:)]);
+else % only assemble the parts we need
+   ded0 = reshape(((de-1)*d1 + [1:d1])', [],1);
+   deels= reshape(p0.ELEM(:,de),[],1);
+   CC= sparse([ded0;     C2iidx0(:)], ...
+              [deels;    C2jidx0(:)], ...
+              [ded0*0+1; C2data0(:)],Rmax,max([n;max(C2jidx0(:))]));
+end
    dFC= FF*CC;
 
 function [FFiidx,FFjidx,FFdata] = assemble_elements(p1,p0,de,approach)
@@ -94,21 +102,10 @@ function [FFiidx,FFjidx,FFdata] = assemble_elements(p1,p0,de,approach)
    n= p0.n_node;
    switch approach
    case 3; % Use vectorize
-      ded0 = reshape((de-1) + [1:d0], [],1);
+      ded0 = reshape(((de-1)*d0 + [1:d0])', [],1);
       FFjidx= floor((ded0-1)/d0)*d1 + (1:d1);
       FFiidx= ded0*ones(1,d1);
-      M3 = ones(d1,d1,length(de));
-      M3(2:end,:,:)= reshape(p1.NODE(:,p1.ELEM(:,de)),d0,d1,[]);
-% To stabilize inverse, remove average
-% This is a multiple of row1 = 1
-% This affects row one only
-      M3(2:end,:,:) = bsxfun(@minus, M3(2:end,:,:), ...
-                 mean(M3(2:end,:,:),2));
-      [I,D] = vectorize_inverse(M3);
-      dfact = (d0-1)*d0; % d factorial for 2 or 3d
-      Is = bsxfun(@times, I, sqrt(abs(D)/dfact));
-      Is = permute(Is(:,2:d1,:),[2,3,1]);
-      FFdata= reshape(Is,[],d1);
+      FFdata = assemble_vectorize(p1,de) - assemble_vectorize(p0,de);
 
    case 1; %slow way
       FFjidx= floor([0:d0*e-1]'/d0)*d1*ones(1,d1) + ones(d0*e,1)*(1:d1);
@@ -119,7 +116,8 @@ function [FFiidx,FFjidx,FFdata] = assemble_elements(p1,p0,de,approach)
         a0=  inv([ ones(d1,1), p0.NODE( :, p0.ELEM(:,j) )' ]);
         a1=  inv([ ones(d1,1), p1.NODE( :, p0.ELEM(:,j) )' ]);
         idx= d0*(j-1)+1 : d0*j;
-        FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) - a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
+        FFdata(idx,1:d1)= a1(2:d1,:)/ sqrt(dfact*abs(det(a1))) -  ...
+                          a0(2:d1,:)/ sqrt(dfact*abs(det(a0)));
       end %for j=1:ELEMs
    
       % Remove non-zero components
@@ -144,6 +142,21 @@ function [FFiidx,FFjidx,FFdata] = assemble_elements(p1,p0,de,approach)
    otherwise error('no such path');
    end
 
+function FFdata = assemble_vectorize(p,de);
+   d0= p.n_dims+0;
+   d1= p.n_dims+1;
+   M3 = ones(d1,d1,length(de));
+   M3(2:end,:,:)= reshape(p.NODE(:,p.ELEM(:,de)),d0,d1,[]);
+% To stabilize inverse, remove average
+% This is a multiple of row1 = 1
+% This affects row one only
+   M3(2:end,:,:) = bsxfun(@minus, M3(2:end,:,:), ...
+              mean(M3(2:end,:,:),2));
+   [I,D] = vectorize_inverse(M3);
+   dfact = (d0-1)*d0; % d factorial for 2 or 3d
+   Is = bsxfun(@times, I, sqrt(abs(D)/dfact));
+   Is = permute(Is(:,2:d1,:),[2,3,1]);
+   FFdata= reshape(Is,[],d1);
 
 % Add parts for complete electrode model
 function [FFdata,FFiidx,FFjidx, CCdata,CCiidx,CCjidx] = ...
@@ -216,7 +229,7 @@ function do_unit_test
    eidors_cache('clear_name', 'update_system_mat_fields');
    disp('running update_system_mat_fields UNIT_TEST');
 
-   fmdl0 = getfield(mk_common_model('a2c2',4'),'fwd_model');
+   fmdl0 = getfield(mk_common_model('a2c2',4),'fwd_model');
    fmdl1 = fmdl0; fmdl1.nodes([5,6],2)= fmdl1.nodes([5,6],2) + .01;
    SM0= system_mat_fields(fmdl0);
    SM1= system_mat_fields(fmdl1);
