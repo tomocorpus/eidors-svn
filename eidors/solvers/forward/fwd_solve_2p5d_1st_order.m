@@ -155,9 +155,7 @@ function do_unit_test
    unit_test_cmp('2.5D (h2a + 2.5D, k=0)        vs 2D       TEST', norm(v2.meas - v2p5k0.meas), 0, tol);
    unit_test_cmp('2.5D (h2a + 2.5D trapz,2*tol) vs analytic TEST', norm(vh.meas - v2p5t.meas),   0, 2*tol);
    unit_test_cmp('2.5D (h2a + 2.5D quadv**)     vs analytic TEST', norm(vh.meas - v2p5q.meas),   0, tol);
-   if ~isOctave
-      unit_test_cmp('2.5D (h2a + 2.5D integral)    vs analytic TEST', norm(vh.meas - v2p5i.meas),   0, tol);
-   end
+   unit_test_cmp('2.5D (h2a + 2.5D integral)    vs analytic TEST', norm(vh.meas - v2p5i.meas),   0, tol);
    unit_test_cmp('3D   (h3b)                    vs analytic TEST', norm(vh.meas - v3.meas),     0, 2*tol);
 pause(2);
 clf; h=plot([vh.meas, v2p5q.meas, v3.meas, v2.meas],':');
