@@ -229,6 +229,11 @@ function [tank_height, tank_radius, tank_maxh, is2D] = ...
 %  elecs(i).dims  = [radius] or [width,height]
 %  elecs(i).maxh  = '-maxh=#' or '';
 function [elecs, centres] = parse_elecs(elec_pos, elec_shape, hig, rad, is2D );
+   if isempty(elec_pos)
+       elecs = [];
+       centres = [];
+       return
+   end
 
    if is2D
       elec_pos(:,2) = hig/2;
