@@ -426,9 +426,9 @@ function show_inhomogeneities( elem_data, mdl, img, opt)
 % show
 if size(elem_data,2)>1
    q = warning('query','backtrace');
-   warning('backtrace','off');
+   warning('on','backtrace');
    warning('EIDORS:FirstImageOnly','show_fem only shows first image');
-   warning('backtrace',q.state);
+   warning(q.state,'backtrace');
 %    eidors_msg('warning: show_fem only shows first image',1);
 end
 if 0
