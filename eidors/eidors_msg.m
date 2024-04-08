@@ -2,11 +2,11 @@ function log_level = eidors_msg( message, varargin )
 %EIDORS_MSG eidors progress and status messages
 %
 %  EIDORS_MSG(STR, LVL) prints 'EIDORS:[ STR ]' if current log_level <= LVL
-%     If the message starts with '@@@' then the characters are replaced 
+%     If the message starts with '@@@' then the characters are replaced
 %     with the calling function's name. Default LVL = 2.
 %
 %  EIDORS_MSG(STR, LVL, ...) uses STR as format string for fprintf passing
-%     to it any additional arguments. 
+%     to it any additional arguments.
 %
 %  LVL = EIDORS_MSG('log_level') returns the current log_level
 %
@@ -17,7 +17,7 @@ function log_level = eidors_msg( message, varargin )
 %     FNAME (provide without extension)
 %
 %  EIDORS_MSG('log_level','reset', FNAME) resets the log_level for m-file
-%     FNAME to the default level 
+%     FNAME to the default level
 %
 %  EIDORS_MSG('log_level','reset')
 %  EIDORS_MSG('log_level','reset','all') resets all custom log-level
@@ -33,22 +33,22 @@ function log_level = eidors_msg( message, varargin )
 %     4 => very detailed information
 %
 %  Examples:
-%  eidors_msg('mission accomplished; time to relax', 1) prints 
+%  eidors_msg('mission accomplished; time to relax', 1) prints
 %     >> EIDORS:[ mission accomplished; time to relax ]'
 %       if log_level <=1
 %  less important messages have higher levels
 %
 %  eidors_msg('did %d of %s at %f', 2, 'stuff', sqrt(2), 1)
 %     >> EIDORS:[ did 2 of stuff at 1.414214 ]
-% 
+%
 %  eidors_msg('@@');
-%     >> EIDORS:[eidors_msg]
+%     >> EIDORS:[calling_file]
 %
 %  eidors_msg('@@@');
-%     >> EIDORS:[eidors_msg/do_unit_test]
+%     >> EIDORS:[calling_file/function]
 %
 %  eidors_msg('@@@ a message',1);
-%     >> EIDORS:[eidors_msg/do_unit_test: a message]
+%     >> EIDORS:[calling_file/function: a message]
 %
 %  See also EIDORS_DEBUG, EIDORS_CACHE, PROGRESS_MSG.
 
@@ -129,10 +129,10 @@ if length(message)>1 % single characters are just for progress
    end
    s = dbstack();
    last_msg = sprintf('%s:%d %s', s(2).file, s(2).line, message);
-  
+
    string= [sprintf('%c',' ' * ones(1,level-1)), ...
             'EIDORS:[',message,']\n'];
-       
+
 else
    string= message;
 end
@@ -169,16 +169,16 @@ function log_level = process_log_level(varargin)
             eidors_objects.log_level_custom.levels(idx) = varargin{1};
          otherwise
             error('Wrong number of inputs');
-         
+
       end
    elseif ischar(varargin{1}) && strcmp(varargin{1}, 'reset')
       log_level = eidors_objects.log_level;
-         
+
       switch nargin
          case 1
             % eidors_msg('log_level','reset');
             eidors_objects.log_level_custom.names = {};
-            eidors_objects.log_level_custom.levels = []; 
+            eidors_objects.log_level_custom.levels = [];
          case 2
             switch varargin{2}
                case 'all'
@@ -195,25 +195,27 @@ function log_level = process_log_level(varargin)
          otherwise
             error('Wrong number of inputs');
       end
-            
+
    else
       error('Wrong input, consult help.');
-      
+
    end
-      
+
 
 function [file fun] = get_caller
    dbs = dbstack;
    file = dbs(3).file;
+   start = find(file == filesep, 1, 'last');
+   if isempty(start), start = 0; end
    idx = find(file == '.', 1, 'last');
    if isempty(idx), idx = length(file)+1; end
-   file = file(1:idx-1);
+   file = file((start+1):idx-1);
 
    fun =  dbs(3).name;
 
 function [log_level] = get_levels
    global eidors_objects
-   try 
+   try
       custom = eidors_objects.log_level_custom;
    catch
       custom.names = {};
@@ -266,13 +268,13 @@ function do_unit_test
    eidors_msg('PASS',2);
    eidors_msg('FAIL',3);
    % just for fun
-   eidors_msg('log_level','reset'); 
-   eidors_msg('log_level','reset','all'); 
-   
+   eidors_msg('log_level','reset');
+   eidors_msg('log_level','reset','all');
+
    eidors_msg('log_level',ll);
-   
+
 
 function extra_caller
    eidors_msg('@@@ a message from extra_caller',1);
    eidors_msg('@@ a shorter message from extra caller',1);
-  
+
