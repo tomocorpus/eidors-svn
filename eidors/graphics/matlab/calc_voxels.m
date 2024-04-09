@@ -137,12 +137,14 @@ while 1
             opt.cube_voxels = 1;
             img.elem_data(obj01) = 1.15;
             img.elem_data(obj02) = 0.8;
+            expect_out =  [22 22 32];
         case 2
             opt.imgsz = [32 32 32];
             opt.cube_voxels = 1;
             img.elem_data(:,2) = img.elem_data;
             img.elem_data(obj01,1) = 1.15;
             img.elem_data(obj02,2) = 0.8;
+            expect_out =  [22 22 32 2];
         case 3
             opt.imgsz = [32 32 32];
             opt.cube_voxels = 1;
@@ -150,10 +152,12 @@ while 1
             img.elem_data(obj01,1) = 1.15;
             img.elem_data(obj02,2) = 0.8;
             opt.method = 'average';
+            expect_out =  [22 22 32 2];
         case 4
             opt.imgsz = [32 32 32];
             opt.cube_voxels = 1;
             img = mk_image(fmdl, 1:num_nodes(fmdl));
+            expect_out =  [22 22 32];
         case 5
             opt.imgsz = [32 32 32];
             opt.cube_voxels = 1;
@@ -163,15 +167,18 @@ while 1
         case 6 % empty options
             img.elem_data(obj01) = 1.15;
             img.elem_data(obj02) = 0.8;
+            expect_out =  [22 22 32];
         otherwise
             break
     end
+    test_txt = sprintf('calc_voxels T#%2d:', test);
     try
         [V, rimg] = calc_voxels(img, opt);
-        fprintf('Test #%2d: %s\n', test, mat2str(size(V)));
+        unit_test_cmp(test_txt, size(V), expect_out);
+%       fprintf('Test #%2d: %s\n', test, mat2str(size(V)));
     catch e
         if error_expected
-            fprintf('Test #%2d: error (expected)\n', test);
+            unit_test_cmp([test_txt, ' expected error'], error_expected,true);
         else
             fprintf('Test #%2d: error\n', test);
         end
