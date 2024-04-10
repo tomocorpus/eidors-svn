@@ -28,7 +28,7 @@ v1(:,1:3) = fv.vertices(fv.faces(:,1),1:3);
 v2(:,1:3) = fv.vertices(fv.faces(:,2),1:3);
 v3(:,1:3) = fv.vertices(fv.faces(:,3),1:3);
 
-if nargin < 2 
+if nargin < 3 
     type = 'bin';
 end
 switch type
