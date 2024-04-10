@@ -103,7 +103,7 @@ for i = 1:length(elecs)
 end
 
 % 3. Save as STL and mesh with NETGEN 
-write_to_stl(mdl,stlfn);
+stl_write(mdl,stlfn,'txt'); %netgen only works well with txt files
 write_ng_opt_file(ng_opt_file, maxh)
 call_netgen(stlfn,meshfn);
 delete('ng.opt'); % clean up
@@ -125,7 +125,7 @@ for i = 1:length(elecs)
 end
 
 % 6. Keeping the surface intact, remesh the inside
-write_to_stl(mdl,stlfn2);
+stl_write(mdl,stlfn2);
 mdl2 = gmsh_stl2tet(stlfn2, maxh);
 mdl2.electrode = mdl.electrode;
 
@@ -137,11 +137,6 @@ end
 
 function debugging = do_debug;
   debugging = eidors_debug('query','place_elec_on_surf');
-
-function write_to_stl(mdl,stlfn)
-STL.vertices = mdl.nodes;
-STL.faces    = mdl.elems;
-stl_write(STL,stlfn);
 
 function write_ng_opt_file(ng_opt_file, maxh)
 % these options are meant to insure that the electrode sides don't get 

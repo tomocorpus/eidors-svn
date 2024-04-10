@@ -29,7 +29,17 @@ if nargin > 1 && ~isempty(maxh)
 end
 
 if isstruct(stlfile)
-    opt.cache_obj = {stlfile.vertices, stlfile.faces};
+    try
+       opt.cache_obj{1} = stlfile.nodes;
+       if isfield(stlfile, 'boundary')
+          opt.cache_obj{2} = stlfile.boundary;
+       else 
+          opt.cache_obj{2} = stlfile.elems;
+       end
+    catch
+       opt.cache_obj = {stlfile.vertices, stlfile.faces};
+    end
+    
     mdl = eidors_cache(@do_gmsh_stl2tet,{stlfile, extra}, opt);
 else
     mdl = do_gmsh_stl2tet(stlfile, extra);

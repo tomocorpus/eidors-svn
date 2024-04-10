@@ -25,9 +25,13 @@ function stl_write(fv, name, type)
 % $Id$
 
 
-[~, label, ext] = fileparts(name);
+[folder, label, ext] = fileparts(name);
 if isempty(ext), ext = '.stl'; end
-name = [label ext];
+if isempty(folder)
+   name = [label ext];
+else
+   name = [folder filesep label ext];
+end
 
 if isfield(fv, 'type') && strcmp(fv.type, 'fwd_model')
    fv.vertices = fv.nodes;
