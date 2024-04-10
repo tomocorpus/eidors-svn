@@ -1,24 +1,47 @@
 function stl_write(fv, name, type)
 %STL_WRITE Create an STL file from a patch struct
-% STL_WRITE(fv, name) where:
-%  fv is face-vertex structure array (fv.faces, fv.vertices)
-%  name is the file name (character string), if no extension give, 'stl'
+%
+% STL_WRITE(mdl, name) where:
+%  mdl is an eidors fwd_model structure. 
+%  name is the file name (character string), if no extension given, 'stl'
 %  assumed.
+%  STL_WRITE will use mdl.elems if they are triangles. Otherwise, it will
+%  use mdl.boundary or, if absent, call find_boundary.
+%
+% STL_WRITE(fv, name) where:
+%  fv is face-vertex (patch) structure (fv.faces, fv.vertices)
+%  name is the file name (character string), if no extension given, 'stl'
+%  assumed.
+%
 % STL_WRITE(fv, name, type) specifies the type of file to write:
 %  'bin'  - binary file (default)
 %  'txt'  - ASCII file
+%
+% See also: STL_READ, FIND_BOUNDARY
 
 % (C) 2006 Eric Carlson: Public Domain
 % Adapted by Bartlomiej Grychtol from:
 % http://www.mathworks.com/matlabcentral/newsreader/view_thread/126215
 % $Id$
 
-if (strcmp(name((end-3):end), '.stl'))
-     label = name(1:(end-4));
-else
-     label = name;
-     name = sprintf('%s.stl', name);
+
+[~, label, ext] = fileparts(name);
+if isempty(ext), ext = '.stl'; end
+name = [label ext];
+
+if isfield(fv, 'type') && strcmp(fv.type, 'fwd_model')
+   fv.vertices = fv.nodes;
+   if size(fv.elems,2)== 3
+       fv.faces = fv.elems;
+   else
+       try
+           fv.faces = fv.boundary;
+       catch
+           fv.faces = find_boundary(fv);
+       end
+   end
 end
+
 v1 = fv.vertices(fv.faces(:,2),:)-fv.vertices(fv.faces(:,1),:);
 v2 = fv.vertices(fv.faces(:,3),:)-fv.vertices(fv.faces(:,2),:);
 Norms = single(cross3(v1,v2));
