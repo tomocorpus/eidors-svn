@@ -92,7 +92,7 @@ function out = remesh_at_model(str)
    fmdl = fix_boundary(fmdl);
    STL.vertices = fmdl.nodes;
    STL.faces    = fmdl.boundary;
-   stl_write(STL,stlfile); % netgen only works well with txt files
+   stl_write(STL,stlfile, 'txt'); % netgen only works well with txt files
    opt.stloptions.yangle = 55;
    opt.stloptions.edgecornerangle = 5;
    opt.meshoptions.fineness = 6;
