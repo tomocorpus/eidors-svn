@@ -55,6 +55,11 @@ breathing manoeuvres while data were collected.
        <hr>
    </table>
 
+The data may be analyzed with the following code:
+<pre>
+[% PROCESS "human_ventilation_2014.m" %]
+</pre>
+
 <center>
    <img src="human-ventilation-2014a.jpg">
 <br>
