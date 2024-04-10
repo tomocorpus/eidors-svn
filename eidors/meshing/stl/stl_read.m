@@ -6,17 +6,17 @@ function mdl = stl_read(fname)
 %
 % See also stl_write
 
-% Copyright 2013 Bartłomiej Grychtol
+% Copyright 2013 Bartlomiej Grychtol
 % License: GPL version 2 or 3
 % $Id$
 
 if ischar(fname) && strcmp(fname, 'UNIT_TEST'), do_unit_test; return, end
 
 [V] = READ_stl(fname);
-N = reshape(shiftdim(V,1),3,[])';
+N = reshape(shiftdim(single(V),1),3,[])'; % STL files are single precision
 [nodes m n] = unique(N,'rows');
 mdl.nodes = nodes;
-mdl.elems = reshape(n',3,[])';
+mdl.elems = reshape(uint32(n)',3,[])';
 mdl.type  = 'fwd_model'; % sort of
 mdl.boundary = mdl.elems;
 
