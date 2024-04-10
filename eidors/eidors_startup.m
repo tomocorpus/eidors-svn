@@ -98,12 +98,13 @@ function archdir = set_paths(HOMEDIR, ver,path_array)
     addpath(genpath([HOMEDIR, '/external'])); %add subdirectories
     addpath([HOMEDIR, '/deprecated']);
     addpath([HOMEDIR, '/overloads']);
-    if ~ver.isoctave && ver.ver < 9.008
-        addpath([HOMEDIR, '/overloads/sparse']);
-    end
-    if ~ver.isoctave && ver.ver < 9.0073
-        addpath([HOMEDIR, '/overloads/vecnorm']);
-    end
+% Overloads were removed in EIDORS 3.12
+%     if ~ver.isoctave && ver.ver < 9.008
+%         addpath([HOMEDIR, '/overloads/sparse']);
+%     end
+%     if ~ver.isoctave && ver.ver < 9.0073
+%         addpath([HOMEDIR, '/overloads/vecnorm']);
+%     end
     if ver.isoctave 
         warning off Octave:shadowed-function
         addpath([HOMEDIR, '/overloads/octave']);
