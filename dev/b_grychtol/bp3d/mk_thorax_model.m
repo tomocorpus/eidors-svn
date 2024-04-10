@@ -68,13 +68,15 @@ end
 end
 
 function ls = list_basic_shapes
-   ls = {'male','female'};
+   ls = {'male','female','bp3d'};
 end
 
 function out = build_basic_model(str)
 switch(str)
    case {'male', 'female'}
       out = eidors_cache(@remesh_at_model, {str});
+   case 'bp3d'
+      out = mk_thorax_model_bp3d();
 end
 end
 
@@ -92,7 +94,7 @@ function out = remesh_at_model(str)
    fmdl = fix_boundary(fmdl);
    STL.vertices = fmdl.nodes;
    STL.faces    = fmdl.boundary;
-   stl_write(STL,stlfile);
+   stl_write(STL,stlfile, 'txt'); % netgen only works well with txt files
    opt.stloptions.yangle = 55;
    opt.stloptions.edgecornerangle = 5;
    opt.meshoptions.fineness = 6;
@@ -114,16 +116,6 @@ function out = remesh_at_model(str)
    
 end
 
-function mdl = fix_boundary(mdl)
-    opt.elem2face  = 1;
-    opt.boundary_face = 1;
-    opt.inner_normal = 1;
-    mdl = fix_model(mdl,opt);
-    flip = mdl.elem2face(logical(mdl.boundary_face(mdl.elem2face).*mdl.inner_normal));
-    mdl.faces(flip,:) = mdl.faces(flip,[1 3 2]);
-    mdl.normals(flip,:) = -mdl.normals(flip,:);
-    mdl.boundary = mdl.faces(mdl.boundary_face,:);
-end
 
 function ls = list_predef_models
    ls = {'adult_male_grychtol2016a_1x32'

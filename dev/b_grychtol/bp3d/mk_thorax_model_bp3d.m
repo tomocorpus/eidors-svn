@@ -1,4 +1,4 @@
-function mk_thorax_model_bp3d
+function out = mk_thorax_model_bp3d
 %MK_THORAX_MODEL_BP3D
 %
 %
@@ -33,3 +33,10 @@ function mk_thorax_model_bp3d
 % $Id$
 
 citeme(mfilename)
+out = get_torso;
+
+function out = get_torso()
+contrib = 'bp3d-torso'; file =  'bp3d_torso.mat';
+load(get_contrib_data(contrib,file),'torso');
+out = gmsh_stl2tet(torso);
+
