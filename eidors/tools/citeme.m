@@ -96,7 +96,7 @@ if ~isempty(cite.doi)
 end
 if ~isempty(cite.pubmed)
     str = sprintf('%s PubMed:<a href="matlab: web http://www.ncbi.nlm.nih.gov/pubmed/%s -browser">%s</a>',...
-                    str, cite.doi,cite.doi);
+                    str, cite.pubmed,cite.pubmed);
 end
 
 if ~isempty(cite.arxiv)
