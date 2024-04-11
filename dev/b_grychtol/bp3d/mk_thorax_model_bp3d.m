@@ -1,7 +1,10 @@
-function out = mk_thorax_model_bp3d
+function out = mk_thorax_model_bp3d(varargin)
 %MK_THORAX_MODEL_BP3D
-%
-%
+% mk_thorax_model_bp3d()
+% mk_thorax_model_bp3d(elec_pos, elec_shape)
+% mk_thorax_model_bp3d(elec_pos, elec_shape, maxh)
+% mk_thorax_model_bp3d(stimpat)
+% mk_thorax_model_bp3d(__, organspec)
 %
 % CITATION_REQUEST:
 % AUTHOR: Mitsuhashi N, Fujieda K, Tamura T, Kawamoto S, Takagi T, Okubo K
@@ -33,10 +36,47 @@ function out = mk_thorax_model_bp3d
 % $Id$
 
 citeme(mfilename)
-out = get_torso;
+
+if nargin == 0 % get a torso with no electrodes
+   out = get_torso; 
+   return; 
+end
+organspec = '';
+if nargin > 1 && ischar(varargin{end})
+   organspec = varargin{end};
+   varargin(end) = [];
+end
+
+switch length(varargin)
+   case 1
+      if ischar(varargin{1})
+         out = build_predef_elecs(varargin{1});
+      else
+         error('EIDORS:WrongInput','Electrode specification not understood');
+      end
+   case {2,3}
+      out = mk_thorax_model('bp3d',varargin{:});
+   otherwise
+      error('EIDORS:WrongInput', 'Too many inputs');
+end
+   
+if ~isempty(organspec)
+   out = add_organs(out, organspec);
+end
+
 
 function out = get_torso()
 contrib = 'bp3d-torso'; file =  'bp3d_torso.mat';
 load(get_contrib_data(contrib,file),'torso');
 out = gmsh_stl2tet(torso);
 
+
+function out = build_predef_elecs(elecstr)
+if ~isempty(elecstr)
+   eth16 = 360*cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5 - 90; eth16 = eth16';
+   ep = eth16; ep(:,2) = 1150;
+   out = mk_thorax_model('bp3d',ep,[10 0 2],20);
+end
+
+function out = add_organs(out, organspec)
+return

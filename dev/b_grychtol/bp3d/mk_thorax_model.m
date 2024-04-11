@@ -57,18 +57,19 @@ if ~ismember(str, list_basic_shapes)
    error('Shape str "%s" not understood.',str);
 end
 
-
-
-out = build_basic_model(str);
-if nargin > 1
-   out = place_elec_on_surf(out,elec_pos,elec_shape,[],maxh);
-   out = fix_boundary(out);
+if ~any(str=='-') % basic shaps have no hyphens
+   out = build_basic_model(str);
+   if nargin > 1
+      out = place_elec_on_surf(out,elec_pos,elec_shape,[],maxh);
+      out = fix_boundary(out);
+   end
+else
+   out = build_advanced_model(str, elec_pos, elec_shape, maxh);
 end
-
 end
 
 function ls = list_basic_shapes
-   ls = {'male','female','bp3d'};
+   ls = {'male','female','bp3d','bp3d-organs'};
 end
 
 function out = build_basic_model(str)
@@ -77,6 +78,13 @@ switch(str)
       out = eidors_cache(@remesh_at_model, {str});
    case 'bp3d'
       out = mk_thorax_model_bp3d();
+end
+end
+
+function out = build_advanced_model(str, elec_pos, elec_shape, maxh)
+switch(str)
+   case {'bp3d-organs'}
+      out = mk_thorax_model_bp3d(elec_pos, elec_shape, maxh, 'organs');
 end
 end
 
