@@ -78,8 +78,10 @@ if ~isempty(elecstr)
    out = mk_thorax_model('bp3d',ep,[10 0 2],20);
 end
 
-function out = add_organs(out, organspec)
-out = get_organ_models;
+function out = add_organs(torso, organspec)
+org = get_organ_models;
+shell.vertices = [torso_elec.nodes; heart_blood.nodes];
+shell.faces = [torso_elec.boundary; N + heart_blood.boundary(:,[1 3 2])];
 return
 
 function organ = get_organ_models
@@ -103,7 +105,7 @@ if ~exist(fpath, 'file')
    blood_right = gmsh_stl2tet(srf.blood_right);
    
    organ.heart_blood = merge_meshes(tet_wall,blood_left, blood_right);
-   organ.heart_blood.boundary = find_boundary(organ.heart_blood);
+   organ.heart_blood = fix_boundary(organ.heart_blood);
    
    save(fpath, 'organ');
 else
