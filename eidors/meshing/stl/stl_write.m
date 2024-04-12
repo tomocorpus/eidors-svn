@@ -69,6 +69,7 @@ end
 
 
 function write_bin_stl(name, label, Norms, v1, v2, v3)
+progress_msg('Writing binary STL file...')
 fid = fopen(name,'wb','ieee-le');
 header = label;
 if length(header) > 80
@@ -80,22 +81,27 @@ fwrite(fid, header, 'char');
 nf = size(v1,1);
 fwrite(fid, uint32(nf), 'uint32');
 for k = 1:nf
+    if mod(k,100)==0, progress_msg(k/nf); end
     fwrite(fid, [Norms(k,:), v1(k,:), v2(k,:), v3(k,:)], 'float32');
     fwrite(fid, 0,'uint16');
 end
 fclose(fid);
+progress_msg(Inf)
 
 
 function write_txt_stl(name, label, Norms, v1, v2, v3)
+progress_msg('Writing ASCII STL file...')
 fid = fopen(name,'w');
 fprintf(fid,'solid %s\n',label);
 nf = size(v1,1);
 for k = 1:nf
+    if mod(k,100)==0, progress_msg(k/nf); end
     fprintf(fid,'facet normal %5.5f %5.5f %5.5f\n outer loop\n vertex %5.5f %5.5f %5.5f\n vertex %5.5f %5.5f %5.5f\n vertex %5.5f %5.5f %5.5f\nendloop\n endfacet\n', ...
         Norms(k,1),Norms(k,2),Norms(k,3), v1(k,1), v1(k,2), v1(k,3),v2(k,1), v2(k,2), v2(k,3),v3(k,1), v3(k,2), v3(k,3) );
 end
 fprintf(fid,'endsolid %s\n',label);
 fclose(fid);
+progress_msg(Inf)
 
 function M=cross3(r,F)
 % function to calculate normalized cross product rxF/|rxF|
