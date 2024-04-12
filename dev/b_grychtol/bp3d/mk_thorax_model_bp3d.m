@@ -79,4 +79,42 @@ if ~isempty(elecstr)
 end
 
 function out = add_organs(out, organspec)
+out = get_organ_models;
 return
+
+function organ = get_organ_models
+organ = struct();
+cache_path = get_cache_path;
+fname = 'bp3d_organs.mat';
+fpath = [cache_path filesep fname];
+if ~exist(fpath, 'file')
+   org_path = get_contrib_data('bp3d-torso','bp3d_organs.mat');
+   srf = load(org_path, 'heart','blood_left','blood_right');
+   wall = srf.heart;
+   for org = {'blood_left','blood_right'}
+      n_nodes = num_nodes(wall);
+      wall.nodes = [wall.nodes ; srf.(org{1}).nodes];
+      % re-order the triangles to flip the normals
+      wall.elems = [wall.elems ; srf.(org{1}).elems(:,[1 3 2]) + n_nodes];
+   end
+   eidors_msg('This takes a REALLY long time');
+   tet_wall = gmsh_stl2tet(wall);
+   blood_left = gmsh_stl2tet(srf.blood_left);
+   blood_right = gmsh_stl2tet(srf.blood_right);
+   
+   organ.heart_blood = merge_meshes(tet_wall,blood_left, blood_right);
+   organ.heart_blood.boundary = find_boundary(organ.heart_blood);
+   
+   save(fpath, 'organ');
+else
+   load(fpath, 'organ');
+end
+
+return
+
+function out = get_cache_path
+global eidors_objects
+out = [eidors_objects.model_cache filesep 'bp3d-torso'];
+if ~exist(out, 'dir')
+   mkdir(out);
+end
