@@ -1,8 +1,8 @@
-function out = merge_meshes(M1,varargin)
-%MERGE_MESHES - merges two meshes based on common nodes
-% MERGE_MESHES(M1,M2,T) merges M2 in M1 using threshold T for detecting
-%     corresponding nodes. The meshes must not overlap.
-% MERGE_MESHES(M1,M2,M3,..., T) merges M2, M3, ... into M1 (individually)
+function out = merge_meshes(M1, varargin)
+%MERGE_MESHES - merges two meshes sharing only boundary nodes
+% MERGE_MESHES(M1,M2,T) merges M2 in M1 using threshold T for 
+%     detecting corresponding nodes. The meshes must not overlap.
+% MERGE_MESHES(M1,M2,M3,..., T) merges M2, M3, ... into M1 (sequentially)
 %
 % Note that the boundaries of the separate meshes will only be
 % concatenated, as this visualises nicely. To calculate the correct
@@ -10,7 +10,7 @@ function out = merge_meshes(M1,varargin)
 %
 % See also FIND_BOUNDARY
 
-% (C) Bartlomiej Grychtol and Andy Adler, 2012-2013. Licence: GPL v2 or v3
+% (C) Bartlomiej Grychtol and Andy Adler, 2013-2024. Licence: GPL v2 or v3
 % $Id$
 
 if ischar(M1) && strcmp(M1,'UNIT_TEST'), run_unit_test; return; end
@@ -22,118 +22,131 @@ else
    th = varargin{end};
    shapes = varargin(1:end-1);
 end
-if ~isfield(M1, 'boundary');
-   M1.boundary = find_boundary(M1);
-end
+
 if ~isfield(M1, 'mat_idx')
-   M1.mat_idx = {1:length(M1.elems)};
+   idx = 1:length(M1.elems);
+   M1.mat_idx = {idx(:)};
 end
 
-do_msg = length(shapes) > 1;
-if do_msg, progress_msg(sprintf('Merging mesh %d/%d ... ',0,length(shapes))); end
 
-% Use a for loop, vectorised approach can run out of memory
+out = M1;
+
 for i = 1:length(shapes)
-   if do_msg
-      progress_msg(sprintf('Merging mesh %d/%d ... ',i,length(shapes)));
-   end
-   l1 = length(M1.nodes);
-   M2 = shapes{i};
-   if ~isfield(M2, 'boundary');
-      M2.boundary = find_boundary(M2);
-   end
-   if ~isfield(M2, 'mat_idx')
-      M2.mat_idx = {1:length(M2.elems)};
-   end
-   % make sure boundaries are the same dimension
-   if size(M1.boundary,2) == 2 && size(M2.boundary,2)==3
-      % M1 is 2D, M2 is 3D
-      M1.boundary = M1.elems;
-   elseif size(M1.boundary,2) == 3 && size(M2.boundary,2)==2
-      M2.boundary = M2.elems;
-   end
-   
-   useM1 = nodes_in_bounding_box(M2,M1,th);
-   useM1 = find(useM1);
-   useM2 = nodes_in_bounding_box(M1,M2,th);
-   
-   if isempty(useM1) || all(~useM2(:))
-      M1 = naive_join(M1,M2);
-      continue
-   end
-   
-   nodes_to_add = M2.nodes(~useM2,:);
-   n_new_nodes = nnz(~useM2);
-   match = zeros(length(M2.nodes),1);
-   match(~useM2) = l1 + (1:n_new_nodes);
-   useM2 = find(useM2);
-   N = length(useM2');
-   for j = 1:N
-      if mod(j,100)==1, progress_msg(j/N); end
-      n = useM2(j); 
-      
-      use = nodes_near_node(M1.nodes(useM1,:), M2.nodes(n,:), 1.1*th);
-      switch nnz(use)
-         case 0
-         case 1
-            match(n) = useM1(use);
-         otherwise
-            use = useM1(use);
-            len_use = length(use);
-            D = M1.nodes(use,:) - ones(len_use,1)*M2.nodes(n,:);
-            D = sum(D.^2,2); % sqrt(sum(D.^2,2)); % don't need to sqrt
-            [val p] = min(D);
-            if val < th^2    % but then need th^2
-               match(n) = use(p); % matching node of M1
+    if length(shapes) > 1
+       msg = sprintf('Merging mesh %d/%d ... ',i,length(shapes));
+    else
+       msg = 'Merging meshes ... ';
+    end
+    progress_msg(msg);
+    M2 = shapes{i};
+    if ~isfield(M2, 'boundary')
+        M2.boundary = find_boundary(M2);
+    end
+    if ~isfield(M2, 'mat_idx')
+        idx = 1:length(M2.elems);
+        M2.mat_idx = {idx(:)};
+    end
+    
+    if size(out.elems,2) == 3 % surface mesh
+        B1 = unique(out.elems);
+    else
+        B1 = unique(find_boundary(out));
+    end
+    
+    if size(M2.elems,2) == 3 %surface mesh
+        B2 = unique(M2.elems);
+    else
+        B2 = unique(find_boundary(M2));
+    end
+    
+    M1_num_nodes = size(out.nodes,1);
+    M2_num_nodes = size(M2.nodes,1);
+    
+    excl_B1 = ~nodes_in_bounding_box(M2.nodes(B2,:), out.nodes(B1,:), th);
+    excl_B2 = ~nodes_in_bounding_box(out.nodes(B1,:), M2.nodes(B2,:), th);
+    
+    if nnz(excl_B1) == numel(B1) || nnz(excl_B2) == numel(B2)
+        out.nodes = [out.nodes; M2.nodes];
+        nodemap = M1_num_nodes + (1:M2_num_nodes);
+    else
+        B1(excl_B1) = [];
+        B2(excl_B2) = [];
+        
+        bnd_nodes = false(size(M2.nodes,1),1);
+        bnd_nodes(B2) = true;
+        
+        % add not-B2 to M1
+        out.nodes = [out.nodes; M2.nodes(~bnd_nodes,:)];
+        % build nodemap for B2
+        nodemap = zeros(M2_num_nodes,1);
+        nodemap(~bnd_nodes) = M1_num_nodes + (1:(M2_num_nodes - length(B2)));
+        % find closest points in B1
+        
+        % compute distance matrix in chunks to prevent exhausting memory
+        chunk_sz = floor(256 * 1024^2 / 8 / numel(B1)); % 256 MiB / 8 bytes(double)
+        n_chunks = ceil(numel(B2)/chunk_sz);
+        m = zeros(1,numel(B2));
+        p = zeros(1,numel(B2));
+        for c = 1:n_chunks
+            progress_msg(c/n_chunks);
+            idx = ((c-1)*chunk_sz + 1) : min(c*chunk_sz, numel(B2));
+            D = 0;
+            for dim = 1:size(out.nodes,2)
+                D = D + (out.nodes(B1,dim) - M2.nodes(B2(idx),dim)').^2;
             end
-      end
-      if ~match(n)
-         match(n) = l1 + n_new_nodes+1;
-         n_new_nodes = n_new_nodes + 1;
-         nodes_to_add = [nodes_to_add; M2.nodes(n,:)];
-      end
-   end
-   if do_msg, progress_msg(Inf); end
-   M1.nodes = [M1.nodes; nodes_to_add];
-   LE = length(M1.elems);
-   for j = 1:numel(M2.mat_idx)
-      M1.mat_idx{end+1} = LE+M2.mat_idx{j};
-   end
-   %M1.mat_idx = [M1.mat_idx {length(M1.elems)+(1:length(M2.elems))}];
-   M1.elems = [M1.elems; match(M2.elems)];
-   % this is not strictly correct, but visualizes nicely
-   M1.boundary = [M1.boundary; match(M2.boundary)]; 
+            [m(idx), p(idx)] = min(D,[],1);
+        end
+        
+        new_bnd_nodes = m > th^2;
+        out.nodes = [out.nodes; M2.nodes(B2(new_bnd_nodes),:)];
+        nodemap(B2(new_bnd_nodes)) = max(M1_num_nodes, max(nodemap)) + (1:nnz(new_bnd_nodes));
+        
+        B2(new_bnd_nodes) = [];
+        p(new_bnd_nodes) = [];
+        
+        nodemap(B2) = B1(p); 
+    end
+    
+    M2.elems    = nodemap(M2.elems);
+    M2.boundary = nodemap(M2.boundary);
+    if isfield(M2, 'electrode')
+        for e = 1:numel(M2.electrode)
+            try
+            M2.electrode(e).nodes = nodemap(M2.electrode(e).nodes);
+            end
+            try
+            M2.electrode(e).faces = nodemap(M2.electrode(e).faces);
+            end
+        end
+    end
+    LE = length(out.elems);
+    out.elems = [out.elems; M2.elems];
+    out.boundary = unique([out.boundary; M2.boundary], 'rows');
+    if isfield(M2, 'electrode') && isstruct(M2.electrode)
+        if ~isfield(out, 'electrode'), out.electrode = []; end
+        n = numel(out.electrode);
+        % is there a better way to do this?
+        fn = fieldnames(M2.electrode);
+        for j = 1:numel(M2.electrode)
+            for f = 1:numel(fn)
+                out.electrode(n+j).(fn{f}) =  M2.electrode(j).(fn{f});
+            end
+        end
+    end
+    for j = 1:numel(M2.mat_idx)
+        out.mat_idx{end+1} = LE+M2.mat_idx{j};
+    end
+    progress_msg(Inf);
 end
 
-out =  M1;
-% rmfield(M1,'boundary');
 
-function M1 = naive_join(M1,M2)
-LN = length(M1.nodes);
-LE = length(M1.elems);
-M1.nodes = [M1.nodes; M2.nodes];
-M1.elems = [M1.elems; LN+M2.elems];
-for i = 1:numel(M2.mat_idx)
-   M1.mat_idx{end+1} = LE+M2.mat_idx{i};
-end
-M1.boundary = [M1.boundary; LN+M2.boundary];
-   
-
-function use = nodes_in_bounding_box(M2,M1,th)
+function use = nodes_in_bounding_box(LIMnodes,Mnodes,th)
    % limit to nodes in M1 that are within the bounding box of M2
-   maxM2 = max(M2.nodes)+th;
-   minM2 = min(M2.nodes)-th;
-   use = true(length(M1.nodes),1);
-   for i = 1:size(M1.nodes,2);
-      use = use & M1.nodes(:,i) < maxM2(i) & M1.nodes(:,i) > minM2(i);
-   end
-
-function use = nodes_near_node(nodes,node,th)
-   maxlim = node + th;
-   minlim = node - th;
-   use = true(size(nodes,1),1);
-   for i = 1:size(nodes,2);
-      use = use & nodes(:,i) < maxlim(i) & nodes(:,i) > minlim(i);
+   maxLIM = max(LIMnodes)+th;
+   minLIM = min(LIMnodes)-th;
+   use = true(length(Mnodes),1);
+   for i = 1:size(Mnodes,2)
+      use = use & Mnodes(:,i) < maxLIM(i) & Mnodes(:,i) > minLIM(i);
    end
 
 function run_unit_test
