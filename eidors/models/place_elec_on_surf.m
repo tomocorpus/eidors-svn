@@ -132,7 +132,7 @@ mdl2.electrode = mdl.electrode;
 % 7. Find all electrode nodes
 for i = 1:length(elecs)
    enodes = mdl.nodes(mdl.electrode(i).nodes,:);
-   mdl2.electrode(i).nodes = find_matching_nodes(mdl2,enodes,1e-5);
+   mdl2.electrode(i).nodes = find_matching_nodes(mdl2,enodes,1e-4);
 end
 
 function debugging = do_debug;
@@ -192,7 +192,7 @@ mdl.boundary = mdl.faces(mdl.boundary_face,:);
 
 function mdl = flatten_electrode(mdl,inner,outer, V)
 n1 = find_matching_nodes(mdl,inner, 1e-2);
-n2 = find_matching_nodes(mdl,outer, 1e-5);
+n2 = find_matching_nodes(mdl,outer, 1e-4); % how to figure out good values?
 % remove the side nodes of the electrode
 N1 = false(length(mdl.nodes),1);
 N1(n1) = true;
@@ -414,8 +414,9 @@ big.normals(N,:) = [];
 big.face_centre(N,:) = [];
 
 big.elems = big.boundary;
-
+log_level = eidors_msg('log_level',1); % don't want progress messages
 joint = merge_meshes(big,jnk,0.001);
+eidors_msg('log_level', log_level);
 joint.boundary = joint.elems;
 joint.faces = joint.boundary;
 opt.normals = true;
