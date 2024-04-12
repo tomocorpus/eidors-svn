@@ -30,6 +30,9 @@ end
 
 
 out = M1;
+out.elems = uint32(out.elems);
+try out.boundary = uint32(out.boundary); end
+
 
 for i = 1:length(shapes)
     if length(shapes) > 1
@@ -38,13 +41,16 @@ for i = 1:length(shapes)
        msg = 'Merging meshes ... ';
     end
     progress_msg(msg);
+    
     M2 = shapes{i};
+    M2.elems = uint32(M2.elems);
+    try M2.boundary = uint32(M2.boundary); end
+
     if ~isfield(M2, 'boundary')
         M2.boundary = find_boundary(M2);
     end
     if ~isfield(M2, 'mat_idx')
-        idx = 1:length(M2.elems);
-        M2.mat_idx = {idx(:)};
+        M2.mat_idx = {1:uint32(length(M2.elems))};
     end
     
     if size(out.elems,2) == 3 % surface mesh
@@ -59,8 +65,8 @@ for i = 1:length(shapes)
         B2 = unique(find_boundary(M2));
     end
     
-    M1_num_nodes = size(out.nodes,1);
-    M2_num_nodes = size(M2.nodes,1);
+    M1_num_nodes = uint32(size(out.nodes,1));
+    M2_num_nodes = uint32(size(M2.nodes,1));
     
     excl_B1 = ~nodes_in_bounding_box(M2.nodes(B2,:), out.nodes(B1,:), th);
     excl_B2 = ~nodes_in_bounding_box(out.nodes(B1,:), M2.nodes(B2,:), th);
@@ -78,8 +84,8 @@ for i = 1:length(shapes)
         % add not-B2 to M1
         out.nodes = [out.nodes; M2.nodes(~bnd_nodes,:)];
         % build nodemap for B2
-        nodemap = zeros(M2_num_nodes,1);
-        nodemap(~bnd_nodes) = M1_num_nodes + (1:(M2_num_nodes - length(B2)));
+        nodemap = zeros(M2_num_nodes,1,'uint32');
+        nodemap(~bnd_nodes) = M1_num_nodes + (1:uint32(M2_num_nodes - length(B2)));
         % find closest points in B1
         
         % compute distance matrix in chunks to prevent exhausting memory
@@ -99,7 +105,7 @@ for i = 1:length(shapes)
         
         new_bnd_nodes = m > th^2;
         out.nodes = [out.nodes; M2.nodes(B2(new_bnd_nodes),:)];
-        nodemap(B2(new_bnd_nodes)) = max(M1_num_nodes, max(nodemap)) + (1:nnz(new_bnd_nodes));
+        nodemap(B2(new_bnd_nodes)) = max(M1_num_nodes, max(nodemap)) + (1:uint32(nnz(new_bnd_nodes)));
         
         B2(new_bnd_nodes) = [];
         p(new_bnd_nodes) = [];

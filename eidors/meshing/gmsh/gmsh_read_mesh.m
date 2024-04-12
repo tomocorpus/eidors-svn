@@ -82,22 +82,22 @@ mat_ind = [];
 if length( unique( nodes(:,4) ) ) > 1
     vtx = nodes(:,2:4);
     % Type 2: 3-node triangle
-    tri = find(arrayfun(@(x)x.type==2,elements));
+    tri = uint32(find(arrayfun(@(x)x.type==2,elements)));
     % Type 4: 4-node tetrahedron
     tet = find(arrayfun(@(x)x.type==4,elements));
-    simp = cat(1,elements(tet).simp);
-    srf = cat(1,elements(tri).simp);
-    mat_ind = cat(1,elements(tet).phys_tag);
+    simp = uint32(cat(1,elements(tet).simp));
+    srf = uint32(cat(1,elements(tri).simp));
+    mat_ind = uint32(cat(1,elements(tet).phys_tag));
 else
     vtx = nodes(:,2:3);
-    tri = find(arrayfun(@(x)x.type==2,elements));
-    simp = cat(1,elements(tri).simp);
+    tri = uint32(find(arrayfun(@(x)x.type==2,elements)));
+    simp = uint32(cat(1,elements(tri).simp));
     srf = [];
-    mat_ind = cat(1,elements(tri).phys_tag);
+    mat_ind = uint32(cat(1,elements(tri).phys_tag));
 end
 
 elemtags = cat(1,elements.phys_tag);
-fc = elemtags(tri,1);
+fc = uint32(elemtags(tri,1));
 end
 
 function mat = get_lines_with_nodes( fid, gmshformat )
