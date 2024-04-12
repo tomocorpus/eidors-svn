@@ -1,58 +1,47 @@
-Plan for 3.13:
- - Speed up / clean up _higher_order code
- - Fix _higher_order to handle faces-type electrodes
- - Test speed of fwd_model_parameters: what fraction of time
- - Remove NODE / ELEM use nodes elems
- - Make simplified fwd_model_parameters
-
 Plan for 3.12:
+
+ - do we need both join_models and merge_meshes?
+
  - check mk_library_models datatypes not working in Octave
 	mk_library_model cylinder_16x1el_coarse
+	
+ - have aux.frame_rate for all eidors_readdata 
 
  - Post sample h5 data
  - HDF5 file format
- - more careful errors in hdf5/eidors_readdata
  - write tests for hdf5 in eidors_readdata
+ - more careful errors in hdf5/eidors_readdata
 
  - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
  - Write tests for posdef in left_divide
  - Refactor left_divide and add timing tests
 
- + pull calc_jacobian_test into calc_jacobian
- + pull calc_jacobian_test into calc_meas_icov && remove
- + pull perturb_jacobian_test into jacobian_perturb && remove
- + pull calc_model_prior_test into calc_RtR_prior && remove
+ - pull calc_jacobian_test into calc_jacobian && remove
+ - pull perturb_jacobian_test into calc_jacobian && remove
+ - pull calc_model_prior_test into NEW_TEST_FUNCTION && remove
  
- + speed up eidors_var_id => new hash?
- + complete testing of xxhash as replacement hash
-     #define USE_SHA1_HASH => approx 5x speedup
- + commit xxhash.h and build new mex files
+ - speed up eidors_var_id => new hash?
+ - complete testing of xxhash as replacement hash
+ - commit xxhash.h and build new mex files
+
+ - Control padding type in freq_filt
 
  - fix caching problem in system_mat_instrument test1
  - clean up 'interior_sources' in fwd_model_parameters
 
- + img_point_mapper that works in Octave
- + Set image position cleanly, via something like:
+ - img_point_mapper that works in Octave
+ - Fix _higher_order to handle faces-type electrodes
+ - Speed up / clean up _higher_order code
+ - Set image position cleanly, via something like:
       img = set_slices(img, level, hlim, vlim, res)
 
- + mk_grid_c2f accept 2D fmdl (like mk_approx_c2f)
+ - speed up fwd_model_parameters
+ - Remove NODE / ELEM use nodes elems
+ - Make simplified fwd_model_parameters
 
- + remove private directories. Update Matlab/Octave req's
- + remove sparse overload. Fix anything that breaks
- + test overloads
-    > stream2.m is still needed in octave9.1: Test in contact_impedance04!
-    > fminbnd.m is still needed in octave9.1: Used by mk_GREIT_model
-    > remove vecnorm (min matlab version is now 2017b
-    > remove uniquetol (octave now has it)
-    > Some submitted as bug reports to octave and marked "Don't Fix". Therefore we keep an octave "overloads" in eidors.
-
- + Control padding type in freq_filt
-
- + have aux.frame_rate for all eidors_readdata 
- + Add Draeger, Sentec, Get tests for eidors_readdata
-
- + test netgen 6.2 for linux and windows => See mailing list: 2024-04
- + fix get_contrib_data list output
+ - test netgen 6.2 for linux and windows
+ - mk_grid_model accept 2D fmdl (like mk_approx_c2f)
+ - remove private directories. Update Matlab/Octave req's
 
  + use progress_msg for mk_GREIT_model and NF
  + make no_meas_current_next0 => no_meas_current

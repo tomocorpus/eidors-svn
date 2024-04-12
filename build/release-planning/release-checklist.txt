@@ -10,6 +10,7 @@
 - Run unit-tests
 - Build library models package
 - Update version in eidors_obj.m
+- Update list in get_contrib_data
 - build shtml files using build/template-build.sh => script.sh
 - upload to sourceforge from build:
      rsync --exclude=.svn -avz -O ../htdocs/ aadler,eidors3d@web.sf.net:htdocs/
