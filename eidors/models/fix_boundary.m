@@ -15,4 +15,7 @@ tmp = fix_model(mdl,opt);
 flip = tmp.elem2face(logical(tmp.boundary_face(tmp.elem2face).*tmp.inner_normal));
 tmp.faces(flip,:) = tmp.faces(flip,[1 3 2]);
 tmp.normals(flip,:) = -tmp.normals(flip,:);
+try mdl.faces(flip,:) = mdl.faces(flip,[1 3 2]); end
+try mdl.normals(flip,:) = -mdl.normals(flip,:); end
+try mdl.inner_normal = tmp.inner_normal; end
 mdl.boundary = tmp.faces(tmp.boundary_face,:);
