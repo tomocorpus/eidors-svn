@@ -127,6 +127,7 @@ end
 % 6. Keeping the surface intact, remesh the inside
 stl_write(mdl,stlfn2);
 mdl2 = gmsh_stl2tet(stlfn2, maxh);
+mdl2 = fix_boundary(mdl2);
 mdl2.electrode = mdl.electrode;
 
 % 7. Find all electrode nodes
