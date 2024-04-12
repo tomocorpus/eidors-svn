@@ -5,7 +5,9 @@ function mdl = gmsh_stl2tet(stlfile, maxh, extra)
 %    stlfile - either:
 %                 - a path to an stl file
 %               OR
-%                 - a struct with .vertices and .faces 
+%                 - an EIDORS fwd_model with .nodes and .boundary or .elems
+%               OR
+%                 - a struct with .vertices and .faces
 %       maxh - maximum edge length (default: coarse mesh)
 %      extra - extra command line options to gmsh
 %
