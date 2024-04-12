@@ -80,9 +80,50 @@ end
 
 function out = add_organs(torso, organspec)
 org = get_organ_models;
-shell.vertices = [torso_elec.nodes; heart_blood.nodes];
-shell.faces = [torso_elec.boundary; N + heart_blood.boundary(:,[1 3 2])];
-return
+tri.vertices = torso.nodes;
+tri.faces = torso.boundary;
+for o = fields(org)
+   N = size(tri.vertices, 1);
+   tri.vertices = [tri.vertices; org.(o{1}).nodes];
+   tri.faces = [tri.faces; N + org.(o{1}).boundary(:,[1 3 2])];
+end
+
+shell = gmsh_stl2tet(tri);
+
+if isfield(torso, 'electrode') && ~isempty(torso.electrode)
+   for i = 1:numel(torso.electrode)
+      electrode(i).nodes = torso.nodes(torso.electrode(i).nodes,:);
+   end
+   shell = restore_electrodes(shell, electrode, 0.01);
+end
+cslist = @(CA) CA{:};
+out = merge_meshes(shell, cslist(struct2cell(org)));
+out.mat_names = {'shell'};
+for o = fields(org)
+   out.mat_names = [out.mat_names, org.(o{1}).mat_names];
+end
+   
+
+function mm = restore_electrodes(mm, electrode, z_contact, thresh)
+if nargin < 4
+   thresh = eps;
+end
+surf_node_idx = unique(find_boundary(mm));
+surf_nodes = mm.nodes(surf_node_idx,:);
+idx = abs(surf_nodes(:,3)) < .98 * max(surf_nodes(:,3)); % ignore nodes close to caps
+surf_node_idx = surf_node_idx(idx);
+surf_nodes = surf_nodes(idx,:);
+for e = 1:numel(electrode)
+   for n = 1:size(electrode(e).nodes,1)
+      dist = sqrt(sum((surf_nodes - electrode(e).nodes(n,:)).^2, 2));
+      [val, pos] = min(dist);
+      if val > thresh
+         warning('Problem finding node %d of electrode %d. Closest distance: %f',n,e,val);
+      end
+      mm.electrode(e).nodes(n) = surf_node_idx(pos);
+   end
+   mm.electrode(e).z_contact = z_contact;
+end
 
 function organ = get_organ_models
 organ = struct();
@@ -106,13 +147,12 @@ if ~exist(fpath, 'file')
    
    organ.heart_blood = merge_meshes(tet_wall,blood_left, blood_right);
    organ.heart_blood = fix_boundary(organ.heart_blood);
+   organ.heart_blood.mat_names = {'wall', 'blood_left', 'blood_right'};
    
    save(fpath, 'organ');
 else
    load(fpath, 'organ');
 end
-
-return
 
 function out = get_cache_path
 global eidors_objects
