@@ -34,7 +34,7 @@ for stim = fmdl.stimulation(:)';
   sm_r= [sm_r; [mp, sp]];
 end
 idxr = ones(size(sm_0,1),1);
-for i=1:size(idxr)
+for i=1:size(idxr,1)
   sm0i= ones(size(sm_0,1),1)*sm_0(i,:);
   mm= all( abs(sm0i - sm_r) < 1e-10, 2);
   mp= all( abs(sm0i + sm_r) < 1e-10, 2);
