@@ -89,6 +89,7 @@ for o = fields(org)
 end
 
 shell = gmsh_stl2tet(tri);
+shell.mat_idx = {1:uint32(size(shell.elems,1))};
 
 if isfield(torso, 'electrode') && ~isempty(torso.electrode)
    for i = 1:numel(torso.electrode)
