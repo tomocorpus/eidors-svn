@@ -223,8 +223,8 @@ function edge2elem = calc_edge2elem(elem2edge,n_edges)
 
     [n_elems, el_faces] = size(elem2edge);
     elem2edgeno = (1:n_elems)'*ones(1,el_faces);
-    elem2edgeno = elem2edgeno(:);
-    elem2edge   = elem2edge(:);
+    elem2edgeno = uint32(elem2edgeno(:));
+    elem2edge   = uint32(elem2edge(:));
     edge2elem = sparse(elem2edge,elem2edgeno,ones(size(elem2edgeno)),n_edges,n_elems);
 
 function f2e = calc_face2edge(mdl)
