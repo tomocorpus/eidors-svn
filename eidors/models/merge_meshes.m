@@ -23,7 +23,7 @@ else
    shapes = varargin(1:end-1);
 end
 
-if ~isfield(M1, 'mat_idx')
+if ~isfield(M1, 'mat_idx') || isempty(M1.mat_idx)
    idx = 1:length(M1.elems);
    M1.mat_idx = {idx(:)};
 end
@@ -46,10 +46,10 @@ for i = 1:length(shapes)
     M2.elems = uint32(M2.elems);
     try M2.boundary = uint32(M2.boundary); end
 
-    if ~isfield(M2, 'boundary')
+    if ~isfield(M2, 'boundary') || isempty(M2.boundary)
         M2.boundary = find_boundary(M2);
     end
-    if ~isfield(M2, 'mat_idx')
+    if ~isfield(M2, 'mat_idx') || isempty(M2.mat_idx)
         M2.mat_idx = {1:uint32(length(M2.elems))};
     end
     
