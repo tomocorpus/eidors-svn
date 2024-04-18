@@ -14,9 +14,12 @@ Plan for 3.12:
  - more careful errors in hdf5/eidors_readdata
  - write tests for hdf5 in eidors_readdata
 
+ - do we need both join_models and merge_meshes?
+
  - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
  - Write tests for posdef in left_divide
  - Refactor left_divide and add timing tests
+ - Figure out when left_divide can use preconditioning
 
  + pull calc_jacobian_test into calc_jacobian
  + pull calc_jacobian_test into calc_meas_icov && remove
