@@ -24,7 +24,7 @@ else
 end
 
 if ~isfield(M1, 'mat_idx') || isempty(M1.mat_idx)
-   idx = 1:length(M1.elems);
+   idx = 1:uint32(length(M1.elems));
    M1.mat_idx = {idx(:)};
 end
 
