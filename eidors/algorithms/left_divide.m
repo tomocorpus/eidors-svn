@@ -91,7 +91,8 @@ function V= non_iterative(E,I);
 %        R= R(rnotzeros,:);
 
 %       Conditioning of solution
-        if 0 %no conditioning
+% TODO: Figure out when we can do preconditioning
+        if 1 %no conditioning
             V= (E \ Q)*R;  %% OLD
         else
             P= spdiag(sqrt(1./diag(E)));
