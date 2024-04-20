@@ -145,13 +145,13 @@ for ver = vers(:)'
     fmdl2d.electrode(1).nodes = [1,4]';
     fmdl2d.electrode(2).nodes = [2,3]';
     fmdl2d.type = 'fwd_model';
-    fmdl2d.mat_idx = {{1:4}};
+    fmdl2d.mat_idx = {[1:4]};
     fmdl2d.mat_names = {'main'};
 
     fmdl3d = fmdl2d;
     fmdl3d.electrode(1).nodes = [1,2,3,4,9]';
     fmdl3d.electrode(2).nodes = [5,6,7,8,10]';
-    fmdl3d.mat_idx = {{1:24}};
+    fmdl3d.mat_idx = {[1:24]};
     fmdl3d.boundary_numbers = [ones(4,1)*13; ones(4,1)*14];
     fmdl3d.boundary = [
          2     1     9
