@@ -5,7 +5,8 @@ Plan for 3.13:
  - Remove NODE / ELEM use nodes elems
  - Make simplified fwd_model_parameters
  - Cache-to-disk ideas:
-    - dump the whole of eidors cache to disk and load later (exists)
+    + dump the whole of eidors cache to disk and load later (exists)
+    + set opt.cache_to_disk for particular call
     - set an option eidors_cache('cache-big-to-disk')
     - pass an option to eidors_cache (but how to give control to the user?)
     - read in a list of what's on disk on startup to avoid exist() checks
@@ -36,8 +37,9 @@ Plan for 3.12:
      #define USE_SHA1_HASH => approx 5x speedup
  + commit xxhash.h and build new mex files
 
- - fix caching problem in system_mat_instrument test1
+ + fix caching problem in system_mat_instrument test1 (seems OK)
  - clean up 'interior_sources' in fwd_model_parameters
+ + add instrument nodes to show_fem tests
 
  + img_point_mapper that works in Octave
  + Set image position cleanly, via something like:
