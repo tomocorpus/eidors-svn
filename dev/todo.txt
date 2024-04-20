@@ -12,9 +12,6 @@ Plan for 3.13:
     - read in a list of what's on disk on startup to avoid exist() checks
 
 Plan for 3.12:
- - check mk_library_models datatypes not working in Octave
-	mk_library_model cylinder_16x1el_coarse
-
  - Post sample h5 data
  - HDF5 file format
  - more careful errors in hdf5/eidors_readdata
@@ -26,6 +23,9 @@ Plan for 3.12:
  - Write tests for posdef in left_divide
  - Refactor left_divide and add timing tests
  - Figure out when left_divide can use preconditioning
+
+ + check mk_library_models datatypes not working in Octave
+	mk_library_model cylinder_16x1el_coarse
 
  + pull calc_jacobian_test into calc_jacobian
  + pull calc_jacobian_test into calc_meas_icov && remove
