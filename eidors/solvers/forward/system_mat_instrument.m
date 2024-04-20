@@ -61,7 +61,23 @@ function do_unit_test
    do_unit_test_paper
    do_unit_test_2d
    do_unit_test_3d
+   do_cache_test
 
+% This is to test a bug in dev/todo.txt for 3.12. Bug was not seen: 2024-04-20
+function do_cache_test
+   fmdl = getfield( ...
+    mk_common_model('a2C2',2),'fwd_model');
+   fmdl.electrode(end+1) = struct( ...
+          'nodes','instrument','z_contact',NaN);
+   fmdl.stimulation = stim_meas_list([1,3,1,3],3);
+   fmdl.system_mat = @system_mat_instrument;
+   fmdl.system_mat_instrument.connect_list = ...
+        [2,3,10];
+   vA = fwd_solve(mk_image(fmdl,1));
+   fmdl.system_mat_instrument.connect_list = ...
+        [2,3,20];
+   vB = fwd_solve(mk_image(fmdl,1)) ;
+   unit_test_cmp('check different (cache)', vA.meas > vB.meas, true);
 
 function do_unit_test_x
    % Example from conference paper
@@ -74,24 +90,23 @@ function do_unit_test_x
 
    fmdl.system_mat = @system_mat_instrument;
    fmdl.system_mat_instrument.connect_list = [];
+   fmdl.stimulation = stim_meas_list([1,2,1,2], ...
+                                num_elecs(fmdl) ); 
    img= mk_image(fmdl,1);
-   img.fwd_model.stimulation = ...
-      stim_meas_list([1,2,1,2], ...
-      num_elecs(img) ); 
    s_mat= calc_system_mat(img);
    vA = fwd_solve(img);
+   % Solve with no resistors vA = 1+len*zC;
    unit_test_cmp('square:', vA.meas, 1+sqrt(2)*zC,1e-14);
 
    NewElectrode = num_elecs(fmdl)+1;
-   fmdl.electrode(NewElectrode) = ... 
-       struct('nodes','instrument','z_contact',NaN);
+   fmdl.electrode(NewElectrode) = struct( ...
+          'nodes','instrument','z_contact',NaN);
    zC = 1000;
    fmdl.system_mat_instrument.connect_list = ...
         [1,3,1/zC];
+   fmdl.stimulation = stim_meas_list([1,3,1,3], ...
+                                num_elecs(fmdl) ); 
    img = mk_image(fmdl,1);
-   img.fwd_model.stimulation = ...
-      stim_meas_list([1,3,1,3], ...
-      num_elecs(img) ); 
 
 %  show_fem(img)
    vB = fwd_solve(img);
