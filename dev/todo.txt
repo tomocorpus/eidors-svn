@@ -38,7 +38,7 @@ Plan for 3.12:
  + commit xxhash.h and build new mex files
 
  + fix caching problem in system_mat_instrument test1 (seems OK)
- - clean up 'interior_sources' in fwd_model_parameters
+ + clean up 'interior_sources' in fwd_model_parameters
  + add instrument nodes to show_fem tests
 
  + img_point_mapper that works in Octave

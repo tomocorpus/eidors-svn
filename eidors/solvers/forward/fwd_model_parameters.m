@@ -248,19 +248,26 @@ function [QQ, VV, n_meas] = calc_QQ_slow(N2E, stim, p)
    VV = sparse(size(N2E,2),p); N2E0 = N2E>0;
    n_meas= 0; % sum total number of measurements
    for i=1:p
-       src= zeros(size(N2E,2),1);
-       try;  src =       N2E' * stim(i).stim_pattern; end
-       try;  src = src + stim(i).interior_sources;    end
-       if all(size(src) == [1,1]) && src==0
-          error('EIDORS:fwd_model_parameters:stim_pattern', ...
-                'no stim_patterns or interior_sources provided for pattern #%d',i);
-       end
+      stimi = stim(i);
+      src= zeros(size(N2E,2),1);
+      if isfield(stimi,'stim_pattern')
+         src =       N2E' * stimi.stim_pattern;
+      end
+      if isfield(stimi,'interior_sources')
+         src = src + stimi.interior_sources;
+      end
+      if all(src(:)==0)
+         error('EIDORS:fwd_model_parameters:stim_pattern', ...
+               'no stim_patterns or interior_sources provided for pattern #%d',i);
+      end
        
-       QQ(:,i) = src;
-       n_meas = n_meas + size(stim(i).meas_pattern,1);
+      QQ(:,i) = src;
+      n_meas = n_meas + size(stimi.meas_pattern,1);
 
        vlt= zeros(size(N2E,2),1);
-       try;  vlt =      N2E0' * stim(i).volt_pattern; end
+       if isfield(stimi,'volt_pattern');
+          vlt =      N2E0' * stimi.volt_pattern;
+       end
        VV(:,i) = vlt;
    end
 
