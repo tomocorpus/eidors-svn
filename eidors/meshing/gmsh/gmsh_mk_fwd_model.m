@@ -205,7 +205,7 @@ for ver = vers(:)'
 
     % Test 2D and 3D parsing
     [fmdl,mat_ind] = gmsh_mk_fwd_model( ...
-        fullfile(selfdir, ['box-' ver '.msh']), fmdl2d.name, 'elec#', stim, elec.z_contact );
+        fullfile(selfdir, ['tests/box-' ver '.msh']), fmdl2d.name, 'elec#', stim, elec.z_contact );
     if DEBUG
         for x = fields(fmdl)'
             x = x{1};
@@ -217,7 +217,7 @@ for ver = vers(:)'
     unit_test_cmp(['2d v' ver ' fmdl'],fmdl,fmdl2d)
 
     [fmdl,mat_ind] = gmsh_mk_fwd_model( ...
-        fullfile(selfdir, ['cube-' ver '.msh']), fmdl3d.name, 'elec#', stim, elec.z_contact );
+        fullfile(selfdir, ['tests/cube-' ver '.msh']), fmdl3d.name, 'elec#', stim, elec.z_contact );
     if DEBUG
         for x = fields(fmdl)'
             x = x{1};
