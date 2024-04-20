@@ -4,6 +4,11 @@ Plan for 3.13:
  - Test speed of fwd_model_parameters: what fraction of time
  - Remove NODE / ELEM use nodes elems
  - Make simplified fwd_model_parameters
+ - Cache-to-disk ideas:
+    - dump the whole of eidors cache to disk and load later (exists)
+    - set an option eidors_cache('cache-big-to-disk')
+    - pass an option to eidors_cache (but how to give control to the user?)
+    - read in a list of what's on disk on startup to avoid exist() checks
 
 Plan for 3.12:
  - check mk_library_models datatypes not working in Octave
