@@ -24,6 +24,8 @@ Plan for 3.12:
  - Refactor left_divide and add timing tests
  - Figure out when left_divide can use preconditioning
 
+ - put 3D GREIT into select_imdl
+
  + check mk_library_models datatypes not working in Octave
 	mk_library_model cylinder_16x1el_coarse
 
