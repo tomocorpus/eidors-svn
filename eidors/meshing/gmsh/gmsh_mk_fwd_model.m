@@ -131,9 +131,9 @@ for ver = vers(:)'
     elec.nodes = [];
     elec.z_contact = 0.11;
     fmdl2d.nodes = [0,0;1,0;1,1;0,1;0.5,0.5];
-    fmdl2d.elems = [2,5,1;1,5,4;3,5,2;,4,5,3];
+    fmdl2d.elems = uint32([2,5,1;1,5,4;3,5,2;,4,5,3]);
     fmdl2d.boundary = uint32([1,2;1,4;2,3;3,4]);
-    fmdl2d.boundary_numbers = ones(4,1)*5;
+    fmdl2d.boundary_numbers = uint32(ones(4,1)*5);
     fmdl2d.gnd_node = 1;
     fmdl2d.name = 'test-name';
     fmdl2d.stimulation = stim;
@@ -145,14 +145,14 @@ for ver = vers(:)'
     fmdl2d.electrode(1).nodes = [1,4]';
     fmdl2d.electrode(2).nodes = [2,3]';
     fmdl2d.type = 'fwd_model';
-    fmdl2d.mat_idx = {[1:4]};
+    fmdl2d.mat_idx = {[1:4]'};
     fmdl2d.mat_names = {'main'};
 
     fmdl3d = fmdl2d;
     fmdl3d.electrode(1).nodes = [1,2,3,4,9]';
     fmdl3d.electrode(2).nodes = [5,6,7,8,10]';
-    fmdl3d.mat_idx = {[1:24]};
-    fmdl3d.boundary_numbers = [ones(4,1)*13; ones(4,1)*14];
+    fmdl3d.mat_idx = {[1:24]'};
+    fmdl3d.boundary_numbers = uint32([ones(4,1)*13; ones(4,1)*14]);
     fmdl3d.boundary = [
          2     1     9
          1     3     9
@@ -162,7 +162,7 @@ for ver = vers(:)'
          5    10     7
          8    10     6
          7    10     8 ];
-    fmdl3d.elems = [
+    fmdl3d.elems = uint32([
         10    11    12    13
          9    12    14    11
         12    14    11    10
@@ -186,7 +186,7 @@ for ver = vers(:)'
          8    10    12    13
         14    11    10     5
         12    14    10     7
-        13    10    11     6 ];
+        13    10    11     6 ]);
     fmdl3d.nodes = [
              0         0    1.0000
              0         0         0
