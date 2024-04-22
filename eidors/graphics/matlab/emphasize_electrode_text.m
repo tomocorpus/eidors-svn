@@ -16,7 +16,12 @@ hh = get(gca,'Children'); axis vis3d
 bgcolour = [1,1,1];
 % Don't really understand the view matrix
 %tmp = inv(view);
- tmp = view;
+if exist('OCTAVE_VERSION')
+   warning("view() doesn't give 4x4 in octave. Guessing");
+   tmp = eye(4);
+else
+   tmp = view;
+end
 dirn = [0,0,1,0]*tmp; % move into view's z dir
 dirn = dirn(1:3);
 dirn = -dirn(:)'/norm(dirn);
