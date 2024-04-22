@@ -91,8 +91,8 @@ function do_unit_test()
 %      don't know about ElementData regions in the .msh file
 outfile = tempname();
 selfdir = fileparts(which('gmsh_read_mesh'));
-mdl1 = gmsh_mk_fwd_model(fullfile(selfdir, 'cube-4.1.msh'));
-mdl2 = gmsh_mk_fwd_model(fullfile(selfdir, 'box-4.1.msh'));
+mdl1 = gmsh_mk_fwd_model(fullfile(selfdir, 'tests/cube-4.1.msh'));
+mdl2 = gmsh_mk_fwd_model(fullfile(selfdir, 'tests/box-4.1.msh'));
 data1 = rand(size(mdl1.elems,1), 1);
 data2 = rand(size(mdl1.elems,1), 1);
 data3 = rand(size(mdl2.elems,1), 1);

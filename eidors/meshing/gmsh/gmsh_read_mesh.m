@@ -356,12 +356,11 @@ end
 
 function do_unit_test
    selfdir = fileparts(which('gmsh_read_mesh'));
-
-   [srf,vtx,fc,bc,simp,edg,mat_ind,phys_names] = gmsh_read_mesh(fullfile(selfdir, 'test-4.0.msh'));
+   [srf,vtx,fc,bc,simp,edg,mat_ind,phys_names] = gmsh_read_mesh(fullfile(selfdir, 'tests/test-4.0.msh'));
     unit_test_cmp('v4 vtx ',vtx(2:3,:),[1,0;-1,0])
     unit_test_cmp('v4 simp',simp(2:3,:),[3,7,12; 12, 7,14]);
 
-   [srf,vtx,fc,bc,simp,edg,mat_ind,phys_names] = gmsh_read_mesh(fullfile(selfdir, 'test-2.2.msh'));
+   [srf,vtx,fc,bc,simp,edg,mat_ind,phys_names] = gmsh_read_mesh(fullfile(selfdir, 'tests/test-2.2.msh'));
     unit_test_cmp('v2 vtx ',vtx(2:3,:),[1,0;-1,0])
     unit_test_cmp('v2 simp',simp(2:3,:),[2,4,15; 14,17,19]);
 
@@ -369,13 +368,13 @@ function do_unit_test
    for ver = vers(:)'
        ver = ver{1};
        [srf,vtx,fc,bc,simp,edg,mat_ind,phys_names] = ...
-           gmsh_read_mesh( fullfile(selfdir, ['box-' ver '.msh']) );
+           gmsh_read_mesh( fullfile(selfdir, ['tests/box-' ver '.msh']) );
        unit_test_cmp(['2d v' ver ' vtx '],vtx,[0,0;1,0;1,1;0,1;0.5,0.5])
        unit_test_cmp(['2d v' ver ' simp'],simp,[2,5,1;1,5,4;3,5,2;,4,5,3]);
        unit_test_cmp(['2d v' ver ' phys'],{phys_names(:).name},{'elec#1','elec#2','main'});
 
        [srf,vtx,fc,bc,simp,edg,mat_ind,phys_names] = ...
-           gmsh_read_mesh( fullfile(selfdir, ['cube-' ver '.msh']) );
+           gmsh_read_mesh( fullfile(selfdir, ['tests/cube-' ver '.msh']) );
        unit_test_cmp(['3d v' ver ' vtx '],vtx([1,2,13,end],:),[0,0,1;0,0,0;,0.5,0.5,0;0.5,0.5,1])
        unit_test_cmp(['3d v' ver ' simp'],simp([1,2,23,end],:), ...
            [10,11,12,13;9,12,14,11;12,14,10,7;13,10,11,6]);
