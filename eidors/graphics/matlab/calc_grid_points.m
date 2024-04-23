@@ -41,8 +41,8 @@ elseif isfield(img, 'node_data')
     val(pts_out) = NaN;
 end
 
-
-val = reshape(val, [size(x) size(data,2)]);
+% val is sparse sometimes in octave ... not sure why?
+val = reshape(full(val), [size(x) size(data,2)]);
 return
 
 
