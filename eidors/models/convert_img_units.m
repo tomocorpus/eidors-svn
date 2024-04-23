@@ -104,8 +104,10 @@ catch err
         err.identifier='MATLAB:UndefinedFunction';
      end
   end
-   
-  if strcmp(err.identifier,'MATLAB:UndefinedFunction')
+
+  if strcmp(err.identifier,'MATLAB:UndefinedFunction') || ( ...
+     (length(err.message)>=24) && ...
+     strcmp(err.message(1:23),'invalid function handle') );
     cur_pre = regexp(cur_unit,'^(.*?)_','match');
     if ~isempty(cur_pre) && ismember(cur_pre{1}, {'log_', 'log10_'});
       l = length(cur_pre{1});
@@ -223,14 +225,13 @@ function pass = do_unit_test
     1./10.^d  log(1./10.^d)  log10(1./10.^d)  10.^d  log(10.^d)     d ];
   for i = 1:length(elem_types)
     for j = 1:length(elem_types)
-      pass = test_map_data(d, elem_types{i}, elem_types{j}, expected(i,j), pass);
+%     pass = test_map_data(d, elem_types{i}, elem_types{j}, expected(i,j), pass);
+      in = elem_types{i}; 
+      out= elem_types{j}; 
+      unit_test_cmp(sprintf('convert_img_units(%s -> %s)\n', in, out), ...
+         convert_img_units(d, in, out), ...
+         expected(i,j) );
     end
-  end
-
-  if pass
-    disp('TEST: overall PASS');
-  else
-    disp('TEST: overall FAIL');
   end
 end
 
