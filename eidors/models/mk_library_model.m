@@ -178,6 +178,10 @@ out = {
     'adult_male_32el';
     'adult_male_16el_lungs';
     'adult_male_32el_lungs';
+    'adult_male_2x16el';
+    'adult_male_2x32el';
+    'adult_male_2x16el_lungs';
+    'adult_male_2x32el_lungs';
     'adult_male_grychtol2016a_1x32';
     'adult_male_grychtol2016a_2x16';
     'adult_male_thorax_1x32';
@@ -230,15 +234,31 @@ switch str
     case 'adult_male_16el'
         out = mk_library_model({'adult_male','boundary'},...
             [16 1 0.5],[0.05],0.08);
+    case 'adult_male_2x16el'
+        elayers = [0.65,0.35];
+        out = mk_library_model({'adult_male','boundary'},...
+            [16 1 elayers],[0.05],0.08);
     case 'adult_male_32el'
         out = mk_library_model({'adult_male','boundary'},...
             [32 1 0.5],[0.05],0.08);
+    case 'adult_male_2x32el'
+        elayers = [0.65,0.35];
+        out = mk_library_model({'adult_male','boundary'},...
+            [32 1 elayers],[0.05],0.08);
     case 'adult_male_16el_lungs'
         out = mk_library_model({'adult_male','boundary','left_lung','right_lung'},...
             [16 1 0.5],[0.05],0.08);
+    case 'adult_male_2x16el_lungs'
+        elayers = [0.65,0.35];
+        out = mk_library_model({'adult_male','boundary','left_lung','right_lung'},...
+            [16 1 elayers],[0.05],0.08);
     case 'adult_male_32el_lungs'
         out = mk_library_model({'adult_male','boundary','left_lung','right_lung'},...
             [32 1 0.5],[0.05],0.08);
+    case 'adult_male_2x32el_lungs'
+        elayers = [0.65,0.35];
+        out = mk_library_model({'adult_male','boundary','left_lung','right_lung'},...
+            [32 1 elayers],[0.05],0.08);
     case 'adult_male_grychtol2016a_1x32'
         out = mk_thorax_model_grychtol2016a('1x32_ring');
         out = out.fwd_model;
