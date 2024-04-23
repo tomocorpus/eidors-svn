@@ -154,7 +154,12 @@ if isfield(img(1),'show_slices') && isfield(img(1).show_slices,'contour_levels')
       if ~ish; hold off; end 
    elseif clevs % true but not numeric
       if ~ish; hold on; end 
-      contour(msm.x_pts, msm.y_pts, rimg, contour_properties{:});
+      if exist('OCTAVE_VERSION');
+      % Octave contour doesn't accept props 
+         contour(msm.x_pts, msm.y_pts, rimg);
+      else
+         contour(msm.x_pts, msm.y_pts, rimg, contour_properties{:});
+      end
       if ~ish; hold off; end 
    else
       error('img.show_slices.contour_levels parameter not understood');
