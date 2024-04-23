@@ -159,6 +159,12 @@ function cache_obj = get_cache_obj(fmdl, opt)
 %-------------------------------------------------------------------------%
 % Perfom unit tests
 function do_unit_test
+   % Check for convhull errors
+   vopt.imgsz = [10,10,10];
+   imdl = mk_common_model('n3r2',[16,2]);
+   [img.fwd_model,cmdl] = mk_voxel_volume(imdl.fwd_model,vopt);
+   unit_test_cmp('Simple',cmdl.elems(3,:),[64,65,96,33]);
+
 
 fmdl = mk_library_model('adult_male_16el');
 % fmdl= ng_mk_cyl_models([2,2,.4],[16,1],[.1,0,.025]);
