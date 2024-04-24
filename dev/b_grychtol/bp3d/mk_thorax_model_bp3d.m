@@ -74,7 +74,9 @@ out = gmsh_stl2tet(torso);
 function out = build_predef_elecs(elecstr)
 if ~isempty(elecstr)
    eth16 = 360*cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5 - 90; eth16 = eth16';
-   ep = eth16; ep(:,2) = 1150;
+   ep = eth16; ep(:,2) = 1200;
+   ep = [ep; ep];
+   ep(17:end,2) = 1250;
    out = mk_thorax_model('bp3d',ep,[10 0 2],20);
 end
 
@@ -88,6 +90,7 @@ for o = fields(org)
    tri.faces = [tri.faces; N + org.(o{1}).boundary(:,[1 3 2])];
 end
 
+stl_write(tri, 'shell.stl','txt');
 shell = gmsh_stl2tet(tri);
 shell.mat_idx = {1:uint32(size(shell.elems,1))};
 
@@ -101,7 +104,7 @@ cslist = @(CA) CA{:};
 out = merge_meshes(shell, cslist(struct2cell(org)));
 out.mat_names = {'shell'};
 for o = fields(org)
-   out.mat_names = [out.mat_names, org.(o{1}).mat_names];
+   out.mat_names = [out.mat_names; org.(o{1}).mat_names];
 end
    
 
@@ -127,6 +130,10 @@ for e = 1:numel(electrode)
 end
 
 function organ = get_organ_models
+load("mdl.mat", "mdl");
+mdl.show_boundary = mdl.boundary;
+organ.all = fix_boundary(mdl);
+return
 organ = struct();
 cache_path = get_cache_path;
 fname = 'bp3d_organs.mat';

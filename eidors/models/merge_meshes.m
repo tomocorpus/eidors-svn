@@ -17,6 +17,7 @@ if ischar(M1) && strcmp(M1,'UNIT_TEST'), run_unit_test; return; end
 
 if nargin < 3  || isstruct(varargin{end})
    th = mean(std(M1.nodes))/length(M1.nodes);
+   eidors_msg(sprintf('@@ using threshold %f', th), 3);
    shapes = varargin;
 else
    th = varargin{end};
@@ -24,14 +25,18 @@ else
 end
 
 if ~isfield(M1, 'mat_idx') || isempty(M1.mat_idx)
-   idx = 1:uint32(length(M1.elems));
+   idx = (1:uint32(length(M1.elems)))';
    M1.mat_idx = {idx(:)};
 end
 
 
 out = M1;
 out.elems = uint32(out.elems);
-try out.boundary = uint32(out.boundary); end
+if ~isfield(M1, 'boundary') || isempty(M1.boundary)
+    out.boundary = find_boundary(M1);
+else
+    out.boundary = uint32(out.boundary); 
+end
 
 
 for i = 1:length(shapes)
@@ -50,7 +55,7 @@ for i = 1:length(shapes)
         M2.boundary = find_boundary(M2);
     end
     if ~isfield(M2, 'mat_idx') || isempty(M2.mat_idx)
-        M2.mat_idx = {1:uint32(length(M2.elems))};
+        M2.mat_idx = {(1:uint32(length(M2.elems)))'};
     end
     
     if size(out.elems,2) == 3 % surface mesh
