@@ -46,7 +46,7 @@ while( 1 )
         islinux =0;
     end
     
-    status= system_cmd(sprintf( '%s "%s" -%d -v 2 -nt 2 -term %s',  gmsh_name, geo_file, dim, extra));
+    status= system_cmd(sprintf( '%s "%s" -%d -v 2 -term %s',  gmsh_name, geo_file, dim, extra));
     
     if status==0; break; end
     
@@ -61,7 +61,7 @@ while( 1 )
             'You are running under windows, I can attempt to create\n' ...
             'a batch file to access gmsh.\n' ...
             'Please enter the directory in which to find gmsh.\n' ...
-            'If you dont have a copy, download it from ' ...
+            'If you dont have a copy, download it from' ...
             'http://www.geuz.org/gmsh/\n\n' ]);
         
         gmsh_path = input('gmsh_path? [or i=ignore, e=error] ','s');
