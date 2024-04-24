@@ -16,6 +16,8 @@ Plan for 3.12:
  - HDF5 file format
  - more careful errors in hdf5/eidors_readdata
  - write tests for hdf5 in eidors_readdata
+ 
+ - UNIT_TEST for remove_nodes and remove_elems
 
  - do we need both join_models and merge_meshes?
 
