@@ -149,6 +149,8 @@ function [imdl,opt] = GREIT(inv_mdl, opts)
    % Allow error compensation afterward
    opt.keep_model_components = true;
    radius = 0.2;
+
+   vrange = 0.2; % TODO: add adjust
    matches = regexp(opts,'\S+','match');
    for i=1:length(matches); mi = matches{i};
       tok= regexp(mi,'NF=([\d\.]+)','tokens');
@@ -164,6 +166,25 @@ function [imdl,opt] = GREIT(inv_mdl, opts)
       tok= regexp(mi,'(\d+)x(\d+)','tokens');
       if ~isempty(tok);
          opt.imgsz = [str2num(tok{1}{1}), str2num(tok{1}{2})];
+      end
+
+      % 3D GREIT
+      tok= regexp(mi,'(\d+)x(\d+)x(\d+)','tokens');
+      if ~isempty(tok);
+         tokA=str2num(tok{1}{1});
+         tokB=str2num(tok{1}{2});
+         tokC=str2num(tok{1}{3});
+         [minf,maxf] = bounds(inv_mdl.fwd_model.nodes);
+         vctr = mean([minf(3),maxf(3)]);
+         mrad = max( maxf(1:2) - minf(1:2) );
+
+         vopt.imgsz = [tokA, tokB];
+         vopt.square_pixels = true;
+         vopt.zvec = linspace(-1,1,tokC+1)*mrad + vctr;
+         vopt.save_memory = 2;
+
+% GREIT 3D with a 1x32 electrode layout
+         [inv_mdl,opt.distr] = GREIT3D_distribution(inv_mdl, vopt);
       end
    end
 
