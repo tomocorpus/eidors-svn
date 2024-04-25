@@ -100,7 +100,7 @@ out.mat_names = ['body' organs.mat_names];
 out.boundary = out.show_boundary;
 out = rmfield(out, 'show_boundary');
    
-idx = strcmp(out.mat_names,'Trachea';
+idx = strcmp(out.mat_names,'Trachea');
 out = remove_elems(out, out.mat_idx{idx});
 
 function mm = restore_electrodes(mm, electrode, z_contact, thresh)

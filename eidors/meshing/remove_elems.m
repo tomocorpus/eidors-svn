@@ -49,9 +49,9 @@ elem_map(~remove) = 1:nnz(~remove);
 
 mat_removed = false(size(fmdl.mat_idx));
 if isfield(fmdl, 'mat_idx')
-    for i = 1:nume(fmdl.mat_idx)
+    for i = 1:numel(fmdl.mat_idx)
         fmdl.mat_idx{i} = elem_map(fmdl.mat_idx{i});
-        fmdl.mat_idx{i}(fmdl.mat_idx == 0) = [];
+        fmdl.mat_idx{i}(fmdl.mat_idx{i} == 0) = [];
         if isempty(fmdl.mat_idx{i})
            mat_removed(i) = true;
         end
