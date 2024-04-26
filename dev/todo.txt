@@ -19,7 +19,10 @@ Plan for 3.12:
  
  - UNIT_TEST for remove_nodes and remove_elems
 
+ - Add Draeger bin file to eidors_writeimg
  - do we need both join_models and merge_meshes?
+
+ + Add fwd_model_device with vendor/device defaults
 
  - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
  - Write tests for posdef in left_divide
