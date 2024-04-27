@@ -211,10 +211,10 @@ organs.LungLeft = gmsh_stl2tet(srf.LungLeft);
 organs.LungRight = gmsh_stl2tet(srf.LungRight);
 
 left = eidors_cache(@mk_blood_left_surf,srf);
-organs.BloodLeftHeart = gmsh_stl2tet(left);
+organs.BloodLeftHeart = gmsh_stl2tet(left, [3, 20]);
 
 right = eidors_cache(@mk_blood_right_surf,srf);
-organs.BloodRightHeart = gmsh_stl2tet(right);
+organs.BloodRightHeart = gmsh_stl2tet(right, [3, 20]);
 
 heart = eidors_cache(@mk_heart_surf, srf);
 organs.HeartWall = gmsh_stl2tet(heart);
