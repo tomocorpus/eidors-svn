@@ -1,4 +1,4 @@
-function mdl = gmsh_stl2tet(stlfile, maxh, extra)
+function mdl = gmsh_stl2tet(stlfile, mesh_size, extra)
 %GMSH_STL2TET creates a tetrahedral mesh from an stl file
 % mdl = gmsh_stl2tet(stlfile, maxh, extra) where:
 %        mdl - EIDORS fwd_model struct
@@ -8,7 +8,11 @@ function mdl = gmsh_stl2tet(stlfile, maxh, extra)
 %                 - an EIDORS fwd_model with .nodes and .boundary or .elems
 %               OR
 %                 - a struct with .vertices and .faces
-%       maxh - maximum edge length (default: coarse mesh)
+%  mesh_size - controls mesh size. Either:
+%                 - scalar: maximum edge length (default: matches surface)
+%               OR
+%                 - [SizeMax, DistMax]: Linear grading from a fine surface,
+%                    achieving SizeMax at DistMax distance from surface.
 %      extra - extra command line options to gmsh
 %
 % If stlfile is a struct, stl_write will be called first and an STL file
@@ -26,8 +30,8 @@ function mdl = gmsh_stl2tet(stlfile, maxh, extra)
 if nargin < 3
    extra = [];
 end
-if nargin > 1 && ~isempty(maxh)
-   extra = [' -clmax ' num2str(maxh), ' ', extra];
+if nargin < 2
+   mesh_size = [];
 end
 
 if isstruct(stlfile)
@@ -41,7 +45,8 @@ if isstruct(stlfile)
     catch
        opt.cache_obj = {stlfile.vertices, stlfile.faces};
     end
-    
+    opt.cache_obj{3} = mesh_size;
+    opt.cache_obj{4} = extra;
     mdl = eidors_cache(@do_gmsh_stl2tet,{stlfile, extra}, opt);
 else
     mdl = do_gmsh_stl2tet(stlfile, extra);
@@ -49,7 +54,7 @@ end
 
 
 
-function mdl = do_gmsh_stl2tet(stlfile, extra)
+function mdl = do_gmsh_stl2tet(stlfile, mesh_size, extra)
 if isstruct(stlfile)
     stem = tempname;
     stl_write(stlfile, [stem, '.stl'])
@@ -64,8 +69,22 @@ fprintf(fid,'Merge "%s";\n',stlname);
 fprintf(fid,'Surface Loop(1) = {1};\n');
 fprintf(fid,'Volume(2) = {1};\n');
 fprintf(fid,'Physical Volume(3) = {2};\n');
-fprintf(fid,'Mesh.Algorithm3D=4;\n'); %1=delaunay (tetgen) and 4=frontal (netgen)
+
+if numel(mesh_size) == 1
+   fprintf(fid,'Mesh.MeshSizeMax = %f;\n', mesh_size);
+   fprintf(fid,'Mesh.Algorithm3D=4;\n'); %1=delaunay (tetgen) and 4=frontal (netgen)
+elseif numel(mesh_size) == 2
+   fprintf(fid, 'Field[1] = Extend;\n');
+   fprintf(fid, 'Field[1].SurfacesList = {1};\n');
+   fprintf(fid, 'Field[1].SizeMax = %g;\n', mesh_size(1));
+   fprintf(fid, 'Field[1].DistMax = %g;\n', mesh_size(2));
+   fprintf(fid, 'Field[1].Power = 1;\n');
+   fprintf(fid, 'Background Field = 1;\n');
+   fprintf(fid, 'Mesh.MeshSizeExtendFromBoundary = 0;\n');
+   fprintf(fid, 'Mesh.Algorithm3D=10;\n'); % HPX (multi-threaded delaunay)
+end
 fprintf(fid,'Mesh.OptimizeNetgen=1;\n');
+
 fclose(fid);
 
 call_gmsh([stem '.geo'], 3, extra);
