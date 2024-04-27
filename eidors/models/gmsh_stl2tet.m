@@ -47,9 +47,9 @@ if isstruct(stlfile)
     end
     opt.cache_obj{3} = mesh_size;
     opt.cache_obj{4} = extra;
-    mdl = eidors_cache(@do_gmsh_stl2tet,{stlfile, extra}, opt);
+    mdl = eidors_cache(@do_gmsh_stl2tet,{stlfile, mesh_size, extra}, opt);
 else
-    mdl = do_gmsh_stl2tet(stlfile, extra);
+    mdl = do_gmsh_stl2tet(stlfile, mesh_size, extra);
 end
 
 
@@ -72,7 +72,7 @@ fprintf(fid,'Physical Volume(3) = {2};\n');
 
 if numel(mesh_size) == 1
    fprintf(fid,'Mesh.MeshSizeMax = %f;\n', mesh_size);
-   fprintf(fid,'Mesh.Algorithm3D=4;\n'); %1=delaunay (tetgen) and 4=frontal (netgen)
+%    fprintf(fid,'Mesh.Algorithm3D=4;\n'); %1=delaunay (tetgen) and 4=frontal (netgen)
 elseif numel(mesh_size) == 2
    fprintf(fid, 'Field[1] = Extend;\n');
    fprintf(fid, 'Field[1].SurfacesList = {1};\n');
@@ -81,8 +81,8 @@ elseif numel(mesh_size) == 2
    fprintf(fid, 'Field[1].Power = 1;\n');
    fprintf(fid, 'Background Field = 1;\n');
    fprintf(fid, 'Mesh.MeshSizeExtendFromBoundary = 0;\n');
-   fprintf(fid, 'Mesh.Algorithm3D=10;\n'); % HPX (multi-threaded delaunay)
 end
+fprintf(fid, 'Mesh.Algorithm3D=10;\n'); % HPX (multi-threaded delaunay)
 fprintf(fid,'Mesh.OptimizeNetgen=1;\n');
 
 fclose(fid);
