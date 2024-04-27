@@ -8,7 +8,7 @@ function status= call_gmsh(geo_file, dim,extra)
 % extra    = additional string options for gmsh (see gmsh manual at
 %            http://geuz.org/gmsh/doc/texinfo/gmsh.html#Command_002dline-options
 
-% (C) 2009-2012 Bartosz Sawicki and Bartlomiej Grychtol
+% (C) 2009-2024 Bartosz Sawicki and Bartlomiej Grychtol
 % License: GPL  version 2
 % $Id$
 
@@ -20,6 +20,8 @@ if nargin<3
    extra = [];
 end
 
+isoctave = getfield(eidors_obj('interpreter_version'),'isoctave');
+
 cache_path = eidors_cache('cache_path');
 
 % Gmsh executable filename
@@ -30,9 +32,14 @@ else
    gmsh_name = [cache_path,'/gmsh'];
 end
 
+% Matlab reports physical cores, Octave reports logical ones
+num_threads = max(maxNumCompThreads -1 -isoctave, 2);
+cmd = sprintf( '%s "%s" -%d -v 2 -term -nt %d %s',  gmsh_name, geo_file, ...
+               dim, num_threads, extra);
+
 while( 1 )
 
-    status= system_cmd(sprintf( '%s "%s" -%d -v 2 -term %s',  gmsh_name, geo_file, dim, extra));
+    status= system_cmd(cmd);
 
     if status==0; break; end
 
