@@ -22,16 +22,8 @@ end
 
 cache_path = eidors_cache('cache_path');
 
-if  exist('OCTAVE_VERSION') % FIXME
-   islinux =1;
-elseif ~strncmp(computer,'PC',2) % Don't know if we have isunix
-   islinux =1;
-else
-   islinux =0;
-end
-
 % Gmsh executable filename
-if  islinux
+if  ~ispc
    % Matlab plays with libraries
    gmsh_name = 'LD_LIBRARY_PATH="" gmsh';
 else
@@ -39,19 +31,13 @@ else
 end
 
 while( 1 )
-    ldpath='';
-    if  ~exist('OCTAVE_VERSION') && ~isempty(strfind(system_dependent('getos'),'Linux'))
-        islinux =1;
-    else
-        islinux =0;
-    end
-    
+
     status= system_cmd(sprintf( '%s "%s" -%d -v 2 -term %s',  gmsh_name, geo_file, dim, extra));
-    
+
     if status==0; break; end
-    
-    if islinux
-        disp(['It seems you are running Linux and Gmsh has not worked. ' ...
+
+    if ~ispc
+        disp(['It seems you are running Linux or MacOS and Gmsh has not worked. ' ...
             'Check that it is installed and on the path. \n' ...
             'Perhaps LD_LIBRARY_PATH needs to be set?' ]);
         break;
@@ -61,9 +47,9 @@ while( 1 )
             'You are running under windows, I can attempt to create\n' ...
             'a batch file to access gmsh.\n' ...
             'Please enter the directory in which to find gmsh.\n' ...
-            'If you dont have a copy, download it from' ...
+            'If you dont have a copy, download it from ' ...
             'http://www.geuz.org/gmsh/\n\n' ]);
-        
+
         gmsh_path = input('gmsh_path? [or i=ignore, e=error] ','s');
         if strcmp(gmsh_path,'i'); break;end
         if strcmp(gmsh_path,'e'); error('user requested'),end;
@@ -74,8 +60,8 @@ while( 1 )
             if exist( sprintf('%s/bin/gmsh.exe',gmsh_path) , 'file' )
                 gmsh_exe = [gmsh_path '/bin'];
             end
-            
-            
+
+
             fid= fopen([cache_path, '/gmsh.bat'],'w');
             fprintf(fid,'"%s/gmsh.exe" %%*\n', gmsh_exe);
             fclose(fid);
