@@ -32,7 +32,9 @@ end
 out = M1;
 out.elems = uint32(out.elems);
 try out.boundary = uint32(out.boundary); end
-
+if ~isfield(out, 'boundary') || isempty(out.boundary)
+   out.boundary = find_boundary(out);
+end
 
 for i = 1:length(shapes)
     if length(shapes) > 1

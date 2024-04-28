@@ -20,9 +20,9 @@ if isstruct(simp) && strcmp(simp.type,'fwd_model'); simp= simp.elems; end
 wew = size(simp,2) - 1;
 
 if wew==3 || wew==2
-   [srf,idx]= find_2or3d_boundary(simp,wew);
+   [srf,idx]= eidors_cache(@find_2or3d_boundary,{simp,wew});
 elseif wew == 1
-   [srf,idx]= find_1d_boundary(simp);
+   [srf,idx]= eidors_cache(@find_1d_boundary,{simp});
 else
    eidors_msg('find_boundary: WARNING: not 1D, 2D or 3D simplices',1);
    srf=[]; return;
