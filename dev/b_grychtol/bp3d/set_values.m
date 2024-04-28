@@ -12,14 +12,15 @@ for i = 2:numel(torso.mat_idx)
         img.elem_data(torso.mat_idx{i}) = .8;
     end
 end
-
+img.calc_colours.ref_level = 1;
 
 %%
 show_fem_enhanced(img);
 axis off
+print_convert('torso_show_fem_enhanced.jpg','-r300');
 %%
 img.fwd_model.show_fem.alpha_inhomogeneities = 0.1;
-ing.calc_colours.transparency_thresh = 0.2;
+img.calc_colours.transparency_thresh = 0.1;
 img.calc_colours.ref_level = 1;
 hh = show_fem(img);
 set(hh,'edgecolor','none','facecolor','k','facealpha',.2);
@@ -27,7 +28,8 @@ set(gcf,'color','w')
 axis off
 view(3)
 print_convert('torso_show_fem_transparent.jpg','-r300');
-
+view([0,0])
+print_convert('torso_show_fem_transparent_front.jpg','-r300');
 %%
 angle = linspace(0,360,121); angle(end) = [];
 fname = 'torso.gif';
@@ -58,3 +60,15 @@ print_convert('torso_calc_slices.png')
 show_3d_slices(img, [1150,1200,1250],[20, 60],[-90]);
 axis off
 print_convert('torso_show_3d_slices.png','-r300')
+%%
+show_3d_slices(img, [1200],[],[]);
+view(2)
+set(gca,'ydir','reverse')
+axis off
+print_convert('torso_show_3d_slices_1200.png','-r300')
+
+show_3d_slices(img, [1250],[],[]);
+view(2)
+set(gca,'ydir','reverse')
+axis off
+print_convert('torso_show_3d_slices_1250.png','-r300')
