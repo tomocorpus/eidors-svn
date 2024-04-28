@@ -10,6 +10,7 @@ Plan for 3.13:
     - set an option eidors_cache('cache-big-to-disk')
     - pass an option to eidors_cache (but how to give control to the user?)
     - read in a list of what's on disk on startup to avoid exist() checks
+ - test octave to see if doesn't give errors to stderr in call_delaunay
 
 Plan for 3.12:
  - Post sample h5 data
