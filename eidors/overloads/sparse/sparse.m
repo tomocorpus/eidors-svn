@@ -11,7 +11,7 @@ function S = sparse(varargin)
 % $Id$
 
 for i= 1:nargin
-  if ~isa(varargin{i},'double') && ~isa(varargin{i}, 'logical')
+  if ~(isa(varargin{i},'double') || (i == 3 && isa(varargin{i},'logical')))
      varargin{i} = double(varargin{i});
   end
 end
