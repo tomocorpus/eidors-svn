@@ -43,7 +43,7 @@ end
 
 opt.fstr = 'mk_thorax_model';
 out = eidors_cache(@do_mk_thorax_model,[{str}, varargin(:)'],opt);
-
+out = mdl_normalize(out, 'default');
 end
 
 function out = do_mk_thorax_model(str, elec_pos, elec_shape, maxh)
@@ -84,7 +84,7 @@ end
 function out = build_advanced_model(str, elec_pos, elec_shape, maxh)
 switch(str)
    case {'bp3d-organs'}
-      out = mk_thorax_model_bp3d(elec_pos, elec_shape, maxh, 'organs');
+      out = mk_thorax_model_bp3d(elec_pos, elec_shape, maxh, 'fine');
 end
 end
 

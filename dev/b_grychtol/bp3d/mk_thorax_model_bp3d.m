@@ -1,10 +1,28 @@
 function out = mk_thorax_model_bp3d(varargin)
-%MK_THORAX_MODEL_BP3D
-% mk_thorax_model_bp3d()
-% mk_thorax_model_bp3d(elec_pos, elec_shape)
-% mk_thorax_model_bp3d(elec_pos, elec_shape, maxh)
-% mk_thorax_model_bp3d(stimpat)
-% mk_thorax_model_bp3d(__, organspec)
+%MK_THORAX_MODEL_BP3D Torso model based on BodyParts3D
+%
+% FMDL = MK_THORAX_MODEL_BP3D() 
+% Returns a torso fwd_model with no electrodes or organs
+%
+% FMDL = MK_THORAX_MODEL_BP3D(elec_pos, elec_shape)
+% FMDL = MK_THORAX_MODEL_BP3D(elec_pos, elec_shape, maxh)
+% Allows specifying electrode configuration, see PLACE_ELEC_ON_SURF
+%
+% FMDL = MK_THORAX_MODEL_BP3D(stimpat)
+% A predefined model with round electrodes (radius 1 cm). Accepts a string 
+% parameter to define a stim pattern:
+%    '2x16_planar'   - 2 rings of 16 electrodes, planar stimulation
+%    '2x16_odd-even' - 2 rings, each stimulation is cross-plane 
+%    '2x16_square'   - 2 rings, every second stimulation is cross-plane
+%    '2x16_adjacent' - like square, but with adjacent stimulation
+%    '1x32_ring'     - single ring of 32 electrodes
+%
+% IMG = MK_THORAX_MODEL_BP3D(... , organspec)
+% Returns a torso model containing organ shapes as an image structure. Can
+% be used with all the above electrode defintions. 
+% ORGANSPEC must be one of:
+%    'fine'          - a relatively dense model, ~7 million elems
+%    'coarse'        - a coarser model, *NOT IMPLEMENTED YET*
 %
 % CITATION_REQUEST:
 % AUTHOR: Mitsuhashi N, Fujieda K, Tamura T, Kawamoto S, Takagi T, Okubo K
@@ -30,7 +48,7 @@ function out = mk_thorax_model_bp3d(varargin)
 % -browser">CC BY-SA 2.1 JP</a>) license.
 % This work is licensed under CC BY-SA 2.1 JP by Bartek Grychtol.
 %
-% See also MK_THORAX_MODEL
+% See also MK_THORAX_MODEL, PLACE_ELEC_ON_SURF
 
 % (C) 2024 Bartek Grychtol. License: CC BY-SA 2.1 JP
 % $Id$
@@ -49,7 +67,7 @@ end
 
 switch length(varargin)
    case 1
-      if ischar(varargin{1})
+      if ischar(varargin{1}) && ~isempty(varargin{1})
          out = build_predef_elecs(varargin{1});
       else
          error('EIDORS:WrongInput','Electrode specification not understood');
@@ -72,18 +90,19 @@ eidors_msg('Budiling bp3d body surface', 2);
 out = gmsh_stl2tet(torso);
 
 
-function out = build_predef_elecs(elecstr)
-if ~isempty(elecstr)
-   eth16 = 360*cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5 - 90; eth16 = eth16';
-   eth32 = 360*cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45 - 90; eth32 = eth32';
-   ep = eth16; ep(:,2) = 1175;
-   ep(17:48,1) = eth32; ep(17:48,2) = 1212.5;
-   ep(49:64,1) = eth16; ep(49:64,2) = 1250;
-   out = mk_thorax_model('bp3d',ep,[10 0 1],20);
-end
+function out = build_predef_elecs(stimpat)
+eth16 = 360*cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5 - 90; eth16 = eth16';
+eth32 = 360*cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45 - 90; eth32 = eth32';
+ep = eth16; ep(:,2) = 1175;
+ep(17:48,1) = eth32; ep(17:48,2) = 1212.5;
+ep(49:64,1) = eth16; ep(49:64,2) = 1250;
+out = mk_thorax_model('bp3d',ep,[10 0 1],20);
+
+out = set_predef_stim(out, stimpat);
+
 
 function out = add_organs(torso, organspec)
-organs = get_organ_models;
+organs = get_organ_models(organspec);
 tri.vertices = torso.nodes;
 tri.faces = torso.boundary;
 N = size(tri.vertices, 1);
@@ -135,19 +154,28 @@ for e = 1:numel(electrode)
    mm.electrode(e).z_contact = z_contact;
 end
 
-function organs = get_organ_models
+function organs = get_organ_models(organspec)
+switch organspect
+   case 'fine'
+      fhandle = @mk_fine_organse;
+   case 'coarse'
+      error('EIDORS:NotImplemented', 'Coarse organ model is not '...
+            'implemented yet.')
+   otherwise
+      error('EIDORS:WrongInput', 'Organ specification not understood.');
+end
 cache_path = get_cache_path;
-fname = 'bp3d_organs.mat';
+fname = sprintf('bp3d_organs_%s.mat', organspec);
 fpath = [cache_path filesep fname];
 if ~exist(fpath, 'file')
    eidors_msg('This takes a REALLY long time');
-   organs = mk_organs;
+   organs = eval(fhandle);
    save(fpath, 'organs');
 else
    load(fpath, 'organs');
 end
 
-function mdl = mk_organs
+function mdl = mk_fine_organs
 
 start_time = now(); 
 organs = mk_individual_organs;
@@ -255,7 +283,6 @@ right = merge_meshes(srf.BloodRight, ...
                      fn(srf.SVC.cap), ...
                      fn(srf.IVC.cap), ...
                      fn(srf.PA.cap));
-
 
 function left = mk_blood_left_surf(srf)
 fn = @(x) flip_normals(x);
