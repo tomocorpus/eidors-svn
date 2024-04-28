@@ -19,6 +19,9 @@ function [inv_mdl,opt_out]= select_imdl( mdl, options )
 % 'GREIT':          Algorithm of mk_GREIT_model
 %   parameters provided as select_imdl(fmdl,{'GREIT:NF=0.3 64x64 rad=0.25'});
 %   defaults NF=0.5 32x32 rad=0.2
+% 'GREIT':          3D GREIT if parameters:
+%     {'GREIT:NF=0.3 32x32x6 vrange=0.3'});
+%   Here 6 slices cover +/-vrange*max(diam) from verticle centre
 % 'Elec Move GN':   One step GN difference solver with compensation for
 %                   electrode movement. Conductivity prior, hyperparameter
 %                   and Jacobian will be preserved if specified in the
@@ -163,6 +166,11 @@ function [imdl,opt] = GREIT(inv_mdl, opts)
          radius = str2num(tok{1}{1});
       end
 
+      tok= regexp(mi,'vrange=([\d\.]+)','tokens');
+      if ~isempty(tok);
+         vrange = str2num(tok{1}{1});
+      end
+
       tok= regexp(mi,'(\d+)x(\d+)','tokens');
       if ~isempty(tok);
          opt.imgsz = [str2num(tok{1}{1}), str2num(tok{1}{2})];
@@ -180,7 +188,7 @@ function [imdl,opt] = GREIT(inv_mdl, opts)
 
          vopt.imgsz = [tokA, tokB];
          vopt.square_pixels = true;
-         vopt.zvec = linspace(-1,1,tokC+1)*mrad + vctr;
+         vopt.zvec = linspace(-1,1,tokC+1)*mrad*vrange + vctr;
          vopt.save_memory = 2;
 
 % GREIT 3D with a 1x32 electrode layout
@@ -277,6 +285,14 @@ function do_unit_test
             img.elem_data(fmdl.demo_targ_elems.B) = 0.8;
                                     vi = fwd_solve(img);
            
+         case 18;
+            imdl = mk_common_model('n3r2',[16,2]); fmdl = imdl.fwd_model;
+            fmdl.nodes(:,3) = fmdl.nodes(:,3) - 1.5;
+            imdl0= select_imdl(fmdl,{'GREIT:NF=0.3 32x32 rad=0.25'});
+            img = mk_image(fmdl,1); vh = fwd_solve(img);
+            img.elem_data(fmdl.demo_targ_elems.A) = 1.2;
+            img.elem_data(fmdl.demo_targ_elems.B) = 0.8;
+                                    vi = fwd_solve(img);
             
          case 18; break
       end;
