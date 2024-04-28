@@ -98,10 +98,10 @@ function archdir = set_paths(HOMEDIR, ver,path_array)
     addpath(genpath([HOMEDIR, '/external'])); %add subdirectories
     addpath([HOMEDIR, '/deprecated']);
     addpath([HOMEDIR, '/overloads']);
-% Overloads were removed in EIDORS 3.12
-%     if ~ver.isoctave && ver.ver < 9.008
-%         addpath([HOMEDIR, '/overloads/sparse']);
-%     end
+    if ~ver.isoctave && ver.ver < 9.008
+        addpath([HOMEDIR, '/overloads/sparse']);
+    end
+% This was not an overload, but a function missing until 2017b 
 %     if ~ver.isoctave && ver.ver < 9.0073
 %         addpath([HOMEDIR, '/overloads/vecnorm']);
 %     end
