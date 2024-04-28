@@ -131,7 +131,13 @@ eidors_msg('Removing trachea', 2);
 idx = strcmp(out.mat_names,'Trachea');
 out = remove_elems(out, out.mat_idx{idx});
 
+% nicely re-order materials
+idx = [1 5 10 2  17:2:21 15 6 8 11 13 3 4 18:2:22 16 7 9 12 14];
+out.mat_idx = out.mat_idx(idx);
+out.mat_names = out.mat_names(idx);
+
 print_mdl_info(out, 'Final model');
+
 
 function mm = restore_electrodes(mm, electrode, z_contact, thresh)
 if nargin < 4
@@ -154,6 +160,7 @@ for e = 1:numel(electrode)
    mm.electrode(e).z_contact = z_contact;
 end
 
+
 function organs = get_organ_models(organspec)
 switch organspect
    case 'fine'
@@ -175,6 +182,7 @@ else
    load(fpath, 'organs');
 end
 
+
 function mdl = mk_fine_organs
 
 start_time = now(); 
@@ -185,6 +193,7 @@ mdl = fix_boundary(mdl);
 
 %  cashed results are not useful outside
 eidors_cache('clear_old', start_time);
+
 
 function mdl = assemble_organs(organs)
 pcs = struct();
@@ -217,7 +226,7 @@ heart = merge_meshes(organs.HeartWall, ...
                      organs.BloodLeftHeart, ...
                      organs.BloodRightHeart, ...
                      1e-2);
-heart.mat_names = {'HeartWall';'HeartBloodLeft'; 'HeartBloodRight'};
+heart.mat_names = {'HeartWall';'BloodHeartLeft'; 'BloodHeartRight'};
 
 eidors_msg('Merging heart, left and right', 2);
 mdl = merge_meshes(heart, left, right, 1e-2);
@@ -236,6 +245,7 @@ mdl.mat_names = vertcat(mdl.mat_names, pcs.PA.mat_names,pcs.Aorta.mat_names, ...
 eidors_msg('Merging trachea', 2);
 mdl = merge_meshes(mdl, organs.Trachea, 5e-2);
 mdl.mat_names{end+1} = 'Trachea';
+
 
 function organs = mk_individual_organs
 org_path = get_contrib_data('bp3d-torso','bp3d_organs.mat');
@@ -277,12 +287,14 @@ heart = eidors_cache(@mk_heart_surf, srf);
 organs.HeartWall = gmsh_stl2tet(heart);
 print_mdl_info(organs.HeartWall, 'HeartWall');
 
+
 function right = mk_blood_right_surf(srf)
 fn = @(x) flip_normals(x);
 right = merge_meshes(srf.BloodRight, ...
                      fn(srf.SVC.cap), ...
                      fn(srf.IVC.cap), ...
                      fn(srf.PA.cap));
+
 
 function left = mk_blood_left_surf(srf)
 fn = @(x) flip_normals(x);
@@ -293,6 +305,7 @@ left = merge_meshes(srf.BloodLeft, ...
                     fn(srf.RSPV.cap), ...
                     fn(srf.RIPV.cap), ...
                     1e-2);
+
 
 function [heart, right, left] = mk_heart_surf(srf)
 right = merge_meshes(srf.BloodRight, ...
@@ -313,6 +326,7 @@ left = flip_normals(left);
 
 heart = merge_meshes(bd(left), bd(right), bd(srf.HeartShell));
 
+
 function [V, B] = mk_vessel(vstruct)
 msh = merge_meshes(vstruct.outer, vstruct.ring, ...
                     flip_normals(vstruct.inner),1e-2);
@@ -320,14 +334,18 @@ V = gmsh_stl2tet(msh);
 msh = merge_meshes(vstruct.cap, vstruct.inner);
 B = gmsh_stl2tet(msh);
 
+
 function mdl = flip_normals(mdl)
 mdl.elems = mdl.elems(:,[1 3 2]);
+
 
 function mdl = bd(mdl)
 mdl.boundary = mdl.elems;
 
+
 function print_mdl_info(mdl, name)
 fprintf('=> %20s: %6d nodes, %7d elems\n',name, num_nodes(mdl), num_elems(mdl));
+
 
 function out = get_cache_path
 global eidors_objects
