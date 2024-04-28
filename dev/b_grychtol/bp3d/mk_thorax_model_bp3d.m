@@ -24,6 +24,33 @@ function out = mk_thorax_model_bp3d(varargin)
 %    'fine'          - a relatively dense model, ~7 million elems
 %    'coarse'        - a coarser model, *NOT IMPLEMENTED YET*
 %
+% The 'fine' model contains the following materials:
+%    #   mat_names         Description
+%   -----------------------------------------------------------------------
+%     1	Body             	Volume between the skin and the internal organs
+%     2	LungLeft         	Left lung
+%     3	LungRight        	Right lung
+%     4	HeartWall        	Heart wall
+%     5	Aorta            	Aorta (wall)
+%     6	SVC              	Superior Vena Cava (wall)
+%     7	IVC              	Inferior Vena Cava (wall)
+%     8	PA               	Pulmonary Artery (wall)
+%     9	LSPV             	Left Superior Pulmonary Vein (wall)
+%    10	LIPV             	Left Inferior Pulmonary Vein (wall)
+%    11	RSPV             	Right Superior Pulmonary Vein (wall)
+%    12	RIPV             	Right Inferior Pulmonary Vein (wall)
+%    13	BloodHeartLeft   	Blood in left atrium and left ventricle
+%    14	BloodHeartRight  	Blood in right atrium and right ventricle
+%    15	BloodAorta       	Aorta (lumen)
+%    16	BloodSVC         	Superior Vena Cava (lumen)
+%    17	BloodIVC         	Inferior Vena Cava (lumen)
+%    18	BloodPA          	Pulmonary Artery (lumen)
+%    19	BloodLSPV        	Left Superior Pulmonary Vein (lumen)
+%    20	BloodLIPV        	Left Inferior Pulmonary Vein (lumen)
+%    21	BloodRSPV        	Right Superior Pulmonary Vein (lumen)
+%    22	BloodRIPV        	Right Inferior Pulmonary Vein (lumen)
+%
+%
 % CITATION_REQUEST:
 % AUTHOR: Mitsuhashi N, Fujieda K, Tamura T, Kawamoto S, Takagi T, Okubo K
 % TITLE: BodyParts3D: 3D structure database for anatomical concepts
@@ -125,7 +152,7 @@ organs = rmfield(organs, 'show_boundary');
 
 eidors_msg('Merging body and organ volumes', 2);
 out = merge_meshes(shell, organs);
-out.mat_names = ['body'; organs.mat_names];
+out.mat_names = ['Body'; organs.mat_names];
  
 eidors_msg('Removing trachea', 2);
 idx = strcmp(out.mat_names,'Trachea');
