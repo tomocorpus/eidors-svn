@@ -76,6 +76,7 @@ function fwd_mdl= construct_fwd_model(srf,vtx,simp,bc, name, ...
     mdl.solve=          'eidors_default';
     mdl.jacobian=       'eidors_default';
     mdl.system_mat=     'eidors_default';
+    mdl.normalize_measurements = mdl_normalize('default');
 
     fwd_mdl= eidors_obj('fwd_model', mdl);
 

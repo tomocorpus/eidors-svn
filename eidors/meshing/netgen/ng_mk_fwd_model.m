@@ -46,7 +46,7 @@ fwd_mdl= construct_fwd_model(srf,vtx,simp,bc, name, ...
 [fwd_mdl.mat_idx] = mk_mat_indices(mat_ind);
 
 if ~isfield(fwd_mdl,'normalize_measurements')
-   fwd_mdl.normalize_measurements = 0;
+   fwd_mdl.normalize_measurements = mdl_normalize('default');
 end
 
 % build fwd_model structure
