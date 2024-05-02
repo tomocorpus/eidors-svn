@@ -250,13 +250,13 @@ fseek(fidIN,80,-1);                   % Move to the last 4 bytes of the header
 facetcount = fread(fidIN,1,'int32');  % Read the number of facets in the stl file
 
 % Initialise arrays into which the STL data will be loaded:
-coordNORMALS  = zeros(facetcount,3);
-coordVERTICES = zeros(facetcount,3,3);
+coordNORMALS  = zeros(facetcount,3, 'single');
+coordVERTICES = zeros(facetcount,3,3, 'single');
 
 % Read the data for each facet:
 for loopF = 1:facetcount
   
-  tempIN = fread(fidIN,3*4,'float');
+  tempIN = fread(fidIN,3*4,'float=>single');
   
   coordNORMALS(loopF,1:3)    = tempIN(1:3);    % x,y,z components of the facet's normal vector
   coordVERTICES(loopF,1:3,1) = tempIN(4:6);    % x,y,z coordinates of vertex 1

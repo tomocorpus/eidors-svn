@@ -13,10 +13,12 @@ function mdl = stl_read(fname)
 if ischar(fname) && strcmp(fname, 'UNIT_TEST'), do_unit_test; return, end
 
 [V] = READ_stl(fname);
-N = reshape(shiftdim(single(V),1),3,[])'; % STL files are single precision
-[nodes m n] = unique(N,'rows');
+N = reshape(shiftdim(V,1),3,[])'; 
+[nodes, ~, n] = unique(N,'rows');
 mdl.nodes = nodes;
 mdl.elems = reshape(uint32(n)',3,[])';
+same = mdl.elems(:,1) == mdl.elems(:,2) | mdl.elems(:,2) == mdl.elems(:,3) | mdl.elems(:,1) == mdl.elems(:,3);
+mdl.elems(same,:) = [];
 mdl.type  = 'fwd_model'; % sort of
 mdl.boundary = mdl.elems;
 
