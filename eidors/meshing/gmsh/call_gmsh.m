@@ -1,12 +1,17 @@
-function status= call_gmsh(geo_file, dim,extra)
+function status= call_gmsh(geo_file, extra)
 % call_gmsh: call Gmsh to create a vol_file from a geo_file
 % status= call_gmsh(geo_file, dim, extra)
 %  staus = 0 -> success , negative -> failure
 %
 % geo_file = geometry file (input)
-% dim      = model dimenstion (default: 2)
 % extra    = additional string options for gmsh (see gmsh manual at
 %            http://geuz.org/gmsh/doc/texinfo/gmsh.html#Command_002dline-options
+%
+% NOTE: Make sure the geo file contains the Mesh command!
+%
+% To debug the shapes and view the gmsh interface, use
+%   eidors_debug on call_gmsh
+
 
 % (C) 2009-2024 Bartosz Sawicki and Bartlomiej Grychtol
 % License: GPL  version 2
@@ -34,9 +39,11 @@ end
 
 % Matlab reports physical cores, Octave reports logical ones
 num_threads = max(maxNumCompThreads -1 -isoctave, 2);
-cmd = sprintf( '%s "%s" -%d -v 2 -term -nt %d %s',  gmsh_name, geo_file, ...
-               dim, num_threads, extra);
-
+cmd = sprintf( '%s "%s" -nt %d %s',  gmsh_name, geo_file, ...
+               num_threads, extra);
+if ~eidors_debug('query','call_gmsh')
+   cmd = [cmd ' -term -v 2 -save'];
+end
 while( 1 )
 
     status= system_cmd(cmd);

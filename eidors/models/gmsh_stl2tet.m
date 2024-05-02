@@ -1,4 +1,4 @@
-function mdl = gmsh_stl2tet(stlfile, mesh_size, extra)
+function mdl = gmsh_stl2tet(stlfile, mesh_size, extra, nopt)
 %GMSH_STL2TET creates a tetrahedral mesh from an stl file
 % mdl = gmsh_stl2tet(stlfile, maxh, extra) where:
 %        mdl - EIDORS fwd_model struct
@@ -9,11 +9,14 @@ function mdl = gmsh_stl2tet(stlfile, mesh_size, extra)
 %               OR
 %                 - a struct with .vertices and .faces
 %  mesh_size - controls mesh size. Either:
-%                 - scalar: maximum edge length (default: matches surface)
+%                 - scalar: maximum edge length 
+%                   (default: [] matches surface)
 %               OR
 %                 - [SizeMax, DistMax]: Linear grading from a fine surface,
-%                    achieving SizeMax at DistMax distance from surface.
-%      extra - extra command line options to gmsh
+%                   achieving SizeMax at DistMax distance from surface.
+%      extra - extra command line options to gmsh (default: [])
+%
+%       nopt - number of extra optimization runs (default: 0)
 %
 % If stlfile is a struct, stl_write will be called first and an STL file
 % written in a temporary location. 
@@ -27,12 +30,9 @@ function mdl = gmsh_stl2tet(stlfile, mesh_size, extra)
 % (C) Bartlomiej Grychtol, 2012-2021.
 % $Id$
 
-if nargin < 3
-   extra = [];
-end
-if nargin < 2
-   mesh_size = [];
-end
+if nargin < 4, nopt = 0; end
+if nargin < 3, extra = []; end
+if nargin < 2, mesh_size = []; end
 
 if isstruct(stlfile)
     try
@@ -47,14 +47,15 @@ if isstruct(stlfile)
     end
     opt.cache_obj{3} = mesh_size;
     opt.cache_obj{4} = extra;
-    mdl = eidors_cache(@do_gmsh_stl2tet,{stlfile, mesh_size, extra}, opt);
+    opt.cache_obj{5} = nopt;
+    mdl = eidors_cache(@do_gmsh_stl2tet,{stlfile, mesh_size, extra, nopt}, opt);
 else
-    mdl = do_gmsh_stl2tet(stlfile, mesh_size, extra);
+    mdl = do_gmsh_stl2tet(stlfile, mesh_size, extra, nopt);
 end
 
 
 
-function mdl = do_gmsh_stl2tet(stlfile, mesh_size, extra)
+function mdl = do_gmsh_stl2tet(stlfile, mesh_size, extra, nopt)
 if isstruct(stlfile)
     stem = tempname;
     stl_write(stlfile, [stem, '.stl'])
@@ -65,6 +66,7 @@ else
 end
 %TODO: Some of this could be exposed as options (Algorithm, Optimize, ...)
 fid = fopen([stem '.geo'],'w');
+fprintf(fid,'General.Terminal=1;\n');
 fprintf(fid,'Merge "%s";\n',stlname);
 fprintf(fid,'Surface Loop(1) = {1};\n');
 fprintf(fid,'Volume(2) = {1};\n');
@@ -87,10 +89,19 @@ if numel(mesh_size) < 2
    fprintf(fid,'Mesh.Algorithm3D=4;\n'); % 4=frontal (netgen)
 end
 fprintf(fid,'Mesh.OptimizeNetgen=1;\n');
-
+fprintf(fid,'Mesh 3;\n');
+% It seems that if Gmsh chooses to optimize, it does Gmsh, followed by
+% Netgen (because OptimizeNetgen=1). This can be repeated.
+for i = 1:nopt
+   fprintf(fid, 'OptimizeMesh "Gmsh";\n');
+   fprintf(fid, 'OptimizeMesh "Netgen";\n');
+end
+% Gmsh optimization is quick and experience suggests it's worth running
+% after Netgen (again).
+fprintf(fid, 'OptimizeMesh "Gmsh";\n');
 fclose(fid);
 
-call_gmsh([stem '.geo'], 3, extra);
+call_gmsh([stem '.geo'], extra);
 
 mdl = gmsh_mk_fwd_model([stem '.msh'],[],[],[]);
 
