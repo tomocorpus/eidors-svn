@@ -1,4 +1,4 @@
-function set_predef_stim(mdl, stimpat)
+function mdl = set_predef_stim(mdl, stimpat)
 % SET_PREDEF_STIM 
 % Common helper function to configure electrodes and stim pattern on thorax
 % models.
@@ -11,6 +11,7 @@ function set_predef_stim(mdl, stimpat)
 emap = get_elec_map(stimpat);
 mdl.electrode = mdl.electrode(emap);
 mdl.stimulation = get_stim_pattern(stimpat);
+end
 
 function stim = get_stim_pattern(str)
    switch(str)
