@@ -83,7 +83,7 @@ tri = elements.type==2;
 tet = elements.type==4;
 
 % Select 2d vs 3d model by checking if Z is all the same
-if length( unique( nodes(:,4) ) ) > 1
+if any(nodes(:,4) ~= nodes(1,4))
     vtx = nodes(:,2:4);
     simp = elements.simp(tet,:);
     srf = elements.simp(tri,1:3);
