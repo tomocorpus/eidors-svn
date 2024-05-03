@@ -10,6 +10,8 @@ function gmsh_write_mesh(mdl, data, outfile)
 % provided.
 
 % (C) 2021 Alistair Boyle. Licensed under GPL v2 or v3
+% Modified by Bartek Grychtol
+% $Id$
 
 if ischar(mdl) && strcmp(mdl,'UNIT_TEST'); do_unit_test; return; end
 
@@ -44,28 +46,82 @@ fid = fopen(outfile, 'w');
 fprintf(fid, '$MeshFormat\n');
 fprintf(fid, '4.1 0 8\n'); % version file-type(0 for ASCII, 1 for binary) data-size=sizeof(size_t)
 fprintf(fid, '$EndMeshFormat\n');
+
+nodes = [ mdl.nodes zeros(nn, 3 - ndim) ]; % always nn x 3, with z=0.0 if 2D
+
+
+[mdl, mat_vec] = prepare_materials(mdl, ne);
+numEntityBlocks = 1;
+try numEntityBlocks = numel(mdl.mat_idx); end
+numPhysicalNames = 0;
+try numPhysicalNames = numel(mdl.mat_idx); end
+
+if numPhysicalNames
+   fprintf(fid, '$PhysicalNames\n');
+   fprintf(fid, '%d\n',numPhysicalNames);
+   for i = 1:numPhysicalNames
+      fprintf(fid, '%d %d "%s"\n', ndim, i, mdl.mat_names{i}); % dimension physicalTag "name"
+   end
+   fprintf(fid, '$EndPhysicalNames\n');
+end
+
+fprintf(fid, '$Entities\n');
+if ndim == 2
+   fprintf(fid, '%d %d %d %d\n', 0, 0, numEntityBlocks, 0); % numPoints numCurves numSurfaces numVolumes
+else
+   fprintf(fid, '%d %d %d %d\n', 0, 0, 0, numEntityBlocks); % numPoints numCurves numSurfaces numVolumes
+end
+for i = 1:numEntityBlocks
+   physicalTag = 0; 
+   if numPhysicalNames, physicalTag = i; end
+   if numEntityBlocks == 1
+      idx = (1:ne)';
+   else 
+      idx = reshape(mdl.mat_idx{i},[],1);
+   end
+   minlim = min(nodes(unique(mdl.elems(idx,:)), :));
+   maxlim = max(nodes(unique(mdl.elems(idx,:)), :));
+   fprintf(fid, '%d %f %f %f %f %f %f %d %d %d\n', ...  
+            i, ... % volumeTag
+            minlim, ... % minX minY minZ 
+            maxlim, ... % maxX maxY maxZ
+            1, physicalTag, 0); % numPhysicalTags physicalTag numBoundingSurfaces
+end
+fprintf(fid, '$EndEntities\n');
+
 fprintf(fid, '$Nodes\n');
 fprintf(fid, '%d %d %d %d\n', 1, nn, 1, nn); % numEntityBlocks numNodes minNodeTag maxNodeTag
 fprintf(fid, '%d %d %d %d\n', ndim, 0, 0, nn); % entityDim entityTag parametric(0 or 1) numNodesInBlock
 fprintf(fid, '%d\n', 1:nn); % nodeTag
-nodes = [ mdl.nodes zeros(nn, 3 - ndim) ]; % always nn x 3, with z=0.0 if 2D
 fprintf(fid, '%f %f %f\n', nodes'); % x y z
 fprintf(fid, '$EndNodes\n');
+
 fprintf(fid, '$Elements\n');
 if ndim == 2
     type = 2; % triangle
 else
     type = 4; % tetrahedra
 end
-fprintf(fid, '%d %d %d %d\n', 1, ne, 1, ne); % numEntityBlocks numElements minElementTag maxElementTag
-fprintf(fid, '%d %d %d %d\n', ndim, 0, type, ne); % entityDim entityTag elementType(4=tet) numElementsInBlock
-elems = [[1:ne]' mdl.elems];
-if ndim == 2
-    fprintf(fid, '%d %d %d %d\n', elems'); % elementTag nodeTag ...
-else
-    fprintf(fid, '%d %d %d %d %d\n', elems'); % elementTag nodeTag ...
+fprintf(fid, '%d %d %d %d\n', numEntityBlocks, ne, 1, ne); % numEntityBlocks numElements minElementTag maxElementTag
+
+for i = 1:numEntityBlocks
+   if isempty(mat_vec)
+      neb = ne;
+      idx = (1:ne)';
+   else
+      neb = numel(mdl.mat_idx{i});
+      idx = mdl.mat_idx{i};
+   end
+   fprintf(fid, '%d %d %d %d\n', ndim, i, type, neb); % entityDim entityTag elementType(4=tet) numElementsInBlock
+   elems = [idx mdl.elems(idx,:)];
+   if ndim == 2
+      fprintf(fid, '%d %d %d %d\n', elems'); % elementTag nodeTag ...
+   else
+      fprintf(fid, '%d %d %d %d %d\n', elems'); % elementTag nodeTag ...
+   end
 end
 fprintf(fid, '$EndElements\n');
+
 if ~isempty(data)
     fprintf(fid, '$ElementData\n');
     fprintf(fid, '%d\n', 1); % numStringTags
@@ -85,6 +141,29 @@ if ~isempty(data)
     fprintf(fid, '$EndElementData\n');
 end
 fclose(fid);
+
+function [mdl, mat_vec] = prepare_materials(mdl, ne)
+mat_vec = [];
+if isfield(mdl, 'mat_idx') && ~isempty(mdl.mat_idx)
+   mat_vec = zeros(ne,1);
+   for i = 1:numel(mdl.mat_idx)
+      idx = mdl.mat_idx{i};
+      if any(mat_vec(idx))
+         error('Materials are not unique');
+      end
+      mat_vec(idx) = i;
+   end
+   if isfield(mdl,'mat_names') && ~isempty(mdl.mat_names)
+      assert(numel(mdl.mat_names), numel(mdl.mat_idx),'Every mat_idx must have a name!')
+   end
+   if any(mat_vec==0)
+      mdl.mat_idx(end+1) = {find(mat_vec==1)};
+      if isfield(mdl,'mat_names')
+         mdl.mat_names(end+1) = {'Background'};
+      end
+   end
+end
+
 
 function do_unit_test()
 % TODO cannot check 'data' because gmsh_read_mesh and gmsh_mk_fwd_model
