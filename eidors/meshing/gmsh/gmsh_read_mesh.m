@@ -109,7 +109,9 @@ function mat = get_lines_with_nodes( lines, gmshformat )
     % x-coord y-coord z-coord
 	case 2 
       n_rows = parse_rows(lines{1},gmshformat);
-      mat= sscanf(sprintf('%s ',lines{2:end}),'%f',[4,n_rows])';
+      %mat= sscanf(sprintf('%s ',lines{2:end}),'%f',[4,n_rows])';
+      mat= textscan(sprintf('%s ',lines{2:end}),'%f');
+      mat = reshape(mat{1},[4,n_rows])';
 	case 4;
         n = sscanf(lines{1}, '%d')';
         n_block = n(1);
@@ -121,9 +123,9 @@ function mat = get_lines_with_nodes( lines, gmshformat )
             tline = lines{count}; count = count + 1; % fgetl(fid);
             blk = sscanf(tline, '%d')';
             blk_nodes = blk(end); % n(2) for v4.0, n(4) for v4.1
-            el = zeros(blk_nodes,3);
+            if blk_nodes == 0,  continue, end
             if gmshformat == 4.1 % v4.1: node tags first as a block, then node coordinates in a block
-               node_tag =  textscan(sprintf('%s ',lines{count:count+blk_nodes-1}),'%d');
+               node_tag =  textscan(sprintf('%s ',lines{count:count+blk_nodes-1}),'%f');
                node_tag = node_tag{1};
                count = count + blk_nodes;
 %                el = sscanf(sprintf('%s ',lines{count:count+blk_nodes-1}),'%f',[3 blk_nodes])';
