@@ -8,6 +8,7 @@ function[srf,vtx,fc,bc,simp,edg,mat_ind] = ng_read_mesh(filename)
 % B.D.Grieve - 27/01/2002 + modifications by lmazurk
 % A.Adler - 2006 mods to run quicker
 % B.Grychtol - 2012 partial support for *.in2d
+% B.Grychtol = 2024 mods to run quicker
 %
 % EIDORS's srf array is a subset of NetGen's surface element data
 % (columns 6:8). The first column of the surface element data also
@@ -26,7 +27,7 @@ function[srf,vtx,fc,bc,simp,edg,mat_ind] = ng_read_mesh(filename)
 % mat_ind  = Material index
 
 % $Id$
-% (C) 2002-2012 (C) Licenced under the GPL
+% (C) 2002-2024 (C) Licenced under the GPL
 
 % Filenames cause problems under windows. Change \ to /
 if ~isunix
@@ -43,25 +44,31 @@ if strcmp(filename(end-2:end),'.gz')
    filename = filename(1:end-3);
    system(['gunzip -c ' orig ' > ' filename]);
 end
-
 fid = fopen(filename,'r');
 assert(fid ~= -1, ['failed to open file: ' filename ]);
-while 1
-    tline = fgetl(fid);
-    if ~ischar(tline); fclose(fid); break; end
+content = textscan(fid,'%s','Delimiter','\n');
+content = content{:};
+fclose(fid);
 
-    if     strcmp(tline,'surfaceelementsgi') % netgen-4.x
-       se= get_lines_with_numbers( fid, 11);
-    elseif strcmp(tline,'surfaceelements'); % netgen-5.x
-       se= get_lines_with_numbers( fid, 8);
-    elseif strcmp(tline,'surfaceelementsuv'); % netgen-6.x
-       se= get_lines_with_numbers( fid, 14);
+idx = find(any(startsWith(content,{'s','v','e','p'}),2));
+idx(end) = []; % endmesh
+
+for i = 1:numel(idx)
+    tline = content{idx(i)};
+    nlines = str2double(content{idx(i)+1});
+    block = content(idx(i)+2 : idx(i)+1+nlines);
+    if     strcmp(tline,'surfaceelementsgi') % GEOM_STL
+       se= get_lines_with_numbers( block, 11);
+    elseif strcmp(tline,'surfaceelements') % default
+       se= get_lines_with_numbers( block, 8);
+    elseif strcmp(tline,'surfaceelementsuv') % GEOM_OCC, GEOM_ACIS
+       se= get_lines_with_numbers( block, 14);
     elseif strcmp(tline,'volumeelements')
-       ve= get_lines_with_numbers( fid, 6);
+       ve= get_lines_with_numbers( block, 6);
     elseif strcmp(tline,'edgesegmentsgi2')
-       es= get_lines_with_numbers( fid, 12);
+       es= get_lines_with_numbers( block, 12);
     elseif strcmp(tline,'points')
-       vtx= get_lines_with_numbers( fid, 3);
+       vtx= get_lines_with_numbers( block, 3);
     end
 end
 
@@ -82,9 +89,9 @@ end
 edg = es;
 bc = se(:,2);
 
-function mat= get_lines_with_numbers( fid, n_cols);
-   tline = fgetl(fid);
-   n_rows = sscanf(tline,'%d');
-   mat= fscanf(fid,'%f',[n_cols,n_rows])';
+function mat= get_lines_with_numbers( lines, n_cols)
+
+mat= sscanf(sprintf('%s ',lines{:}),'%f',[n_cols,numel(lines)])';
+
 
 
