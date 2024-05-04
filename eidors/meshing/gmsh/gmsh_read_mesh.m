@@ -123,13 +123,18 @@ function mat = get_lines_with_nodes( lines, gmshformat )
             blk_nodes = blk(end); % n(2) for v4.0, n(4) for v4.1
             el = zeros(blk_nodes,3);
             if gmshformat == 4.1 % v4.1: node tags first as a block, then node coordinates in a block
-               node_tag =  sscanf(sprintf('%s ',lines{count:count+blk_nodes-1}),'%d');
+               node_tag =  textscan(sprintf('%s ',lines{count:count+blk_nodes-1}),'%d');
+               node_tag = node_tag{1};
                count = count + blk_nodes;
-               el = sscanf(sprintf('%s ',lines{count:count+blk_nodes-1}),'%f',[3 blk_nodes])';
+%                el = sscanf(sprintf('%s ',lines{count:count+blk_nodes-1}),'%f',[3 blk_nodes])';
+               el = textscan(sprintf('%s ',lines{count:count+blk_nodes-1}),'%f');
+               el = reshape(el{1},[3 blk_nodes])';
                count = count + blk_nodes;
                mat(node_tag,:) = [node_tag(:), el(:,1:end)];
             else % v4.0: node tag and coordinates on the same line
-               data = sscanf(sprintf('%s ',lines{count:count+blk_nodes-1}),'%f',[4 blk_nodes])';
+%                data = sscanf(sprintf('%s ',lines{count:count+blk_nodes-1}),'%f',[4 blk_nodes])';
+               data = textscan(sprintf('%s ',lines{count:count+blk_nodes-1}),'%f');
+               data = reshape(data{1},[4 blk_nodes])';
                mat(data(:,1),:) = data;
                count = count + blk_nodes;               
             end
@@ -298,7 +303,9 @@ function elements = parse_v4_elements(lines,gmshformat)
         end
         e_type = bl(3); % elementType
         e_block = bl(4); % numElementsInBlock: Size of entity block
-        data = sscanf(sprintf('%s ',lines{count:count+e_block-1}),'%d',[e_dim+2 e_block])';
+%         data = sscanf(sprintf('%s ',lines{count:count+e_block-1}),'%d',[e_dim+2 e_block])';
+        data = textscan(sprintf('%s ',lines{count:count+e_block-1}),'%d');
+        data = reshape(data{1},[e_dim+2 e_block])';
         count = count + e_block;
         n_elems = n_elems - size(data,1);
         idx = data(:,1);

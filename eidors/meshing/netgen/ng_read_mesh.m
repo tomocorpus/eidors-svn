@@ -91,7 +91,7 @@ bc = se(:,2);
 
 function mat= get_lines_with_numbers( lines, n_cols)
 % mat= sscanf(sprintf('%s ',lines{:}),'%f',[n_cols,numel(lines)])';
-% % dramatically faster (not ridiculously slow) in octave, same in Matlab
+% dramatically faster (not ridiculously slow) in octave, same in Matlab
 mat = textscan(sprintf('%s ',lines{:}),'%f');
 mat = reshape(mat{1}, [n_cols, numel(lines)])';
 
