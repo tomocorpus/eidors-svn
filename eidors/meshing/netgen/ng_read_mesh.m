@@ -3,7 +3,7 @@ function[srf,vtx,fc,bc,simp,edg,mat_ind] = ng_read_mesh(filename)
 % Function to read in a mesh model from NetGen and saves it in
 % five arrays; surface (srf), veritices (vtx), face no. (fc)
 % volume (simp) and edges (edg)
-% 
+%
 % Version 4.0
 % B.D.Grieve - 27/01/2002 + modifications by lmazurk
 % A.Adler - 2006 mods to run quicker
@@ -90,8 +90,9 @@ edg = es;
 bc = se(:,2);
 
 function mat= get_lines_with_numbers( lines, n_cols)
-
-mat= sscanf(sprintf('%s ',lines{:}),'%f',[n_cols,numel(lines)])';
-
+% mat= sscanf(sprintf('%s ',lines{:}),'%f',[n_cols,numel(lines)])';
+% % dramatically faster (not ridiculousely slow) in octave, same in Matlab
+mat = textscan(sprintf('%s ',lines{:}),'%f');
+mat = reshape(mat{1}, [n_cols, numel(lines)])';
 
 
