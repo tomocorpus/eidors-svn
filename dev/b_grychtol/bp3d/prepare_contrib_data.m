@@ -1,3 +1,11 @@
+%PREPARE_CONTRIB_DATA Download and package bp3d-torso data
+
+% (C) 2024 Bartek Grychtol. License: GPL v2 or v3
+% $Id$
+
+unzip('https://zenodo.org/records/11047831/files/stl.zip');
+
+%%
 path = 'stl';
 vessels = {'Aorta','IVC','SVC','PA', 'LSPV', 'LIPV','RSPV','RIPV'};
 
