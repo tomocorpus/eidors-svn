@@ -123,6 +123,9 @@ end
 
 function out = load_stored_model(fname)
 out = [];
+if eidors_debug('query','mk_library_model')
+   return
+end
 % If ng.opt has been specified, this this is a custom model:
 % Don't load from store
 if ng_write_opt('EXIST:ng.opt')
@@ -155,6 +158,7 @@ function store_model(fmdl,fname)
    save(fname,savver,'fmdl');
 
 function out = build_if_needed(cmd,str)
+out = [];
 out = load_stored_model(str);
 if isempty(out)
    if ~iscell(cmd)
