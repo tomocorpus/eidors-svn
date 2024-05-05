@@ -19,6 +19,7 @@ function [fwd_mdl, mat_indices]= ...
 % Gmsh mesher for EIDORS was based on Netgen interface.
 % (C) 2009 Bartosz Sawicki. License: GPL version 2 or version 3
 % Modified by James Snyder, Bartlomiej Grychtol, Alistair Boyle
+% $Id$
 
 if ischar(vol_filename) && strcmp(vol_filename,'UNIT_TEST'); do_unit_test; return; end
 
