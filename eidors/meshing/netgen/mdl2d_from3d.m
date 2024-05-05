@@ -82,7 +82,7 @@ function mdl2 = mdl2d_from3d(mdl3);
    try   
        mdl2.normalize_measurements = mdl3.normalize_measurements;  
    catch
-       mdl2.normalize_measurements = 0; end;
+       mdl2 = mdl_normalize(mdl2, 'default'); end;
 
    % update cache
    mdl2 = eidors_obj('fwd_model',mdl2);

@@ -40,7 +40,7 @@ mdl.stimulation = get_stim_pattern(stimpat);
 
 opt = organ_options;
 img = mk_lung_image(mdl,opt);
-img.fwd_model.normalize_measurements = false;
+img.fwd_model = mdl_normalize(img.fwd_model, 'default');
 
 img.name = sprintf(['Thorax model from Grychtol, Müller and Adler (2016) '... 
                      '- %s electrode config'],stimpat);

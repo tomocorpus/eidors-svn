@@ -93,7 +93,7 @@ if ~isempty( fmdl)
 end
 cmdl.boundary = find_boundary( cmdl.elems);
 
-cmdl.normalize_measurements = 0;% @eidors_default;
+cmdl = mdl_normalize(cmdl, 'default');
 cmdl.solve =      @eidors_default;
 cmdl.system_mat = @eidors_default;
 cmdl.jacobian   = @eidors_default;

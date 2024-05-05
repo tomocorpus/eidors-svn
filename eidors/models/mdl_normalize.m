@@ -9,12 +9,19 @@ function out = mdl_normalize(mdl, val)
 %  MDL = MDL_NORMALIZE(MDL, 'default') uses the EIDORS_DEFAULT value to set
 %  set the 'normalize_measurements' flag on the model.
 %
+%  OUT = MDL_NORMALIZE('default') returns the EIDORS_DEFAULT value to set
+%  set the 'normalize_measurements' flag on the model.
+%
 % See also: FWD_MODEL_PARAMETERS, EIDORS_DEFAULT, EIDORS_STARTUP
 
 % (C) 2012 Bartlomiej Grychtol. License: GPL v2 or v3
 % $Id$
 
 if ischar(mdl) && strcmp(mdl, 'UNIT_TEST'); do_unit_test; return; end
+if ischar(mdl) && strcmp(mdl, 'default') 
+   out = eidors_default; 
+   return
+end
 
 % check that we got a fwd_model
 try 
@@ -27,7 +34,7 @@ switch nargin
     case 1
         out = get_flag(mdl);
         if isempty(out)
-            out = feval('eidors_default');
+            out = eidors_default;
             warning('EIDORS:normalize_flag_not_set', ...
                 'normalize_measurements flag not set on model. Using default: %d',out);
         end

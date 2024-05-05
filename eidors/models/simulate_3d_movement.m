@@ -36,10 +36,10 @@ if nargin>=1 && ischar(n_sims) && strcmp(n_sims,'UNIT_TEST'); do_unit_test; retu
 
 if nargin<2 || isempty(fmdl) % create our own fmdl
    fmdl= mk_library_model('cylinder_16x2el_fine');
-   fmdl.normalize_measurements = 0;
+   fmdl.normalize_measurements = mdl_normalize('default');
    fmdl.electrode = fmdl.electrode(1:16);
    fmdl.stimulation = mk_stim_patterns(16,1,[0,1],[0,1],{},1);
-   fmdl.normalize_measurements = 0;
+   fmdl.normalize_measurements = mdl_normalize('default');
 end
 
 if nargin<3 || isempty(rad_pr);

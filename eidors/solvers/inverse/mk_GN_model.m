@@ -144,13 +144,8 @@ function opt = parse_options(opt,fmdl,imdl)
        elec_loc(i,:) = mean( fmdl.nodes( enodesi,:),1 );
     end
     opt.elec_loc = elec_loc;
-    
-    try
-        opt.normalize = fmdl.normalize_measurements;
-    catch 
-        opt.normalize = 0;
-        eidors_msg('mk_GN_model: fmdl.normalize_measurements not specified, assuming 0');
-    end
+    fmdl = mdl_normalize(fmdl);
+    opt.normalize = fmdl.normalize_measurements;
     
     % electrode target planes
     if ~isfield(opt, 'target_plane')

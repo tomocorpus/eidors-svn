@@ -1665,7 +1665,7 @@ function fmdl = complete_fmdl(fmdl, electrode_extra_param)
     fmdl.jacobian=   'eidors_default';
     fmdl.system_mat= 'eidors_default';
 
-    fmdl.normalize_measurements = 0;
+    fmdl = mdl_normalize(fmdl, 'default');
     
     for i = 1:numel(electrode_extra_param)
         if (isfield(electrode_extra_param{i}, 'point'))

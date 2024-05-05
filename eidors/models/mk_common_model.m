@@ -407,7 +407,7 @@ function inv2d= add_params_2d_mdl( params, n_elec, options);
     params.solve=      'eidors_default';
     params.system_mat= 'eidors_default';
     params.jacobian=   'eidors_default';
-    params.normalize_measurements= 0;
+    params.normalize_measurements = mdl_normalize('default');
     mdl_2d   = eidors_obj('fwd_model', params);
 
     inv2d.solve=       'eidors_default';
@@ -441,7 +441,7 @@ function inv3d = mk_3c_model( n_elec, xy_layers, z_layers, elec_space, ...
     params.solve=      'eidors_default';
     params.system_mat= 'eidors_default';
     params.jacobian=   'eidors_default';
-    params.normalize_measurements= 0;
+    params.normalize_measurements = mdl_normalize('default');
     fm3d = eidors_obj('fwd_model', params);
 
     inv3d.name=  'EIT inverse: 3D';
@@ -485,7 +485,7 @@ function inv_mdl = mk_n3r2_model( n_elec, options );
    fmdl.solve=      @fwd_solve_1st_order;
    fmdl.jacobian=   @jacobian_adjoint;
    fmdl.system_mat= @system_mat_1st_order;
-   fmdl.normalize_measurements = 0;
+   fmdl.normalize_measurements = mdl_normalize('default');
 
    fmdl.demo_targ_elems.A = [390;391;393;396;
      402;478;479;480;484;486;664;665;666;667;
@@ -532,7 +532,7 @@ function inv3d= mk_b3r1_model( n_elec, options )
     params.solve=      'fwd_solve_1st_order';
     params.system_mat= 'system_mat_1st_order';
     params.jacobian=   'jacobian_adjoint';
-    params.normalize_measurements= 0;
+    params.normalize_measurements = mdl_normalize('default');
     mdl_3d = eidors_obj('fwd_model', params);
 
     inv3d.name = 'EIT inverse: 3D';
@@ -560,7 +560,7 @@ function inv3d= mk_b3r2_model( n_elec, nr, options )
     params.solve=      'fwd_solve_1st_order';
     params.system_mat= 'system_mat_1st_order';
     params.jacobian=   'jacobian_adjoint';
-    params.normalize_measurements= 0;
+    params.normalize_measurements = mdl_normalize('default');
     mdl_3d = eidors_obj('fwd_model', params);
 
     % Specify number of levels in mesh for imaging slices
