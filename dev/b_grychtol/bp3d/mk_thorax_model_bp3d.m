@@ -111,6 +111,7 @@ end
 if ~isempty(organspec)
    organs = get_organ_models(organspec);
    out = eidors_cache(@add_organs,{out, organs});
+   out = set_organ_values(out);
 end
 
 if ~isempty(copyright)
@@ -126,6 +127,12 @@ out.attribution = ...
 
 out.license   =  ['Creative Commons Attribution-ShareAlike 2.1 Japan '...;
        '(http://creativecommons.org/licenses/by-sa/2.1/jp/deed.en_US)'];
+
+if strcmp(out.type, 'image')
+   out.fwd_model.copyright = out.copyright;
+   out.fwd_model.attribution = out.attribution;
+   out.fwd_model.license = out.license;
+end
 
 ws = warning('off', 'backtrace');
 warning('EIDORS:License', ...
@@ -197,6 +204,22 @@ out.mat_names = out.mat_names(idx);
 
 print_mdl_info(out, 'Final model');
 
+function img = set_organ_values(torso)
+img = mk_image(torso, 1, 'bp3d-torso');
+for i = 2:numel(torso.mat_idx)
+    if strcmp(torso.mat_names{i},'HeartWall')
+        img.elem_data(torso.mat_idx{i}) = 1.5;
+%     elseif strcmp(torso.mat_names{i},'Trachea')
+%         img.elem_data(torso.mat_idx{i}) = NaN;
+    elseif ~isempty(strfind(torso.mat_names{i}, 'Blood'))
+        img.elem_data(torso.mat_idx{i}) = 2;
+    elseif ~isempty(strfind(torso.mat_names{i}, 'Lung'))
+        img.elem_data(torso.mat_idx{i}) = .5;
+    else % vessel
+        img.elem_data(torso.mat_idx{i}) = .8;
+    end
+end
+img.calc_colours.ref_level = 1;
 
 function mm = restore_electrodes(mm, electrode, z_contact, thresh)
 if nargin < 4
