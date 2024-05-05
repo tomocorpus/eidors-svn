@@ -51,11 +51,12 @@ content = content{:};
 fclose(fid);
 
 idx = find(any(startsWith(content,{'s','v','e','p'}),2));
-idx(end) = []; % endmesh
-
+se = []; ve = []; es = []; vtx = [];
 for i = 1:numel(idx)
     tline = content{idx(i)};
+    if strcmp(tline, 'endmesh'), break; end
     nlines = str2double(content{idx(i)+1});
+    if nlines == 0, continue, end
     block = content(idx(i)+2 : idx(i)+1+nlines);
     if     strcmp(tline,'surfaceelementsgi') % GEOM_STL
        se= get_lines_with_numbers( block, 11);
