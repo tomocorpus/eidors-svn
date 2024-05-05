@@ -25,3 +25,7 @@ for i = 1:numel(organs)
 end
 %%
 save('bp3d_organs',vessels{:}, orgnames{:})
+
+%%
+torso = rmbnd(stl_read([path filesep  'Skin torso.stl']));
+save('bp3d_torso','torso');

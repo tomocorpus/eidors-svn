@@ -97,6 +97,8 @@ if nargin > 1 && ischar(varargin{end})
 end
 
 switch length(varargin)
+   case 0
+      % do nothing
    case 1
       if isempty(varargin{1})
          out = get_torso;
@@ -127,13 +129,15 @@ out.attribution = ...
     '(https://dbarchive.biosciencedbc.jp/en/bodyparts3d) by '...
     'The Database Center for Life Science.'];
 
-out.license   =  ['Creative Commons Attribution-ShareAlike 2.1 Japan ';
+out.license   =  ['Creative Commons Attribution-ShareAlike 2.1 Japan '...;
        '(http://creativecommons.org/licenses/by-sa/2.1/jp/deed.en_US)'];
 
+ws = warning('off', 'backtrace');
 warning('EIDORS:License', ...
    ['The bp3d torso model is licensed under CC BY-SA 2.1 JP.\n' ...
     'Please make sure to attribute correctly. ' ...
     'See the attribution field for details.']);
+warning(ws.state, 'backtrace');
 
 
 function out = get_torso()
@@ -206,18 +210,23 @@ if nargin < 4
 end
 surf_node_idx = unique(find_boundary(mm));
 surf_nodes = mm.nodes(surf_node_idx,:);
-idx = abs(surf_nodes(:,3)) < .98 * max(surf_nodes(:,3)); % ignore nodes close to caps
+% ignore nodes close to the bottom surface
+rng = max(surf_nodes(:,3)) - min(surf_nodes(:,3));
+idx = surf_nodes(:,3) > min(surf_nodes(:,3)) + 0.02 * rng;
 surf_node_idx = surf_node_idx(idx);
 surf_nodes = surf_nodes(idx,:);
 for e = 1:numel(electrode)
-   for n = 1:size(electrode(e).nodes,1)
-      dist = sqrt(sum((surf_nodes - electrode(e).nodes(n,:)).^2, 2));
-      [val, pos] = min(dist);
-      if val > thresh
-         warning('Problem finding node %d of electrode %d. Closest distance: %f',n,e,val);
-      end
-      mm.electrode(e).nodes(n) = surf_node_idx(pos);
+   % if we got this far, we should have enough memory for vectorized calcs
+   dist = (surf_nodes(:,1) - electrode(e).nodes(:,1)').^2;
+   for d = 2:3
+      dist = dist + (surf_nodes(:,d) - electrode(e).nodes(:,d)').^2;
    end
+%    dist = sqrt(dist); % takes a long time and changes nothing
+   [val, pos] = min(dist);
+   if any(val > thresh)
+      warning('Some nodes of electrode %d seem too far. Furthest distance: %f',e,sqrt(max(val)));
+   end
+   mm.electrode(e).nodes = surf_node_idx(pos);
    mm.electrode(e).z_contact = z_contact;
 end
 
