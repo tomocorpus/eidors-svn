@@ -5,6 +5,16 @@
 
 unzip('https://zenodo.org/records/11047831/files/stl.zip');
 
+attribution = ...
+   ['"Torso Organ Meshes" ' ...
+    '(https://doi.org/10.5281/zenodo.11047831) by Bartłomiej Grychtol ' ...
+    '/ A derivative of "BodyParts3D" '...
+    '(https://dbarchive.biosciencedbc.jp/en/bodyparts3d) by '...
+    'The Database Center for Life Science.'];
+
+license   =  ['Creative Commons Attribution-ShareAlike 2.1 Japan '...;
+       '(http://creativecommons.org/licenses/by-sa/2.1/jp/deed.en_US)'];
+
 %%
 path = 'stl';
 vessels = {'Aorta','IVC','SVC','PA', 'LSPV', 'LIPV','RSPV','RIPV'};
@@ -32,8 +42,8 @@ for i = 1:numel(organs)
     eval(sprintf('%s = tmp; clear tmp;',orgnames{i}));
 end
 %%
-save('bp3d_organs',vessels{:}, orgnames{:})
+save('bp3d_organs',vessels{:}, orgnames{:}, 'attribution', 'license')
 
 %%
 torso = rmbnd(stl_read([path filesep  'Skin torso.stl']));
-save('bp3d_torso','torso');
+save('bp3d_torso','torso', 'attribution', 'license');
