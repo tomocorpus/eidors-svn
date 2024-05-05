@@ -90,16 +90,22 @@ for i = 1:length(shapes)
         nodemap(~bnd_nodes) = M1_num_nodes + (1:uint32(M2_num_nodes - length(B2)));
         % find closest points in B1
         
+        mem_use = 256 * 1024^2; %MiB
+        if ispc || exist('OCTAVE_VERSION','builtin') &&  isunix
+           meminfo = memory;
+           mem_use = meminfo.MaxPossibleArrayBytes / 4;
+        end
         % compute distance matrix in chunks to prevent exhausting memory
-        chunk_sz = floor(256 * 1024^2 / 8 / numel(B1)); % 256 MiB / 8 bytes(double)
+        chunk_sz = floor(mem_use / 8 / numel(B1)); % mem_use / 8 bytes(double)
         n_chunks = ceil(numel(B2)/chunk_sz);
         m = zeros(1,numel(B2));
         p = zeros(1,numel(B2));
+        
         for c = 1:n_chunks
             progress_msg(c/n_chunks);
             idx = ((c-1)*chunk_sz + 1) : min(c*chunk_sz, numel(B2));
-            D = 0;
-            for dim = 1:size(out.nodes,2)
+            D = (out.nodes(B1,1) - M2.nodes(B2(idx),1)').^2;
+            for dim = 2:size(out.nodes,2)
                 D = D + (out.nodes(B1,dim) - M2.nodes(B2(idx),dim)').^2;
             end
             [m(idx), p(idx)] = min(D,[],1);
