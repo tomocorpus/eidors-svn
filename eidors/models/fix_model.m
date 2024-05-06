@@ -100,7 +100,7 @@ if doall || opt.boundary
 end
 if doall || opt.faces
    if elem_dim(mdl) == mdl_dim(mdl);
-      [mdl.faces mdl.elem2face] = calc_faces(mdl);
+      [mdl.faces, mdl.elem2face] = calc_faces(mdl);
    else
       % surface mesh
       mdl.faces = sort(mdl.elems,2);
@@ -137,7 +137,7 @@ end
 el_dim = elem_dim(mdl);
 if doall || opt.edges
     if mdl_dim(mdl)==3 %that's unlikely to work for higher order elements
-        [mdl.edges mdl.elem2edge] = calc_faces(mdl,2);
+        [mdl.edges, mdl.elem2edge] = calc_faces(mdl,2);
     else 
         mdl.edges = mdl.faces;
         mdl.elem2edge = mdl.elem2face;
@@ -197,14 +197,11 @@ end
 % mdl.inner_normal(i,j) = 1 if face j of elem i points in
 function inner_normal = test_inner_normal( mdl )
    inner_normal = false(size(mdl.elem2face));
-   d = elem_dim(mdl) + 1;
-   for i=1:num_elems(mdl);
-      el_faces = mdl.elem2face(i,:);
-      el_ctr   = repmat( mdl.elem_centre(i,:), d, 1);
-      vec_fa_el= el_ctr -  mdl.face_centre(el_faces,:);
-      normal_i  = mdl.normals(el_faces,:);
+   for i = 1:size(mdl.elem2face,2)
+      vec_fa_el= mdl.elem_centre -  mdl.face_centre(mdl.elem2face(:,i),:);
+      normal_i = mdl.normals(mdl.elem2face(:,i),:);
       dot_prod = sum( normal_i.*vec_fa_el, 2 );
-      inner_normal(i,:) = dot_prod' > 0;
+      inner_normal(:,i) = dot_prod' > 0;
    end
 
 function [faces,  elem2face] = calc_faces(mdl, facedim)
@@ -233,7 +230,7 @@ nf = length(mdl.faces);
 list(1:3:3*nf,:) = mdl.faces(:,1:2);
 list(2:3:3*nf,:) = mdl.faces(:,[1 3]);
 list(3:3:3*nf,:) = mdl.faces(:,2:3);
-[jnk f2e] = ismember(list, mdl.edges, 'rows');
+[~, f2e] = ismember(list, mdl.edges, 'rows');
 f2e = reshape(f2e,3,[])';
 
 function face2elem = calc_face2elem(elem2face)
@@ -331,6 +328,7 @@ function out = fix_options(mdl, opt)
        out.normals = true;
        out.elem_centre = true;
        out.face_centre = true;
+       out.elem2face = true;
     end
     if any([ out.boundary_face out.face_centre out.normals]) && ~isfield(mdl,'faces')
           out.faces = true;
