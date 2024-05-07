@@ -11,13 +11,14 @@ function mdl2 = place_elec_on_surf(mdl,elec_pos, elec_spec,ng_opt_file, maxh)
 %  maxh        = maximum edge length (if ng_opt_file is specified, maxh 
 %                only applies to the volume and not the surface)
 % ELECTRODE POSITIONS:
-%  elec_pos = [n_elecs_per_plane,z_planes] 
+%  elec_pos = [n_elecs_per_plane,(0=equal angles,1=equal dist),z1, z2, ...]
 %     OR
 %  elec_pos = [degrees,z] centres of each electrode (N_elecs x 2)
 %     OR
 %  elec_pos = [x y z] centres of each electrode (N_elecs x 3)
 %
-%  Note: N_elecs >= 2.
+%  Note: N_elecs >= 2. Equal distance electrode spacing not implemented
+%  yet.
 %
 % ELECTRODE SHAPES::
 %  elec_shape = [width,height, maxsz]  % Rectangular elecs
@@ -48,7 +49,7 @@ function mdl2 = place_elec_on_surf(mdl,elec_pos, elec_spec,ng_opt_file, maxh)
 
 citeme(mfilename);
 
-if ischar(mdl) && strcmp(mdl, 'UNIT_TEST') do_unit_test; return; end;
+if ischar(mdl) && strcmp(mdl, 'UNIT_TEST'), do_unit_test; return; end
 if nargin < 4
    ng_opt_file = '';
 end
@@ -95,7 +96,7 @@ end
 for i = 1:length(elecs)
    try
       [N, fc] = grow_neighbourhood(mdl,elecs(i));
-      [mdl E1{i} E2{i} V{i}] = add_electrodes(mdl,N,fc, elecs(i));
+      [mdl, E1{i}, E2{i}, V{i}] = add_electrodes(mdl,N,fc, elecs(i));
    catch e
       eidors_msg('Failed to add electrode #%d',i,1);
       rethrow(e);
@@ -110,7 +111,7 @@ delete('ng.opt'); % clean up
 
 % 4. Extract surface
 fmdl=ng_mk_fwd_model(meshfn,[],[],[],[]);
-mdl = fix_model(fmdl);
+mdl = fix_model(fmdl, struct('inner_normal', true, 'boundary_face', true));
 mdl = orient_boundary(mdl);
 mdl.elems = mdl.boundary;
 
@@ -136,11 +137,11 @@ for i = 1:length(elecs)
    mdl2.electrode(i).nodes = find_matching_nodes(mdl2,enodes,1e-4);
 end
 
-function debugging = do_debug;
+function debugging = do_debug
   debugging = eidors_debug('query','place_elec_on_surf');
 
 function write_ng_opt_file(ng_opt_file, maxh)
-% these options are meant to insure that the electrode sides don't get 
+% these options are meant to ensure that the electrode sides don't get 
 % modified, but there's no guarantee
 if ~isempty(ng_opt_file)
    ng_write_opt(ng_opt_file);
@@ -168,18 +169,21 @@ end
 
 % Extract a nice surface model from the one given
 function mdl = prepare_surf_model(mdl)
-try mdl = rmfield(mdl,'boundary');  end
-mdl = fix_model(mdl);
+% ensure mdl has a boundary, so fix_model doesn't recalculate
+mdl.boundary = 1; 
+opt = struct('inner_normal', true, 'boundary_face', true);
+mdl = fix_model(mdl,opt);
+mdl.boundary = mdl.faces(mdl.boundary_face,:);
 mdl = orient_boundary(mdl);
 mdl.elems = mdl.boundary;
 mdl.faces = mdl.boundary;
 mdl.face_centre = mdl.face_centre(mdl.boundary_face,:);
 mdl.normals = mdl.normals(mdl.boundary_face,:);
-mdl = rmfield(mdl, 'inner_normal');
-mdl = rmfield(mdl, 'boundary_face');
+mdl = rmfield(mdl, {'inner_normal','boundary_face','elem_centre',...
+                    'face2elem','elem2face'});
 idx = nchoosek(1:3, 2);
 elem_sorted = sort(mdl.elems,2);
-[mdl.edges ib ia] = unique(reshape(elem_sorted(:,idx),[],2),'rows');
+[mdl.edges, ~, ~] = unique(reshape(elem_sorted(:,idx),[],2),'rows');
 D = mdl.nodes(mdl.edges(:,1),:) - mdl.nodes(mdl.edges(:,2),:);
 mdl.edge_len = sqrt(sum(D.^2,2)); 
 
@@ -219,7 +223,6 @@ N = grow_neighbourhood(mdl,f,p,r);
 %nodes to move
 ntm = unique(mdl.elems(N,:));
 mdl.nodes(ntm,:) = mdl.nodes(ntm,:) - repmat(V,length(ntm),1);
-e_nodes = ntm;
 
 %remap outer nodes to inner ones
 map = 1:length(mdl.nodes);
@@ -259,14 +262,14 @@ if do_debug
    show_fem(mdl);
 end
 
-
+%Find mdl.nodes less then th away from nodes
 function match = find_matching_nodes(mdl, nodes,th)
-l0 = length(mdl.nodes);
+len = length(mdl.nodes);
 match = 0 * (1:length(nodes));
 for n = 1:length(nodes)
-   D = mdl.nodes - repmat(nodes(n,:),l0,1);
+   D = mdl.nodes - repmat(nodes(n,:),len,1);
    D = sqrt(sum(D.^2,2));
-   [val p] = min(D);
+   [val, p] = min(D);
    if val < th
       match(n) = p;
    end
@@ -274,7 +277,7 @@ end
 
 % Returns a joint surface mesh and the list of nodes on the side of the
 % electrode
-function [joint EL1 EL2 V] = add_electrodes(mdl,N,fc,elecs)
+function [joint, EL1, EL2, V] = add_electrodes(mdl,N,fc,elecs)
 
 
 % fc = find_face_under_elec(mdl,elecs.pos);
@@ -356,7 +359,7 @@ warning on 'MATLAB:DelaunayTri:ConsConsSplitWarnId';
 % the central face
 Ne = mdl.normals(fc,:);
 FN = TR.pointLocation(elec_nodes(:,1:2)); % face num under each electrode point
-FC = fcs(FN); % same, in original numbering
+%FC = fcs(FN); % same, in original numbering
 for j = 1:length(elecs.nodes)
    Pe = elecs.nodes(j,:);
    Nf = mdl.normals(fcs(FN(j)),:);
@@ -424,7 +427,7 @@ opt.normals = true;
 opt.face_centre = true;
 joint = fix_model(joint,opt);
 
-
+% Not used now, but needed for some disabled options
 function PN = project_nodes_on_elec(mdl,elecs,nodes)
 fc = find_face_under_elec(mdl,elecs.pos);
 Ne = mdl.normals(fc,:);
@@ -456,7 +459,7 @@ end
 have_xyz = 0;
 
 if size(elec_pos,1) == 1
-   % Parse elec_pos = [n_elecs_per_plane,(0=equal angles,1=equal dist),z_planes]
+   % Parse elec_pos = [n_elecs_per_plane,(0=equal angles,1=equal dist),z1, z2, ...]
    n_elecs= elec_pos(1); % per plane
    offset = elec_pos(2) - floor(elec_pos(2));
    switch floor(elec_pos(2))
@@ -469,12 +472,12 @@ if size(elec_pos,1) == 1
          error('not implemented yet');
    end
    on_elecs = ones(n_elecs, 1);
-   el_th = [];
-   el_z  = [];
-   for i=3:length(elec_pos)
-      el_th = [el_th; th];
-      el_z  = [el_z ; on_elecs*elec_pos(i)];
-   end
+   % support for multiple z-values
+   n_rings = length(elec_pos) - 2;
+   el_th = repmat(th,n_rings, 1);
+   el_z = on_elecs * elec_pos(3:end);
+   el_z = el_z(:);
+   
 elseif size(elec_pos,2) == 2
    % elec_pos = [theta z];
    el_th = elec_pos(:,1)*2*pi/360;
@@ -497,7 +500,7 @@ end
 
 for i = 1:n_elecs
    if ~have_xyz
-      [fc elecs(i).pos] = find_elec_centre(mdl,el_th(i),el_z(i));
+      [fc, elecs(i).pos] = find_elec_centre(mdl,el_th(i),el_z(i));
    else
       elecs(i).pos = elec_pos(i,:);
    end
@@ -528,16 +531,16 @@ for i = 1:n_elecs
       x = [pw(1)*ones(1,nh-1), pw, pw(end)*ones(1,nh-2), fliplr(pw(2:end))];
       %    % we don't want real rectangles, because Netgen will merge coplanar
       %    % faces, so we create a nice superellipse instead
-      n = 2*(nh+nw);
+      %    n = 2*(nh+nw);
       %    t = linspace(2*pi,0,n); t(end) = [];
       %    N = 8;
       %    x = abs(cos(t)).^(2/N) * width/2  .* sign(cos(t));
       %    y = abs(sin(t)).^(2/N) * height/2 .* sign(sin(t));
       % superellipses are also bad, what about a wavy rectange?
-%       [pp] = fourier_fit([x; y]', min(size(x,2),18) );
-%       t = linspace(0,1,n+1); t(end) = [];
-%       xy = fourier_fit(pp,t);
-%       x = xy(:,1)'; y = xy(:,2)';
+      %       [pp] = fourier_fit([x; y]', min(size(x,2),18) );
+      %       t = linspace(0,1,n+1); t(end) = [];
+      %       xy = fourier_fit(pp,t);
+      %       x = xy(:,1)'; y = xy(:,2)';
       % wavy rectangles are nice but don't guarantee absence of co-planar
       % faces
       % let's try a brute-force approach
@@ -546,10 +549,9 @@ for i = 1:n_elecs
       y = y + e* [zeros(1,nh) power(-1,0:nw-3) zeros(1,nh) power(-1,0:nw-3)];
    end
    fc = find_face_under_elec(mdl,elecs(i).pos);
-   [u v s] = get_face_basis(mdl, fc);
+   [u, v, s] = get_face_basis(mdl, fc);
    
    np = length(x);
-%    elecs(i).points = flipud(ones(size(x))' * elecs(i).pos + x'*s + y'*v);
 
    ng_write_opt('meshoptions.fineness',1,'options.meshsize',1.2*elecs(i).maxh);
    emdl = ng_mk_2d_model(flipud([x', y']));
@@ -562,7 +564,8 @@ for i = 1:n_elecs
 end
 delete('ng.opt');
 
-function [u v s] = get_face_basis(mdl, fc)
+% Basis vectors of a single face
+function [u, v, s] = get_face_basis(mdl, fc)
    u = mdl.normals(fc,:); % unit normal
 
    % project each coordinate axis on the plane
@@ -585,7 +588,8 @@ function [u v s] = get_face_basis(mdl, fc)
    v = v/norm(v);
    s = cross(u,v); s= s/norm(s);
 
-function [fc pos] = find_elec_centre(mdl, el_th,el_z)
+% Find the center of the electrode on the model and the face it falls on
+function [fc, pos] = find_elec_centre(mdl, el_th,el_z)
 fc = [];
 pos = [];
 
@@ -621,6 +625,7 @@ else
    ed = edg & sum( (mdl.edges == n1) + (mdl.edges == n2) ,2) > 0;
 end
 
+% Find elements that contain that edge
 el = false(length(mdl.boundary),1);
 for i = find(ed)'
    n1 = mdl.edges(i,1);
@@ -628,10 +633,9 @@ for i = find(ed)'
    el = el | sum( (mdl.boundary == n1) + (mdl.boundary == n2), 2) == 2;
 end
 el = find(el);
-% fcs = find(mdl.boundary_face);
-% fcs = fcs(el);
 
-[De(1) De(2) De(3)]  = pol2cart(el_th,1, 0); 
+% Find face under elec center
+[De(1), De(2), De(3)]  = pol2cart(el_th,1, 0); 
 for i = 1:length(el)
    Nf = mdl.normals(el(i),:);
    Cf = mdl.face_centre(el(i),:);
@@ -644,20 +648,24 @@ for i = 1:length(el)
    % X = Ctr + De * (Cf-Ctr).Nf / (De.Nf)
    t = dot(Cf-Ctr,Nf) / dot(De,Nf);
    if t < 0, continue, end
+   % check if it falls inside
    X = Ctr + De * t ;
    if point_in_triangle(X, mdl.faces(el(i),:), mdl.nodes)
       pos = X;
       fc = el(i);
       break;
    end
-   
-   % project the line on this element
-   % check if it falls inside
+
 end
 if isempty(pos)
-   keyboard
+   error('Error identifying central face under electrode');
 end
 
+
+%grow_neighbourhood(mdl, elecs_struct)
+%grow_neighbourhood(mdl, fc, pos, radius)
+% Find faces with nodes within radius of the electrode center without
+% computing the distance to all nodes (expensive)
 function [out, fc] = grow_neighbourhood(mdl, varargin)
 use_elec = false;
 if length(varargin) == 1
@@ -707,6 +715,7 @@ if use_elec
       toofar =  toofar |  sum(nodes > emax(i),2) == 3 | sum(nodes < emin(i),2) == 3;
    end
 end
+near_nodes = any(dd(bb) <= r,2);
 while any(todo)
    id = find(todo,1,'first');
    done(id) = 1;
@@ -718,7 +727,7 @@ while any(todo)
       first = false;
    else
       % at least one node must be close enough
-      nn = nn & sum(dd(bb) <= r,2) > 0;
+      nn = nn & near_nodes;
    end
    todo = todo | nn;
    todo(done) = 0;
@@ -728,17 +737,20 @@ while any(todo)
 end
 out = find(done);
 
-
-function nn =  find_neighbours(fc, bb);
+% Find neighbouring faces, return logical vector
+function nn =  find_neighbours(fc, bb)
+% nn = any(ismember(bb,bb(fc,:)),2); % <- slower
 dim = size(bb,2);
 nn = false(length(bb),1);
 for i = 1:dim
    node = bb(fc,i);
-   nn = nn | sum(bb == node,2) > 0;
+   nn = nn | sum(bb == node,2) > 0; % sum is faster than any
 end
 nn(fc) = 0;
 
-function [e p] = find_face_under_elec(mdl, elec_pos)
+% Find the face under each elec_pos coordinate
+function [e, p] = find_face_under_elec(mdl, elec_pos)
+
 for i = 1:size(elec_pos,1)
    % 1. Project electrode on all faces
    ee = repmat(elec_pos(i,:),length(mdl.faces),1);
@@ -750,7 +762,7 @@ for i = 1:size(elec_pos,1)
    % 2. Project electrode on all edges 
    edg = [mdl.faces(:,1:2);mdl.faces(:,2:3);mdl.faces(:,[3 1])];
    edg = sort(edg,2);
-   [edg jnk e2f] = unique(edg,'rows');
+   [edg, ~, e2f] = unique(edg,'rows');
    ee = repmat(elec_pos(i,:),length(edg),1);
    s = mdl.nodes(edg(:,2),:) - mdl.nodes(edg(:,1),:); %edge direction vector
    t = dot(ee-mdl.nodes(edg(:,1),:),s,2)./dot(s,s,2);
@@ -761,7 +773,7 @@ for i = 1:size(elec_pos,1)
    dis = repmat(dis,2,1);
    dis(t<0 | t > 1) = Inf;
    dis = reshape(dis(e2f),[],3);
-   [jnk, pos] = min(dis,[],2);
+   [~, pos] = min(dis,[],2);
    idx = sparse(1:length(pos),pos,1);
    dis = dis';
    dis2 = dis(logical(idx'));
@@ -773,9 +785,10 @@ for i = 1:size(elec_pos,1)
    else
       % take the element that is closest to ee
       cand = find(in);
+      % pre-allocation is not worth it
       dd(in1(cand)) = dis1(in1);
       dd(in2(cand)) = dis2(in2);
-      [jnk pos] = min(dd);
+      [~, pos] = min(dd);
       e(i) = cand(pos);
       p(i,:) = proj1(e(i),:);
    end
@@ -786,11 +799,14 @@ end
 function do_unit_test
 xy= [ -0.89 -0.74 -0.21  0.31  0.79  0.96  0.67  0.05 -0.36 -0.97;
        0.14  0.51  0.35  0.50  0.27 -0.23 -0.86 -0.69 -0.85 -0.46]';
+if exist('ng.opt','file')
+   delete ng.opt
+end
 [fmdl] = ng_mk_extruded_model({2,xy,[4,80],},[],[]);
-elec_pos = [-0.5, -0.8, 1];
+% elec_pos = [-0.5, -0.8, 1];
 % place_elec_on_surf(fmdl, elec_pos, [0.1 0 0.01]);
-% place_elec_on_surf(fmdl, elec_pos, [0.15 0.1 0.01]);
-mdl = place_elec_on_surf(fmdl, [16 0 1], [0.15 0.1 0.01]);
+% mdl = place_elec_on_surf(fmdl, elec_pos, [0.15 0.1 0.01]);
+mdl = place_elec_on_surf(fmdl, [16 0 1],[0.15 0.1 0.01]);
 % place_elec_on_surf(fmdl, [16 0 1], [0.1 0 0.01]);
 subplot(121)
 show_fem(mdl);
