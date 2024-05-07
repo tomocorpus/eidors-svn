@@ -85,8 +85,8 @@ mdl = prepare_surf_model(mdl);
 if isempty(maxh)
    maxh = max(mdl.edge_len);
 end
-
-elecs = parse_elecs(mdl,elec_pos,elec_spec);
+elecs = [];
+try elecs = parse_elecs(mdl,elec_pos,elec_spec); end
 if isempty(elecs)
    error('EIDORS:WrongInput', 'Failed to parse electrode positions. Exiting');
 end
@@ -135,6 +135,13 @@ mdl2.electrode = mdl.electrode;
 for i = 1:length(elecs)
    enodes = mdl.nodes(mdl.electrode(i).nodes,:);
    mdl2.electrode(i).nodes = find_matching_nodes(mdl2,enodes,1e-4);
+end
+
+% 8. Clean up
+if ~do_debug
+   delete(stlfn);
+   delete(meshfn);
+   delete(fnstem);
 end
 
 function debugging = do_debug
