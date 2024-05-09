@@ -1,0 +1,144 @@
+\RequirePackage[2020-02-02]{latexrelease} % workaround for broken
+\documentclass[10pt,a4paper]{article}
+% ========================== DO NOT MODIFY =================================== %
+\usepackage[a4paper,left=2.0cm,top=2.0cm,right=2.0cm,bottom=2.0cm]{geometry}
+\usepackage{amssymb,amsmath} % If amsmath is required
+\usepackage[implicit=false]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{titling}
+\usepackage{authblk}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+}
+    
+\usepackage{fancyhdr}
+\fancyhf{}
+\setlength{\headheight}{3em}
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt} % remove lines as well
+\fancyhead[L]{\footnotesize{24\textsuperscript{th} International Conference on Biomedical Applications of Electrical Impedance Tomography (EIT 2024), Hangzhou, China}}
+\fancypagestyle{firstpage}{%
+  \lhead{\footnotesize{24\textsuperscript{th} International Conference on Biomedical Applications of Electrical Impedance Tomography (EIT 2024),  Hangzhou, China}}
+}
+
+\usepackage[small,compact]{titlesec}
+% Fix titlesec for the 2.10.1 version in ubuntu 16.04
+%  https://bugs.launchpad.net/ubuntu/+source/texlive-extra/+bug/1574052
+\makeatletter
+\@ifpackagelater{titlesec}{2016/03/21}{%
+ % Package titlesec is on version 2.10.2 or higher, nothing to do %
+}{%
+ % Check if package titlesec is on version 2.10.1 %
+ \@ifpackagelater{titlesec}{2016/03/15}{%
+  % Package titlesec on version 2.10.1, patch accordingly %
+  \usepackage{etoolbox}%
+  \makeatletter
+  \patchcmd{\ttlh@hang}{\parindent\z@}{\parindent\z@\leavevmode}{}{}%
+  \patchcmd{\ttlh@hang}{\noindent}{}{}{}%
+  \makeatother
+ }{%
+  % Package titlsecon is on version 2.10.0 or lower, nothing to do %
+ }%
+}
+\makeatother
+\titlespacing*{\section}{0pt}{5pt}{5pt}  % If you need different spacing
+
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[small,bf,tableposition=top,figureposition=bottom,skip=2pt]{caption}
+
+
+% limit space between floats and text
+\setlength{\textfloatsep}{10pt plus 1.0pt minus 2.0pt}
+% shrink the list environments
+\setlist{noitemsep}
+\setlist{nolistsep}
+
+% Shrink the bibliography
+  \let\oldthebibliography=\thebibliography
+  \let\endoldthebibliography=\endthebibliography
+  \renewenvironment{thebibliography}[1]{%
+    \begin{oldthebibliography}{#1}%
+      \setlength{\parskip}{0ex}%
+      \setlength{\itemsep}{0ex}%
+  }%
+  {%
+    \end{oldthebibliography}%
+  }
+
+% Format of the front matter
+\renewcommand{\Affilfont}{\small}
+\setlength{\affilsep}{1ex}
+\renewcommand\Authands{, }
+\setlength{\droptitle}{-2cm}
+% ============================================================================ %
+
+
+
+
+%------------------------------- FRONT MATTER -------------------------------- %
+\title{EIDORS Version 3.12%
+\vspace{-0.5ex}} %remove vertical space
+\author[1]{Andy Adler}
+\affil[1]{Systems and Computer Engineering, Carleton University, Ottawa, Canada, \protect\href{mailto:adler@sce.carleton.ca}{\underline{adler@asce.carleton.ca}}}
+\date{}
+%----------------------------------------------------------------------------- %
+%\protect\url
+
+
+\begin{document}
+\maketitle
+\thispagestyle{firstpage}
+\vspace{-1.5cm}
+%\thispagestyle{empty}
+
+\begin{multicols}{2}
+
+\noindent {\bf Abstract:}
+
+\section{Introduction}
+
+\begin{figure}[H]
+  \vspace{-2.5mm}
+\centering
+% trim=left botm right top
+%\includegraphics[width=.99\columnwidth]{fig_loc.pdf}
+\caption{%
+}
+\label{fig:loc}
+\end{figure}
+
+\section{Discussion}
+
+
+
+
+
+
+\footnotesize
+% Instead of using thebibliography, you can also type the references
+% using bibtex, and uncomment the following lines
+%\bibliographystyle{compact}
+%\bibliography{eit2018}
+\begin{thebibliography}{}
+\bibitem{adler2006}
+Adler A, Lionheart WRB,
+{\em Physiol Meas} 27:S25--S42, 2006.
+
+\end{thebibliography}
+\end{multicols}
+
+
+
+\end{document}
