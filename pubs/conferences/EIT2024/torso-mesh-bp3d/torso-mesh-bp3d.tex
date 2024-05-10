@@ -92,7 +92,7 @@
 \vspace{-0.5ex}} %remove vertical space
 \author[1]{Bartłomiej Grychtol}
 \author[1]{Andy Adler}
-\affil[1]{Systems and Computer Engineering, Carleton University, Ottawa, Canada, \protect\href{mailto:adler@sce.carleton.ca}{\underline{adler@asce.carleton.ca}}}
+\affil[1]{Systems and Computer Engineering, Carleton University, Ottawa, Canada, \protect\href{mailto:adler@sce.carleton.ca}{\underline{adler@sce.carleton.ca}}}
 \date{}
 %----------------------------------------------------------------------------- %
 %\protect\url
@@ -113,7 +113,7 @@ arbitrary electrode placement. The work is made available through EIDORS and
 on Zenodo.
 
 \section{Introduction}
-Anatomically-accurate finite element meshes are needed for EIT forward
+Anatomically-accurate finite element meshes (FEM) are needed for EIT forward
 and inverse simulations. While many such meshes are publicly available, 
 EIT also requires the ability to specify and refine body surface electrodes.
 To investigate novel EIT configurations (e.g.{} for 3D EIT) tools are needed
@@ -162,6 +162,9 @@ EIDORS\cite{adler2024eidors}, and also uploaded to Zenodo\cite{grychtol2024zenod
 Adler A, Lionheart WRB,
 {\em Physiol Meas} 27:S25--S42, 2006.
 
+\bibitem{adler2024eidors}
+Adler A, Grychtol B, EIDORS 3.12, Conf EIT 2024
+
 \bibitem{gauzaine2009gmsh}
 Gauzaine C, Remacle J-F,
 {\em Int J Numer Methods Eng} 79(11) %:1309--31
@@ -172,7 +175,7 @@ Grychtol B, Adler A,
 {\em IEEE EMBS 2013} 6429--32, 2013.
 
 \bibitem{grychtol2024zenodo}
-Grychtol B, {\em Zenodo} 
+Grychtol B, 
 \href{https://doi.org/10.5281/zenodo.11047831}{10.5281/zenodo.11047831}, 2024.
 
 \bibitem{mitsuhashi2008bp3d}
@@ -184,13 +187,14 @@ Mtsuhashi N et al.
 \end{multicols}
 
 
+\vspace{-5mm}
 \begin{figure}[H]
 \centering
-\includegraphics[width=.99\columnwidth,page=1]{figures.pdf}
+\includegraphics[width=.92\columnwidth,page=1]{figures.pdf}
 \caption{%
-Illustrations of the generated mesh with multiple electrode planes.
-A) Full model with coloured organ regions, B) zoom into the full model
-in the heard region, C) mesh in a slice through the ventricles.
+Illustrations of the generated FEM with multiple electrode planes.
+A) Full model with coloured organ regions, B) zoomed image into the full model
+in the heard region, C) FEM mesh in a slice through the ventricles.
 }
 \label{fig:loc}
 \end{figure}
