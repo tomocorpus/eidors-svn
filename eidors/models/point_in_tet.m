@@ -45,7 +45,7 @@ function point2tet = do_point_in_tet_triangulation(fmdl, points, epsilon, exclud
    warning(s.state,'MATLAB:triangulation:PtsNotInTriWarnId')
    ID = pointLocation(TR, points);
    idx = ~isnan(ID);
-   point2tet = builtin('sparse',find(idx),ID(idx),1,size(points,1),size(fmdl.elems,1));
+   point2tet = sparse(find(idx),ID(idx),true,size(points,1),size(fmdl.elems,1));
 end
 
 function point2tet = do_point_in_tet_inequalities(fmdl, points, epsilon, exclude_nodes)
@@ -62,7 +62,7 @@ function point2tet = do_point_in_tet_inequalities(fmdl, points, epsilon, exclude
    mem_use = 2*(1024^3); % 2 GiB
    n_chunks = ceil(mem_req / mem_use);
    chunk_sz = ceil(size(points,1) / n_chunks);
-   point2tet = logical(builtin('sparse',0, size(fmdl.elems,1)));
+   point2tet = logical(sparse(0, size(fmdl.elems,1)));
    chunk_end = 0;
    progress_msg('Point in tet',0,n_chunks);
    for c = 1:n_chunks
@@ -84,7 +84,7 @@ function point2tet = do_point_in_tet_inequalities(fmdl, points, epsilon, exclude
                p2t = p2t & (bsxfun(@minus, A_, b_) <= epsilon)';
                %           progress_msg(.21 + (i-1)*.23);
            end
-           point2tet = [point2tet; builtin('sparse',p2t)];
+           point2tet = [point2tet; sparse(p2t)];
        else
            % slower...
            p2t = (bsxfun(@minus, A*points(idx,:)',b) <= epsilon)';
@@ -126,7 +126,7 @@ function do_unit_test_2d
    in=point_in_tet(fmdl,[x(:),y(:)],epsilon);
    in_=sparse(vv,hh,1,length(x(:)),num_elems(fmdl));
    unit_test_cmp('2D test',in,in_);
-in_ - in
+% in_ - in
 end
 
 function do_unit_test_3d
