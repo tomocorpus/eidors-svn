@@ -88,8 +88,9 @@
 
 
 %------------------------------- FRONT MATTER -------------------------------- %
-\title{EIDORS Version 3.12%
+\title{Anatomically accurate torso mesh for EIT
 \vspace{-0.5ex}} %remove vertical space
+\author[1]{Bartłomiej Grychtol}
 \author[1]{Andy Adler}
 \affil[1]{Systems and Computer Engineering, Carleton University, Ottawa, Canada, \protect\href{mailto:adler@sce.carleton.ca}{\underline{adler@asce.carleton.ca}}}
 \date{}
@@ -106,20 +107,34 @@
 \begin{multicols}{2}
 
 \noindent {\bf Abstract:}
+We describe an anatomically accurate torso mesh and set of tools to allow
+arbitrary electrode placement. The work is made available through EIDORS and
+on Zenodo.
 
 \section{Introduction}
+Anatomically-accurate finite element meshes are needed for EIT forward
+and inverse simulations. While many such meshes are publically avaialble, 
+EIT also requires the ability to specify and refine body surface electrodes.
+To investigate novel EIT configurations (e.g.{} for 3D EIT) tools are needed
+to support arbitrarily electrode positions. 
 
-\begin{figure}[H]
-  \vspace{-2.5mm}
-\centering
-% trim=left botm right top
-%\includegraphics[width=.99\columnwidth]{fig_loc.pdf}
-\caption{%
-}
-\label{fig:loc}
-\end{figure}
+\section{Methods and Results}
+A base mesh was taken from ???
+Next, 
+
+The mesh contains segmented airways and major vessels. The trachea and
+major bronchi are segmented to the level of ???. The heart is segmented
+into 
+Vessels
+
+Example image of the FEM mesh are shown in Fig.1. All software to generate the
+component sub-images are make available at \cite{grychtol2024zenodo}.
 
 \section{Discussion}
+We hope this contribution helps the EIT and bioimpedance community with
+to more easily model detailed anatomical features of the thoracic anatomy.
+To facilitate access to this model, it has been made available as part of
+EIDORS\cite{adler2006}, and also uploaded to zenodo\cite{grychtol2024zenodo}.
 
 
 
@@ -136,9 +151,22 @@
 Adler A, Lionheart WRB,
 {\em Physiol Meas} 27:S25--S42, 2006.
 
+\bibitem{grychtol2024zenodo}
+Grychtol B, Adler A,
+????? Zenodo link
+
 \end{thebibliography}
 \end{multicols}
 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=.99\columnwidth,page=1]{figures.pdf}
+\caption{%
+Illustrations of 
+}
+\label{fig:loc}
+\end{figure}
 
 
 \end{document}
