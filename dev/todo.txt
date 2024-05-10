@@ -17,6 +17,8 @@ Plan for 3.12:
  - HDF5 file format
  - more careful errors in hdf5/eidors_readdata
  - write tests for hdf5 in eidors_readdata
+
+ - Vector of calc_noise_figure ... only output eidors_msg once
  
  - UNIT_TEST for remove_nodes and remove_elems
  - UNIT_TEST for ng_mk_closed_contour
@@ -31,7 +33,7 @@ Plan for 3.12:
  - Refactor left_divide and add timing tests
  - Figure out when left_divide can use preconditioning
 
- - put 3D GREIT into select_imdl
+ + put 3D GREIT into select_imdl
 
  + check mk_library_models datatypes not working in Octave
 	mk_library_model cylinder_16x1el_coarse
