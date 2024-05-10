@@ -19,6 +19,15 @@ function [xvec, yvec, zvec, opt] = define_voxels(fmdl, varargin)
 %     opt.zvec  = []          % Specific Z cut-planes between voxels
 %                             % A scalar means the number of planes
 %                             % Takes precedence over other options
+%     opt.xlim  = []          % 2-element vector specifying the minimum and
+%                             % maximum extent in the X direction. 
+%                             % Default: extent of FMDL.nodes
+%     opt.ylim  = []          % 2-element vector specifying the minimum and
+%                             % maximum extent in the X direction. 
+%                             % Default: extent of FMDL.nodes
+%     opt.zlim  = []          % 2-element vector specifying the minimum and
+%                             % maximum extent in the X direction. 
+%                             % Default: extent of FMDL.nodes
 %     opt.square_pixels = 1;  % adjust imgsz to get square pixels (in XY)
 %                             % Default: 1 if imgsz is scalar, 0 otherwise
 %     opt.cube_voxels = 1;    % adjust imgsz to get cube voxels (in XYZ)  
@@ -47,6 +56,14 @@ function [xvec, yvec, zvec, opt] = define_voxels(fmdl, varargin)
 
 % >> SWISSTOM CONTRIBUTION <<
 
+switch fmdl.type
+   case 'fwd_model'
+      %nothing
+   case 'image'
+      fmdl = fmdl.fwd_model;
+   otherwise
+      error('EIDORS:WrongInput', 'Expected EIDORS image or fwd_model.')
+end
 
 if nargin < 2
     opt = struct;
@@ -59,14 +76,11 @@ end
 if ~isfield(opt, 'imgsz')
     opt.imgsz = 32;
 end
-if ~isfield(opt, 'xvec')
-    opt.xvec = [];
-end
-if ~isfield(opt, 'yvec')
-    opt.yvec = [];
-end
-if ~isfield(opt, 'zvec')
-    opt.zvec = [];
+fields = {'xvec', 'yvec', 'zvec', 'xlim', 'ylim', 'zlim'};
+for f = 1: numel(fields)
+   if ~isfield(opt, fields{f})
+      opt.(fields{f}) = [];
+   end
 end
 if isempty(opt.xvec) && isempty(opt.imgsz)
     error('EIDORS:WrongInput', 'opt.imgsz must not be empty if opt.xvec is empty or absent');
@@ -93,6 +107,17 @@ end
 
 mingrid = min(fmdl.nodes);
 maxgrid = max(fmdl.nodes);
+fields = {'xlim', 'ylim', 'zlim'};
+for f = 1:3
+   if ~isempty(opt.(fields{f}))
+      mingrid(f) = opt.(fields{f})(1);
+      maxgrid(f) = opt.(fields{f})(2);
+   else
+      opt.(fields{f})(1) = mingrid(f);
+      opt.(fields{f})(2) = maxgrid(f);
+   end
+end
+
 mdl_sz = maxgrid - mingrid;
 
 allempty = isempty(opt.xvec) & isempty(opt.yvec) & isempty(opt.zvec);
