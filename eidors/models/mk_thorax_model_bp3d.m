@@ -129,7 +129,7 @@ out.license   =  ['Creative Commons Attribution-ShareAlike 2.1 Japan '...;
        '(http://creativecommons.org/licenses/by-sa/2.1/jp/deed.en_US)'];
 
 if strcmp(out.type, 'image')
-   out.fwd_model.copyright = out.copyright;
+   try out.fwd_model.copyright = out.copyright; end
    out.fwd_model.attribution = out.attribution;
    out.fwd_model.license = out.license;
 end

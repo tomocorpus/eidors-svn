@@ -43,7 +43,14 @@ end
 
 opt.fstr = 'mk_thorax_model';
 out = eidors_cache(@do_mk_thorax_model,[{str}, varargin(:)'],opt);
-out = mdl_normalize(out, 'default');
+switch out.type
+   case 'image'
+      out.fwd_model = mdl_normalize(out.fwd_model, 'default');
+   case 'fwd_model'
+      out = mdl_normalize(out, 'default');
+   otherwise
+      error('Produced struct with unrecognized type');
+end
 end
 
 function out = do_mk_thorax_model(str, elec_pos, elec_shape, maxh)
