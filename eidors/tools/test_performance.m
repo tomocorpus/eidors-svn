@@ -10,12 +10,18 @@ function [r, params] =  test_performance( imdls, fmdl );
 %
 % [r, params] =  test_performance( imdls );
 %  r =  radii of test objects
-%  param = [AR, PE, RES, SD, RNG, NOI]
+%  params(1,:) = Image Amplitude
+%  params(2,:) = Position Error => + toward centre, - toward edge
+%  params(3,:) = Resolution
+%  params(4,:) = Shape Deformation
+%  params(5,:) = Ringing
+%  params(6,:) = Image Amplitude in ROI (1/4 ampl)
+%  params(7,:) = Noise Figure
 %
 % Example
 %   i_bp = mk_common_gridmdl('backproj');
-%   i_gp = mk_common_gridmdl('GREITc1');
-%   test_performance( { i_gp, i_gr })
+%   i_gr = mk_common_gridmdl('GREITc1');
+%   [r,params] = test_performance( { i_bp, i_gr })
 
 % (c) 2010 Andy Adler. Licenced under GPL v2 or v3
 % $Id$
@@ -48,6 +54,7 @@ for i= 1:length(imdls);
    imgr.calc_colours.npoints = 64;
    param_GR = eval_GREIT_fig_merit(imgr, xyzr);
    pnoise = calc_noise_figure( imdls{i}, vh, vi );
+keyboard
    params{i} = [param_GR; pnoise];
 end
 
