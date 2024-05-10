@@ -1,13 +1,15 @@
-function val = calc_grid_points(img, xpts, ypts, zpts)
+function [val, point2tet] = calc_grid_points(img, xpts, ypts, zpts)
 %CALC_GRID_POINTS - image values at points in grid
 % VAL = CALC_GRID_POINTS(img, xpts, ypts, zpts) returns the matrix of image
 % values at points on a rectangular grid as defined by
 % NDGRID(xpts,ypts,zpts).
 %
+% [VAL, C2F] = CALC_GRID_POINTS( ... ) also returns a mapping of points to
+% img.fwd_model.elems
+%
 % See also: GET_IMG_DATA, POINT_IN_TET, MK_GRID_MODEL, NDGRID
 
 %TODO:
-% - also output a c2f matrix
 % - consider adding support for leveling the model first
 
 % (C) 2021 Bartek Grychtol and Andy Adler. 
