@@ -13,6 +13,7 @@ Plan for 3.13:
  - test octave to see if doesn't give errors to stderr in call_delaunay
 
 Plan for 3.12:
+ - Update mexmac / maxmaci64 for new hash. Remove if too old
  - Post sample h5 data
  - HDF5 file format
  - more careful errors in hdf5/eidors_readdata
