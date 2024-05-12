@@ -10,12 +10,12 @@ function graph_loc
 
    k=1;for yy=2004:2024;
      tt(k) = (datenum(yy,1,1)-datenum(1970,1,1))*86400;
-     tl{k} = num2str(yy); if rem(yy,2)==0; tl{k}=''; end
+     tl{k} = num2str(yy); if rem(yy,2)==1; tl{k}=''; end
    k=k+1; end
    set(gca,'xtick',tt)
    set(gca,'xticklabel',tl);
    ylim([0, ylim*[0;1]]);
-   xlim([min(t),max(t)+0e7]);
+   xlim([min(t),max(t)+1e7]);
    releaselines
    hold off;
    set(gca,'Box','off')
@@ -28,6 +28,7 @@ function graph_loc
 function releaselines
 
 release= [
+(datenum(2024,06,27)-datenum(1970,1,1))*86400; % eidors-v3.12 % EIT conf
 (datenum(2022,12,31)-datenum(1970,1,1))*86400; % eidors-v3.11
 (datenum(2019,12,31)-datenum(1970,1,1))*86400; % eidors-v3.10
 (datenum(2018,06,1)-datenum(1970,1,1))*86400; % eidors-v3.9.1
