@@ -54,7 +54,6 @@ for i= 1:length(imdls);
    imgr.calc_colours.npoints = 64;
    param_GR = eval_GREIT_fig_merit(imgr, xyzr);
    pnoise = calc_noise_figure( imdls{i}, vh, vi );
-keyboard
    params{i} = [param_GR; pnoise];
 end
 
