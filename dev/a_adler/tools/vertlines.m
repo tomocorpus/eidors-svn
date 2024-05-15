@@ -11,7 +11,8 @@ function vertlines( xpts, opts );
   xpts = reshape(xpts,1,[]);
   oo   = 1+0*xpts;
   yl=ylim;
-  line([1;1]*xpts,yl'*oo,'Color',[0,0,0],opts{:});
+  line([1;1]*xpts,yl'*oo,'Color',[0,0,0], ...
+      'HandleVisibility','off',opts{:});
   ylim(yl);
 
 
