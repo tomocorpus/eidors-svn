@@ -79,7 +79,7 @@ function V= non_iterative(E,I);
         
         inotzeros = logical(any(I,2));
         % Don't need to cache, this is fast
-        [Qi,R] = qr(I(inotzeros,:),0);
+        [Qi,R,p] = qr(I(inotzeros,:),0); % use permution to reduce nnz
         rnotzeros = logical(any(R,2));
         R= R(rnotzeros,:);
         Q = zeros(size(I,1), size(R,1)); % Faster if not sparse
@@ -98,6 +98,7 @@ function V= non_iterative(E,I);
             P= spdiag(sqrt(1./diag(E)));
             V= P*((P*E*P) \ (P*Q))*R;
         end
+        V(:,p) = V; % undo the permutation
         
     else
         if isreal(E)
@@ -182,7 +183,7 @@ function V=iterative_solve(E,I,tol,V,fmdl)
 
 % Test code
 function do_unit_test
-%do_timing_unit_tests; return
+% do_timing_unit_tests; return
 conditioning_test;
 
 % test solvers are unaffected 
