@@ -12,6 +12,11 @@ Plan for 3.13:
     - read in a list of what's on disk on startup to avoid exist() checks
  - test octave to see if doesn't give errors to stderr in call_delaunay
 
+ - do we need both join_models and merge_meshes?
+
+ - Refactor eidors_writeimg
+ - Add Draeger bin file to eidors_writeimg
+
 Plan for 3.12:
  - Update mexmac / maxmaci64 for new hash. Remove if too old
  - Post sample h5 data
@@ -24,8 +29,7 @@ Plan for 3.12:
  - UNIT_TEST for remove_nodes and remove_elems
  - UNIT_TEST for ng_mk_closed_contour
 
- - Add Draeger bin file to eidors_writeimg
- - do we need both join_models and merge_meshes?
+ + improved merge_meshes. Add comments in docs
 
  + Add fwd_model_device with vendor/device defaults
 
@@ -33,6 +37,11 @@ Plan for 3.12:
  - Write tests for posdef in left_divide
  - Refactor left_divide and add timing tests
  - Figure out when left_divide can use preconditioning
+ - Timing tests: why is left_divide slow with multiple stim patterns - line 68 - reorder?
+
+ - Contrib page for torso_model
+ - Caching in torso_model functions
+ - Tutorials for 3D visualization
 
  + put 3D GREIT into select_imdl
 
