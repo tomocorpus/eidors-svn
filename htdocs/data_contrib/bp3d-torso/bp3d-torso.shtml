@@ -1,0 +1,94 @@
+<html>
+[% PROCESS "../../header.html" %]
+<body>
+
+<H2>Contributed EIT Data:</H2>
+   <table>
+   <tr><th valign="top"> Authors:
+       <td>
+Bart&#322;omiej Grychtol
+       <hr>
+   <tr><th valign="top"> Date:
+       <td> 2024
+       <hr>
+   <tr><th valign="top"> Brief Description:
+       <td> 
+High density smooth triangulated organ surfaces of the human torso 
+derived from the 
+<a href="http://lifesciencedb.jp/bp3d/">BodyParts3D</a> 
+database by The Database Center for Life Science.
+<p>
+This is a copy of a dataset published on <a href="https://zenodo.org/records/11047831">
+Zenodo </a>, packaged as EIDORS-compatible meshes.
+<p>
+Data were published as
+<ul>
+B Grychtol.
+Torso Organ Meshes (1.0.0) [Data set]. 
+  <i>Zenodo</i> 2024 <a href="https://doi.org/10.5281/zenodo.11047831"
+>https://doi.org/10.5281/zenodo.11047831</a> 
+</ul>
+and described in
+<ul>
+B Grychtol and A Adler.
+<a href="https://doi.org/10.1088/1361-6579/ad2eb3"
+>Anatomically accurate torso mesh for EIT</a>
+  <i>Physiol Meas</i>  45:035010, 2024.
+</ul>
+       <hr>
+   <tr><th valign="top"> License:
+       <td> <a href="http://creativecommons.org/licenses/by-sa/2.1/jp/deed.en_US">
+       Creative Commons Attribution-ShareAlike 2.1 Japan</a>
+       <hr>
+   <tr><th valign="top"> Attribution Requirement:
+       <td> 
+Use or presentation of these data must acknowledge 
+<ul>
+"Torso Organ Meshes" (https://doi.org/10.5281/zenodo.11047831) by Bart&#322;omiej Grychtol
+/ A derivative of "BodyParts3D" (https://dbarchive.biosciencedbc.jp/en/bodyparts3d) by 
+The Database Center for Life Science
+</ul>
+and cite this publication:
+<ul>
+B Grychtol and A Adler
+<a href=""
+>Anatomically accurate torso mesh for EIT</a>
+  Conf. EIT 2024, Hangzhou, China, June 27−30, 2024
+</ul>
+   <tr><th valign="top"> Format:
+       <td>
+Data are stored in Matlab v7 file format. See <a href="https://zenodo.org/records/11047831">Zenodo</a> for more details.
+       <hr>
+   <tr><th valign="top"> Data:
+       <td> <ul>
+            <li><a href="./bp3d_torso.mat")
+                >bp3d_torso.mat</a> - torso surface
+            <li><a href="./bp3d_organs.mat")
+                >bp3d_organs.mat</a> - organ surfaces
+            </ul>
+       <hr>
+   </table>
+<p>
+The data is used by the functions <code>mk_thorax_model_bp3d</code> and <code>mk_thorax_model</code>.
+
+<!---
+<pre>
+[% PROCESS "analyze01.m" %]
+</pre>
+--->
+
+<center>
+   <img src="EIT2024-BP3d-model.jpg">
+<br>
+Illustrations of an FEM with multiple electrode planes generated with <code>mk_thorax_model_bp3d</code>.
+A) Full model with coloured organ regions, B) zoomed image into the full model
+in the heard region, C) FEM mesh in a slice through the ventricles.<br>
+Figure from Grychtol and Adler, 2024.
+</center>
+
+<p>
+<small>
+    Last Modified: $Date$ by $Author$
+</small>
+</body></html>
+

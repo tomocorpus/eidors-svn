@@ -63,6 +63,11 @@ use the data.</b>
 <ul>
 <h4>Breathing Data</h4>
 
+<li> <a href="./data_contrib/db-horse3d-2024/db-horse3d-2024.shtml"
+     >3D EIT in a healthy horse</a>
+    (<i>Physiol Meas.</i>, 2024)
+      By: Andy Adler
+
 <li> <a href="./data_contrib/Dargaville-ICM2010/Dargaville-ICM2010.shtml"
      >Regional tidal ventilation and compliance during a stepwise vital
       capacity manoeuvre</a>
@@ -120,12 +125,15 @@ use the data.</b>
 <h3>Reconstruction Models and Simulation Data</h3>
 
 <ul>
+<li> <a href="./data_contrib/bp3d-torso/bp3d_torso.shtml"
+      >Torso 3D surface meshes with organs</a>
+      By: B. Grychtol
 <li> <a href="./data_contrib/db_backproj_matrix/db_backproj_matrix.shtml"
       >Backprojection Reconstruction Matrix for the Sheffield Mk I</a>
       By: B.H. Brown and D.C. Barber
 <li> <a href="./data_contrib/yg-ventilation-colourmap/yg-ventilation-colourmap.shtml"
       >EIT Ventilation Colourmap</a>
-      By: Draegerwerk AG &amp; Co. KGaA),
+      By: Draegerwerk AG &amp; Co. KGaA
 <li> <a href="./data_contrib/at-thorax-mesh/at-thorax-mesh.shtml"
       >Male and Female thorax FEM meshes</a> 
       By: A. Tizzard
@@ -136,7 +144,6 @@ use the data.</b>
       >Human Thorax 2D FEM mesh</a>
       By: A. Borsic, C. McLeod, W.R.B. Lionheart, N. Kerrouche
 </ul>
-
 <h3>EIT Test and Evaluation systems</h3>
 <ul>
 <li> <a href="./data_contrib/evaluation-phantom/phantom_evaluation.shtml"
