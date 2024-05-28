@@ -1,11 +1,11 @@
-function [val, point2tet] = calc_grid_points(img, xpts, ypts, zpts)
+function [val, c2f] = calc_grid_points(img, xpts, ypts, zpts)
 %CALC_GRID_POINTS - image values at points in grid
 % VAL = CALC_GRID_POINTS(img, xpts, ypts, zpts) returns the matrix of image
 % values at points on a rectangular grid as defined by
 % NDGRID(xpts,ypts,zpts).
 %
 % [VAL, C2F] = CALC_GRID_POINTS( ... ) also returns a mapping of points to
-% img.fwd_model.elems
+% img.fwd_model.elems (logical [n_elems x n_points])
 %
 % See also: GET_IMG_DATA, POINT_IN_TET, MK_GRID_MODEL, NDGRID
 
@@ -30,6 +30,11 @@ data = get_img_data(img);
 [x,y,z]= ndgrid( xpts, ypts, zpts);
 pts = [x(:),y(:),z(:)];
 point2tet = point_in_tet(fmdl, pts, eps);
+if nargout == 2
+   c2f = logical(sparse(size(pts,1), size(use_elem,1)));
+   c2f(:, use_elem) = point2tet;
+   c2f = c2f'; % the usual orientation
+end
 
 if isfield(img, 'elem_data')
     val =  point2tet * data(use_elem,:);
