@@ -188,7 +188,8 @@ function elem_data = check_elem_data(img)
        case sz_c2f(1); % Ok     
        case sz_c2f(2); elem_data = c2f * elem_data;
        otherwise; error(['jacobian_adjoint: provided elem_data ' ...
-            ' (sz=%d) does not match c2f (sz=%d %d)'], sz_elem_data(1), sz_c2f);
+            ' (sz=%d) does not match c2f (sz=%d %d)'], sz_elem_data(1), ...
+            sz_c2f(1), sz_c2f(2));
      end
    else
      if sz_elem_data(1) ~= num_elems(img.fwd_model)
