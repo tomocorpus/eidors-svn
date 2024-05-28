@@ -8,9 +8,20 @@ function mdl = set_predef_stim(mdl, stimpat)
 % (C) 2016-2024 Bartlomiej Grychtol. License: GPL version 2 or 3
 % $Id$
 
+if strcmp(mdl.type, 'image')
+   img = mdl;
+   mdl = img.fwd_model;
+end
+
 emap = get_elec_map(stimpat);
 mdl.electrode = mdl.electrode(emap);
 mdl.stimulation = get_stim_pattern(stimpat);
+
+if exist('img','var')
+   img.fwd_model = mdl;
+   mdl = img;
+end
+
 end
 
 function stim = get_stim_pattern(str)
@@ -26,6 +37,7 @@ function stim = get_stim_pattern(str)
             sprintf('%s\n', pattern_list));
    end
 end
+
 
 function ls = pattern_list
    ls = {

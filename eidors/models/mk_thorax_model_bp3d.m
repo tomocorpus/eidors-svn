@@ -92,26 +92,21 @@ end
 
 switch length(varargin)
    case 0
-      % do nothing
+      out = mk_organ_image(out, organspec); % for the sake of completeness 
    case 1
       if isempty(varargin{1})
          out = get_torso;
       elseif ischar(varargin{1}) 
          copyright = '(C) EIDORS Project';
-         out = build_predef_elecs(varargin{1});
+         out = build_predef_elecs(varargin{1}, organspec);
       else
          error('EIDORS:WrongInput','Electrode specification not understood');
       end
    case {2,3}
       out = mk_thorax_model('bp3d',varargin{:});
+      out = mk_organ_image(out, organspec);
    otherwise
       error('EIDORS:WrongInput', 'Too many inputs');
-end
-   
-if ~isempty(organspec)
-   organs = get_organ_models(organspec);
-   out = eidors_cache(@add_organs,{out, organs});
-   out = set_organ_values(out);
 end
 
 if ~isempty(copyright)
@@ -150,11 +145,15 @@ out = gmsh_stl2tet(torso);
 out = fix_boundary(out);
 
 
-function out = build_predef_elecs(stimpat)
+function out = build_predef_elecs(stimpat, organspec)
 cache_path = get_cache_path;
-fname = 'bp3d_predef_torso.mat';
-fpath = [cache_path filesep fname];
+fname = 'bp3d_predef_torso';
+if ~isempty(organspec)
+   fname = [fname '_' organspec];
+end
+fpath = [cache_path filesep fname '.mat'];
 if exist(fpath,'file')
+   eidors_msg('@@ Using stored model.', 3);
    load(fpath, 'out');
 else
    eth16 = 360*cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5 - 90; eth16 = eth16';
@@ -163,9 +162,17 @@ else
    ep(17:48,1) = eth32; ep(17:48,2) = 1212.5;
    ep(49:64,1) = eth16; ep(49:64,2) = 1250;
    out = mk_thorax_model('bp3d',ep,[10 0 1],20);
+   out = mk_organ_image(out, organspec);
    save(fpath,'out');
 end
-out = set_predef_stim(out, stimpat);
+out = set_predef_stim(out.fwd_model, stimpat);
+
+
+function out = mk_organ_image(out, organspec)
+if isempty(organspec), return, end
+organs = get_organ_models(organspec);
+out = eidors_cache(@add_organs,{out, organs});
+out = set_organ_values(out);
 
 
 function out = add_organs(torso, organs)
@@ -277,9 +284,7 @@ organs = mk_individual_organs;
 mdl = assemble_organs(organs);
 mdl.show_boundary = mdl.boundary;
 eidors_msg('Recalculating boundary',2);
-eidors_cache off
 mdl = fix_boundary(mdl);
-eidors_cache on
 
 %  cashed results are not useful outside
 eidors_cache('clear_old', start_time);

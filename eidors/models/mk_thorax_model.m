@@ -134,7 +134,9 @@ end
 
 function ls = list_predef_models
    ls = {'adult_male_grychtol2016a_1x32'
-         'adult_male_grychtol2016a_2x16'};
+         'adult_male_grychtol2016a_2x16'
+         'adult_male_bp3d_1x32'
+         'adult_male_bp3d_2x16'};
 end
 
 function out = build_predef_model(str)
@@ -144,6 +146,12 @@ function out = build_predef_model(str)
          
       case 'adult_male_grychtol2016a_2x16'
          out = mk_thorax_model_grychtol2016a('2x16_planar');
+      
+      case 'adult_male_bp3d_1x32'
+         out = mk_thorax_model_bp3d('1x32_ring', 'fine');
+
+      case 'adult_male_bp3d_2x16'
+         out = mk_thorax_model_bp3d('2x16_planar', 'fine');
    end
 end
 
