@@ -7,6 +7,7 @@ function [ROIs, imgR, imdl] = define_ROIs(imdl, varargin)
 %   opts: options structure
 %     opts.reorder = reorder defined ROIs
 %     opts.normalize = set ROI of each =1
+%     opts.usec2f    = true if use fwd_model.coarse2fine
 % 
 %   ROIs: matrix [n_ROIs x n_elems]
 %   imgR: image of ROIs (mostly for debugging)
@@ -28,6 +29,20 @@ function [ROIs, imgR, imdl] = define_ROIs(imdl, varargin)
 
 if ischar(imdl) && strcmp(imdl,'UNIT_TEST'); do_unit_test; return; end
 
+if isstruct(varargin{end})
+   opts = varargin{end};
+   last = 1;
+else
+   opts = struct([]);
+   last = 0;
+end
+% Set defaults
+%     opts.reorder = reorder defined ROIs
+%     opts.normalize = set ROI of each =1
+%     opts.usec2f    = true if use fwd_model.coarse2fine
+opts = mergestructs(struct( ...
+    'reorder',[],'normalize',false,'usec2f',false), opts);
+
 recc2f = 1;
 switch imdl.type
    case 'fwd_model';
@@ -43,23 +58,19 @@ switch imdl.type
    otherwise;
       error('define_ROIs: require fwd_ or inv_model');
 end
-
-if isstruct(varargin{end})
-   opts = varargin{end};
-   last = 1;
-else
-   opts = struct([]);
-   last = 0;
+if opts.usec2f
+  recc2f = fmdl.coarse2fine;
 end
+
 
 rmdl = mk_grid_model([],varargin{1:end-last});
 
 ROIa = mk_approx_c2f(fmdl,rmdl);
 ROIs = ROIa.' * recc2f;
-if isfield(opts,'reorder')
+if ~isempty(opts.reorder)
    ROIs = ROIs(opts.reorder(:),:);
 end
-if isfield(opts,'normalize')
+if opts.normalize
    ROIs = ROIs ./ sum(ROIs,2);
 end
 imgR= mk_image(fmdl,ROIs.');
