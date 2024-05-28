@@ -141,7 +141,7 @@ end
 if ~do_debug
    delete(stlfn);
    delete(meshfn);
-   delete(fnstem);
+   delete(stlfn2);
 end
 
 function debugging = do_debug
@@ -267,6 +267,7 @@ mdl.electrode(l).z_contact = 0.01;
 
 if do_debug
    show_fem(mdl);
+%    keyboard
 end
 
 %Find mdl.nodes less then th away from nodes
@@ -306,6 +307,7 @@ if do_debug
    plot3(elecs.points(:,1),elecs.points(:,2),elecs.points(:,3),'ro');
    % plot3(mdl.nodes(nn(outer),1), mdl.nodes(nn(outer),2), mdl.nodes(nn(outer),3),'bs')
    hold off
+%    keyboard
 end
 
 flat = level_model_slice(jnk,struct('centre',mdl.face_centre(fc,:),'normal',mdl.normals(fc,:)));
@@ -415,6 +417,7 @@ jnk.elems = [ els; E; elecs.elems+ln+le];
 jnk.boundary = jnk.elems;
 if do_debug
    show_fem(jnk);
+%    keyboard
 end
 
 % remove the patch we're replacing
