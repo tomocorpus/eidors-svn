@@ -340,7 +340,8 @@ function [imdl,fmdl,imgs] = parse_fmdl(fmdl);
    end
    % Prepare model
    if isempty(imdl)
-      imdl = select_imdl( fmdl,{'Basic GN dif'});
+      imdl = eidors_obj('inv_model','GREIT inverse model', ...
+                         'fwd_model',fmdl, 'reconst_type','difference');
    end
    
    
