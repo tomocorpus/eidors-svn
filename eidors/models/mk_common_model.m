@@ -462,10 +462,10 @@ function inv_mdl = mk_n3z_model( n_elec, options );
    fwd_mdl= inv_mdl.fwd_model;
    renumber= [1:2:15; 18:2:32];
    fwd_mdl.electrode= fwd_mdl.electrode(renumber(:));
-   n_rings= 1;
-   [st, els]= mk_stim_patterns(n_elec, n_rings, '{ad}','{ad}', options, 10);
+   % there are always 16 electrodes
+   [st, els]= mk_stim_patterns(16, 1, '{ad}','{ad}', options, 10);
    fwd_mdl.stimulation= st;
-   fwd_model.meas_select= els;
+   fwd_mdl.meas_select= els;
    inv_mdl.fwd_model= fwd_mdl;
    inv_mdl.name= 'NP 3D model with zigzag electrodes';
 
