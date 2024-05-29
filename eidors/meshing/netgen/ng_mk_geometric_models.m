@@ -1657,10 +1657,9 @@ function fmdl = complete_fmdl(fmdl, electrode_extra_param)
     [unused, min_idx] = min(sum((fmdl.nodes - domain_centers).^2, 2));
     fmdl.gnd_node     = min_idx(1);
 
-    fmdl.np_fwd_solve.perm_sym = '{n}';
-
+    fmdl.type = 'fwd_model';
     fmdl.name = 'ng_mk_geometric_models';
-
+    
     fmdl.solve=      'eidors_default';
     fmdl.jacobian=   'eidors_default';
     fmdl.system_mat= 'eidors_default';

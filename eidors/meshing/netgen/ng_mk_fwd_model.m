@@ -67,7 +67,6 @@ mdl.elems    = simp;
 mdl.boundary = srf;
 mdl.boundary_numbers=fc;
 mdl.gnd_node=    find_centre_node(vtx);
-mdl.np_fwd_solve.perm_sym =     '{n}';
 mdl.name = name;
 
 % Model Stimulation
