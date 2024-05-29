@@ -165,7 +165,7 @@ else
    out = mk_organ_image(out, organspec);
    save(fpath,'out');
 end
-out = set_predef_stim(out.fwd_model, stimpat);
+out = set_predef_stim(out, stimpat);
 
 
 function out = mk_organ_image(out, organspec)
