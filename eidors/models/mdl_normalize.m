@@ -32,10 +32,10 @@ try
          img = mdl;
          mdl = img.fwd_model;
       otherwise
-         error('');
+         error('EIDORS:WrongInput','Expected fwd_model or image.');
    end
 catch
-    error('EIDORS:WrongInput','mdl_normalize: unknow object type');
+   warning('EIDORS:UnknownType','Object has no type. Assuming fwd_model.');
 end
 % do the real thing
 switch nargin
