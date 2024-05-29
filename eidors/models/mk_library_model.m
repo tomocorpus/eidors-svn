@@ -37,7 +37,7 @@ function out = mk_library_model(shape,elec_pos,elec_shape,maxsz,nfft,scale)
 %   mk_library_model LIBRARY_PATH new_path => set library path
 %   mk_library_model LIBRARY_PATH '' => don't store models
 %
-%
+% See also: MK_THORAX_MODEL, MK_EXTRUDED_MODEL, SHAPE_LIBRARY
 
 % (C) 2011 Bartlomiej Grychtol. License: GPL version 2 or version 3
 % $Id$
@@ -186,6 +186,10 @@ out = {
     'adult_male_2x32el';
     'adult_male_2x16el_lungs';
     'adult_male_2x32el_lungs';
+    'adult_male_bp3d_1x32';
+    'adult_male_bp3d_2x16';
+    'adult_male_bp3d_1x32_organs';
+    'adult_male_bp3d_2x16_organs';
     'adult_male_grychtol2016a_1x32';
     'adult_male_grychtol2016a_2x16';
     'adult_male_thorax_1x32';
@@ -263,6 +267,16 @@ switch str
         elayers = [0.65,0.35];
         out = mk_library_model({'adult_male','boundary','left_lung','right_lung'},...
             [32 1 elayers],[0.05],0.08);
+    case 'adult_male_bp3d_1x32'
+        out = mk_thorax_model_bp3d('1x32_ring');
+    case 'adult_male_bp3d_2x16'
+        out = mk_thorax_model_bp3d('2x16_planar');
+    case 'adult_male_bp3d_1x32_organs'
+        out = mk_thorax_model_bp3d('1x32_ring','fine');
+        out = out.fwd_model;
+    case 'adult_male_bp3d_2x16_organs'
+        out = mk_thorax_model_bp3d('2x16_planar','fine');
+        out = out.fwd_model;
     case 'adult_male_grychtol2016a_1x32'
         out = mk_thorax_model_grychtol2016a('1x32_ring');
         out = out.fwd_model;
