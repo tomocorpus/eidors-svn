@@ -23,11 +23,11 @@ function out = mk_thorax_model(str, varargin)
 %
 % MK_THORAX_MODEL('list') lists available predefined models.
 %
-
 %
-% See also: PLACE_ELEC_ON_SURF, MK_LIBRARY_MODEL
+% See also: MK_THORAX_MODEL_BP3D, MK_THORAX_MODEL_GRYCHTOL2016a, 
+% PLACE_ELEC_ON_SURF, MK_LIBRARY_MODEL
 
-% (C) 2015-2016 Bartlomiej Grychtol. License: GPL version 2 or 3
+% (C) 2015-2024 Bartlomiej Grychtol. License: GPL version 2 or 3
 % $Id$
 
 if nargin>0 && ischar(str) 
