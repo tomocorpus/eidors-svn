@@ -25,9 +25,17 @@ end
 
 % check that we got a fwd_model
 try 
-    if ~strcmp(mdl.type,'fwd_model'), error;end;
+   switch mdl.type
+      case 'fwd_model'
+         % do nothing
+      case 'image'
+         img = mdl;
+         mdl = img.fwd_model;
+      otherwise
+         error('');
+   end
 catch
-    error('mdl_normalize: not called for a fwd_model object');
+    error('EIDORS:WrongInput','mdl_normalize: unknow object type');
 end
 % do the real thing
 switch nargin
@@ -43,9 +51,15 @@ switch nargin
            val = eidors_default;
         end
         out = set_flag(mdl,val);
+        if exist('img','var') % input was an image
+           img.fwd_model = out;
+           out = img;
+        end
     otherwise
         error('Wrong number of parameters');
 end
+
+
 
 function out = get_flag(mdl)
  out = [];
