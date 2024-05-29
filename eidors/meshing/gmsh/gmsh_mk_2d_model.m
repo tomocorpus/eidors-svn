@@ -72,7 +72,7 @@ end
 fprintf(fid,'Plane Surface (%d) = {%d%s};\n',...
         n_lines + 1, loop_idx(1), str);
 
-fpritnf(fid,'Mesh 2;\n');
+fprintf(fid,'Mesh 2;\n');
         
 fclose(fid);
 
