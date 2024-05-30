@@ -59,8 +59,10 @@ end
 
 opt.fstr = 'place_elec_on_surf';
 mdl2 = eidors_cache(@do_place_elec_on_surf,{mdl,elec_pos, elec_spec,ng_opt_file, maxh},opt);
-mdl2 = mdl_normalize(mdl2, 'default');
 
+mdl2 = mdl_normalize(mdl2, 'default');
+try name = mdl.name; catch, name = 'Unnamed model'; end
+mdl2 = eidors_obj('fwd_model', mdl2, 'name', [name ' + place_elec_on_surf']);
 
 
 function mdl2 = do_place_elec_on_surf(mdl,elec_pos, elec_spec,ng_opt_file, maxh)
