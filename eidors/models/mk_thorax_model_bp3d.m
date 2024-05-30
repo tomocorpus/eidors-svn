@@ -109,6 +109,8 @@ switch length(varargin)
       error('EIDORS:WrongInput', 'Too many inputs');
 end
 
+out = eidors_obj('set', out); % sort fields
+
 if ~isempty(copyright)
    out.copyright = copyright;
 end
@@ -143,14 +145,18 @@ load(get_contrib_data(contrib,file),'torso');
 eidors_msg('Budiling bp3d body surface', 2);
 out = gmsh_stl2tet(torso);
 out = fix_boundary(out);
+out.name = 'BP3D Torso Model';
 
 
 function out = build_predef_elecs(stimpat, organspec)
 cache_path = get_cache_path;
 fname = 'bp3d_predef_torso';
+suffix = '';
 if ~isempty(organspec)
    fname = [fname '_' organspec];
+   suffix = [' - ' organspec];
 end
+name = ['BP3D Torso Model' suffix];
 fpath = [cache_path filesep fname '.mat'];
 if exist(fpath,'file')
    eidors_msg('@@ Using stored model.', 3);
@@ -162,10 +168,12 @@ else
    ep(17:48,1) = eth32; ep(17:48,2) = 1212.5;
    ep(49:64,1) = eth16; ep(49:64,2) = 1250;
    out = mk_thorax_model('bp3d',ep,[10 0 1],20);
+   out.name = name;
    out = mk_organ_image(out, organspec);
    save(fpath,'out');
 end
 out = set_predef_stim(out, stimpat);
+out.name = [out.name ' - ' stimpat];
 
 
 function out = mk_organ_image(out, organspec)
@@ -173,6 +181,7 @@ if isempty(organspec), return, end
 organs = get_organ_models(organspec);
 out = eidors_cache(@add_organs,{out, organs});
 out = set_organ_values(out);
+out.name = 'BP3D Torso Image';
 
 
 function out = add_organs(torso, organs)
