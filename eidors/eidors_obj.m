@@ -10,6 +10,17 @@ function [obj_id, extra_out] = eidors_obj(type,name, varargin )
 % USAGE: to get path to EIDORS:
 %     path = eidors_obj('eidors_path');
 %
+% USAGE: (for developers) to create a new eidors object:
+%     obj = eidors_obj('fwd_model','obj name','nodes',N,'elems',E,...)
+%     obj = eidors_obj('fwd_model',mdl_struct,'name','obj name',..)
+%     obj = eidors_obj('fwd_model',mdl_struct);
+% will return an object of type 'fwd_model' with standardized field order.
+%
+% USAGE: (for developers) to set fields on existing objects:
+%     obj = eidors_obj('set',obj,'name','obj name',...);
+%     obj = eidors_obj('set',obj);
+% will return an object with standardized field order.
+%
 % USAGE: to cache values (not recommended)
 %            obj_id = eidors_obj('set-cache',obj, cachename,value, [time])
 %     [obj, obj_id] = eidors_obj('get-cache',obj, cachename)
@@ -371,8 +382,6 @@ function score = calc_effort_score( time, counts, prios)
 
 
 function obj= new_obj( type, name, varargin );
-   global eidors_objects
-
    if isstruct(name)
       obj= name;
       try
