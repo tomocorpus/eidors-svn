@@ -168,15 +168,57 @@ function verstr = test_versions;
       end
 
 function obj = set_obj( obj, varargin );
-   global eidors_objects;
-
-%  eidors_objects.( obj_id ) = obj;
-%  eidors_objects.( obj_id ).cache= []; %clear cache
-%  
-
    for idx= 1:2:nargin-1
       obj.( varargin{idx} )= varargin{idx+1};
    end
+   obj = order_fields(obj);
+
+function obj = order_fields(obj)
+   if ~isfield(obj, 'type'), return, end
+   switch obj.type
+      case 'fwd_model'
+         field_order = {'type', 'name',...
+            'nodes', 'elems', 'boundary', ...
+            'electrode', ...
+            'stimulation', 'meas_select', ...
+            'solve', 'jacobian', 'system_mat', ...
+            'normalize_measurements', 'gnd_node', ... 
+            'boundary_numbers','mat_idx', 'mat_names'};
+      case 'inv_model'
+         field_order = {'type', 'name',...
+            'fwd_model', 'rec_model','jacobian_bkgnd' ...
+            'reconst_type','solve', ...
+            'hyperparameter'};
+      case 'rec_model'
+         field_order = {'type', 'name',...
+            'nodes', 'elems'};
+      case 'image'
+         field_order = {'type', 'name', 'fwd_model', ...
+            'elem_data', 'node_data'};
+      case 'data'
+         field_order = {'type', 'name', 'meas'};
+      otherwise
+         warning(['Encountered an unexpected object type %s. ' ...
+            'Please report on the eidors mailing list if it''s not your typo.'])
+         return 
+   end
+
+   fnames = fieldnames(obj);
+   [~,known_idx] = ismember(fnames,field_order);
+   field_idx = find(known_idx);
+   known_order = sortrows([nonzeros(known_idx), field_idx]);
+
+   [~, unknown_order] = sort(fnames(known_idx==0));
+
+   perm = zeros(numel(fnames),1);
+   perm(1:numel(field_idx)) = known_order(:,2);
+   perm(numel(field_idx) + unknown_order) = find(known_idx==0);
+
+   obj = orderfields(obj,perm);
+
+   try obj.fwd_model = order_fields(obj.fwd_model); end
+   try obj.rec_model = order_fields(obj.rec_model); end
+   
 
 % val= get_cache_obj( obj, prop, dep_obj1, dep_obj2, ...,  cachename );
 function [value, obj_id] = get_cache_obj( obj, prop )
