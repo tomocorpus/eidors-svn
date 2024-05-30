@@ -24,7 +24,7 @@ Plan for 3.12:
  - more careful errors in hdf5/eidors_readdata
  - write tests for hdf5 in eidors_readdata
 
- - Vector of calc_noise_figure ... only output eidors_msg once
+ + Fix calc_noise_figure unit tests
  
  - UNIT_TEST for remove_nodes and remove_elems
  - UNIT_TEST for ng_mk_closed_contour

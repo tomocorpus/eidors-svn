@@ -51,11 +51,6 @@ function [NF,SE] = calc_noise_figure( inv_model, hp, iterations, extraparam)
 
 if ischar(inv_model) && strcmp(inv_model,'UNIT_TEST'), do_unit_test, return, end
 
-if nargin>=2 && numel(hp) == 1
-   inv_model.hyperparameter.value= hp;
-% Remove function parameter because it will recurse
-   try; inv_model.hyperparameter = rmfield(inv_model.hyperparameter,'func'); end
-end
 if nargin == 3 && numel(hp) > 1
     h_data = hp;
     c_data = iterations;
@@ -77,6 +72,10 @@ elseif nargin == 4
    h_data = hp;
    c_data = iterations;
    inv_model.hyperparameter.value= extraparam;
+elseif nargin>=2 && numel(hp) == 1
+   inv_model.hyperparameter.value= hp;
+% Remove function parameter because it will recurse
+   try; inv_model.hyperparameter = rmfield(inv_model.hyperparameter,'func'); end
 else
     [inv_model, h_data, c_data] = process_parameters( inv_model );
 end
@@ -452,7 +451,14 @@ function do_unit_test
     NFREQ = 0.5;
     [hpx] = fminbnd(@(hpx) abs(NFREQ -  ...
               calc_noise_figure(imdl,vh,vi,10^hpx)), -5,0);
+    eidors_msg('log_level',ll);
 
+
+function test0
+    imdl = mk_common_model('a2c2',16);
+    img = mk_image(imdl,1); vh=fwd_solve(img);
+    img.elem_data(1:4)=1.1; vi=fwd_solve(img);
+    NF=calc_noise_figure(imdl,vh,vi);
 
 function test1
     % big model with c2f and supposedly an NF of 0.5
