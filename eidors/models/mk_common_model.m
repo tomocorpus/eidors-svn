@@ -458,11 +458,15 @@ function inv3d = mk_3c_model( n_elec, xy_layers, z_layers, elec_space, ...
     inv3d.fwd_model= fm3d;
 
 function inv_mdl = mk_n3z_model( n_elec, options );
-   inv_mdl= mk_n3r2_model( n_elec, options);
+   if isempty(n_elec) || ~all(n_elec == [16,1])
+      warning(sprintf(['You have requested an "n3z" model with [%d,%d] electrodes. ' ...
+         'Note that these models always have 16 electrodes (16x1)'], n_elec));
+   end
+   inv_mdl= mk_n3r2_model( [16, 2], options);
    fwd_mdl= inv_mdl.fwd_model;
    renumber= [1:2:15; 18:2:32];
    fwd_mdl.electrode= fwd_mdl.electrode(renumber(:));
-   % there are always 16 electrodes
+  
    [st, els]= mk_stim_patterns(16, 1, '{ad}','{ad}', options, 10);
    fwd_mdl.stimulation= st;
    fwd_mdl.meas_select= els;
@@ -673,7 +677,7 @@ end;
 function test_3d_models
 % 3D Models:
     mk_common_model('n3r2',[16,2]);
- %  mk_common_model('n3z',[16,2]);
+    mk_common_model('n3z',16);
 
     mk_common_model('b3cr',[16,3]);
     mk_common_model('b3t2r',[16,1]);
