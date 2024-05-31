@@ -116,7 +116,7 @@ if opt.do_coarse2fine
        zgrid = [-opt.z_depth opt.z_depth];
     end
     [jnk, fmdl.coarse2fine] = mk_grid_model(tmp,xgrid,ygrid,zgrid);
-    fmdl.coarse2fine(:,ff);
+    fmdl.coarse2fine(:,ff) = [];
 end
 
 rmdl.elems([2*ff, 2*ff-1],:)= [];
