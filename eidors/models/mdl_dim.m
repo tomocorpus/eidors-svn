@@ -16,7 +16,7 @@ end
 switch mdl(1).type
   case 'image';      fmdl = mdl.fwd_model;
   case 'inv_model';  fmdl = mdl.fwd_model;
-  case 'fwd_model';  fmdl = mdl;
+  case {'fwd_model', 'rec_model'};  fmdl = mdl;
   otherwise;
       error('can''t process model of type %s', mdl.type );
 end
