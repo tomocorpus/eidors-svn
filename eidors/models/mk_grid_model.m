@@ -98,6 +98,9 @@ cmdl.solve =      @eidors_default;
 cmdl.system_mat = @eidors_default;
 cmdl.jacobian   = @eidors_default;
 
+% standard field order
+cmdl = eidors_obj('set', cmdl);
+
 
 function c2f= calc_c2f_2d( fmdl, xvec, yvec);
    nef= size( fmdl.elems,1);

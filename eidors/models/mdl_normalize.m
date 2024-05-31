@@ -79,8 +79,8 @@ for i = 1:length(ff);
     end
 end
 
-function mdl = set_flag(mdl, val) 
-mdl.normalize_measurements = val;
+function mdl = set_flag(mdl, val)
+mdl = eidors_obj('set',mdl, 'normalize_measurements', val);
 
 function do_unit_test
 s = warning('query', 'backtrace');

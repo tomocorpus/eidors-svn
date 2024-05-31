@@ -15,12 +15,14 @@ end
 
 emap = get_elec_map(stimpat);
 mdl.electrode = mdl.electrode(emap);
-mdl.stimulation = get_stim_pattern(stimpat);
+stim = get_stim_pattern(stimpat);
+mdl = eidors_obj('set', mdl, 'stimulation', stim); % standard field order
 
 if exist('img','var')
    img.fwd_model = mdl;
    mdl = img;
 end
+
 
 end
 

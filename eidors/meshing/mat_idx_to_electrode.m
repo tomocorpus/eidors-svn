@@ -40,7 +40,7 @@ for i = 1:length(mat_idxes)
    rm_elems = union(rm_elems,rm_elemi); 
 end
 
-fmdl = remove_unused_nodes(fmdl);
+fmdl = remove_unused_nodes(fmdl, 'quiet'); % we might be removing nodes just assigned to electrodes
 fmdl = remove_unused_boundary(fmdl);
 if any(fmdl.boundary(:) == 0)
    eidors_msg('WARNING: PROBLEM WITH BOUNDARY',1)
@@ -55,6 +55,8 @@ for i=1:num_elecs(fmdl)
        keyboard
     end
 end
+% Standard field order
+fmdl = eidors_obj('fwd_model', fmdl);
 
 % This code adds the new electrode as a elec(i).nodes
 % adds electrode to the end

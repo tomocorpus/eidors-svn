@@ -159,6 +159,8 @@ if isfield(mdl, 'electrode')
     end
 end
 
+mdl = eidors_obj('fwd_model',mdl,'name','ng_mk_2d_model');
+
 function [shape,i_wrote_ng_opt] = process_maxsz(shape)
 maxsz = [];
 if numel(shape{end})==1
@@ -396,7 +398,7 @@ fclose(fid);
 
 function mdl = do_unit_test
 xy = [0 0;  1 0; 1 1; 0 1];
-for i = 16:20
+for i = 1:20
     switch i
         case 1
             mdl = ng_mk_2d_model({xy, 0.25 + 0.5*xy});

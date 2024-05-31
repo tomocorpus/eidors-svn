@@ -66,6 +66,13 @@ for i=1:length(options);
   end
 end
 
+% standard field order
+inv_mdl = eidors_obj('inv_model',inv_mdl);
+
+% check we are giving back a good specimen
+valid_inv_model(inv_mdl);
+
+
 function imdl = basic_imdl( fmdl );
    imdl.name= 'Basic imdl from select_imdl';
    imdl.type= 'inv_model';
@@ -294,7 +301,7 @@ function do_unit_test
             img.elem_data(fmdl.demo_targ_elems.B) = 0.8;
                                     vi = fwd_solve(img);
             
-         case 18; break
+         otherwise; break
       end;
 
 %     disp([i,imdl0.hyperparameter.value]);

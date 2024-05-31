@@ -31,7 +31,7 @@ h0= estimate_h0(bbox, nnodes);
 fwd_mdl= create_refined_model(name, fd, fh, h0, bbox, elec_nodes, ...
                         refine_nodes, z_contact); 
 
-fwd_mdl = mdl_normalize( fwd_mdl, 0);
+fwd_mdl = mdl_normalize( fwd_mdl, 'default'); % also orders fields
 
 % estimate initial edge length to get nnodes
 function  h0= estimate_h0(bbox, nnodes);
@@ -64,8 +64,7 @@ function mdl= construct_fwd_model(srf,vtx,simp, name, ...
    mdl.elems    = simp;
    mdl.boundary = srf;
    mdl.gnd_node=           1;
-   mdl.name = name;
-
+   
    % Electrodes and z_contact
 
    % set the z_contact

@@ -115,8 +115,9 @@ if opt.do_coarse2fine
     else
        zgrid = [-opt.z_depth opt.z_depth];
     end
-    [jnk, fmdl.coarse2fine] = mk_grid_model(tmp,xgrid,ygrid,zgrid);
-    fmdl.coarse2fine(:,ff) = [];
+    [~, c2f] = mk_grid_model(tmp,xgrid,ygrid,zgrid);
+    c2f(:,ff) = [];
+    fmdl = eidors_obj('set',fmdl,'coarse2fine', c2f);
 end
 
 rmdl.elems([2*ff, 2*ff-1],:)= [];
@@ -156,6 +157,9 @@ end
    
 
 rmdl.show_slices.levels = opt.level;
+
+% not quite correct, but 'rec_model' has many side effects
+rmdl = eidors_obj('fwd_model', rmdl); 
       
 
 function mat_idx = calc_mat_idx(rmdl,fmdl,ff,opt)

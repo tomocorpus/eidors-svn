@@ -24,3 +24,5 @@ for i = 1:numel(fields)
    end
 end
 mdl.boundary = tmp.faces(tmp.boundary_face,:);
+
+mdl = eidors_obj('set', mdl);

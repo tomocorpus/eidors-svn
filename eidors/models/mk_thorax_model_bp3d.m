@@ -218,6 +218,8 @@ idx = [1 5 10 2  17:2:21 15 6 8 11 13 3 4 18:2:22 16 7 9 12 14];
 out.mat_idx = out.mat_idx(idx);
 out.mat_names = out.mat_names(idx);
 
+out = eidors_obj('set', out); % order fields
+
 print_mdl_info(out, 'Final model');
 
 function img = set_organ_values(torso)

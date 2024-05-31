@@ -199,6 +199,9 @@ if isfield(opt,'show_NF_chosen') && opt.show_NF_chosen
    eidors_msg(['NF = ', num2str(NF), ' weight = ', num2str(weight)],1);
 end
 
+% standard field order
+imdl = eidors_obj('inv_model', imdl);
+
 % Here we search for a good NF to match
 function [weight, NF] = bounded_search(f, weight,fms_opts);
     % Use bounded search, but widen if necessary

@@ -30,6 +30,7 @@ function fmdl = dm_2d_pt_elecs( elec_pts, pfix, params, shapefn, bbox);
 % (C) 2009 Andy Adler. License: GPL version 2 or version 3
 % $Id$
 
+if ischar(elec_pts) && strcmp(elec_pts,'UNIT_TEST'), do_unit_test; return; end
 
 epfix = vertcat(elec_pts{:});
 params.refine_pts   = epfix;
@@ -53,11 +54,11 @@ end
 fmdl.nodes= p;
 fmdl.elems= t;
 fmdl.boundary = bdy;
-fmdl.type = 'fwd_model';
 fmdl.name = 'dm_2d_pt_elec';
 fmdl.electrode = electrode;
 fmdl.gnd_node=           1;
 
+fmdl = eidors_obj('fwd_model', fmdl);
 
 % Find the nodes associated with a given electrode
 %   electrode(i).nodes = get_elec_nodes(elec_pts{i}, p, ubn);
@@ -83,3 +84,13 @@ function nodes= get_elec_nodes( epts, p, ubn);
       nodes( dp > mde+tol ) = 0;
    end
    nodes = nodes( nodes>0 );
+
+function do_unit_test
+ elec_pts = {[1,0],[0,1;sin(0.2),cos(0.2)],[0.5,0.5]};
+ shapefn = inline('sqrt(sum(p.^2,2))-params.rad','p','params'); % Circle
+ params.rad = 1;
+ params.base_spacing = 0.06;
+ params.refine_ratio = 10;
+ params.gradient     = 0.05;
+ fmdl= dm_2d_pt_elecs( elec_pts, [], params, shapefn, [-1,-1;1,1] );
+ show_fem(fmdl);

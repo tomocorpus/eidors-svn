@@ -12,6 +12,8 @@ function fmdl = mk_hollow_electrode(fmdl, elec_idx)
 %
 % Limitations: currently works for 2D fems only
 % Recommended replacement: mat_idx_to_electrode
+%
+% See also MAT_IDX_TO_ELECTRODE
 
 % (C) 2017 Andy Adler and Bartek Grychtol. License: GPL v2 or v3. $Id$
 
@@ -64,6 +66,8 @@ fmdl.boundary = find_boundary(fmdl);
 [~,idx] = min(sum(fmdl.nodes.^2,2));
 fmdl.gnd_node = idx(1);
 
+% standard field order
+fmdl = eidors_obj('set', fmdl);
 
 function do_unit_test
     fmdl = unit_test_model1;

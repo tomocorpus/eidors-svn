@@ -193,6 +193,9 @@ if doall || opt.edge2elem
    mdl.edge2elem = logical(mdl.edge2elem);
 end     
 
+% standard field order
+mdl = eidors_obj('fwd_model', mdl);
+
 % Test whether normal points into or outside
 % mdl.inner_normal(i,j) = 1 if face j of elem i points in
 function inner_normal = test_inner_normal( mdl )

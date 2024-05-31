@@ -36,6 +36,11 @@ if nargin < 2, mesh_size = []; end
 
 if isstruct(stlfile)
     try
+       name = stlfile.name;
+    catch
+       name = 'gmsh_stl2tet';
+    end
+    try
        opt.cache_obj{1} = stlfile.nodes;
        if isfield(stlfile, 'boundary')
           opt.cache_obj{2} = stlfile.boundary;
@@ -50,9 +55,11 @@ if isstruct(stlfile)
     opt.cache_obj{5} = nopt;
     mdl = eidors_cache(@do_gmsh_stl2tet,{stlfile, mesh_size, extra, nopt}, opt);
 else
+    [~, name, ext] = fileparts(stlfile); name = [name ext];
     mdl = do_gmsh_stl2tet(stlfile, mesh_size, extra, nopt);
 end
 
+mdl = eidors_obj('fwd_model', mdl, 'name', name);
 
 
 function mdl = do_gmsh_stl2tet(stlfile, mesh_size, extra, nopt)

@@ -410,6 +410,9 @@ if ~strcmp(build_stim,'none')
    imdl.fwd_model.stimulation = stim_pattern_geophys(length(imdl.fwd_model.electrode), build_stim);
 end
 
+% standard field order
+imdl = eidors_obj('set', imdl);
+
 if save_model_to_disk
    save(filename,'imdl','SALT');
 end

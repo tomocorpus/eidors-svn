@@ -27,6 +27,8 @@ fmdl.jacobian=  'eidors_default';
 fmdl.system_mat='eidors_default';
 fmdl.gnd_node=  gnd_ind;
 
+% standard field order
+fmdl = eidors_obj('fwd_model', fmdl);
 
 function [electrodes] = get_model_elecs(elec,zc);
 %elec : The electrodes matrix. 

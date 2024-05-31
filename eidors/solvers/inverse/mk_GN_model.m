@@ -110,6 +110,8 @@ function imdl = mk_GN_model(img, opt, lambda)
         imdl.hyperparameter.value = lambda;
     end
 
+    %standard field order
+    imdl = eidors_obj('set',imdl);
 end
 
 
@@ -144,8 +146,7 @@ function opt = parse_options(opt,fmdl,imdl)
        elec_loc(i,:) = mean( fmdl.nodes( enodesi,:),1 );
     end
     opt.elec_loc = elec_loc;
-    fmdl = mdl_normalize(fmdl);
-    opt.normalize = fmdl.normalize_measurements;
+    opt.normalize = mdl_normalize(fmdl);
     
     % electrode target planes
     if ~isfield(opt, 'target_plane')

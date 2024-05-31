@@ -84,6 +84,6 @@ function mdl2 = mdl2d_from3d(mdl3);
    catch
        mdl2 = mdl_normalize(mdl2, 'default'); end;
 
-   % update cache
+   % re-order fields
    mdl2 = eidors_obj('fwd_model',mdl2);
 

@@ -127,6 +127,9 @@ function fmdl = mk_cyl_model( cyl_shape, elec_pos, elec_shape, extra_ng_code );
       fmdl.electrode = pem_from_cem(elecs, fmdl.electrode, fmdl.nodes);
    end
 
+   % standard field order
+   fmdl = eidors_obj('fwd_model',fmdl);
+
 % for the newest netgen, we can't call msz file unless there are 
 % actually points in  it (ie. empty msz files break netgen)
 function n_pts_elecs = write_geo_file(geofn, ptsfn, tank_height, tank_radius, ...

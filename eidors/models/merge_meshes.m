@@ -153,6 +153,8 @@ for i = 1:length(shapes)
     progress_msg(Inf);
 end
 
+% standard field order
+out = eidors_obj('fwd_model', out);
 
 function use = nodes_in_bounding_box(LIMnodes,Mnodes,th)
    % limit to nodes in M1 that are within the bounding box of M2

@@ -75,6 +75,9 @@ end
 img = fill_in_data(img,elem_data,params);
 % img.current_params = params;
 
+% standard field order
+img = eidors_obj('set', img);
+
 function str = no_params
 str = 'unspecified';
 

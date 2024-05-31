@@ -65,6 +65,8 @@ mdl.jacobian=       'eidors_default';
 mdl.system_mat=     'eidors_default';
 mdl = mdl_normalize(mdl, 'default');
 
+% standard field order
+mdl = eidors_obj('fwd_model', mdl);
 
 function vtx_perturb= perturb_vtx( vtx );
 if 0

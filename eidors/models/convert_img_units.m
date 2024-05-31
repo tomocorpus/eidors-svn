@@ -81,6 +81,9 @@ end
 img.current_params = new_unit;
 y = img;
 
+% standard field order
+img = eidors_obj('image',img);
+
 end
 
 function x = map_data(x, cur_unit, new_unit)

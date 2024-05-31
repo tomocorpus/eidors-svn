@@ -51,6 +51,7 @@ for i = 1:length(img)
    else
       tmp(i) = pack_params(img(i));
    end
+   tmp(i) = eidors_obj('image',tmp(i));
 end
 img = tmp;
 end

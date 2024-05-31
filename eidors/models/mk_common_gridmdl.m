@@ -39,6 +39,8 @@ function inv_mdl= mk_common_gridmdl( str, RM)
 % (C) 2008 Andy Adler. License: GPL version 2 or version 3
 % $Id$
 
+if strcmp(str,'UNIT_TEST'), do_unit_test; return, end
+
 name = str;
 if strcmp(str,'backproj')
    str= 'b2c';
@@ -101,6 +103,9 @@ inv_mdl.fwd_model = mdl_normalize(inv_mdl.fwd_model, 1);
 [st, els]= mk_stim_patterns(16, 1, '{ad}','{ad}', {}, 10);
 inv_mdl.fwd_model.meas_select= els;
 
+% standard field order
+inv_mdl = eidors_obj('set', inv_mdl);
+
 function inside = inside_thorax(x,y,level);
    [x_bdy, y_bdy ] = thorax_geometry(level,1); % normalized
    inside = inpolygon(x(:), y(:), x_bdy, y_bdy); 
@@ -160,3 +165,15 @@ else
 end
 
 inv_mdl = mk_GREIT_model(fmdl,0.25,5,opt);
+
+function do_unit_test
+% GREIT MODELS - calculated for library models
+mk_common_gridmdl('GREIT','cylinder_16x1el_coarse');
+
+% GREIT V1 (GREIT matrix for reconstruction to circle, 2009)
+mk_common_gridmdl('GREITc1'); % 32x32 with Circle shape
+
+% Sheffield Backprojection
+mk_common_gridmdl('b2d','backproj'); % 32x32 with Diamond shape
+mk_common_gridmdl('b2c','backproj'); % 32x32 with Circular shape
+mk_common_gridmdl('backproj'); % 32x32 with Circular shape

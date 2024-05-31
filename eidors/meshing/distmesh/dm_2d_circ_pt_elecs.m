@@ -50,7 +50,6 @@ fmdl= dm_2d_pt_elecs( elec_pts, [], params, @circle, [-1,-1;1,1] );
 eidors_cache('boost_priority',+4);
 
 fmdl.name = sprintf('dm_2d_circ_pt_elec');
-fmdl = mdl_normalize(fmdl, 'default');
 
 function d= circle(p,params);
   d = sqrt(sum(p.^2,2)) - 1; 

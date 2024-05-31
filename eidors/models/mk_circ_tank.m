@@ -91,12 +91,14 @@ param.gnd_node = 1; % node at bottom and center of the tank
 if ~isempty( elec_nodes)
    param.electrode =  mk_electrodes( elec_nodes );
 end
-param.type = 'fwd_model';
 
-param.normalize_measurements = 0; % default
+param.normalize_measurements = mdl_normalize('default');
 
+param.jacobian = @eidors_default;
 param.solve = @eidors_default;
 param.system_mat = @eidors_default;
+
+param = eidors_obj('fwd_model',param);
 
 return;
 

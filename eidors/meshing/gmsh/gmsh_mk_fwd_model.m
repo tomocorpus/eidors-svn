@@ -54,15 +54,20 @@ if length(mat_names) > 0
     fwd_mdl.mat_names = mat_names;
 end
 
+fwd_mdl = mdl_normalize(fwd_mdl, 'default'); % also orders fields
+
+
 % build fwd_model structure
-function fwd_mdl= construct_fwd_model(srf,vtx,simp,bc, name, ...
+function mdl= construct_fwd_model(srf,vtx,simp,bc, name, ...
     stim_pattern, eprefix, z_contact, fc, phys_names)
+    
+    mdl = eidors_obj('fwd_model', name);
     mdl.nodes    = vtx;
     mdl.elems    = simp;
     mdl.boundary = srf;
     mdl.boundary_numbers=fc; % TODO this is not very useful without mapping to phys_names, like mat_idx/mat_names
     mdl.gnd_node = 1;
-    mdl.name = name;
+    
 
     % Model Stimulation
     if ~isempty(stim_pattern)
@@ -78,8 +83,6 @@ function fwd_mdl= construct_fwd_model(srf,vtx,simp,bc, name, ...
     mdl.jacobian=       'eidors_default';
     mdl.system_mat=     'eidors_default';
 
-    fwd_mdl= eidors_obj('fwd_model', mdl);
-    fwd_mdl = mdl_normalize(fwd_mdl, 'default');
 
 % Output cell array of indices into each material type
 %   array order is sorted by length of material type

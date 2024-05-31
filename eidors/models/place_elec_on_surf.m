@@ -131,7 +131,7 @@ end
 stl_write(mdl,stlfn2);
 mdl2 = gmsh_stl2tet(stlfn2, maxh);
 mdl2 = fix_boundary(mdl2);
-mdl2.electrode = mdl.electrode;
+mdl2 = eidors_obj('set',mdl2,'electrode',mdl.electrode); % standard field order
 
 % 7. Find all electrode nodes
 for i = 1:length(elecs)

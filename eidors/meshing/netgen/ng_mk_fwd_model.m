@@ -45,12 +45,12 @@ fwd_mdl= construct_fwd_model(srf,vtx,simp,bc, name, ...
 
 [fwd_mdl.mat_idx] = mk_mat_indices(mat_ind);
 
-if ~isfield(fwd_mdl,'normalize_measurements')
-   fwd_mdl = mdl_normalize(fwd_mdl, 'default');
-end
+
+fwd_mdl = mdl_normalize(fwd_mdl, 'default'); % also orders fields
+
 
 % build fwd_model structure
-function fwd_mdl= construct_fwd_model(srf,vtx,simp,bc, name, ...
+function mdl= construct_fwd_model(srf,vtx,simp,bc, name, ...
                        stim_pattern, centres, z_contact,fc)
 % maybe there were bugs from an unsorted boundary. Just in case
 
@@ -62,12 +62,13 @@ end
 %fc = fc(idx);
 %bc = bc(idx);
 
+mdl = eidors_obj('fwd_model',name);
 mdl.nodes    = vtx;
 mdl.elems    = simp;
 mdl.boundary = srf;
 mdl.boundary_numbers=fc;
 mdl.gnd_node=    find_centre_node(vtx);
-mdl.name = name;
+
 
 % Model Stimulation
 if ~isempty(stim_pattern)
@@ -95,7 +96,7 @@ mdl.solve=      'eidors_default';
 mdl.jacobian=   'eidors_default';
 mdl.system_mat= 'eidors_default';
 
-fwd_mdl= eidors_obj('fwd_model', mdl);
+
 
 % Output mat_idx cell array of indices into each material
 % typei. Array order is the order of the specified material

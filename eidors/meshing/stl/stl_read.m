@@ -19,8 +19,10 @@ mdl.nodes = nodes;
 mdl.elems = reshape(uint32(n)',3,[])';
 same = mdl.elems(:,1) == mdl.elems(:,2) | mdl.elems(:,2) == mdl.elems(:,3) | mdl.elems(:,1) == mdl.elems(:,3);
 mdl.elems(same,:) = [];
-mdl.type  = 'fwd_model'; % sort of
 mdl.boundary = mdl.elems;
+
+[~,name,ext] = fileparts(fname);
+mdl = eidors_obj('fwd_model',mdl,'name',[name ext]);
 
 
 function do_unit_test
