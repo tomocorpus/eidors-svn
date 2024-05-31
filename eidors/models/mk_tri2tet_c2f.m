@@ -393,7 +393,9 @@ function [intpts, tri2edge, tri2pts, edge2pts] = get_tet_intersection_pts(fmdl,r
    
    intpts = [pts(P,:) z];
    I = (1:size(intpts,1))';
+   F = cast(F,'like',pt_idx); % make sparse happy
    tri2edge = sparse(F,pt_idx(P),I,size(fmdl.faces,1),size(rmdl.nodes,1));
+   I = cast(I,'like',pt_idx); % make sparse happy
    tri2pts = sparse(F,I,ones(size(I,1),1),size(fmdl.faces,1),size(intpts,1));
    edge2pts = sparse(pt_idx(P),I,ones(size(I,1),1),size(rmdl.nodes,1),size(intpts,1));
    
