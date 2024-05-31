@@ -48,6 +48,8 @@ fprintf(geo_fid,'Line Loop(%d) = {%d,%d};\n', loop_no, circle1_no, ...
 fprintf(geo_fid, 'Plane Surface(%d) = {%d};\n', line_no, loop_no);
 line_no = line_no + 1;
 
+fprintf(geo_fid, 'Mesh 2;');
+
 fclose(geo_fid);
 
 % Call Gmsh 
