@@ -115,7 +115,7 @@ else
    fmdl.mat_idx = mat_idx;
    store_model(fmdl,fname)
    out = fmdl;
-   out = mdl_normalize(out, 0); % not normalized by default
+   out = mdl_normalize(out, 'default'); % not normalized by default
 end
 
 
