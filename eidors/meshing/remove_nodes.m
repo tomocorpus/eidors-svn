@@ -36,5 +36,31 @@ elem_idx = any(node_idx(fmdl.elems),2);
 
 function do_unit_test
 
-fmdl = getfield(mk_common_model('a2c2',4),'fwd_model');
-remove_nodes(fmdl, [10:14]);
+f0= mk_common_model('a2c2',4);
+f0= f0.fwd_model;
+fr= remove_nodes(f0, [10:13]);
+unit_test_cmp('2D- 1a',fr.nodes(20,:), f0.nodes(24,:));
+unit_test_cmp('2D- 1b',fr.elems(20,:),[24,11,12]);
+
+fr= remove_nodes(f0, [26:33],'remove');
+unit_test_cmp('2D- 2a',fr.nodes(25,:), f0.nodes(25,:));
+unit_test_cmp('2D- 2b',fr.nodes(26,:), f0.nodes(34,:));
+unit_test_cmp('2D- 2c',f0.elems(40,:),[20,19,33]);
+unit_test_cmp('2D- 2d',fr.elems(40,:),[14,25,33]);
+unit_test_cmp('2D- 2e',num_elecs(fr),2);
+
+fr= remove_nodes(f0, [26:33],'keep');
+% Here this is strange. It keeps some nodes that I wouldn't expect it to keep, (like 26:33) and then deletes others
+
+f0= mk_common_model('n3r2',[16,2]);
+f0= f0.fwd_model;
+fr= remove_nodes(f0, [59:63]);
+unit_test_cmp('3D- 1a',fr.nodes(80,:), f0.nodes(85,:));
+unit_test_cmp('3D- 1b',fr.elems(80,:),[41,42,76,18]);
+
+fr= remove_nodes(f0, [22:27],'remove');
+unit_test_cmp('2D- 2a',fr.nodes(21,:), f0.nodes(21,:));
+unit_test_cmp('2D- 2b',fr.nodes(22,:), f0.nodes(28,:));
+unit_test_cmp('2D- 2c',f0.elems(40,:),[10,73,74,38]);
+unit_test_cmp('2D- 2d',fr.elems(40,:),[10,67,68,32]);
+unit_test_cmp('2D- 2e',num_elecs(fr),29);
