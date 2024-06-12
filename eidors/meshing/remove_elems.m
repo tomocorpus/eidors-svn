@@ -23,6 +23,7 @@ function [fmdl, c2f_idx] = remove_elems(fmdl, idx, elec_opt)
 % (C) 2024 Bartek Grychtol. License: GPL version 2 or version 3
 % $Id$
 
+if ischar(fmdl) && strcmp(fmdl,'UNIT_TEST'); do_unit_test; return; end
 
 if nargin < 3, elec_opt = ''; end
 
@@ -65,4 +66,25 @@ end
 
 fmdl = remove_unused_nodes(fmdl, elec_opt);
 
+
+function do_unit_test
+f0= mk_common_model('a2c2',8);
+f0= f0.fwd_model;
+fr= remove_elems(f0, [7,13,14,21,22,32]);
+unit_test_cmp('2D- 1a',fr.nodes(11,:), f0.nodes(12,:));
+unit_test_cmp('2D- 1b',fr.elems(20,:),[13,14, 6]);
+
+fr= remove_elems(f0, [38,50,51],'remove');
+unit_test_cmp('2D- 2e',num_elecs(fr),7);
+unit_test_cmp('2D- 2b',fr.nodes(27,:), f0.nodes(27,:));
+unit_test_cmp('2D- 2a',fr.nodes(28,:), f0.nodes(29,:));
+unit_test_cmp('2D- 2c',f0.elems(40,:),[20,19,33]);
+unit_test_cmp('2D- 2d',fr.elems(40,:),[31,19,18]);
+
+fr= remove_elems(f0, [38,50,51],'keep');
+unit_test_cmp('2D- 2e',num_elecs(fr),8);
+unit_test_cmp('2D- 2b',fr.nodes(27,:), f0.nodes(27,:));
+unit_test_cmp('2D- 2a',fr.nodes(28,:), f0.nodes(29,:));
+unit_test_cmp('2D- 2c',f0.elems(40,:),[20,19,33]);
+unit_test_cmp('2D- 2d',fr.elems(40,:),[31,19,18]);
 
