@@ -42,17 +42,27 @@ function [fmdl,mat_idx] = ng_mk_ellip_models(ellip_shape, elec_pos, ...
 %
 %
 % USAGE EXAMPLES:
-% Simple 3D ellipse. Major, minor axes = [1.5, 0.8]. No electrodes
-%     fmdl= ng_mk_ellip_models([1,1.5,0.8],[0],[]);  show_fem(fmdl);
+% Thorax shape
+% xy_points = .01*[
+%  963 534;1013 538;1056 535;1102 517;1130 492;
+% 1150 454;1169 419;1182 375;1172 345;1149 318;
+% 1112 301;1095 297;1039 285; 982 284; 928 283;
+%  870 279; 816 299; 776 328; 761 374; 782 429;
+%  805 482; 844 518; 900 533; 961 532];
+% % refine cylendar from ellip_shape
+% ng_write_opt('MSZCYLINDER',[0,0,1,0,0,1.2,2,.05]);
+%  fmdl= ng_mk_closed_contour({3,xy_points},[8,1.1,1.9],[0.1]); 
 % 
 
 % (C) Andy Adler, 2010. Licenced under GPL v2 or v3
 % $Id$
 
+if ischar(ellip_shape) && strcmp(ellip_shape,'UNIT_TEST'); do_unit_test; return; end
+
 if nargin < 4; extra_ng_code = {'',''}; end
 % Caching should be done in the ng_mk_ellip_models
 
-[ellip_shape,params] = analyse_shape(ellip_shape) 
+[ellip_shape,params] = analyse_shape(ellip_shape);
 [fmdl, mat_idx] = ng_mk_ellip_models(ellip_shape, elec_pos, ...
                   elec_shape, extra_ng_code);
 fmdl = fit_to_shape( fmdl, params );
@@ -70,7 +80,7 @@ function [ellip_shape,params] = analyse_shape(ellip_shape);
   params.rot = [1,0;0,-1]*u;
   params.xy_mean = mean(xy_shape,1);
 
-  ellip_ax = sqrt(2*[d(1,1),d(2,2)])  
+  ellip_ax = sqrt(2*[d(1,1),d(2,2)]);
   ellip_shape= [height, ellip_ax, maxh];
 
   N = min(15, ceil( size(xy_shape,1) / 3 )); % can't fit too many components
@@ -121,4 +131,26 @@ function fmdl = fit_to_shape( fmdl, params );
 
    fmdl.nodes(:,1) = xnodes;
    fmdl.nodes(:,2) = ynodes;
+
+function do_unit_test
+   xy_points = [
+    963 534; 987 535;1013 538;1036 540;1056 535;
+   1077 527;1102 517;1115 506;1130 492;1141 474;
+   1150 454;1157 435;1169 419;1179 397;1182 375;
+   1178 358;1172 345;1163 331;1149 318;1132 307;
+   1112 301;1097 293;1095 297;1077 289;1039 285;
+   1011 284; 982 284; 955 285; 928 283; 900 280;
+    870 279; 845 289; 816 299; 788 310; 776 328;
+    767 349; 761 374; 768 395; 782 429; 795 456;
+    805 482; 823 505; 844 518; 868 523; 900 533;
+    929 536; 961 532]/100;
+   fmdl= ng_mk_closed_contour({3,xy_points},[8,1.1,1.9],[0.1]); 
+   show_fem(fmdl)
+   unit_test_cmp('contour A',num_elecs(fmdl),16);
+   mnod = max(fmdl.nodes,[],1); 
+   unit_test_cmp('contour B',mnod(3),3)
+   unit_test_cmp('contour C',mnod(1:2),max(xy_points),3e-2)
+   mnod = min(fmdl.nodes,[],1); 
+   unit_test_cmp('contour D',mnod(3),0)
+   unit_test_cmp('contour E',mnod(1:2),min(xy_points),3e-2)
 

@@ -27,7 +27,7 @@ Plan for 3.12:
  + Fix calc_noise_figure unit tests
  
  + UNIT_TEST for remove_nodes and remove_elems
- - UNIT_TEST for ng_mk_closed_contour
+ + UNIT_TEST for ng_mk_closed_contour
 
  + improved merge_meshes. Add comments in docs
 
