@@ -6,11 +6,12 @@ function [fmdl, c2f_idx] = remove_nodes(fmdl, idx, elec_opt)
 %     idx  : indices (integer or logical) into fmdl.nodes
 %
 %  fmdl = REMOVE_NODES(... , elec_opt) specifies treatment of
-%  electrodes:
-%   'warn'      - (default) warns about empty electrodes, but keeps them
-%   'keep'      - quietly keeps empty electrodes
-%   'remove'    - quietly removes empty electrodes
-%   'quiet'     - don't warn about changes to electrodes
+%    electrodes (fmdl.electrode) affected by the node removal:
+%     'warn'      - (default) warns about empty electrodes, but keeps them
+%     'keep'      - keeps empty electrodes
+%     'remove'    - removes empty electrodes
+%     'quiet'     - don't warn about changes to electrodes
+%    These options have no impact on the actual node removal.
 %
 %  [fmdl, c2f_idx] = REMOVE_NODES(...) also provides indices of elem_data 
 %  to keep in an image.
@@ -50,7 +51,11 @@ unit_test_cmp('2D- 2d',fr.elems(40,:),[14,25,33]);
 unit_test_cmp('2D- 2e',num_elecs(fr),2);
 
 fr= remove_nodes(f0, [26:33],'keep');
-% Here this is strange. It keeps some nodes that I wouldn't expect it to keep, (like 26:33) and then deletes others
+unit_test_cmp('2D- 3a',fr.nodes(25,:), f0.nodes(25,:));
+unit_test_cmp('2D- 3b',fr.nodes(26,:), f0.nodes(34,:));
+unit_test_cmp('2D- 3c',f0.elems(40,:),[20,19,33]);
+unit_test_cmp('2D- 3d',fr.elems(40,:),[14,25,33]);
+unit_test_cmp('2D- 3e',num_elecs(fr),4);
 
 f0= mk_common_model('n3r2',[16,2]);
 f0= f0.fwd_model;
@@ -65,9 +70,10 @@ unit_test_cmp('2D- 2c',f0.elems(40,:),[10,73,74,38]);
 unit_test_cmp('2D- 2d',fr.elems(40,:),[10,67,68,32]);
 unit_test_cmp('2D- 2e',num_elecs(fr),29);
 
-
-function extra_tests  %% more tests while debugging
-  f0=mk_circ_tank(2,[],2); f0.nodes = round(f0.nodes*100); f0.nodes'
-  fr=remove_nodes(f0,6,'keep'); fr.nodes' 
-  fr=remove_nodes(f0,6,'remove'); fr.nodes' 
+fr= remove_nodes(f0, [22:27],'keep');
+unit_test_cmp('2D- 3a',fr.nodes(21,:), f0.nodes(21,:));
+unit_test_cmp('2D- 3b',fr.nodes(22,:), f0.nodes(28,:));
+unit_test_cmp('2D- 3c',f0.elems(40,:),[10,73,74,38]);
+unit_test_cmp('2D- 3d',fr.elems(40,:),[10,67,68,32]);
+unit_test_cmp('2D- 3e',num_elecs(fr),32);
 
