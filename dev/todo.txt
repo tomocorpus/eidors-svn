@@ -39,8 +39,8 @@ Plan for 3.12:
  - Figure out when left_divide can use preconditioning
  - Timing tests: why is left_divide slow with multiple stim patterns - line 68 - reorder?
 
- - Contrib page for torso_model
- - Caching in torso_model functions
+ + Contrib page for torso_model
+ + Caching in torso_model functions
  - Tutorials for 3D visualization
 
  + put 3D GREIT into select_imdl
