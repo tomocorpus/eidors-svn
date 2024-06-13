@@ -64,3 +64,10 @@ unit_test_cmp('2D- 2b',fr.nodes(22,:), f0.nodes(28,:));
 unit_test_cmp('2D- 2c',f0.elems(40,:),[10,73,74,38]);
 unit_test_cmp('2D- 2d',fr.elems(40,:),[10,67,68,32]);
 unit_test_cmp('2D- 2e',num_elecs(fr),29);
+
+
+function extra_tests  %% more tests while debugging
+  f0=mk_circ_tank(2,[],2); f0.nodes = round(f0.nodes*100); f0.nodes'
+  fr=remove_nodes(f0,6,'keep'); fr.nodes' 
+  fr=remove_nodes(f0,6,'remove'); fr.nodes' 
+
