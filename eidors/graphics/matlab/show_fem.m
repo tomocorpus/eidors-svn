@@ -239,7 +239,7 @@ for e=1:length(mdl.electrode)
         vx= (reshape(mdl.nodes(faces,1),size(faces))' - ctr_x)*S;
         vy= (reshape(mdl.nodes(faces,2),size(faces))' - ctr_y)*S;
 
-    elseif isfield(mdl.electrode(e),'nodes')
+    elseif isfield(mdl.electrode(e),'nodes') && ~isempty(elece.nodes)
         elec_nodes= elece.nodes;
         
         S= 1.00;
@@ -249,7 +249,7 @@ for e=1:length(mdl.electrode)
         [jnk,idx] = order_loop( [vx,vy] );
         vx = vx(idx);
         vy = vy(idx);
-    elseif isfield(elece,'pos')
+    elseif isfield(elece,'pos') && ~isempty(elece.pos)
         vx = elece.pos(:,1) - ctr_x;
         vy = elece.pos(:,2) - ctr_y;
     else
@@ -380,6 +380,8 @@ for e=1:length(mdl.electrode)
         set(hh,'FaceColor',colour, 'FaceLighting','none', 'CDataMapping', 'direct' );
         el_nodes = mdl.nodes(unique(faces),:);
         number_elecs_3d(number_electrodes, e, mdl, el_nodes )
+    elseif isempty(elec_nodes)
+        eidors_msg('show_fem: WARNING: electrode %d has no nodes/faces/pos. Not showing.',e,2);
     elseif length(elec_nodes) == 1  % point electrode model
         vtx= mdl.nodes(elec_nodes,:);
         line(vtx(1),vtx(2),vtx(3), ...
