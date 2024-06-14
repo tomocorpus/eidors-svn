@@ -43,7 +43,7 @@ f = {'name',        'char', ...
      'solve',       'function', ...
      'system_mat',  'function_or_numeric', ...
      'jacobian',    'function_or_numeric', ...
-     'normalize_measurements', 'numeric', ... % logical
+     'normalize_measurements', 'numeric_or_logical', ... % logical
      'type',        'char'};
 %     'boundary',   'numeric', ... % uintX OPTIONAL
 %     'meas_select','numeric', ... % uintX OPTIONAL
@@ -56,6 +56,7 @@ end
 for i=1:length(f)/2
    x=2*(i-1)+1;
    y=x+1;
+%  if strcmp(f{x},'normalize_measurements'); keyboard; end
    if ~isfield(fmdl, f{x})
       pass = 0;
       err_str = [err_str '- missing required field: "' f{x} '"\n'];
@@ -68,6 +69,11 @@ for i=1:length(f)/2
       if ~isfunc(fmdl.(f{x})) && ~isa(fmdl.(f{x}), 'numeric')
          pass = 0;
          err_str = [err_str '- expected function (pointer or string) or a matrix: "' f{x} '"\n'];
+      end
+   elseif strcmp(f{y},'numeric_or_logical')
+      if ~isa(fmdl.(f{x}), 'numeric') && ~isa(fmdl.(f{x}),'logical')
+         pass = 0;
+         err_str = [err_str '- expected numerical or logical value: "' f{x} '"\n'];
       end
    elseif ~isa(fmdl.(f{x}), f{y})
       pass = 0;
