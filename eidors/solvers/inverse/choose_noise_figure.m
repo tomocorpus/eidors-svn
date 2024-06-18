@@ -19,6 +19,8 @@ function HP= choose_noise_figure( inv_model );
 % (C) 2006 Andy Adler. License: GPL version 2 or version 3
 % $Id$
 
+if ischar(inv_model) && strcmp(inv_model,'UNIT_TEST'); do_unit_test; return; end
+
 reqNF= inv_model.hyperparameter.noise_figure;
 try % remove the value field
    inv_model.hyperparameter = rmfield(inv_model.hyperparameter,'value');
@@ -89,3 +91,10 @@ function hp=search2(dNF, imdl, dx)
        [jnk,idx] = min(abs(log_nf-log10(dNF)));
        hp = dx(idx);
    end
+
+function do_unit_test
+  inv2d=  mk_common_model('b2c',16);
+  inv2d.hyperparameter.func = @choose_noise_figure;
+  inv2d.hyperparameter.noise_figure= 0.5;
+  inv2d.hyperparameter.tgt_elems= 1:4;
+  HP = choose_noise_figure(inv2d);
