@@ -46,7 +46,11 @@ if nargin==1 && ischar(varargin{1}) && strcmp(varargin{1}, 'UNIT_TEST')
   do_unit_test; return
 end
 
-if nargout == 1 || nargout == 3
+if nargin == 0 || isempty(varargin{1})
+   error('EIDORS:WrongInput', 'level_model_slice requires non-empty input');
+end
+
+if nargout <= 1 || nargout == 3
 	if nargin == 1
         % N = LEVEL_MODEL_SLICE(LEVEL) returns the number of slices defined in LEVEL
         out = get_number_of_slices(varargin{1});
@@ -92,7 +96,8 @@ end
 
 function N = get_number_of_slices(level)  
 	if isnumeric(level) && isscalar(level)
-		N = level;
+		check_scalar_level(level);
+      N = level;
 	elseif isnumeric(level)
 		N = size(level,1);
 	elseif isstruct(level) && isscalar(level)
@@ -132,6 +137,7 @@ function [C,M] = matrix_from_level(varargin)
 
     
 function [C, M] = matrix_from_number(nodes, num_levels, sn)
+    check_scalar_level(num_levels);
     if isstruct(nodes)
         nodes = nodes.nodes;
     end
@@ -288,6 +294,11 @@ function [C, M] = matrix_from_struct(level, sn)
   end
   M = R*M ;  
   
+
+function check_scalar_level(num_levels)
+   if num_levels <= 0
+      error('EIDORS:WrongInput', 'Number of levels must be greater than 0.')
+   end
 
   
 function do_unit_test
