@@ -38,6 +38,9 @@ function quiv = show_current( img, vv )
 %   img = mk_image( mk_common_model('b2c2',8));
 %   q = show_current(img); 
 %   quiver(q.xp,q.yp, q.xc,q.yc, 2,'b','LineWidth',2);
+%
+% See also:
+%  calc_elem_current
 
 
 % (C) 2010 Andy Adler. License: GPL version 2 or version 3
