@@ -41,6 +41,9 @@ end
 
 function point2tet = do_point_in_tet_triangulation(fmdl, points, epsilon, exclude_nodes)
    s = warning('off','MATLAB:triangulation:PtsNotInTriWarnId');
+   % Triangularization requires doubles!
+   % STUPID MATLAB puts isdouble() in a toolbox
+   if ~isa(fmdl.elems,'double'); fmdl.elems=double(fmdl.elems); end
    TR = triangulation(fmdl.elems, fmdl.nodes);
    warning(s.state,'MATLAB:triangulation:PtsNotInTriWarnId')
    ID = pointLocation(TR, points);
