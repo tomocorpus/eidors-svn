@@ -76,8 +76,9 @@ elseif nargin>=2 && numel(hp) == 1
    inv_model.hyperparameter.value= hp;
 % Remove function parameter because it will recurse
    try; inv_model.hyperparameter = rmfield(inv_model.hyperparameter,'func'); end
+   [inv_model, h_data, c_data] = process_parameters( inv_model );
 else
-    [inv_model, h_data, c_data] = process_parameters( inv_model );
+   [inv_model, h_data, c_data] = process_parameters( inv_model );
 end
 
 % disable solution checking (slow)
@@ -105,7 +106,7 @@ switch solver
     otherwise
         [NF,SE]= nf_calc_random( inv_model, h_data, c_data, iterations);
 end
-eidors_msg('@@ NF= %f', NF, 2);
+eidors_msg('@@ NF= %f', NF, 3);
 
 function [inv_model, h_data, c_data] = process_parameters( inv_model );
 

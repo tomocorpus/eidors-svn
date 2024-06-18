@@ -93,8 +93,28 @@ function hp=search2(dNF, imdl, dx)
    end
 
 function do_unit_test
+  do_unit_test1
+  do_unit_test2
+
+function do_unit_test1
   inv2d=  mk_common_model('b2c',16);
   inv2d.hyperparameter.func = @choose_noise_figure;
   inv2d.hyperparameter.noise_figure= 0.5;
   inv2d.hyperparameter.tgt_elems= 1:4;
   HP = choose_noise_figure(inv2d);
+  unit_test_cmp('test hp',HP,0.039338520257055,1e-12);
+  inv2d.hyperparameter.noise_figure= 2.0;
+  inv2d.hyperparameter.tgt_elems= 1:16;
+  HP = choose_noise_figure(inv2d);
+  unit_test_cmp('test hp',HP,0.008265463857691,1e-12);
+
+function do_unit_test2
+  inv2d=  mk_common_model('b2c',16);
+  inv2d.hyperparameter.func = @choose_noise_figure;
+  inv2d.hyperparameter.noise_figure= 0.5;
+  img = mk_image(inv2d); vh = fwd_solve(img);
+  img.elem_data(1:4)=1.1;vi = fwd_solve(img);
+  inv2d.hyperparameter.tgt_data.meas_t1 = vh;
+  inv2d.hyperparameter.tgt_data.meas_t2 = vi;
+  HP = choose_noise_figure(inv2d);
+  unit_test_cmp('test hp',HP,0.039347649458332,1e-12);
