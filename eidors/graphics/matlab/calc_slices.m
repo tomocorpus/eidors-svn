@@ -54,28 +54,42 @@ if mdl_dim(img(1))==2
         end
     end
     levels= [Inf,Inf,0];
-elseif mdl_dim(img(1))==3 && isempty(levels)
-      levels = [Inf Inf mean(img.fwd_model.nodes(:,3))];
-      eidors_msg('calc_slices: no levels specified, using mid-z xy plane',2);
 end
 
 
+warnStruct = warning('query','EIDORS:calc_slices:level_conflict');
 rimg = [];
 for i=1:length(img)
    rimg = cat(3, rimg, calc_this_slice( img(i), levels, np) );
 end
+warning(warnStruct)
 
 function rimg = calc_this_slice( img, levels, np)
     % If scalar levels then we just create that many cut planes on z-dimension
     fwd_model = img.fwd_model;
     
-    if ~isfield(fwd_model,'mdl_slice_mapper')
+    if ~isfield(fwd_model,'mdl_slice_mapper') || ...
+          nnz(isfield(fwd_model.mdl_slice_mapper, {'x_pts', 'npoints', 'npx', 'resolution'})) == 0
+
         fwd_model.mdl_slice_mapper.npoints = np;
     end
     if isfield(fwd_model.mdl_slice_mapper, 'level')
-      eidors_msg(3, 'Using level definition from the mdl_slice_mapper.level field.');
-      levels = fwd_model.mdl_slice_mapper.level; 
+       if ~isempty(levels)
+          warning('EIDORS:calc_slices:level_conflict',...
+             'Ignoring provided level definition. Usig mdl_slice_mapper.level instead.');
+          % only warn once
+          warning('off', 'EIDORS:calc_slices:level_conflict'); 
+       else
+          eidors_msg('Using level definition from the mdl_slice_mapper.level field.', 3);
+       end
+       levels = fwd_model.mdl_slice_mapper.level;
     end
+    if isempty(levels)
+       z = max(img.fwd_model.nodes(:,3)) - min(img.fwd_model.nodes(:,3));
+       levels = [Inf Inf z/2];
+       eidors_msg('calc_slices: no levels specified, using mid-z xy plane',2);
+    end
+
     
     nodes = {fwd_model.nodes};
     if size(fwd_model.nodes,2)==3 && size(fwd_model.elems,2) > 3 
@@ -252,6 +266,28 @@ function do_unit_test
    img.fwd_model.nodes(:,3) = img.fwd_model.nodes(:,3)-1;
    imn = calc_slices(img,[inf,0,inf]); 
    unit_test_cmp('cs 3d 5', imn, imt);
+   
+
+   % Default level
+   imt = calc_slices(img, [inf inf 0.5]);
+   imn = calc_slices(img);
+   unit_test_cmp('default', imn, imt);
+
+    % Default level
+   img.fwd_model.mdl_slice_mapper.level = [inf inf 0.5];
+   imn = calc_slices(img);
+   unit_test_cmp('no message', imn, imt);  
+
+   % Warning test
+   warning('off', 'EIDORS:calc_slices:level_conflict');  %don't need to print
+   [old, old_id] = lastwarn;
+   lastwarn('','');
+   img.fwd_model.mdl_slice_mapper.level = [inf,inf, 1.5];
+   imt = calc_slices(img,[inf,inf, .5]); 
+   [~,id] = lastwarn;
+   lastwarn(old, old_id);
+   warning('on', 'EIDORS:calc_slices:level_conflict'); 
+   unit_test_cmp('warning', id, 'EIDORS:calc_slices:level_conflict');
 
 
 % multi image struct
@@ -285,7 +321,7 @@ function do_unit_test
    img.fwd_model = rmfield(img.fwd_model,'mdl_slice_mapper');
    img.fwd_model.mdl_slice_mapper.x_pts = linspace(-150,150,20);
    img.fwd_model.mdl_slice_mapper.y_pts =-linspace(-150,150,23);
-   imc = calc_slices(img);
+   imc = calc_slices(img); 
    unit_test_cmp('size e  4', size(imc), [23,20]);
 
    img = rmfield(img,'elem_data');
