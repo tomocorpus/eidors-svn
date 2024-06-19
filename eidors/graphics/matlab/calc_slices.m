@@ -228,9 +228,19 @@ function do_unit_test
    imn = calc_slices(imgx,[inf,inf,0.5;inf,inf,2.5]);
    unit_test_cmp('cs 3d 2', imn, cat(4,imt,2*imt));
 
-   imgx = img; imgx.elem_data = img.elem_data*[1,2,3];
-   imn = calc_slices(imgx,[inf,inf,1]);
-   unit_test_cmp('cs 3d 3', imn, cat(3,imt,2*imt,3*imt));
+   imgx.elem_data = imgx.elem_data*[1,2,3];
+   imn = calc_slices(imgx,[inf,inf,0.5]);
+   imtx = cat(3,imt,2*imt,3*imt);
+   unit_test_cmp('cs 3d 3', imn, imtx);
+
+   imn = calc_slices(imgx,[inf,inf,0.5;inf,inf,2.5]);
+   unit_test_cmp('cs 3d 3', imn, cat(4,imtx,2*imtx));
+
+   imgx.fwd_model.mdl_slice_mapper=struct('x_pts',(-1:1)/2,'y_pts',(-1:1)/2, ...
+         'level',[inf,inf,0.5;inf,inf,2.5]);
+   imn = calc_slices(imgx);
+   imt = ones(3); imtx = cat(3,imt,2*imt,3*imt);
+   unit_test_cmp('cs 3d 3', imn, cat(4,imtx,2*imtx));
 
 
    img.calc_colours.npoints = 12; 
