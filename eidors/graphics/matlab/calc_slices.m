@@ -19,7 +19,7 @@ function rimg = calc_slices( img, levels );
 %
 % See also: LEVEL_MODEL_SLICE
 
-% (C) 2006-2022 Andy Adler and Bartek Grychtol. 
+% (C) 2006-2024 Andy Adler and Bartek Grychtol. 
 % License: GPL version 2 or version 3
 % $Id$
 
@@ -216,21 +216,32 @@ function do_unit_test
 
 % 3D Tests
    img = calc_jacobian_bkgnd( mk_common_model('n3r2',[16,2]));
+   xyz = interp_mesh(img);
    img.calc_colours.npoints = 8; 
    imn = calc_slices(img,[inf,inf,1]);
 
    imt = NaN*ones(8); imt(3:6,:) = 1; imt(:,3:6) = 1; imt(2:7,2:7) = 1; 
    unit_test_cmp('cs 3d 1', imn, imt);
 
+   imgx= img;
+   imgx.elem_data(xyz(:,3)>1.5) = 2;
+   imn = calc_slices(imgx,[inf,inf,0.5;inf,inf,2.5]);
+   unit_test_cmp('cs 3d 2', imn, cat(4,imt,2*imt));
+
+   imgx = img; imgx.elem_data = img.elem_data*[1,2,3];
+   imn = calc_slices(imgx,[inf,inf,1]);
+   unit_test_cmp('cs 3d 3', imn, cat(3,imt,2*imt,3*imt));
+
+
    img.calc_colours.npoints = 12; 
    imn = calc_slices(img,[inf,0,inf]);
    imt = NaN*ones(12); imt(:,3:10) = 1; 
-   unit_test_cmp('cs 3d 2', imn, imt);
+   unit_test_cmp('cs 3d 4', imn, imt);
 
    % Should have no effect
    img.fwd_model.nodes(:,3) = img.fwd_model.nodes(:,3)-1;
    imn = calc_slices(img,[inf,0,inf]); 
-   unit_test_cmp('cs 3d 3', imn, imt);
+   unit_test_cmp('cs 3d 5', imn, imt);
 
 
 % multi image struct
