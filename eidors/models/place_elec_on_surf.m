@@ -815,7 +815,7 @@ if exist('ng.opt','file')
    delete ng.opt
 end
 [fmdl] = ng_mk_extruded_model({2,xy,[4,80],},[],[]);
-% elec_pos = [-0.5, -0.8, 1];
+% elec_pos = [-0.5, -0.8, 1; 0.5, -0.8, 1];
 % place_elec_on_surf(fmdl, elec_pos, [0.1 0 0.01]);
 % mdl = place_elec_on_surf(fmdl, elec_pos, [0.15 0.1 0.01]);
 mdl = place_elec_on_surf(fmdl, [16 0 1],[0.15 0.1 0.01]);
