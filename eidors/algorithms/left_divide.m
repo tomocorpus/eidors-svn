@@ -113,9 +113,10 @@ function V= non_iterative(E,I);
                 if 0 % conditioning
                     V= linsolve(E,I,opts);
                 else
-                    E(E>+1e100)=+1e100;
-                    E(E<-1e100)=-1e100;
                     P= spdiag(sqrt(1./diag(E)));
+                    P_ = abs(P)>1e100; % prevent ridiculous values
+                        % large values lead to non-pos-def chol
+                    P(P_) = 1e100 * sign(P(P_));
                     EP = P*E*P; EP=0.5*(EP+EP'); %force symmetric
                     V= P*linsolve(EP,P*I,opts);
                 end
@@ -229,6 +230,40 @@ function conditioning_test
 
     unit_test_cmp('Conditioning',RM,RM2,1e-11)
 
+
+function do_empty_c2f_test
+% code from dual_model/centre_slice --- gets warning
+   n_sims= 20;
+   stim = mk_stim_patterns(16,2,'{ad}','{ad}',{},1);
+   fmdl = mk_library_model('cylinder_16x2el_vfine');
+   fmdl.stimulation = stim;
+   [vh,vi,xyzr_pt]= simulate_3d_movement( n_sims, fmdl);
+
+   % Create and show inverse solver
+   imdl = mk_common_model('b3cr',[16,2]);
+
+   f_mdl = mk_library_model('cylinder_16x2el_coarse');
+   f_mdl.stimulation = stim;
+   imdl.fwd_model = f_mdl;
+
+   imdl2d= mk_common_model('b2c2',16);
+   c_mdl= imdl2d.fwd_model;
+
+   imdl.rec_model= c_mdl;
+   c2f= mk_coarse_fine_mapping( f_mdl, c_mdl);
+   imdl.RtR_prior = @prior_gaussian_HPF;
+   imdl.solve = @inv_solve_diff_GN_one_step;
+   imdl.hyperparameter.value= 0.1;
+
+
+   imdl.hyperparameter.value= 0.05; scl= 15;
+
+   c_mdl.mk_coarse_fine_mapping.f2c_offset = [0,0,(1-.3)*scl];
+   c_mdl.mk_coarse_fine_mapping.z_depth = 0.1;
+   c2f= mk_coarse_fine_mapping( f_mdl, c_mdl);
+   imdl.fwd_model.coarse2fine = c2f;
+   imgc0= inv_solve(imdl, vh, vi);
+   % Show image of reconstruction in upper planes% show_slices(imgc0);
 
 function do_timing_unit_tests
 % The point of these tests are to verify which 
