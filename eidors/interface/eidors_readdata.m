@@ -27,10 +27,11 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %    - Draeger "get" file format (- 2007 - format for Draeger equipment)
 %        format = "DRAEGER-GET"
 %
-%    - Swisstom EIT equipment "EIT" (Pioneer set and BB2):
+%    - Sentec (Swisstom) EIT equipment "EIT" (Pioneer set and BB2):
 %           'LQ1' (2010 - 2011)
 %           'LQ2' (2013 - 2014)
 %           'LQ4' (2015+)
+%           'LQ5' (2023+)
 %
 %    - Dixtal file format, from Dixtal inc, Brazil
 %        format = 'DIXTAL_encode' extract encoder from provided Dll
@@ -199,7 +200,7 @@ switch fmt
 
       stim = mk_stim_patterns(32,1,[0,5],[0,5],{'no_rotate_meas','no_meas_current'},.005);
 
-   case 'lq4'
+   case {'lq4','lq5'}
       [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra, patPosition] = landquart4_readdata( fname );
       auxdata.event = evtlist;
       auxdata.elec_impedance = elecImps;
@@ -1091,14 +1092,28 @@ function [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname )
    elecImps = viPayload(1:2:end,:) + 1i*viPayload(2:2:end,:);
 
 % Read data from the file format develped by Swisstom, Landquart, Switzerland.
+
+% notes from Beat about format_version==5
+% There are only small changes, main structure is the same, but with these changes:
+% - header-size: 2672
+% - each frame starts with 16 bytes: timestamp of packet reception (8 bytes), event Type (4 bytes), payload size (4 bytes).
+% 
+% See attached screenshot below: Red corner marks the start of the first frame. With the red arrow, the event type is marked, and the red cursor is on the payload size. After those 16 bytes, the eit-frame follows as it was for version 4.
+% 
+% Beside different header size, the following loop is needed while reading in a frame:
+% check event Type:
+%                 If type != 0, then ignore payload and move by payload size to the next frame.
+%                 Otherwise, frame-payload starts
 function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra, patPosition] = landquart4_readdata( fname )
    evtlist = [];
    [fid msg]= fopen(fname,'r','ieee-le','UTF-8');
    try
       format_version = fread(fid,1,'int32','ieee-le');
-      if format_version ~= 4
-         error('unsupported file format version');
-      else          
+      switch format_version
+         case {4,5}; % OK, we can process
+         otherwise;
+            error('unsupported file format version');
+      end
          header_size = fread(fid,1,'int32', 'ieee-le');   
          eit_frame_offset = 328; % 60 + 12 + 256 = 328
          iq_payload = 2048;
@@ -1175,7 +1190,6 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
             else
                % nothing to do
             end
-         end         
       end
    catch err
       fclose(fid);
