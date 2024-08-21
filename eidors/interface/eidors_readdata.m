@@ -73,6 +73,7 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %     stim.framerate = acquisition rate (frames/sec) if available
 %
 %  if format is unspecified, an attempt to autodetect is made
+%    auxdata.format is the detected format
 
 % (C) 2005-09 Andy Adler. License: GPL version 2 or version 3
 % $Id$
@@ -103,6 +104,7 @@ auxdata = struct(); % default, can be overriden if the format has it
 fmt = pre_proc_spec_fmt( format, fname );
 switch fmt
    case {'h5','hdf5'};
+      fmt = 'hdf5';
       % Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
       [vv, auxdata, stim]= h5_readdata( fname );
 
@@ -151,14 +153,17 @@ switch fmt
      auxdata.counter = counter;
 
    case {'raw', 'sheffield'}
+      fmt = 'sheffield';
       vv = sheffield_readdata( fname );
 
       stim = basic_stim(16);
    case {'p2k', 'its'}
+      fmt = 'its';
       vv = its_readdata( fname );
 
       stim = 'UNKNOWN';
    case {'txt','iirc'}
+      fmt = 'iirc';
       vv = iirc_readdata( fname );
 
       stim = basic_stim(16);
@@ -175,6 +180,7 @@ switch fmt
 
       stim = 'UNKNOWN';
    case {'carefusion','goeiimf-eit'}
+      fmt = 'goeiimf-eit';
       [vv, auxdata_out, auxtime] = carefusion_eit_readdata( fname );
       auxdata.auxdata = auxdata_out;
       auxdata.auxtime = auxtime;
@@ -187,6 +193,7 @@ switch fmt
       stim = mk_stim_patterns(32,1,[0,5],[0,5],{'no_rotate_meas','no_meas_current'},.005);
       
    case {'lq2','lq3'}
+      fmt = 'lq2';
       [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname );
       auxdata.elec_impedance = elecImps;
       auxdata.t_abs = tStampsAbs;
@@ -235,6 +242,7 @@ switch fmt
    otherwise
       error('eidors_readdata: file "%s" format unknown', format);
 end
+auxdata.format = fmt;
 
 if ~isfield(auxdata,'frame_rate');
    auxdata.frame_rate = NaN; % NaN for unknown
@@ -401,11 +409,15 @@ function df= is_eit_file_a_swisstom_file( fname );
       df = d(4);
       if d(4)==4; df = 3.5; end
 %     eidors_msg('Swisstom format: LQ%d', df, 4);
-   elseif any(d(1:4) == [4,0,0,0])
+   elseif all(d(1:4) == [4,0,0,0])
       df = 4;
+   elseif all(d(1:4) == [5,0,0,0])
+      df = 5;
    else 
       df = 0;
    end
+   d
+   df
 
 function df = is_eit_file_a_carefusion_file( fname )
    fid= fopen(fname,'rb');
@@ -1108,7 +1120,7 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
    evtlist = [];
    [fid msg]= fopen(fname,'r','ieee-le','UTF-8');
    try
-      format_version = fread(fid,1,'int32','ieee-le');
+      format_version = fread(fid,1,'int32','ieee-le') 
       switch format_version
          case {4,5}; % OK, we can process
          otherwise;
