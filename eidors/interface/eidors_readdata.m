@@ -416,8 +416,6 @@ function df= is_eit_file_a_swisstom_file( fname );
    else 
       df = 0;
    end
-   d
-   df
 
 function df = is_eit_file_a_carefusion_file( fname )
    fid= fopen(fname,'rb');
@@ -1120,7 +1118,7 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
    evtlist = [];
    [fid msg]= fopen(fname,'r','ieee-le','UTF-8');
    try
-      format_version = fread(fid,1,'int32','ieee-le') 
+      format_version = fread(fid,1,'int32','ieee-le');
       switch format_version
          case {4,5}; % OK, we can process
          otherwise;
