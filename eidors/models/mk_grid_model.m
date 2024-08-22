@@ -13,11 +13,10 @@ function [cmdl, c2f]= mk_grid_model(fmdl, xvec, yvec, zvec, removefn);
 %  zvec - z edges (optional - to create 3D model)
 %  removefn(xyzc) - function which elements to remove, given xyzctr
 %  removefn = 'outside' => remove elements outside the fmdl
+%    e.g. removefn = @(xyz) rssq(xyz(:,1:2),2)>1.0;
 %
 % if fmdl == [], then just create the grid model without c2f
 %
-% See also MK_COARSE_FINE_MAPPING, MK_PIXEL_SLICE
-
 % Example: for circular model
 %  grid= linspace(-2,2,20);     % x,y grid
 %  [gmdl]= mk_grid_model([],grid,grid,[], @(xyz) rssq(xyz,2)>1);
@@ -29,6 +28,8 @@ function [cmdl, c2f]= mk_grid_model(fmdl, xvec, yvec, zvec, removefn);
 %  imdl = select_imdl( fmdl, {'Basic GN dif'});
 %  [imdl.rec_model,imdl.fwd_model.coarse2fine]= mk_grid_model(fmdl,grid{:});
 %
+% See also MK_COARSE_FINE_MAPPING, MK_PIXEL_SLICE
+
 % ISSUES:
 %  Ensure that grids are defined from smallest to largest
 
