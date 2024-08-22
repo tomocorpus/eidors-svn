@@ -278,3 +278,11 @@ function do_unit_test
    img.show_slices.contour_levels = 1:300;
    sp=sp+1;subplot(4,5,sp); show_slices(img) 
 
+   %20
+   l48 = linspace(0.5,48.5,24+1); 
+   l32 =-linspace(0.5,32.5,16+1) + 20; 
+   rmfn = @(xyz) rssq(xyz,2)>40;
+   fmdl = mk_grid_model([],l48,l32,l48,rmfn);
+   xyz = interp_mesh(fmdl); 
+   img = mk_image(fmdl, sum(xyz,2));
+   sp=sp+1;subplot(4,5,sp); show_slices(img,3) 
