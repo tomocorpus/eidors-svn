@@ -273,13 +273,13 @@ function do_unit_test
 imdl = mk_common_model('b2c2',16); imdl.hyperparameter.value = 1e-3;
 img = mk_image(imdl,1);     vh= fwd_solve(img);
 img.elem_data([51,23])=1.1; vi= fwd_solve(img);
-subplot(331); show_fem(img);
-subplot(332); show_fem(inv_solve(imdl, vh, vi));
+subplot(3,4,1); show_fem(img);
+subplot(3,4,2); show_fem(inv_solve(imdl, vh, vi));
 
 grid = linspace(-1,1,33);
 [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
      mk_grid_model( imdl.fwd_model, grid, grid );
-subplot(333); show_fem(inv_solve(imdl, vh, vi));
+subplot(3,4,3); show_fem(inv_solve(imdl, vh, vi));
 hold on; hh=show_fem(img); set(hh,'FaceAlpha',0,'EdgeColor',[0,0,1]); hold off;
 
 if 0
@@ -294,16 +294,16 @@ else
   [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
        mk_grid_model( imdl.fwd_model, grid, grid, [],rmfn );
 end
-subplot(334); show_fem(inv_solve(imdl, vh, vi));
+subplot(3,4,4); show_fem(inv_solve(imdl, vh, vi));
 hold on; hh=show_fem(img); set(hh,'FaceAlpha',0,'EdgeColor',[0,0,1]); hold off;
 
 rmfn = @(xyz) rssq(xyz,2)>1;
 [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
      mk_grid_model( imdl.fwd_model, grid, grid, [],rmfn );
-subplot(335); show_fem(inv_solve(imdl, vh, vi));
+subplot(3,4,5); show_fem(inv_solve(imdl, vh, vi));
 hold on; hh=show_fem(img); set(hh,'FaceAlpha',0,'EdgeColor',[0,0,1]); hold off;
 
-subplot(336)
+subplot(3,4,6)
 imdl = mk_common_model('n3r2',[16,2]);
 A= [390 391 393 396 402 478 479 480 484 486 664 665 666 667 668 670 671 672 676 677 678 755 760 761];
 B= [318 319 321 324 330 439 440 441 445 447 592 593 594 595 596 598 599 600 604 605 606 716 721 722];
@@ -311,13 +311,13 @@ img = mk_image(imdl.fwd_model,1); vh = fwd_solve(img);
 img.elem_data(A)=1.5; img.elem_data(B)=0.5; vi=fwd_solve(img);
 show_fem(img);
 
-subplot(337)
+subplot(3,4,7)
 [cmdl, c2f]= mk_grid_model(img.fwd_model, -.8:.1:.8, -.8:.1:.8, 0:.5:3);
 v = c2f'*(img.elem_data-1) + 1;
 img2 = mk_image(cmdl, v);
 show_fem(img2)
 
-subplot(338)
+subplot(3,4,8)
 rmfn = @(xyz) rssq(xyz(:,1:2),2)>1.0;
 [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
     mk_grid_model(img.fwd_model, -1:.1:1, -1:.1:1, 0:.5:3,rmfn );
@@ -326,10 +326,17 @@ rmfn = @(xyz) rssq(xyz(:,1:2),2)>1.0;
 img2= inv_solve(imdl,vh,vi);
 show_fem(img2)
 
-subplot(339)
+subplot(3,4,9)
 [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
     mk_grid_model(img.fwd_model, -1:.1:1, -1:.1:1, 0:.5:3,'outside');
 %v = imdl.fwd_model.coarse2fine'*(img.elem_data-1)+1;
 %img2 = mk_image(imdl.rec_model, v);
 img2= inv_solve(imdl,vh,vi);
 show_fem(img2)
+
+subplot(3,4,10)
+   l48 = linspace(0.5,48.5,24+1); 
+   l32 =-linspace(0.5,32.5,16+1) + 20; 
+   rmfn = @(xyz) rssq(xyz,2)>40;
+   fmdl = mk_grid_model([],l48,l32,l48,rmfn);
+show_fem(fmdl)
