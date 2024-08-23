@@ -80,18 +80,25 @@ if ~isempty( fmdl)
         end
         c2f = mk_grid_c2f(fmdl,tmp);
     end
-    % now remove elements outsize shape
-    if ischar(rmelems{2}) && strcmp(rmelems{2},'OUTSIDE')
-       rmelems{2} = (sum(c2f,1) < eps);
-       rmelems{1} = logical(kron(rmelems{2}, true(1,rmelems{1})));
-    end
-    cmdl.elems( rmelems{1}, : ) = [];
-    cmdl.coarse2fine( rmelems{1},     :      ) = [];
-    cmdl.coarse2fine(    :      , rmelems{2} ) = [];
-    c2f(:,rmelems{2}) = [];
-
-%   cmdl.remover = rmelems; % debugging
+else
+    c2f = [];
 end
+
+% now remove elements outsize shape
+if ischar(rmelems{2}) && strcmp(rmelems{2},'OUTSIDE')
+   rmelems{2} = (sum(c2f,1) < eps);
+   rmelems{1} = logical(kron(rmelems{2}, true(1,rmelems{1})));
+end
+if ~isempty(rmelems{1})
+   cmdl.elems( rmelems{1}, : ) = [];
+   cmdl.coarse2fine( rmelems{1},     :      ) = [];
+   cmdl.coarse2fine(    :      , rmelems{2} ) = [];
+   if ~isempty(c2f)
+      c2f(:,rmelems{2}) = [];
+   end
+%  cmdl.remover = rmelems; % debugging
+end
+
 cmdl.boundary = find_boundary( cmdl.elems);
 
 cmdl = mdl_normalize(cmdl, 'default');
@@ -101,7 +108,6 @@ cmdl.jacobian   = @eidors_default;
 
 % standard field order
 cmdl = eidors_obj('set', cmdl);
-
 
 function c2f= calc_c2f_2d( fmdl, xvec, yvec);
    nef= size( fmdl.elems,1);
