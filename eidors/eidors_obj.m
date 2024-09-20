@@ -50,11 +50,29 @@ function [obj_id, extra_out] = eidors_obj(type,name, varargin )
 % (C) 2005-10 Andy Adler. License: GPL version 2 or version 3
 % $Id$
 
-if nargin==0 || ~ischar(type)
+if isstruct(type)
+   if isfield(type,'type'); 
+      obj_id = type.type;
+   else
+      obj_id = '{non-eidors}';
+   end
+   return
+end
+
+if ~ischar(type); % type of a non-eidors char
+   obj_id = []; % 
+   return
+end
+
+if nargin==0
    error('cannot call eidors_obj with no arguments');
 end
 
+
 switch type
+   case 'UNIT_TEST';
+      do_unit_test; return
+% Return the type of an eidors object
    case 'set'
       obj_id= set_obj( name, varargin{:} );
    case 'get-cache'
@@ -468,3 +486,10 @@ function check_size( obj_id , prop )
       eidors_cache('clear_max',floor(max_memory*.75));
    end
 
+% TODO: Lots to write here
+function do_unit_test
+   im = eidors_obj('image','','elem_data',1);
+   et = eidors_obj(im);
+   unit_test_cmp('type 0',et,'image');
+
+   
