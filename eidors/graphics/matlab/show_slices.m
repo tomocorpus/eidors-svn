@@ -43,7 +43,7 @@ function out_img= show_slices( img, levels, vh )
 %
 % See also: LEVEL_MODEL_SLICE, CALC_SLICES, MK_MOSAIC, CALC_COLOURS
 
-% (C) 2005-2008 Andy Adler. License: GPL version 2 or version 3
+% (C) 2005-2024 Andy Adler. License: GPL version 2 or version 3
 % $Id$
 
 if ischar(img) && strcmp(img,'UNIT_TEST'); do_unit_test; return; end
@@ -57,7 +57,13 @@ end
 % handle lots of different scenarios (calling with images and
 % without. It is now crufty ... and should be changed.
 do_calc_slices = 0;
-try if strcmp(img(1).type,'image'); do_calc_slices= 1; end;end 
+if isstruct(img)
+   if strcmp(img(1).type,'image');
+      do_calc_slices= 1;
+   else
+      error('show_slices only works with type image');
+   end;
+end
 
 if nargin<=1;
    try   
