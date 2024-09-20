@@ -1,4 +1,4 @@
-function write_ibex_mat(fname, fmdl, imgr)
+function write_ibex_mat(fname, fmdl, imgs)
 % WRITE_IBEX_MAT:  write images to ibex mat file format
 %  write_ibex_mat(fname, fmdl, imgr)
 %    fname - file name to write to 
@@ -10,16 +10,34 @@ function write_ibex_mat(fname, fmdl, imgr)
 % (C) 2024 Andy Adler. License: GPL version 2 or version 3
 % $Id$
 
+[llung_ROI, rlung_ROI, thorax_ROI] = get_ROIs(fmdl);
+keyboard
+save(fname,'data');
+
 function [llung_ROI, rlung_ROI, thorax_ROI] = get_ROIs(fmdl);
-    fmdl= mk_library_model('adult_male_16el_lungs');
+    lmi = length(fmdl.mat_idx);
     img = mk_image(fmdl, 1); % background conductivity
-    img.elem_data(fmdl.mat_idx{2}) = 0.3001; % lungs
-    img.elem_data(fmdl.mat_idx{3}) = 0.3002; % lungs
-    ROI = calc_slices(img,[inf,inf,0.5]);
-    llung_ROI = ~isnan(ROI) & (ROI==0.3001);
-    rlung_ROI = ~isnan(ROI) & (ROI==0.3002);
-    thorax_ROI= ~isnan(ROI); % include lungs, too
-function [llung_ROI, rlung_ROI, thorax_ROI] = get_ROIs(fmdl);
+    if lmi==1;
+      error('Need mat_idx regions to segment lungs');
+    elseif lmi==2; % one lung, must cut
+      img.elem_data(fmdl.mat_idx{2}) = 0.3; % lungs
+    else % at least two lungs
+      img.elem_data(fmdl.mat_idx{2}) = 0.3; % lungs
+      img.elem_data(fmdl.mat_idx{3}) = 0.3; % lungs
+    end
+    img.calc_colours.npoints = 32;
+    ROI = calc_slices(img,1);
+    if ~(size(ROI)==[32,32])
+       error('image size must be 32×32'); 
+    end
+     
+    thorax_ROI= ~isnan(ROI);
+    lung_ROI  = thorax_ROI & (ROI==0.3);
+    xpts = linspace(-1,1,32);
+    rlung_ROI = lung_ROI & (xpts<0);
+    llung_ROI = lung_ROI & (xpts>0);
+
+function data = create_data(imgr);
 data.imageRate = 13;
 
 data.patient.ROI.Inside =thorax_ROI*100; % to scale it up to 100
@@ -43,7 +61,5 @@ data.injctionPattern= 'NaN';
 data.SensorBelt.NumEl= 'NaN';
 
 data.measurement.CompositValue=squeeze(sum(sum(imgs,2),1));
-
-save('file-for-IBEX.mat','data');
 
 
