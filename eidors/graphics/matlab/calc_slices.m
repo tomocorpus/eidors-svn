@@ -76,7 +76,7 @@ function rimg = calc_this_slice( img, levels, np)
     if isfield(fwd_model.mdl_slice_mapper, 'level')
        if ~isempty(levels)
           warning('EIDORS:calc_slices:level_conflict',...
-             'Ignoring provided level definition. Usig mdl_slice_mapper.level instead.');
+             'Ignoring provided level definition. Using mdl_slice_mapper.level instead.');
           % only warn once
           warning('off', 'EIDORS:calc_slices:level_conflict'); 
        else
