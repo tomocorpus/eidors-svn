@@ -73,9 +73,10 @@ if nargin<=1;
    end
 end
 
-if isempty(levels) && do_calc_slices %&& size(img(1).fwd_model.nodes,2)==2
-   levels= [Inf,Inf,0];
-end
+% Levels are set in calc_slices for 2D models. -- removed 2024-09-27 AA
+%if isempty(levels) && do_calc_slices %&& size(img(1).fwd_model.nodes,2)==2
+%   levels= [Inf,Inf,0];
+%end
 
 if nargin < 3
     vh = [];
