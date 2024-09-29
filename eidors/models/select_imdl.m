@@ -38,6 +38,7 @@ if nargin == 1; options = {}; end
 switch mdl.type
   case 'inv_model'; inv_mdl = mdl;
   case 'fwd_model'; inv_mdl = basic_imdl( mdl );
+  case 'image';     inv_mdl = basic_imdl( mdl.fwd_model, mdl.elem_data );
   otherwise;        error('select_imdl: expects inv_model or fwd_model input');
 end
 
@@ -73,7 +74,8 @@ inv_mdl = eidors_obj('inv_model',inv_mdl);
 valid_inv_model(inv_mdl);
 
 
-function imdl = basic_imdl( fmdl );
+function imdl = basic_imdl( fmdl, elem_data );
+   if nargin<=1; elem_data = 1; end
    imdl.name= 'Basic imdl from select_imdl';
    imdl.type= 'inv_model';
 
