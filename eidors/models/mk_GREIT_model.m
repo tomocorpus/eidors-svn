@@ -390,6 +390,12 @@ function [imdl,fmdl,imgs] = parse_fmdl(fmdl);
     Nelecs = length(fmdl.electrode);
     for i=1:Nelecs
        enodesi = fmdl.electrode(i).nodes;
+       if isfield(fmdl.electrode(i),'faces') % priority over nodes
+          enodesi = fmdl.electrode(i).faces(:);
+       end
+       if isempty(enodesi)
+          error('can''t determine electrode location');
+       end
        elec_loc(i,:) = mean( fmdl.nodes( enodesi,:),1 );
     end
     opt.elec_loc = elec_loc;
