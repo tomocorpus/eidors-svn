@@ -82,7 +82,7 @@ function imdl = basic_imdl( fmdl, elem_data );
    imdl.solve= 'eidors_default';
    imdl.hyperparameter.value = .01;
    imdl.RtR_prior = 'eidors_default';
-   imdl.jacobian_bkgnd.value = 1;
+   imdl.jacobian_bkgnd.value = elem_data;
    imdl.reconst_type= 'difference';
    imdl.fwd_model = fmdl;
 
