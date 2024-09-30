@@ -39,8 +39,12 @@ function opt = ng_write_opt(varargin)
 %  ng_write_opt('MSZBRICK', [xmin, xmax, ymin, ymax, zmin, zmax, maxh])
 %   or
 %  ng_write_opt('MSZSPHERE', [xctr, yctr, zctr, radius, maxh])
+%   or
 %  ng_write_opt('MSZCYLINDER', [x1, y1, z1, x2, y2, z2, radius, maxh])
-%     where (x1,y1,z1) and (x2,y2,z2) are the limits on the axis
+%     where (x1,y1,z1) and (x2,y2,z2) are the limits on the cylinder axis
+%   or
+%  ng_write_opt('MSZZPLANE', [x1,y1,z1,radius,maxh]);
+%     a plane of maxh in the z-direction at point (x1,y1,z1)
 %
 % It is possible to have a refined region inside a coarse region
 %  ng_write_opt('MSZSPHERE', [x, y, z, rinner, minner],'MSZSPHERE', [x, y, z, router, mouter])
@@ -120,6 +124,10 @@ for i = 1:nargin/2
        mszpoints = [mszpoints; msz_sphere(val)];;
    case 'MSZCYLINDER'
        mszpoints = [mszpoints; msz_cylinder(val)];;
+   case 'MSZZPLANE'
+       xyz=val(1:3);
+       planeval = [xyz-[0,0,1e-6],xyz+[0,0,1e-6],val(4:5)];
+       mszpoints = [mszpoints; msz_cylinder(planeval)];
    otherwise
        eval(sprintf('opt.%s = val;',varargin{idx}));
    end
@@ -453,6 +461,8 @@ function unit_test_MSZ
            ng_write_opt('MSZSPHERE',[8,8,0,1.1,0.2],'MSZSPHERE',[-8,-8,0,1.1,0.2]);
        case 13; n_exp = 14821;
            ng_write_opt('fine','MSZSPHERE',[6,6,6,2.2,0.2],'MSZPOINTS',[0,0,0,0.1]);
+       case 14; n_exp = 3051;
+           ng_write_opt('MSZZPLANE',[5,5,5,1,.1]);
        otherwise; break
        end
        eidors_cache clear
