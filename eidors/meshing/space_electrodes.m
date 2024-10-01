@@ -1,0 +1,39 @@
+function [th] = space_electrodes(spacing_type, n_elecs, params);
+% space_electrodes: equal spacing of electrodes around body
+% [th] = space_electrodes(spacing_type, n_elecs, params);
+%
+% OUTPUT: th = spacing angle (degrees) from centre
+%
+% INPUT: n_elecs = number of electrodes
+%  spacing_type = 'ellipse':
+%    params = eliptical radii [r_x r_y]
+
+switch spacing_type
+   case 'ellipse';
+      th = ellip_space_elecs( n_elecs, params );
+   otherwise
+      error('spacing_type not recognized')
+end
+
+% equally space n_elecs around an ellipse of outer radius rad(1),rad(2)
+function th = ellip_space_elecs( n_elecs, rad )
+   % The radius is the integral of sqrt((r1*sin(th))^2 + (r2*cos(th))^2)
+   %  This integral is the incomplete_elliptic_integral(th, 1-r2/r1)*sqrt(r1)
+   %  Unfortunately, STUPID MATLAB, doesn't have incomplete elliptic integrals
+   %  by default. So, rather than install a toolkit for it, we integrate numerically.
+   if n_elecs==0; th=[]; return; end
+   
+   th = linspace(0,2*pi, 100*(n_elecs)); th(1)=[]; % Accuracy to 100x spacing
+   len = cumsum( sqrt( rad(1)*cos(th).^2 + rad(2)*sin(th).^2 ) );
+   len = len/max(len);
+   xi = linspace(0,1,n_elecs+1); xi(1)= []; xi(end)=[];
+   yi = interp1(len,th,xi);
+
+   th= [0;yi(:)];
+   for exact = 0:3;
+      eth = exact/2*pi;
+      ff = abs(th-eth)<1e-3;
+      th(ff) = eth;
+   end
+
+

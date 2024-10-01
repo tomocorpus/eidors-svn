@@ -24,6 +24,9 @@ Plan for 3.12:
  - more careful errors in hdf5/eidors_readdata
  - write tests for hdf5 in eidors_readdata
 
+ - move extra spacing types to space_electrodes and refactor
+ - add unit tests space_electrodes
+
  + Fix calc_noise_figure unit tests
  
  + UNIT_TEST for remove_nodes and remove_elems

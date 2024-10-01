@@ -247,7 +247,7 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, hig, rad, is2D );
    if size(elec_pos,1) == 1
        % Parse elec_pos = [n_elecs_per_plane,z_planes] 
       n_elecs= elec_pos(1); % per plane
-      th = ellip_space_elecs( n_elecs, rad );
+      th = space_electrodes('ellipse', n_elecs, rad );
 
       on_elecs = ones(n_elecs, 1);
       el_th = []; 
@@ -278,27 +278,6 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, hig, rad, is2D );
 
    if n_elecs == 0
       elecs= struct([]); % empty
-   end
-
-% equally space n_elecs around an ellipse of outer radius rad(1),rad(2)
-function th = ellip_space_elecs( n_elecs, rad )
-   % The radius is the integral of sqrt((r1*sin(th))^2 + (r2*cos(th))^2)
-   %  This integral is the incomplete_elliptic_integral(th, 1-r2/r1)*sqrt(r1)
-   %  Unfortunately, STUPID MATLAB, doesn't have incomplete elliptic integrals
-   %  by default. So, rather than install a toolkit for it, we integrate numerically.
-   if n_elecs==0; th=[]; return; end
-   
-   th = linspace(0,2*pi, 100*(n_elecs)); th(1)=[]; % Accuracy to 100x spacing
-   len = cumsum( sqrt( rad(1)*cos(th).^2 + rad(2)*sin(th).^2 ) );
-   len = len/max(len);
-   xi = linspace(0,1,n_elecs+1); xi(1)= []; xi(end)=[];
-   yi = interp1(len,th,xi);
-
-   th= [0;yi(:)];
-   for exact = 0:3;
-      eth = exact/2*pi;
-      ff = abs(th-eth)<1e-3;
-      th(ff) = eth;
    end
 
 function elec = elec_spec( row, is2D, hig, rad )
