@@ -1,8 +1,8 @@
-function [th] = space_electrodes(spacing_type, n_elecs, params);
+function [thrad,thdeg] = space_electrodes(spacing_type, n_elecs, params);
 % space_electrodes: equal spacing of electrodes around body
-% [th] = space_electrodes(spacing_type, n_elecs, params);
+% [thrad,thdeg] = space_electrodes(spacing_type, n_elecs, params);
 %
-% OUTPUT: th = spacing angle (degrees) from centre
+% OUTPUT: thrad,thdeg = spacing angle (rad,degrees) from centre
 %
 % INPUT: n_elecs = number of electrodes
 %  spacing_type = 'ellipse':
@@ -10,10 +10,12 @@ function [th] = space_electrodes(spacing_type, n_elecs, params);
 
 switch spacing_type
    case 'ellipse';
-      th = ellip_space_elecs( n_elecs, params );
+      thrad = ellip_space_elecs( n_elecs, params );
    otherwise
       error('spacing_type not recognized')
 end
+
+thdeg = 180/pi*thrad;
 
 % equally space n_elecs around an ellipse of outer radius rad(1),rad(2)
 function th = ellip_space_elecs( n_elecs, rad )
