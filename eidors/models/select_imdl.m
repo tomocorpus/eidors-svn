@@ -20,8 +20,10 @@ function [inv_mdl,opt_out]= select_imdl( mdl, options )
 %   parameters provided as select_imdl(fmdl,{'GREIT:NF=0.3 64x64 rad=0.25'});
 %   defaults NF=0.5 32x32 rad=0.2
 % 'GREIT':          3D GREIT if parameters:
-%     {'GREIT:NF=0.3 32x32x6 vrange=0.3'});
+%     {'GREIT:NF=0.3 32x32x6'});   % default vrange=.2
+%     {'GREIT:NF=0.3 vrange=0.3 32x32x6'});
 %   Here 6 slices cover +/-vrange*max(diam) from verticle centre
+%
 % 'Elec Move GN':   One step GN difference solver with compensation for
 %                   electrode movement. Conductivity prior, hyperparameter
 %                   and Jacobian will be preserved if specified in the
