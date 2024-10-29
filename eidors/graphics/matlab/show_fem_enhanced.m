@@ -424,7 +424,7 @@ function hh = draw_fem(img, mdl, opts)
             triangle_alpha = alpha_map3(triangle_color);
             
             % Restore transparency for boundary elements;
-            alpha_level = 0.5;
+            alpha_level = opts.body.triangle_alpha;
             if size(img_data,1) == size(mdl.elems,1)
                 alpha_idx =  triangle_alpha(mdl.boundary_to_sub_element_idx, :) < alpha_level;
                 triangle_alpha(mdl.boundary_to_sub_element_idx(alpha_idx), :) = alpha_level;
