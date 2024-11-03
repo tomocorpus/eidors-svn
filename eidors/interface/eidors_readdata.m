@@ -141,7 +141,7 @@ switch fmt
      auxdata.tstamp = tstamp; % timestamp in number of days
 
      T_int = mean(diff(tstamp))*24*3600; % in S
-     auxdata.frame_rate = 1/T_int;
+     auxdata.frame_rate = fr; % use assigned fr
      auxdata.event = event;
      auxdata.signals = signals;
      % Based on correlating and scaling with outputs of *.get file
