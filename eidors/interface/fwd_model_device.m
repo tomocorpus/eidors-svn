@@ -37,7 +37,7 @@ switch lower(device)
     fmdl.stimulation = mk_stim_patterns(32,1, ...
        SS,SS,{sprintf('no_meas_current_next%d',opt.next)},mA);
 
-  otherwise error('No such device');
+  otherwise error('No information about device');
 end
 
 function do_unit_test
