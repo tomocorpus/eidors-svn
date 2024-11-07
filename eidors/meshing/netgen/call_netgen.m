@@ -39,7 +39,14 @@ islinux = isunix;
 % Netgen executable filename
 cache_path = eidors_cache('cache_path');
 if  islinux
-   ng_name = 'netgen';
+   % If the file ng.sh has been created, call it instead
+   % If we're calling the windows netgen, then use something like
+   % NETGENDIR=/path/to/netgen-5.3_x64/bin wine "/path/to/Netgen-5.3_x64/bin/netgen.exe" $1 $2 $3
+   if exist([cache_path,'/ng.sh'],'file')
+      ng_name = [cache_path,'/ng.sh'];
+   else
+      ng_name = 'netgen';
+   end
 else
    ng_name = [cache_path,'/ng'];
 end
