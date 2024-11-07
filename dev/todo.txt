@@ -16,8 +16,10 @@ Plan for 3.13:
 
  - Refactor eidors_writeimg
  - Add Draeger bin file to eidors_writeimg
+ - add code to check netgen-5.3 is legit (check hash)
 
 Plan for 3.12:
+ - Update wikipedia eidors for latest release
  - Update mexmac / maxmaci64 for new hash. Remove if too old
  - Post sample h5 data
  - HDF5 file format
@@ -26,6 +28,8 @@ Plan for 3.12:
 
  - move extra spacing types to space_electrodes and refactor
  - add unit tests space_electrodes
+
+ - add startup code to look for netgen-5.3 in startup and create batch file
 
  + Fix calc_noise_figure unit tests
  
