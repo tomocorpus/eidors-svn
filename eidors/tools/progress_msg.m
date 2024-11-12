@@ -175,9 +175,9 @@ end
 
 function outofmsg(a,b,first,N,T)
     if first && a < 0, return, end
-    str = sprintf('%%%dd/%%%dd',N,N);
+    str = sprintf('%%%dd/%%%dd',N+1,N);
     if ~first
-        str = [repmat('\b',1,T) str ];
+        str = [repmat('\b',1,T+1) str ];
     end
     
     fprintf(str,a,b);
