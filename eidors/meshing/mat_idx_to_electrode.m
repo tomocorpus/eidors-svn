@@ -40,7 +40,7 @@ for i = 1:length(mat_idxes)
    rm_elems = union(rm_elems,rm_elemi); 
 end
 
-fmdl = remove_unused_nodes(fmdl, 'quiet'); % we might be removing nodes just assigned to electrodes
+fmdl = remove_unused_nodes(fmdl); % used to use , 'quiet') but that doesn't flag model errors
 fmdl = remove_unused_boundary(fmdl);
 if any(fmdl.boundary(:) == 0)
    eidors_msg('WARNING: PROBLEM WITH BOUNDARY',1)
