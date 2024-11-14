@@ -81,11 +81,15 @@ function fmdl = remove_unused_nodes( fmdl, elec_opt )
          'Removed parts of electrode(s) # %s.', num2str(find(elecs_changed)));
    end
 %  fmdl.boundary = find_boundary(fmdl);
-   fmdl.boundary = remap(nidx, fmdl.boundary);
-   fmdl.boundary(any(fmdl.boundary==0,2),:) = [];
-   fmdl.gnd_node = nidx(fmdl.gnd_node);
-   if fmdl.gnd_node == 0 %% New gnd node if missing
-      fmdl = assign_new_gnd_node( fmdl );
+   if isfield(fmdl, 'boundary')
+      fmdl.boundary = remap(nidx, fmdl.boundary);
+      fmdl.boundary(any(fmdl.boundary==0,2),:) = [];
+   end
+   if isfield(fmdl, 'gnd_node')
+      fmdl.gnd_node = nidx(fmdl.gnd_node);
+      if fmdl.gnd_node == 0 %% New gnd node if missing
+         fmdl = assign_new_gnd_node( fmdl );
+      end
    end
 
 %  fmdl.elems = reshape(nidx(fmdl.elems),[],size(fmdl.elems,2));
