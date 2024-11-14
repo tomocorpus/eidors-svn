@@ -1,6 +1,6 @@
 function mdl = gmsh_stl2tet(stlfile, mesh_size, extra, nopt)
 %GMSH_STL2TET creates a tetrahedral mesh from an stl file
-% mdl = gmsh_stl2tet(stlfile, maxh, extra) where:
+% mdl = gmsh_stl2tet(stlfile, maxh, extra, nopt) where:
 %        mdl - EIDORS fwd_model struct
 %    stlfile - either:
 %                 - a path to an stl file
