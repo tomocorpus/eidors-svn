@@ -35,6 +35,7 @@ try out.boundary = uint32(out.boundary); end
 if ~isfield(out, 'boundary') || isempty(out.boundary)
    out.boundary = find_boundary(out);
 end
+   
 
 for i = 1:length(shapes)
     if length(shapes) > 1
@@ -135,6 +136,14 @@ for i = 1:length(shapes)
     end
     LE = length(out.elems);
     out.elems = [out.elems; M2.elems];
+    d1 = size(out.boundary, 2);
+    d2 = size(M2.boundary, 2);
+    if d1 < d2 % out is 2D or surface mesh
+       out.boundary = out.elems;
+    end
+    if d2 < d1
+       M2.boundary = M2.elems;
+    end
     out.boundary = unique([out.boundary; M2.boundary], 'rows');
     if isfield(M2, 'electrode') && isstruct(M2.electrode)
         if ~isfield(out, 'electrode'), out.electrode = []; end
