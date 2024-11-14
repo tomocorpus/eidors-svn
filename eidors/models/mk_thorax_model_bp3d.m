@@ -98,7 +98,6 @@ switch length(varargin)
          out = get_torso;
       elseif ischar(varargin{1}) 
          copyright = '(C) EIDORS Project';
-keyboard
          out = build_predef_elecs(varargin{1}, organspec);
       else
          error('EIDORS:WrongInput','Electrode specification not understood');
