@@ -23,9 +23,18 @@ function citeme(fname)
 % PUBMED: 12321345
 % ARXIV:  0706.0001
 %
+% CITATION_REQUEST:
+% AUTHOR: Author Name
+% TITLE: A 2nd paper
+% JOURNAL: Jounral wth a short name
+% VOL: V
+% NUM: N
+% YEAR: 2013
+% PAGE: 1-10
+%
 % A CITATION_REQUEST block is terminated by an empty line. 
 % The order of fields is irrelevant. All fields are optional.
-% At the moment, only one CITATION_REQUEST block per file is supported.
+% Multiple CITATION_REQUEST blocks are supported.
 %
 % See also STARTUP
 if ischar(fname) && strcmp(fname, 'UNIT_TEST')
@@ -40,8 +49,43 @@ end
 h = help(fname);
 s = strfind(h,'CITATION_REQUEST:');
 if isempty(s), return, end;
-T = textscan(h(s:end),'%s','delimiter','\n');
+T = textscan(h(s(1):end),'%s','delimiter','\n');
 T = T{1};
+starts = 1;
+if numel(s) > 1
+   starts = find(strcmp(T, 'CITATION_REQUEST:'));
+end
+empty_lines = find(cellfun(@isempty,T));
+s = s - s(1) + 1;
+for i = 1:numel(s)
+   block = T(starts(i):empty_lines(find(empty_lines>starts(i), 1, 'first')));
+   citation{i} = parse_block(block);
+end
+
+str = sprintf('\n%s\n',citation{:});
+
+ws = warning('off', 'backtrace');
+idstr = sprintf('EIDORS:CITEME:%s',fname);
+stars(1:80) = '=';
+msg = sprintf('\n%s\nIf you use %s in a publication, please cite:', stars,upper(fname));
+warning(idstr,[msg str stars]);
+if 0
+   disp('Press any key to continue...');
+   pause
+else
+   fprintf('Continuing in  ');
+   for i = 2:-1:1
+      fprintf('\b%d',i);
+      pause(1);
+   end
+   fprintf('\b0\n');
+end
+warning(ws.state, 'backtrace');
+if ~strcmp(fname,'citeme')
+    warning('off',idstr); % only show once per session
+end
+
+function str = parse_block(T)
 line = 2;
 lastfld = [];
 cite = empty_cite;
@@ -62,9 +106,9 @@ flds = {'link','pdf','pubmed','arxiv','doi'};
 for i = 1:numel(flds)
     cite.(flds{i})(isspace(cite.(flds{i}))) = [];
 end
-pretty_print(cite,fname);
+str = pretty_print(cite);
  
-function str = pretty_print(cite, fname)
+function str = pretty_print(cite)
 str = sprintf('%s (%s) "%s"',...
     cite.author,cite.year,cite.title);
 
@@ -125,26 +169,7 @@ nl = rsp(nl);
 nl(nl==length(str)) = [];
 str(nl) = sprintf('\n');
 
-ws = warning('off', 'backtrace');
-idstr = sprintf('EIDORS:CITEME:%s',fname);
-stars(1:80) = '=';
-msg = sprintf('\n%s\nIf you use %s in a publication, please cite:\n', stars,upper(fname));
-warning(idstr,[msg str '\n' stars]);
-if 0
-   disp('Press any key to continue...');
-   pause
-else
-   fprintf('Continuing in  ');
-   for i = 2:-1:1
-      fprintf('\b%d',i);
-      pause(1);
-   end
-   fprintf('\b0\n');
-end
-warning(ws.state, 'backtrace');
-if ~strcmp(fname,'citeme')
-    warning('off',idstr); % only show once per session
-end
+
 
 function cite = empty_cite
 cite.author = [];
