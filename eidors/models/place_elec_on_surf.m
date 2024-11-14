@@ -7,6 +7,7 @@ function mdl2 = place_elec_on_surf(mdl,elec_pos, elec_spec,ng_opt_file, maxh)
 %  elec_shape  = an array specifying electrode shape (can be different for
 %                each electrode)
 %  ng_opt_file = an alternative ng.opt file to use (OPTIONAL)
+%                filename or option struct (see ng_write_opt)
 %                specify [] to use dafault
 %  maxh        = maximum edge length (if ng_opt_file is specified, maxh 
 %                only applies to the volume and not the surface)
@@ -88,7 +89,7 @@ if isempty(maxh)
    maxh = max(mdl.edge_len);
 end
 elecs = [];
-try elecs = parse_elecs(mdl,elec_pos,elec_spec); end
+elecs = parse_elecs(mdl,elec_pos,elec_spec);
 if isempty(elecs)
    error('EIDORS:WrongInput', 'Failed to parse electrode positions. Exiting');
 end
