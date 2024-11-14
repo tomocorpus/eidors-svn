@@ -33,8 +33,7 @@ Warping using Elastic Deformation.</a>
        <hr>
    <tr><th valign="top"> Format:
        <td>
-       Data are in Matlab v6 format,
-       compressed with <a href="http://www.7-zip.org">7-Zip</a>
+       Data are in Matlab v7 format.
 <p> Each model is shelled comprising regions
 defining Scalp, Skull, CSF and brain as defined by the
 <tt>materials</tt> structure. The important arrays in this structure
@@ -72,19 +71,19 @@ and Bayford 2007b; Yerworth et al. 2004).
 <TH style="border-bottom: solid"> Stretch <br>Mean
 <TH style="border-bottom: solid"> Model <br>Name
 <TR><TD> 27684 <TD> 5226 <TD> 0.0018 <TD> 0.9641 <TD> 0.6025 <TD> 
-     <a href="./SAH028.7z">SAH028</a>
+     <a href="./SAH028.mat">SAH028</a>
 <TR><TD> 31111 <TD> 5939 <TD> 0.0257 <TD> 0.9770 <TD> 0.6605 <TD> 
-     <a href="./SAH031.7z">SAH031</a>
+     <a href="./SAH031.mat">SAH031</a>
 <TR><TD> 35073 <TD> 6556 <TD> 0.0254 <TD> 0.9781 <TD> 0.6310 <TD> 
-     <a href="./SAH035.7z">SAH035</a>
+     <a href="./SAH035.mat">SAH035</a>
 <TR><TD> 49172 <TD> 9142 <TD> 0.0691 <TD> 0.9815 <TD> 0.6572 <TD> 
-     <a href="./SAH049.7z">SAH049</a>
+     <a href="./SAH049.mat">SAH049</a>
 <TR><TD> 77196 <TD> 14188 <TD> 0.0570 <TD> 0.9869 <TD> 0.6752 <TD> 
-     <a href="./SAH077.7z">SAH077</a>
+     <a href="./SAH077.mat">SAH077</a>
 <TR><TD> 131672 <TD> 24688 <TD> 0.1046 <TD> 0.9896 <TD> 0.6794 <TD> 
-     <a href="./SAH132.7z">SAH132</a>
+     <a href="./SAH132.mat">SAH132</a>
 <TR><TD> 262368 <TD> 48394 <TD> 0.0970 <TD> 0.9878 <TD> 0.6833 <TD> 
-     <a href="./SAH262.7z">SAH262</a>
+     <a href="./SAH262.mat">SAH262</a>
 </table>
 <p>
 <b>Summary of shelled neonate head meshes</b>
@@ -97,9 +96,9 @@ and Bayford 2007b; Yerworth et al. 2004).
 <TH style="border-bottom: solid"> Stretch <br>Mean
 <TH style="border-bottom: solid"> Model <br>Name
 <TR><TD> 45702 <TD> 8703 <TD> 0.024 <TD> 0.982 <TD> 0.643 <TD> 
-     <a href="./SNH046.7z">SNH046</a>
+     <a href="./SNH046.mat">SNH046</a>
 <TR><TD> 142654 <TD> 26586 <TD> 0.033 <TD> 0.988 <TD> 0.686 <TD> 
-     <a href="./SNH143.7z">SNH143</a>
+     <a href="./SNH143.mat">SNH143</a>
 </table>
 
 </div></center>
@@ -218,17 +217,17 @@ and V Electrical Impedance Tomography</i>
        <td> 
 <div style="td.align='right'">
 <b>Adult head meshes:</b>
-   <br>&minus;<a href="./SAH028.7z">SAH028 (27684 elements)</a>,
-   <br>&minus;<a href="./SAH031.7z">SAH031 (31111 elements)</a>,
-   <br>&minus;<a href="./SAH035.7z">SAH035 (35073 elements)</a>,
-   <br>&minus;<a href="./SAH049.7z">SAH049 (49172 elements)</a>,
-   <br>&minus;<a href="./SAH077.7z">SAH077 (77196 elements)</a>,
-   <br>&minus;<a href="./SAH132.7z">SAH132 (131672 elements)</a>,
-   <br>&minus;<a href="./SAH262.7z">SAH262 (262368 elements)</a>
+   <br>&minus;<a href="./SAH028.mat">SAH028 (27684 elements)</a>,
+   <br>&minus;<a href="./SAH031.mat">SAH031 (31111 elements)</a>,
+   <br>&minus;<a href="./SAH035.mat">SAH035 (35073 elements)</a>,
+   <br>&minus;<a href="./SAH049.mat">SAH049 (49172 elements)</a>,
+   <br>&minus;<a href="./SAH077.mat">SAH077 (77196 elements)</a>,
+   <br>&minus;<a href="./SAH132.mat">SAH132 (131672 elements)</a>,
+   <br>&minus;<a href="./SAH262.mat">SAH262 (262368 elements)</a>
 <br>
 <b>Neonate head meshes:</b>
-   <br>&minus;<a href="./SNH046.7z">SNH046 (45702 elements)</a>
-   <br>&minus;<a href="./SNH143.7z">SNH143 (142654 elements)</a>
+   <br>&minus;<a href="./SNH046.mat">SNH046 (45702 elements)</a>
+   <br>&minus;<a href="./SNH143.mat">SNH143 (142654 elements)</a>
        <hr>
    </table>
 
