@@ -1,6 +1,10 @@
 function out = mk_head_model(varargin)
 %MK_HEAD_MODEL Adult head model 
 %
+% MK_HEAD_MODEL provides predefined and custom head FEMs based on
+% models contributed by Andrew Tizzard. You may be asked to download
+% missing files.
+%
 % FMDL = MK_HEAD_MODEL() 
 % Returns a head fwd_model with no electrodes or tissues
 %
