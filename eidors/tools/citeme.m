@@ -67,7 +67,7 @@ str = sprintf('\n%s\n',citation{:});
 ws = warning('off', 'backtrace');
 idstr = sprintf('EIDORS:CITEME:%s',fname);
 stars(1:80) = '=';
-msg = sprintf('\n%s\nIf you use %s in a publication, please cite:', stars,upper(fname));
+msg = sprintf('\n%s\nIf you use %s in a publication, please cite:\n', stars,upper(fname));
 warning(idstr,[msg str stars]);
 if 0
    disp('Press any key to continue...');
