@@ -1,4 +1,4 @@
-function vertlines( xpts, opts );
+function hh=vertlines( xpts, opts );
 % VERTLINES: put vertical lines at time markers
 %   vertlines( time_pts )
 %   vertlines( time_pts, opts ) % line opts i.e. {'LineWidth',2}
@@ -11,7 +11,8 @@ function vertlines( xpts, opts );
   xpts = reshape(xpts,1,[]);
   oo   = 1+0*xpts;
   yl=ylim;
-  line([1;1]*xpts,yl'*oo,'Color',[0,0,0], ...
+  % -negative z to put at back
+  hh=line([1;1]*xpts,yl'*oo,-[1;1]*oo,'Color',[0,0,0], ...
       'HandleVisibility','off',opts{:});
   ylim(yl);
 
