@@ -13,9 +13,14 @@ function data_overview_sentec(dd,aux,fname);
   
   show_iq_and_ushapes(dd,aux)  
 
-  subplot(212);
+  subplot(223);
   tt=( 1:size(dd,2) )/aux.frame_rate;
-  plot(tt, real(sum(dd)) ); box off
+  sig = real(sum(dd));
+  plot(tt, sig ); box off; xlim tight
+
+  subplot(224);
+  fax = linspace(0,aux.frame_rate, size(dd,2) +1); fax(end) = [];
+  plot(fax, abs(fft(sig))); box off; xlim([0,aux.frame_rate/2]);
 
   fname(1:max(find(fname=='/')))=[];
   sgtitle(fname,'interpreter','none');
