@@ -18,6 +18,17 @@ Plan for 3.13:
  - Add Draeger bin file to eidors_writeimg
  - add code to check netgen-5.3 is legit (check hash)
 
+ - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
+ - Write tests for posdef in left_divide
+ - Refactor left_divide and add timing tests
+ - Figure out when left_divide can use preconditioning
+
+ - move extra spacing types to space_electrodes and refactor
+
+ - print_convert (and print) works badly for defult linewidth. Think about how to fix.
+
+ 
+
 Plan for 3.12:
  - Update wikipedia eidors for latest release
  - Update mexmac / maxmaci64 for new hash. Remove if too old
@@ -26,10 +37,13 @@ Plan for 3.12:
  - more careful errors in hdf5/eidors_readdata
  - write tests for hdf5 in eidors_readdata
 
- - move extra spacing types to space_electrodes and refactor
+ - Errors with octave 9.x
+ - tutorials for new models
+
  - add unit tests space_electrodes
 
  - add startup code to look for netgen-5.3 in startup and create batch file
+ - add wine install instructions for eidors/linux
 
  + Fix calc_noise_figure unit tests
  
@@ -40,10 +54,6 @@ Plan for 3.12:
 
  + Add fwd_model_device with vendor/device defaults
 
- - fix "singular matrix issue" with meas_icov (see mailing list 2024-01-18)
- - Write tests for posdef in left_divide
- - Refactor left_divide and add timing tests
- - Figure out when left_divide can use preconditioning
  - Timing tests: why is left_divide slow with multiple stim patterns - line 68 - reorder?
 
  + Contrib page for torso_model
