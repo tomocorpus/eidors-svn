@@ -56,6 +56,10 @@ if numel(s) > 1
    starts = find(strcmp(T, 'CITATION_REQUEST:'));
 end
 empty_lines = find(cellfun(@isempty,T));
+if numel(empty_lines) < numel(starts)
+   %happens if the CITATION_REQUEST runs to the end of T (no empty line)
+   empty_lines(end+1) = numel(T);
+end
 s = s - s(1) + 1;
 for i = 1:numel(s)
    block = T(starts(i):empty_lines(find(empty_lines>starts(i), 1, 'first')));
