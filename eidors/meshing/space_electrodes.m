@@ -45,4 +45,11 @@ function th = ellip_space_elecs( n_elecs, rad )
 
 
 function do_unit_test
-% TODO
+  th = space_electrodes('ellipse',16,[1,1]); 
+  unit_test_cmp('circle', th(1), 0, 1e-14);
+  unit_test_cmp('circle', diff(th), 2*pi/16, 1e-14);
+
+  th = space_electrodes('ellipse',16,[1,2]); 
+  unit_test_cmp('ellipse [1,2]', th(1), 0, 1e-14);
+  unit_test_cmp('ellipse [1,2]', [th(1), min(diff(th)) max(diff(th))], ...
+        [ 0   0.340379981348740   0.462371789340561 ], 1e-14);
