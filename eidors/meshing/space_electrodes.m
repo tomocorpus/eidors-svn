@@ -8,6 +8,11 @@ function [thrad,thdeg] = space_electrodes(spacing_type, n_elecs, params);
 %  spacing_type = 'ellipse':
 %    params = eliptical radii [r_x r_y]
 
+% (C) 2024 Andy Adler . License: GPL v2 or v3.
+% $Id$
+
+if ischar(spacing_type) && strcmp(spacing_type,'UNIT_TEST'); do_unit_test; return; end
+
 switch spacing_type
    case 'ellipse';
       thrad = ellip_space_elecs( n_elecs, params );
@@ -39,3 +44,5 @@ function th = ellip_space_elecs( n_elecs, rad )
    end
 
 
+function do_unit_test
+% TODO
