@@ -39,6 +39,7 @@ Plan for 3.12:
 
  - Errors with octave 9.x
  - tutorials for new models
+ - cleanup mk_library_model tutorial (unused image/code files)
 
  - fix gmsh failure in mk_thorax_model('adult_female_thorax_2x16');
 
