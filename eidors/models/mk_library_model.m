@@ -1,5 +1,5 @@
 function out = mk_library_model(shape,elec_pos,elec_shape,maxsz,nfft,scale)
-%MK_LIBRARY_MODEL - FEM models based on library shapes
+%MK_LIBRARY_MODEL - extruded FEM models based on curves in SHAPE_LIBRARY
 %
 % MK_LIBRARY_MODEL(shape,elec_pos,elec_shape,maxsz,nfft) where:
 %   shape -  a cell array of strings and
@@ -37,7 +37,8 @@ function out = mk_library_model(shape,elec_pos,elec_shape,maxsz,nfft,scale)
 %   mk_library_model LIBRARY_PATH new_path => set library path
 %   mk_library_model LIBRARY_PATH '' => don't store models
 %
-% See also: MK_THORAX_MODEL, MK_EXTRUDED_MODEL, SHAPE_LIBRARY
+% See also: MK_EXTRUDED_MODEL, SHAPE_LIBRARY, MK_THORAX_MODEL, 
+%           MK_HEAD_MODEL
 
 % (C) 2011 Bartlomiej Grychtol. License: GPL version 2 or version 3
 % $Id$
@@ -186,18 +187,15 @@ out = {
     'adult_male_2x32el';
     'adult_male_2x16el_lungs';
     'adult_male_2x32el_lungs';
-    'adult_male_bp3d_1x32';
-    'adult_male_bp3d_2x16';
-    'adult_male_bp3d_1x32_organs';
-    'adult_male_bp3d_2x16_organs';
-    'adult_male_grychtol2016a_1x32';
-    'adult_male_grychtol2016a_2x16';
-    'adult_male_thorax_1x32';
-    'adult_male_thorax_1x16';
-    'adult_male_thorax_2x16';
-    'adult_female_thorax_1x32';
-    'adult_female_thorax_1x16';
-    'adult_female_thorax_2x16';
+% These are deprecated (but quietly supported). Use MK_THORAX_MODEL.
+%     'adult_male_grychtol2016a_1x32';
+%     'adult_male_grychtol2016a_2x16';
+%     'adult_male_thorax_1x32';
+%     'adult_male_thorax_1x16';
+%     'adult_male_thorax_2x16';
+%     'adult_female_thorax_1x32';
+%     'adult_female_thorax_1x16';
+%     'adult_female_thorax_2x16';
     'cylinder_16x1el_coarse';
     'cylinder_16x1el_fine';
     'cylinder_16x1el_vfine';
@@ -267,48 +265,20 @@ switch str
         elayers = [0.65,0.35];
         out = mk_library_model({'adult_male','boundary','left_lung','right_lung'},...
             [32 1 elayers],[0.05],0.08);
-    case 'adult_male_bp3d_1x32'
-        out = mk_thorax_model_bp3d('1x32_ring');
-    case 'adult_male_bp3d_2x16'
-        out = mk_thorax_model_bp3d('2x16_planar');
-    case 'adult_male_bp3d_1x32_organs'
-        out = mk_thorax_model_bp3d('1x32_ring','fine');
-        out = out.fwd_model;
-    case 'adult_male_bp3d_2x16_organs'
-        out = mk_thorax_model_bp3d('2x16_planar','fine');
-        out = out.fwd_model;
-    case 'adult_male_grychtol2016a_1x32'
-        out = mk_thorax_model_grychtol2016a('1x32_ring');
-        out = out.fwd_model;
-    case 'adult_male_grychtol2016a_2x16'
-        out = mk_thorax_model_grychtol2016a('2x16_planar');
-        out = out.fwd_model;
-    case 'adult_male_thorax_1x32'
-       eth32 = cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45;
-       ep = 360*eth32' - 90; ep(:,2) = 175;
-       out = mk_thorax_model('male',ep,[5 0 .5],10);
-    case 'adult_male_thorax_1x16'
-       eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
-       ep = 360*eth16' - 90; ep(:,2) = 175;
-       out = mk_thorax_model('male',ep,[5 0 .5],10);
-    case 'adult_male_thorax_2x16'
-       eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
-       ep1= 360*eth16' - 90; ep1(:,2) = 200;
-       ep2= 360*eth16' - 90; ep2(:,2) = 150;
-       out = mk_thorax_model('male',[ep1;ep2],[5 0 .5],10);
-    case 'adult_female_thorax_1x32'
-       eth32 = cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45;
-       ep = 360*eth32' - 90; ep(:,2) = 175;
-       out = mk_thorax_model('female',ep,[5 0 .5],10);
-    case 'adult_female_thorax_1x16'
-       eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
-       ep = 360*eth16' - 90; ep(:,2) = 175;
-       out = mk_thorax_model('female',ep,[5 0 .5],10);
-    case 'adult_female_thorax_2x16'
-       eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
-       ep1= 360*eth16' - 90; ep1(:,2) = 200;
-       ep2= 360*eth16' - 90; ep2(:,2) = 150;
-       out = mk_thorax_model('female',[ep1;ep2],[5 0 .5],10);
+
+    case {'adult_male_grychtol2016a_1x32'
+          'adult_male_grychtol2016a_2x16'
+          'adult_male_thorax_1x32]'
+          'adult_male_thorax_1x16'
+          'adult_male_thorax_2x16'
+          'adult_female_thorax_1x32'
+          'adult_female_thorax_1x16' 
+          'adult_female_thorax_2x16'}
+       warning('EIDORS:DeprecatedInterface', ...
+          ['MK_LIBRARY_MODEL(''%s'') is deprecated. '...
+           'Use mk_thorax_model(''%s'') instead.'], str, str);
+       out = mk_thorax_model(str);
+       try out = out.fwd_model; end
 
     case 'cylinder_16x1el_coarse'
        out = build_if_needed(...
@@ -506,6 +476,15 @@ end
 
 function out = do_unit_test
 models = mk_library_model('list');
+deprecated = {'adult_male_grychtol2016a_1x32'
+          'adult_male_grychtol2016a_2x16'
+          'adult_male_thorax_1x32]'
+          'adult_male_thorax_1x16'
+          'adult_male_thorax_2x16'
+          'adult_female_thorax_1x32'
+          'adult_female_thorax_1x16' 
+          'adult_female_thorax_2x16'};
+models = vertcat(deprecated, models);
 n_models = numel(models);
 sqrt_n_models = ceil(sqrt(n_models));
 error_list = {};

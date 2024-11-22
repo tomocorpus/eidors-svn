@@ -133,10 +133,18 @@ end
 
 
 function ls = list_predef_models
-   ls = {'adult_male_grychtol2016a_1x32'
+   ls = {'adult_male_bp3d_1x32'
+         'adult_male_bp3d_2x16'
+         'adult_male_bp3d_1x32_organs'
+         'adult_male_bp3d_2x16_organs'
+         'adult_male_grychtol2016a_1x32'
          'adult_male_grychtol2016a_2x16'
-         'adult_male_bp3d_1x32'
-         'adult_male_bp3d_2x16'};
+         'adult_male_thorax_1x32'
+         'adult_male_thorax_1x16'
+         'adult_male_thorax_2x16'
+         'adult_female_thorax_1x32'
+         'adult_female_thorax_1x16'
+         'adult_female_thorax_2x16'};
 end
 
 function out = build_predef_model(str)
@@ -146,17 +154,53 @@ function out = build_predef_model(str)
          
       case 'adult_male_grychtol2016a_2x16'
          out = mk_thorax_model_grychtol2016a('2x16_planar');
-      
+
       case 'adult_male_bp3d_1x32'
-         out = mk_thorax_model_bp3d('1x32_ring', 'fine');
+         out = mk_thorax_model_bp3d('1x32_ring');
 
       case 'adult_male_bp3d_2x16'
+         out = mk_thorax_model_bp3d('2x16_planar');
+
+      case 'adult_male_bp3d_1x32_organs'
+         out = mk_thorax_model_bp3d('1x32_ring', 'fine');
+
+      case 'adult_male_bp3d_2x16_organs'
          out = mk_thorax_model_bp3d('2x16_planar', 'fine');
+
+      case 'adult_male_thorax_1x32'
+         eth32 = cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45;
+         ep = 360*eth32' - 90; ep(:,2) = 175;
+         out = mk_thorax_model('male',ep,[5 0 .5],10);
+      case 'adult_male_thorax_1x16'
+         eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
+         ep = 360*eth16' - 90; ep(:,2) = 175;
+         out = mk_thorax_model('male',ep,[5 0 .5],10);
+      case 'adult_male_thorax_2x16'
+         eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
+         ep1= 360*eth16' - 90; ep1(:,2) = 200;
+         ep2= 360*eth16' - 90; ep2(:,2) = 150;
+         out = mk_thorax_model('male',[ep1;ep2],[5 0 .5],10);
+      case 'adult_female_thorax_1x32'
+         eth32 = cumsum([0.1 0.2*ones(1,15) 0.25 0.2*ones(1,15)])/6.45;
+         ep = 360*eth32' - 90; ep(:,2) = 175;
+         out = mk_thorax_model('female',ep,[5 0 .5],10);
+      case 'adult_female_thorax_1x16'
+         eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
+         ep = 360*eth16' - 90; ep(:,2) = 175;
+         out = mk_thorax_model('female',ep,[5 0 .5],10);
+      case 'adult_female_thorax_2x16'
+         eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
+         ep1= 360*eth16' - 90; ep1(:,2) = 200;
+         ep2= 360*eth16' - 90; ep2(:,2) = 150;
+         out = mk_thorax_model('female',[ep1;ep2],[5 0 .5],10);
    end
 end
 
 
 function do_unit_test
+   clf
+   test_predef_models;
+   figure
    subplot(221)
    show_fem(mk_thorax_model('male'));
    
@@ -180,4 +224,29 @@ function do_unit_test
 %  ng_write_opt('MSZCYLINDER',[0,0,50,0,0,60,180,5]);
 %  show_fem(mk_thorax_model('male'));
    
+end
+
+function test_predef_models
+   models = mk_thorax_model('list');
+   n_models = numel(models);
+%    sqrt_n_models = ceil(sqrt(n_models));
+   error_list = {};
+   for i = 1:numel(models)
+      eidors_msg('\n\n\n DOING  MODEL (%s)\n\n\n',models{i},0);
+      try
+         mdl = mk_thorax_model(models{i});
+      catch
+         error_list = [error_list, models(i)];
+         continue;
+      end
+   
+%       subplot(sqrt_n_models, sqrt_n_models,i);
+      show_fem(mdl,[0,1,0]); axis off;
+      title(models{i},'Interpreter','none');
+      drawnow
+   end
+   if ~isempty(error_list)
+      disp('There were errors in generating the following models:')
+      disp(error_list);
+   end
 end

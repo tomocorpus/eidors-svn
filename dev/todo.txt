@@ -40,6 +40,8 @@ Plan for 3.12:
  - Errors with octave 9.x
  - tutorials for new models
 
+ - fix gmsh failure in mk_thorax_model('adult_female_thorax_2x16');
+
  - add unit tests space_electrodes
 
  - add startup code to look for netgen-5.3 in startup and create batch file
