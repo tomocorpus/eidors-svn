@@ -24,6 +24,7 @@ Plan for 3.13:
  - Figure out when left_divide can use preconditioning
 
  - move extra spacing types to space_electrodes and refactor
+ - integrate piece_poly_fit into space_electrodes
 
  - print_convert (and print) works badly for defult linewidth. Think about how to fix.
 
@@ -36,6 +37,8 @@ Plan for 3.12:
  - HDF5 file format
  - more careful errors in hdf5/eidors_readdata
  - write tests for hdf5 in eidors_readdata
+
+ - add unit_tests to valid_fwd_model, valid_inv_model
 
  - Errors with octave 9.x
  - tutorials for new models
