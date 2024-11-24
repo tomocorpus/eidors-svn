@@ -207,6 +207,8 @@ for ver = vers(:)'
         0.5000    1.0000    0.5000
         0.5000    0.5000         0
         0.5000    0.5000    1.0000 ];
+   fmdl2d = mdl_normalize(fmdl2d,'default');
+   fmdl3d = mdl_normalize(fmdl3d,'default');
 
     % Test 2D and 3D parsing
     [fmdl,mat_ind] = gmsh_mk_fwd_model( ...
@@ -214,7 +216,9 @@ for ver = vers(:)'
     if DEBUG
         for x = fields(fmdl)'
             x = x{1};
-            unit_test_cmp(['2d v' ver ' fmdl.' x],fmdl.(x),fmdl2d.(x))
+            if ~unit_test_cmp(['2d v' ver ' fmdl.' x],fmdl.(x),fmdl2d.(x))
+               keyboard
+            end
         end
         fmdl
         fmdl2d
