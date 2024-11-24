@@ -38,8 +38,8 @@ f = {'name',        'char', ...
      'nodes',       'numeric', ... % uintX
      'elems',       'numeric', ... % uintX
      'gnd_node',    'numeric', ... % uintX
-     'electrode',   'struct', ...
-     'stimulation', 'struct', ...
+     'electrode',   'none_or_struct', ...
+     'stimulation', 'none_or_struct', ...
      'solve',       'function', ...
      'system_mat',  'function_or_numeric', ...
      'jacobian',    'function_or_numeric', ...
@@ -57,39 +57,22 @@ for i=1:length(f)/2
    x=2*(i-1)+1;
    y=x+1;
 %  if strcmp(f{x},'normalize_measurements'); keyboard; end
-   if ~isfield(fmdl, f{x})
-      pass = 0;
-      err_str = [err_str '- missing required field: "' f{x} '"\n'];
-   elseif strcmp(f{y},'function')
-      if ~isfunc(fmdl.(f{x}))
-         pass = 0;
-         err_str = [err_str '- expected function (pointer or string): "' f{x} '"\n'];
-      end
-   elseif strcmp(f{y},'function_or_numeric')
-      if ~isfunc(fmdl.(f{x})) && ~isa(fmdl.(f{x}), 'numeric')
-         pass = 0;
-         err_str = [err_str '- expected function (pointer or string) or a matrix: "' f{x} '"\n'];
-      end
-   elseif strcmp(f{y},'numeric_or_logical')
-      if ~isa(fmdl.(f{x}), 'numeric') && ~isa(fmdl.(f{x}),'logical')
-         pass = 0;
-         err_str = [err_str '- expected numerical or logical value: "' f{x} '"\n'];
-      end
-   elseif ~isa(fmdl.(f{x}), f{y})
-      pass = 0;
-      err_str = [err_str '- required field "' f{x} '" is not a ' f{y} '\n'];
-   end
+   [pass,err_str]= validate_fmdl(fmdl,f{x},f{y},pass,err_str);
 end
 if ~strcmp(type, 'rec_model')
    % validate electrode struct
    nn = size(fmdl.nodes,1); % number of nodes
-   for i=1:length(fmdl.electrode)
-      [pass, err_str] = valid_elec(fmdl.electrode(i), i, nn, pass, err_str);
+   if isfield(fmdl,'electrode'); % ok if not specified
+       for i=1:length(fmdl.electrode)
+          [pass, err_str] = valid_elec(fmdl.electrode(i), i, nn, pass, err_str);
+       end
+       nel = length(fmdl.electrode); % number of electrodes
    end
    % validate stimulation struct
-   nel = length(fmdl.electrode); % number of electrodes
-   for i=1:length(fmdl.stimulation)
-      [pass, err_str] = valid_stim(fmdl.stimulation(i), i, nel, pass, err_str);
+   if isfield(fmdl,'stimulation'); % ok if not specified
+       for i=1:length(fmdl.stimulation)
+          [pass, err_str] = valid_stim(fmdl.stimulation(i), i, nel, pass, err_str);
+       end
    end
 end
 % check for correct 'type'
@@ -141,6 +124,35 @@ end
 if ( nargout == 0 ) && ~pass
    error(sprintf(['Reasons:\n' err_str]));
 end
+
+function [pass,err_str]= validate_fmdl(fmdl,f_x,f_y,pass,err_str);
+   hasfield= isfield(fmdl, f_x);
+   if strcmp(f_y(1:4),'none') && ~hasfield
+      return
+   end
+
+   if ~hasfield
+      pass = 0;
+      err_str = [err_str '- missing required field: "' f_x '"\n'];
+   elseif strcmp(f_y,'function')
+      if ~isfunc(fmdl.(f_x))
+         pass = 0;
+         err_str = [err_str '- expected function (pointer or string): "' f_x '"\n'];
+      end
+   elseif strcmp(f_y,'function_or_numeric')
+      if ~isfunc(fmdl.(f_x)) && ~isa(fmdl.(f_x), 'numeric')
+         pass = 0;
+         err_str = [err_str '- expected function (pointer or string) or a matrix: "' f_x '"\n'];
+      end
+   elseif strcmp(f_y,'numeric_or_logical')
+      if ~isa(fmdl.(f_x), 'numeric') && ~isa(fmdl.(f_x),'logical')
+         pass = 0;
+         err_str = [err_str '- expected numerical or logical value: "' f_x '"\n'];
+      end
+   elseif ~isa(fmdl.(f_x), f_y)
+      pass = 0;
+      err_str = [err_str '- required field "' f_x '" is not a ' f_y '\n'];
+   end
 
 function t=isfunc(f)
 t=isa(f, 'function_handle') || isa(f, 'char');
