@@ -127,8 +127,12 @@ end
 
 function [pass,err_str]= validate_fmdl(fmdl,f_x,f_y,pass,err_str);
    hasfield= isfield(fmdl, f_x);
-   if strcmp(f_y(1:4),'none') && ~hasfield
-      return
+   if strcmp(f_y(1:4),'none')
+      if ~hasfield
+          return
+      else
+          f_y(1:8) = ''; % remove 'none_or_'
+      end
    end
 
    if ~hasfield
