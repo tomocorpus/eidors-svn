@@ -147,18 +147,18 @@ for ver = vers(:)'
     fmdl2d.system_mat = 'eidors_default';
     fmdl2d.electrode(1) = elec;
     fmdl2d.electrode(2) = elec;
-    fmdl2d.electrode(1).nodes = [1,4]';
-    fmdl2d.electrode(2).nodes = [2,3]';
+    fmdl2d.electrode(1).nodes = uint32([1,4])';
+    fmdl2d.electrode(2).nodes = uint32([2,3])';
     fmdl2d.type = 'fwd_model';
     fmdl2d.mat_idx = {[1:4]'};
     fmdl2d.mat_names = {'main'};
 
     fmdl3d = fmdl2d;
-    fmdl3d.electrode(1).nodes = [1,2,3,4,9]';
-    fmdl3d.electrode(2).nodes = [5,6,7,8,10]';
+    fmdl3d.electrode(1).nodes = uint32([1,2,3,4,9])';
+    fmdl3d.electrode(2).nodes = uint32([5,6,7,8,10])';
     fmdl3d.mat_idx = {[1:24]'};
     fmdl3d.boundary_numbers = uint32([ones(4,1)*13; ones(4,1)*14]);
-    fmdl3d.boundary = [
+    fmdl3d.boundary = uint32([
          2     1     9
          1     3     9
          4     2     9
@@ -166,7 +166,7 @@ for ver = vers(:)'
          6    10     5
          5    10     7
          8    10     6
-         7    10     8 ];
+         7    10     8 ]);
     fmdl3d.elems = uint32([
         10    11    12    13
          9    12    14    11
@@ -230,8 +230,10 @@ for ver = vers(:)'
     if DEBUG
         for x = fields(fmdl)'
             x = x{1};
-            unit_test_cmp(['3d v' ver ' fmdl.' x],fmdl.(x),fmdl3d.(x))
+            if ~unit_test_cmp(['3d v' ver ' fmdl.' x],fmdl.(x),fmdl3d.(x))
+            end
         end
+                keyboard
         fmdl
         fmdl3d
     end
