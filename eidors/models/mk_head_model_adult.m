@@ -1,18 +1,18 @@
-function out = mk_head_model(varargin)
-%MK_HEAD_MODEL Adult head model 
+function out = mk_head_model_adult(varargin)
+%MK_HEAD_MODEL_ADULT Adult head model 
 %
-% MK_HEAD_MODEL provides predefined and custom head FEMs based on
+% MK_HEAD_MODEL_ADULT provides predefined and custom head FEMs based on
 % models contributed by Andrew Tizzard. You may be asked to download
 % missing files.
 %
-% FMDL = MK_HEAD_MODEL() 
+% FMDL = MK_HEAD_MODEL_ADULT() 
 % Returns a head fwd_model with no electrodes or tissues
 %
-% FMDL = MK_HEAD_MODEL(elec_pos, elec_shape)
-% FMDL = MK_HEAD_MODEL(elec_pos, elec_shape, maxh)
+% FMDL = MK_HEAD_MODEL_ADULT(elec_pos, elec_shape)
+% FMDL = MK_HEAD_MODEL_ADULT(elec_pos, elec_shape, maxh)
 % Allows specifying electrode configuration, see PLACE_ELEC_ON_SURF
 %
-% FMDL = MK_HEAD_MODEL(elecstr)
+% FMDL = MK_HEAD_MODEL_ADULT(elecstr)
 % A predefined model with round electrodes (radius 2 mm). 
 %    '10-10'         - 73 labeled electrodes (10-10 placement system),
 %                      no stimulation.
@@ -23,7 +23,7 @@ function out = mk_head_model(varargin)
 %    '1x32_ring'     - single ring of 32 electrodes
 %    'no_elecs'      - no electrodes
 %
-% IMG = MK_HEAD_MODEL(... , tissuespec)
+% IMG = MK_HEAD_MODEL_ADULT(... , tissuespec)
 % Returns a head model containing separate regions defining scalp, skull, 
 % CSF and brain as an image structure with conductivitity values. 
 % TISSUESPEC must be one of:
@@ -314,7 +314,7 @@ on_boundary = ismember(bot_idx, unique(mdl.boundary));
 bot = false(size(bot));
 bot(bot_idx(on_boundary)) = true;
 
-if eidors_debug('query','mk_head_model:split_surface')
+if eidors_debug('query','mk_head_model_adult:split_surface')
    clf
    jnk = mdl;
    jnk.nodes = rot;
