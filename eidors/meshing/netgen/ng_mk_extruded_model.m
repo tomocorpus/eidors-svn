@@ -72,7 +72,7 @@ citeme(mfilename);
 
 if nargin < 4; extra_ng_code = {'',''}; end
 copt.cache_obj = { shape, elec_pos, elec_shape, extra_ng_code};
-copt.fstr = 'ng_mk_extruded_models';
+copt.fstr = 'ng_mk_extruded_model';
 args = { shape, elec_pos, elec_shape, extra_ng_code};
 copt.cache_on_ng_opt = true;
 
