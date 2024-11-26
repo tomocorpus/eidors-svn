@@ -39,6 +39,10 @@ Plan for 3.12:
  - write tests for hdf5 in eidors_readdata
 
  - add unit_tests to valid_fwd_model, valid_inv_model
+ - look into *.msz got exist warning 
+
+ - think about gmsh_mk_fwd_model and valid_fwd_model
+ - fix tests on : solve_RM_2Dslice, remove_unused_nodes, GREIT3D_distribution
 
  - Errors with octave 9.x
  - tutorials for new models
