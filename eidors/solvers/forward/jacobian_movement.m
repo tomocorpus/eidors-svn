@@ -86,7 +86,8 @@ function [Vc, Re] = Vc_Re_matrices( pp, fwd_model, s_mat );
 % Define the stimulation matrix Vc for each node I, and pattern
 % Ground node is never excited; remove it from the index
 %%%%%%nodeidx = 1:pp.n_node; %MC 11/05/2012
-nodeidx = 1:size(s_mat);
+assert(size(s_mat,1) == size(s_mat,2),'s_mat must be square');
+nodeidx = 1:size(s_mat,1);
 nodeidx( fwd_model.gnd_node ) = [];
 
 % The stimulation matrix Vc is the voltage at each node (row) for a
