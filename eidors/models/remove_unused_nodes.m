@@ -111,18 +111,18 @@ function do_unit_test
    unit_test_cmp('ground',fmdl.gnd_node,3);
    
    idx = any(fmdl.elems == fmdl.electrode(1).nodes,2);
-   fmdl.elems(idx(1),:) = [];
+   fmdl.elems(idx,:) = []; % remove all elements using that node
    warning('off','EIDORS:ElecEmpty')
    fmdl = remove_unused_nodes(fmdl);
    [~, id] = lastwarn;
    unit_test_cmp('empty warn', id, 'EIDORS:ElecEmpty')
    warning('on', 'EIDORS:ElecEmpty')
    
-   mk_common_model('n3r2',[16,2]);
+   fmdl = getfield(mk_common_model('n3r2',[16,2]), 'fwd_model');
    idx = any(fmdl.elems == fmdl.electrode(1).nodes(1),2);
-   fmdl.elems(idx(1),:) = [];
+   fmdl.elems(idx,:) = []; % remove all elements using that node
    warning('off','EIDORS:ElecChange')
    fmdl = remove_unused_nodes(fmdl);
    [~, id] = lastwarn;
-   unit_test_cmp('change warn', id, 'EIDORS:ElecEmpty')
+   unit_test_cmp('change warn', id, 'EIDORS:ElecChange')
    warning('on', 'EIDORS:ElecChange')
