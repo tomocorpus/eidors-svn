@@ -42,7 +42,10 @@ Plan for 3.12:
  - look into *.msz got exist warning 
 
  - think about gmsh_mk_fwd_model and valid_fwd_model
- - fix tests on : solve_RM_2Dslice, remove_unused_nodes, GREIT3D_distribution
+ - fix tests on : 
+	- solve_RM_2Dslice
+	+ remove_unused_nodes
+	+ GREIT3D_distribution
 
  - Errors with octave 9.x
  - tutorials for new models
