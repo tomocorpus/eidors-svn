@@ -6,24 +6,24 @@ function out = mk_head_model(str, varargin)
 % to download missing files. Specialized MK_HEAD_MODEL_* functions provide
 % additional presets and options.
 %
-% MK_THORAX_MODEL(shapestr,elec_pos, elec_shape, maxh) where:
+% MK_HEAD_MODEL(shapestr,elec_pos, elec_shape, maxh) where:
 %  shapestr    - a string specifying the underlying model.
-%                Run MK_THORAX_MODEL('list_shapes') for a list.
+%                Run MK_HEAD_MODEL('list_shapes') for a list.
 %  elec_pos    - a vector specifying electrode positions.
 %                See PLACE_ELEC_ON_SURF for details.
 %  elec_shape  - a vector specifying electrode shapes.
 %                See PLACE_ELEC_ON_SURF for details.
 %  This usage returns a fwd_model structure.
 %
-% MK_THORAX_MODEL(modelstr) provides quick access to predefined models.
-% Run MK_THORAX_MODEL('list') for a list. This usage returns either a 
+% MK_HEAD_MODEL(modelstr) provides quick access to predefined models.
+% Run MK_HEAD_MODEL('list') for a list. This usage returns either a 
 % fwd_model or an image structure. Specialized MK_HEAD_MODEL_* functions
 % provide additional presets.
 %
-% MK_THORAX_MODEL('list_shapes') lists available thorax shapes without 
+% MK_HEAD_MODEL('list_shapes') lists available thorax shapes without 
 %  electrodes.
 %
-% MK_THORAX_MODEL('list') lists available predefined models.
+% MK_HEAD_MODEL('list') lists available predefined models.
 %
 % See also: MK_HEAD_MODEL_ADULT, PLACE_ELEC_ON_SURF
 
