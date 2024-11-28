@@ -23,13 +23,16 @@ function out = mk_head_model_adult(varargin)
 %    '1x32_ring'     - single ring of 32 electrodes
 %    'no_elecs'      - no electrodes
 %
+% NOTE: if the model is not cached, a new figure with electrode locations
+% will be displayed for the '10-10' electrode configuration.
+%
 % IMG = MK_HEAD_MODEL_ADULT(... , tissuespec)
 % Returns a head model containing separate regions defining scalp, skull, 
 % CSF and brain as an image structure with conductivitity values. 
 % TISSUESPEC must be one of:
 %    'coarse'        - (defualt) tissue surfaces with maxh = 5mm
 %    'fine'          - tissue surfaces with maxh = 2mm
-%    []              - no internal tissues (void), useful for testing
+%    'void'          - no internal tissues (void), useful for testing
 %                      electrode positions
 %
 % 
@@ -191,12 +194,14 @@ end
 function out = mk_shell_image(img, materials, out, organspec)
 if isempty(organspec), return, end
 switch organspec
+   case 'void'
+      return
    case 'coarse'
       maxh = 5;
    case 'fine'
       maxh = 2;
    otherwise
-      error('EIDORS:WrongInput', 'Parameter tissuespec must be ''fine'' or ''coarse''');
+      error('EIDORS:WrongInput', 'Parameter tissuespec not understood.');
 end
 [CSF, brain, skull2, bn2] = build_brain_CSF(img,materials,maxh);
 
@@ -537,7 +542,7 @@ names = {};
 [e_ar,names] = add_elec(e_ar,names, [0 cap(end,:)],'Iz');
 
 
-clf
+figure
 % show_fem(mdl);
 axis equal
 hold on
@@ -613,6 +618,7 @@ show_fem(slc);
 for i = 1:numel(names)
     plot_elec(e_ar,names,names{i});
 end
+hold off
 % 
 % load epos128;
 % phi = sign(epos(:,1))*90 - epos(:,2); phi = pi*phi/180;
