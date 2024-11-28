@@ -287,9 +287,9 @@ img.elem_data= imgr.elem_data;
 vAS= fwd_solve(img); vAS = vAS.meas;
 
 figure; hist(I*(dd.meas-vAS),50)
-show_pseudosection( fmdl, I*dd.meas, 'HorizontalDownward')
-show_pseudosection( fmdl, I*vAS, 'HorizontalDownward')
-show_pseudosection( fmdl, (vAS-dd.meas)./dd.meas*100,'HorizontalDownward')
+show_pseudosection( fmdl, I*dd.meas, 'HorizontalDownward');
+show_pseudosection( fmdl, I*vAS, 'HorizontalDownward');
+show_pseudosection( fmdl, (vAS-dd.meas)./dd.meas*100,'HorizontalDownward');
 
 end
 
