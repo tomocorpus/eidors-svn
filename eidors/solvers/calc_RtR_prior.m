@@ -131,16 +131,12 @@ function debugtest
 
    test_R=[ 6.507717114906363e+16];
 
-   R_priors=   {@prior_laplace};
-
-   % Call R_priors as R_priors
    eidors_cache clear
-   for i = 1:length(R_priors); p = R_priors{i};
-      inv_mdl= imdl;
-      inv_mdl.R_prior= p;
-      R= calc_R_prior(inv_mdl);
-      unit_test_cmp(['R_prior (R''*R): ', func2str(p)], condest(R'*R)/test_R(i), 1, 1e-5)
-   end
+   imdl.R_prior= @prior_laplace;
+   R= calc_R_prior(imdl);
+   ce = condest(R'*R);
+   disp(ce);
+   unit_test_cmp('R_prior (R''*R): prior_laplace', ce/test_R, 1, 1e-5)
 
 
 
