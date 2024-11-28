@@ -79,7 +79,7 @@ function V= non_iterative(E,I);
         
         inotzeros = logical(any(I,2));
         % Don't need to cache, this is fast
-        [Qi,R,p] = qr(I(inotzeros,:),0); % use permution to reduce nnz
+        [Qi,R,p] = qr(I(inotzeros,:),'vector'); % use permution to reduce nnz
         rnotzeros = logical(any(R,2));
         R= R(rnotzeros,:);
         Q = zeros(size(I,1), size(R,1)); % Faster if not sparse
@@ -91,7 +91,7 @@ function V= non_iterative(E,I);
 %        R= R(rnotzeros,:);
 
 %       Conditioning of solution
-% TODO: Figure out when we can do preconditioning
+% TODO: Figure out when we can do preconditioning -- plan for 3.13
         if 1 %no conditioning
             V= (E \ Q)*R;  %% OLD
         else
