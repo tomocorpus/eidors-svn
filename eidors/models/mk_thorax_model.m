@@ -3,7 +3,8 @@ function out = mk_thorax_model(str, varargin)
 %
 % MK_THORAX_MODEL provides a shorthand to predefined thorax FEMs and 
 % for using contributed models with PLACE_ELEC_ON_SURF. You may be asked
-% to download missing files. 
+% to download missing files. Specialized MK_THORAX_MODEL_* functions
+% provide additional presets and options.
 %
 % MK_THORAX_MODEL(shapestr,elec_pos, elec_shape, maxh) where:
 %  shapestr    - a string specifying the underlying model.
@@ -16,7 +17,8 @@ function out = mk_thorax_model(str, varargin)
 %
 % MK_THORAX_MODEL(modelstr) provides quick access to predefined models.
 % Run MK_THORAX_MODEL('list') for a list. This usage returns either a 
-% fwd_model or an image structure.
+% fwd_model or an image structure. Specialized MK_THORAX_MODEL_* functions
+% provide additional presets.
 %
 % MK_THORAX_MODEL('list_shapes') lists available thorax shapes without 
 %  electrodes.
