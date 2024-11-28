@@ -10,7 +10,7 @@ close F;
 
 
 open F, "> run_current.m" or die $!;
-print F "addpath([eidors_obj('eidors_path'), '/tests']);";
+print F "addpath([eidors_obj('eidors_path'), '/tests']);\n";
 print F "if ~exist('TEST'); TEST =0; end;\n";
 print F "TEST= TEST + 1;\n";
 print F "switch TEST\n"; my $i=1;
@@ -24,6 +24,7 @@ diary unit_test_out.txt
 unit_test_cmp('RESET_COUNTER');
 fprintf('TEST=%d fn=%s\\n', TEST, func2str(fn));
 eidors_cache clear; clf;  close all;
+ng_write_opt();
 try
    feval(fn, 'UNIT_TEST');
    unit_test_cmp('SHOW_COUNTER',func2str(fn));
