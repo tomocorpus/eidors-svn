@@ -140,21 +140,11 @@ function calc_model_prior_test;
                 @prior_gaussian_HPF, ...
                 @prior_laplace};
 
-  test_R=[ 1
-     2.732103882203515e+03
-     8.850018174577896e+05
-     6.507717114906363e+16
-     3.982064506094820e+17];
-
-     test_RtR=[ 1
-     52.269531107553618
-     1.348001186822805e+03
-     2.209672229284556e+18];
-
-     test_R_=[ 1
-     52.269531107553632
-     1.248717554051021e+06
-     4.032673973698143e+16];
+  test_R=[ 0.041630544712308
+           6.773110974081427e-04
+           0.036206173920553
+           2.592951965329636
+           0.002008656225401];
 
    R_priors=   {any_priors{:}, ...
                 @prior_TV};
@@ -165,8 +155,8 @@ function calc_model_prior_test;
       inv_mdl= imdl;
       inv_mdl.R_prior= p;
       R= calc_R_prior(inv_mdl);
-%     fprintf('R_prior: %20s  R_condest= %5.4g\n', func2str(p), condest(R'*R));
-      unit_test_cmp(['R_prior (R''*R): ', func2str(p)], condest(R'*R)/test_R(i), 1, 1e-5)
+      test = std(R'*R,0,'all'); 
+      unit_test_cmp(['R_prior (R''*R): ', func2str(p)], test, test_R(i), 1e-12)
    end
       
    % Call R_priors as RtR_priors
@@ -175,9 +165,15 @@ function calc_model_prior_test;
       inv_mdl= imdl;
       inv_mdl.R_prior= p;
       RtR= calc_RtR_prior(inv_mdl);
-%     fprintf('R_prior: %20s  RtR_condest= %5.4g\n', func2str(p), condest(RtR));
-      unit_test_cmp(['R_prior (RtR): ', func2str(p)], condest(RtR)/test_R(i), 1, 1e-5)
+      test = std(RtR(:));
+      unit_test_cmp(['R_prior (R''*R): ', func2str(p)], test, test_R(i), 1e-12)
    end
+
+  test_RtR=[ 0.041630544712308
+             0.003569905276849
+             0.037777196349047
+             0.282597508516543
+             0.006965047087020];
       
    % Call RtR_priors as RtR_priors
    eidors_cache clear
@@ -187,12 +183,15 @@ function calc_model_prior_test;
       RtR= calc_RtR_prior(inv_mdl);
       if diff(size(RtR))~=0  % non-square
          fprintf('RtR_prior: %20s  RtR_condest= NON-SQUARE\n', func2str(p) );
-      else
-         fprintf('RtR_prior: %20s  RtR_condest= %5.4g\n', func2str(p), condest(RtR));
-         unit_test_cmp(['RtR_prior (RtR): ', func2str(p)], condest(RtR)/test_RtR(i), 1, 1e-5)
       end
+      test = std(RtR(:));
+      unit_test_cmp(['RtR_prior (RtR): ', func2str(p)], test, test_RtR(i), 1e-12)
    end
 
+   test_R_= [ 0.041630544712308
+              0.010392960833110
+              0.040302448507613
+              0.100634712398168];
    % Call RtR_priors as R_priors
    eidors_cache clear
    for i = 1:length(R_priors); p = R_priors{i};
@@ -202,6 +201,7 @@ function calc_model_prior_test;
          continue; % not fair to ask it to ichol a non-square matrix
       end
       R= calc_R_prior(inv_mdl);
+      test = std(R(:));
 %     fprintf('RtR_prior: %20s  R_condest= %5.4g\n', func2str(p), condest(R'*R));
-      unit_test_cmp(['RtR_prior (R): ', func2str(p)], condest(R'*R)/test_R_(i), 1, 1e-5)
+      unit_test_cmp(['RtR_prior (R): ', func2str(p)], test, test_R_(i), 1e-5)
    end

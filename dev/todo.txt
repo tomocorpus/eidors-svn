@@ -43,7 +43,7 @@ Plan for 3.12:
  - add unit_tests to valid_fwd_model, valid_inv_model
  - look into *.msz got exist warning 
 
- - remove all tests based on condest (which is unreliable for singular)
+ + remove all tests based on condest (which is unreliable for singular)
  - think about gmsh_mk_fwd_model and valid_fwd_model
  - fix tests on : 
 	- solve_RM_2Dslice
