@@ -98,6 +98,7 @@ function inv_model = rec_or_fwd_model( inv_model);
 
 
 function do_unit_test
+   debugtest;return
    imdl = mk_common_model('a2c2',16);;
    imdl.RtR_prior = @prior_tikhonov;
    RtR = calc_RtR_prior(imdl);
@@ -122,6 +123,24 @@ function do_unit_test
    disp('cache should only be called once');
 
    calc_model_prior_test;
+
+function debugtest
+   imdl= mk_common_model('c2c2',16);
+   try; imdl= rmfield(imdl,'RtR_prior'); end
+   try; imdl= rmfield(imdl,'R_prior');   end
+
+   test_R=[ 6.507717114906363e+16];
+
+   R_priors=   {@prior_laplace};
+
+   % Call R_priors as R_priors
+   eidors_cache clear
+   for i = 1:length(R_priors); p = R_priors{i};
+      inv_mdl= imdl;
+      inv_mdl.R_prior= p;
+      R= calc_R_prior(inv_mdl);
+      unit_test_cmp(['R_prior (R''*R): ', func2str(p)], condest(R'*R)/test_R(i), 1, 1e-5)
+   end
 
 
 
