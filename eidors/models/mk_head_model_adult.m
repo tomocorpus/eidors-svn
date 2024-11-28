@@ -500,7 +500,7 @@ materials.names = cellstr(materials.names);
 
 function out = get_cache_path
 global eidors_objects
-out = [eidors_objects.model_cache filesep 'head_model'];
+out = [eidors_objects.model_cache filesep 'head_model_adult'];
 if ~exist(out, 'dir')
    mkdir(out);
 end
