@@ -445,7 +445,9 @@ end
 try;
     set(hh,'FaceAlpha',mdl.show_fem.alpha_inhomogeneities);
 end
-camlight('left');
+if num_lights == 0 % matlab has a maximum of 8
+   camlight('left');
+end
 lighting('none'); % lighting doesn't help much
 
 
