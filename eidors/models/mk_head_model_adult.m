@@ -10,7 +10,8 @@ function out = mk_head_model_adult(varargin)
 %
 % FMDL = MK_HEAD_MODEL_ADULT(elec_pos, elec_shape)
 % FMDL = MK_HEAD_MODEL_ADULT(elec_pos, elec_shape, maxh)
-% Allows specifying electrode configuration, see PLACE_ELEC_ON_SURF
+% Allows specifying electrode configuration, see PLACE_ELEC_ON_SURF.
+% Default maxh = 8.
 %
 % FMDL = MK_HEAD_MODEL_ADULT(elecstr)
 % A predefined model with round electrodes (radius 2 mm). 
@@ -23,9 +24,6 @@ function out = mk_head_model_adult(varargin)
 %    '1x32_ring'     - single ring of 32 electrodes
 %    'no_elecs'      - no electrodes
 %
-% NOTE: if the model is not cached, a new figure with electrode locations
-% will be displayed for the '10-10' electrode configuration.
-%
 % IMG = MK_HEAD_MODEL_ADULT(... , tissuespec)
 % Returns a head model containing separate regions defining scalp, skull, 
 % CSF and brain as an image structure with conductivitity values. 
@@ -34,6 +32,9 @@ function out = mk_head_model_adult(varargin)
 %    'fine'          - tissue surfaces with maxh = 2mm
 %    'void'          - no internal tissues (void), useful for testing
 %                      electrode positions
+%
+% MK_HEAD_MODEL('show_10-10') creates a figure showing the positions and
+% labels of the 10-10 electrodes.
 %
 % 
 % CITATION_REQUEST:
@@ -61,6 +62,10 @@ function out = mk_head_model_adult(varargin)
 
 citeme(mfilename)
 
+if nargin==1 && ischar(varargin{1}) && strcmp(varargin{1},'UNIT_TEST')
+   do_unit_test; return;
+end
+
 if nargin == 0
    out = get_base_model; % Returns a head fwd_model with no electrodes or tissues
 end
@@ -76,9 +81,12 @@ switch length(varargin)
    case 0
       % nothing
    case 1
-      if isempty(varargin{1})
-         keyboard
-      elseif isempty(varargin{1}) || ischar(varargin{1})
+      if ischar(varargin{1})
+         if strcmp(varargin{1},'show_10-10')
+            [out, img, ~] = get_base_model;
+            get_elec_pos(img, true);
+            return
+         end
          copyright = '(C) EIDORS Project';
          out = build_predef_elecs(varargin{1}, organspec);
       else
@@ -405,7 +413,7 @@ end
 idx = find(done);
 
 function mdle = build_head_elecs(scalp, elec_pos, elec_spec, maxh)
-if nargin < 3, maxh = 8; end
+if nargin < 4, maxh = 8; end
 ng_opt = get_ng_opt(maxh);
 mdle = place_elec_on_surf(scalp, elec_pos, elec_spec,ng_opt);
 % fix orientation of the boundary
@@ -511,7 +519,8 @@ if ~exist(out, 'dir')
 end
 
 %% ELECTRODE POSITIONS
-function [e_ar, names] = get_elec_pos(mdl)
+function [e_ar, names] = get_elec_pos(mdl, show)
+if nargin < 2, show = false; end
 % cut through the nose:
 slc = mdl_slice_mesher(mdl,[0 inf inf]);
 slc.fwd_model.boundary = find_boundary(slc.fwd_model);
@@ -541,15 +550,15 @@ names = {};
 [e_ar,names] = add_elec(e_ar,names, [0 cap(900,:)],'Oz');
 [e_ar,names] = add_elec(e_ar,names, [0 cap(end,:)],'Iz');
 
-
-figure
-% show_fem(mdl);
-axis equal
-hold on
-slc.calc_colours.transparency_thresh = -1;
-slc.calc_colours.ref_level = 0.25;
-show_fem(slc);
-
+if show
+   clf
+   % show_fem(mdl);
+   axis equal
+   hold on
+   slc.calc_colours.transparency_thresh = -1;
+   slc.calc_colours.ref_level = 0.25;
+   show_fem(slc);
+end
 
 % calculate a "horizontal plane between Nz and Iz
 e1 = get_elec(e_ar,names,'Fpz');
@@ -562,9 +571,10 @@ y = e1(2) + t3*d(2);
 slc = mdl_slice_mesher(mdl,[inf y z]);
 slc.calc_colours.transparency_thresh = -1;
 slc.calc_colours.ref_level = 0.25;
-show_fem(slc);
-view(3)
-
+if show
+   show_fem(slc);
+   view(3)
+end
 slc.fwd_model.boundary = find_boundary(slc.fwd_model);
 b = unique(slc.fwd_model.boundary);
 outln = order_loop(slc.fwd_model.nodes(b,:),-1);
@@ -582,43 +592,44 @@ nm = {'AF3','AF4'};
 [slc el] = define_plane(mdl,e_ar, names, 'AFz','AF7');
 el = el([3 6],:);
 [e_ar names] = add_elecs(e_ar,names,el,nm);
-show_fem(slc);
+if show, show_fem(slc); end
 
 nm = {'F9','F5','F3','F1','F2','F4','F6','F10'};
 [slc el] = define_plane(mdl,e_ar, names, 'Fz','F7');
 [e_ar names] = add_elecs(e_ar,names,el,nm);
-show_fem(slc);
+if show, show_fem(slc); end
 
 nm = {'FT9','FC5','FC3','FC1','FC2','FC4','FC6','FT10'};
 [slc el] = define_plane(mdl,e_ar, names, 'FCz','FT7');
 [e_ar names] = add_elecs(e_ar,names,el,nm);
-show_fem(slc);
+if show, show_fem(slc); end
 
 nm = {'T9','C5','C3','C1','C2','C4','C6','T10'};
 [slc el] = define_plane(mdl,e_ar, names, 'Cz','T7');
 [e_ar names] = add_elecs(e_ar,names,el,nm);
-show_fem(slc);
+if show, show_fem(slc); end
 
 nm = {'TP9','CP5','CP3','CP1','CP2','CP4','CP6','TP10'};
 [slc el] = define_plane(mdl,e_ar, names, 'CPz','TP7');
 [e_ar names] = add_elecs(e_ar,names,el,nm);
-show_fem(slc);
+if show, show_fem(slc); end
 
 nm = {'P9','P5','P3','P1','P2','P4','P6','P10'};
 [slc el] = define_plane(mdl,e_ar, names, 'Pz','P7');
 [e_ar names] = add_elecs(e_ar,names,el,nm);
-show_fem(slc);
+if show, show_fem(slc); end
 
 nm = {'PO3','PO4'};
 [slc el] = define_plane(mdl,e_ar, names, 'POz','PO7');
 el = el([3 6],:);
 [e_ar names] = add_elecs(e_ar,names,el,nm);
-show_fem(slc);
-
-for i = 1:numel(names)
-    plot_elec(e_ar,names,names{i});
+if show, show_fem(slc); end
+if show
+   for i = 1:numel(names)
+      plot_elec(e_ar,names,names{i});
+   end
+   hold off
 end
-hold off
 % 
 % load epos128;
 % phi = sign(epos(:,1))*90 - epos(:,2); phi = pi*phi/180;
@@ -688,3 +699,59 @@ e(:,2) = e1(2) + d(2).*(e(:,3) - e1(3))./d(3);
 % plot3(e(1,1),e(1,2),e(1,3),'o','MarkerFaceColor','b')
 
 
+%% UNIT TEST
+function do_unit_test
+
+warning('off','EIDORS:License');
+
+% FMDL = MK_HEAD_MODEL_ADULT() 
+% Returns a head fwd_model with no electrodes or tissues
+fmdl = mk_head_model_adult();
+unit_test_cmp('fwd_model', fmdl.type, 'fwd_model');
+%
+% FMDL = MK_HEAD_MODEL_ADULT(elec_pos, elec_shape)
+% FMDL = MK_HEAD_MODEL_ADULT(elec_pos, elec_shape, maxh)
+% Allows specifying electrode configuration, see PLACE_ELEC_ON_SURF
+elec_pos = [8, 0, 0, 10]; % [N, equal angles, z1, z2];
+elec_shape = [3, 0, 1]; % [radius, 0, maxh]
+maxh = 10;
+img1 = mk_head_model_adult(elec_pos, elec_shape); % default max is 8
+img2 = mk_head_model_adult(elec_pos, elec_shape, maxh);
+unit_test_cmp('custom + maxh', num_elems(img1) > num_elems(img2), true);
+
+%
+% FMDL = MK_HEAD_MODEL_ADULT(elecstr)
+% A predefined model with round electrodes (radius 2 mm). 
+%    '10-10'         - 73 labeled electrodes (10-10 placement system),
+%                      no stimulation.
+%    '2x16_planar'   - 2 rings of 16 electrodes, planar stimulation
+%    '2x16_odd-even' - 2 rings, each stimulation is cross-plane 
+%    '2x16_square'   - 2 rings, every second stimulation is cross-plane
+%    '2x16_adjacent' - like square, but with adjacent stimulation
+%    '1x32_ring'     - single ring of 32 electrodes
+%    'no_elecs'      - no electrodes
+
+img10 = mk_head_model_adult('10-10');
+unit_test_cmp('10-10 # elecs', numel(img10.fwd_model.electrode),73);
+img1 = mk_head_model_adult('1x32_ring');
+unit_test_cmp('1x32 # elecs', numel(img1.fwd_model.electrode),32);
+img1 = mk_head_model_adult('no_elecs');
+unit_test_cmp('no elecs', isfield(img1.fwd_model, 'electrode'),false);
+unit_test_cmp('materials', numel(img1.fwd_model.mat_idx), 4);
+
+%
+% IMG = MK_HEAD_MODEL_ADULT(... , tissuespec)
+% Returns a head model containing separate regions defining scalp, skull, 
+% CSF and brain as an image structure with conductivitity values. 
+% TISSUESPEC must be one of:
+%    'coarse'        - (defualt) tissue surfaces with maxh = 5mm
+%    'fine'          - tissue surfaces with maxh = 2mm
+%    'void'          - no internal tissues (void), useful for testing
+%                      electrode positions
+
+fmdl = mk_head_model_adult(elec_pos, elec_shape, maxh, 'void');
+unit_test_cmp('void type', fmdl.type, 'fwd_model');
+img1 = mk_head_model_adult('10-10', 'fine');
+unit_test_cmp('fine', num_elems(img10) < num_elems(img1), true);
+
+warning('on','EIDORS:License');
