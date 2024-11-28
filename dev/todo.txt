@@ -28,6 +28,8 @@ Plan for 3.13:
 
  - print_convert (and print) works badly for defult linewidth. Think about how to fix.
 
+ - Timing tests: why is left_divide slow with multiple stim patterns - line 68 - reorder?
+
  
 
 Plan for 3.12:
@@ -41,11 +43,14 @@ Plan for 3.12:
  - add unit_tests to valid_fwd_model, valid_inv_model
  - look into *.msz got exist warning 
 
+ - remove all tests based on condest (which is unreliable for singular)
  - think about gmsh_mk_fwd_model and valid_fwd_model
  - fix tests on : 
 	- solve_RM_2Dslice
 	+ remove_unused_nodes
 	+ GREIT3D_distribution
+
+ - add eidors_cache test for ng.opt existing or not in current folder
 	
  - place_elec_on_surf
 	 - elec_pos documentation is incomplete/wrong
@@ -81,8 +86,6 @@ Plan for 3.12:
  + improved merge_meshes. Add comments in docs
 
  + Add fwd_model_device with vendor/device defaults
-
- - Timing tests: why is left_divide slow with multiple stim patterns - line 68 - reorder?
 
  + Contrib page for torso_model
  + Caching in torso_model functions

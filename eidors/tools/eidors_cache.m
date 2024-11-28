@@ -552,7 +552,7 @@ function varargout = cache_shorthand(fhandle, varargin)
    eidors_msg('%s: Using cached value',fstr,level_out);
 
 function bytes = cache_ng_opt_bytes
-   if ~exist('ng.opt');
+   if ~isfile('ng.opt'); % look in current folder, which is how eidors uses netgen
       bytes = []; return
    end
    fid = fopen('ng.opt','rb');
