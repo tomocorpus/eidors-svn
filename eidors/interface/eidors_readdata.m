@@ -1549,6 +1549,131 @@ function s=sciospec_frame(fname);
   end
   fclose(fid);
 
+% Contribution by Zhanqi Zhao <zhanqizhao@gzhmu.edu.cn>
+function [vtmData] = read_vtm(full_dfile_name)
+%READ_vtm 
+%   ´Ë´¦ÏÔÊ¾ÏêÏ¸ËµÃ÷
+    [~,~,file_ext]= fileparts(full_dfile_name);
+    if  strcmp(file_ext,'.vtm') %.bin File, image data
+        
+        len_header  = 333  ;  % 2+204+2+125 = 333
+        len_data    = 530  ;  % 2+528
+        len_Medibus = 242  ;  % 2+60*4
+        len_imginfo = 102  ;  % 2+25*4
+        len_frame = len_data + len_Medibus +len_imginfo;
+        try
+            file_inf = dir(full_dfile_name);
+            len = file_inf.bytes;
+            framenums=(len-len_header-2)/len_frame;
+            framenums=int32(framenums);
+        end
+        fid=fopen(full_dfile_name,'r');
+        Header = fread(fid,len_header,'uint8'); 
+        if ~strcmp(sprintf('%02X',Header(1:2)),'AA55')
+            error('Î´Ê¶±ðµÄÎÄ¼þ');
+        end
+%%         
+            systemdata1 = native2unicode(Header(3:208))';
+            str1 = regexpi(systemdata1, '([^\t\f\n\r]*)', 'match');
+%             systemparm = {'DeviceModel','Frequency','Framerate','Amplitude','Time'};
+            for i = 1:length(str1)
+                parm = regexpi(str1{1,i},':','split');
+                parmname = string(parm{1,1});                
+                if length(parm)>2
+                    parmvalue = parm{1,2};
+                    for j = 3:length(parm)
+                        parmvalue = [parmvalue,':',parm{1,j}];
+                    end
+                elseif length(parm)<2
+                    break;
+                else
+                    parmvalue = parm{1,2};
+                end
+                Systemparm.(parmname) = parmvalue;
+            end
+
+            patientdata1 = Header(209:209+124)';
+            Patient.PatientID   = native2unicode(patientdata1(1:20), 'UTF-8');
+            Patient.Name        = native2unicode(patientdata1(21:50), 'UTF-8');
+            Patient.Age         = native2unicode(patientdata1(51:53), 'UTF-8');
+            Patient.Gender      = native2unicode(patientdata1(54:55), 'UTF-8');
+            Patient.Departments = native2unicode(patientdata1(56:85), 'UTF-8');
+            Patient.Notes       = native2unicode(patientdata1(86:125), 'UTF-8');
+
+%%     
+%         fseek(fid,len_header,-1); % beginning of file
+%         dd = fread(fid,[len_frame framenums],'uint8',0,'ieee-le');
+%         dd = reshape(d,[],framenums);
+        dd= zeros(530,framenums); 
+        ss= len_header + (0:framenums-1)*len_frame;
+        for k= 1:length(ss);
+           if fseek(fid,ss(k),-1)<0; break; end
+           dd(:,k)=fread(fid,530,'uint8', 0, 'ieee-le');
+        end
+        ETDdata = dd(3:3+527,:);% 528Ô­Ê¼Êý¾Ý
+        contact0=ETDdata((9+192)*2+1:((9+192)*2+32),:);
+        for row=1:16
+            RawDataContact(row,:)=contact0((row-1)*2+2,:)*256+contact0((row-1)*2+1,:); 
+        end
+        temp=RawDataContact(1,:);
+        
+        for row=1:15
+            RawDataContact(row,:)=min(RawDataContact(row,:),RawDataContact(row+1,:));
+        end
+        RawDataContact(16,:)=min(RawDataContact(16,:),temp);
+        
+%         fseek(fid,len_header,-1); % beginning of file
+%         dd = fread(fid,[len_frame/2 framenums],'uint16',0,'ieee-le');
+% %         dd = reshape(d,[],framenums);
+        dd= zeros(192,framenums);
+        ss= len_header + 20  + (0:framenums-1)*len_frame;
+        for k= 1:length(ss);
+           if fseek(fid,ss(k),-1)<0; break; end
+           dd(:,k)=fread(fid,192,'uint16', 0, 'ieee-le');
+        end
+        EITdata192 = dd;
+        EITdata192=  -EITdata192;
+        for i=1:16
+           EITdata192(12*i-5:12*i,:)=  -EITdata192(12*i-5:12*i,:);
+        end
+        move192_index = [0,0,1,2,3,4,5,6,6,6,7,8,9,10,11,12];
+        columnIdx192 = bsxfun(@circshift,reshape(1:192,12,16),move192_index);
+        columnIdx192 = columnIdx192(:);
+        EIDORSdata192 = EITdata192(columnIdx192,:);% ²»°üº¬ÎÞÐ§µç¼«µÄ¾ø¶Ôµç¼«Î»ÖÃÅÅÐò
+ %%        
+%         fseek(fid,len_header,-1); % beginning of file
+%         d = fread(fid,len-335,'float32',0,'ieee-le');%°´ÕÕfloatÀàÐÍ¶ÁÈ¡Êý¾ÝÎªµ½ÁÐÏòÁ¿d
+%         dd = reshape(d,[],framenums);
+        dd= zeros(60,framenums);
+        ss= len_header + len_data + 2  + (0:framenums-1)*len_frame;
+        for k= 1:length(ss);
+           if fseek(fid,ss(k),-1)<0; break; end
+           dd(1:52,k)=fread(fid,52,'float32', 0, 'ieee-le');
+        end
+        Medibus = dd;
+%%
+        dd= zeros(25,framenums);
+        ss= len_header + len_data + len_Medibus + 2 + (0:framenums-1)*len_frame;
+        for k= 1:length(ss);
+           if fseek(fid,ss(k),-1)<0; break; end
+           dd(:,k)=fread(fid,25,'float32', 0, 'ieee-le');
+        end
+        Imginfo = dd;
+        fclose(fid);
+%% 
+        vtmData.Patient = Patient;
+        vtmData.Systemparm = Systemparm;        
+        vtmData.ETDdata = ETDdata;
+        vtmData.EITdata192 = EITdata192;
+        vtmData.EIDORSdata192 = EIDORSdata192;
+        vtmData.Medibus = Medibus;
+        vtmData.Imginfo = Imginfo;
+        vtmData.RawDataContact = RawDataContact/58;
+        % vtmData.RawDataContact = RawDataContact/55.2688;
+    else
+        error('File type cannot be recognised');
+    end
+
 
 function do_unit_test
    % LQ2 test
