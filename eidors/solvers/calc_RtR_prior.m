@@ -203,5 +203,9 @@ function calc_model_prior_test;
       R= calc_R_prior(inv_mdl);
       test = std(R(:));
 %     fprintf('RtR_prior: %20s  R_condest= %5.4g\n', func2str(p), condest(R'*R));
-      unit_test_cmp(['RtR_prior (R): ', func2str(p)], test, test_R_(i), 1e-5)
+      if exist('OCTAVE_VERSION') && strcmp(func2str(p),'prior_gaussian_HPF')
+         eidors_msg('prior_gaussian_HPF test not valid in octave (need ldl)');
+      else
+         unit_test_cmp(['RtR_prior (R): ', func2str(p)], test, test_R_(i), 1e-5)
+      end
    end
