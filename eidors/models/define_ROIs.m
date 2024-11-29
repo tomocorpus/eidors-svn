@@ -66,7 +66,7 @@ end
 rmdl = mk_grid_model([],varargin{1:end-last});
 
 ROIa = mk_approx_c2f(fmdl,rmdl);
-ROIs = ROIa.' * recc2f;
+ROIs = ROIa.' * recc2f./sum(recc2f,1);
 if ~isempty(opts.reorder)
    ROIs = ROIs(opts.reorder(:),:);
 end
