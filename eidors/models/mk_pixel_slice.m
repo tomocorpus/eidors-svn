@@ -170,7 +170,7 @@ function mat_idx = calc_mat_idx(rmdl,fmdl,ff,opt)
    for i = 1:length(fmdl.mat_idx);
       img.elem_data(fmdl.mat_idx{i}) = i;
    end
-   slice = calc_slices(img,opt.level);
+   slice = calc_slices(img); % level specified in fmdl.mdl_slice_mapper
    slice = slice';
    mat = reshape([slice(:)'; slice(:)'],1,[]);
    mat([2*ff, 2*ff-1])= [];
