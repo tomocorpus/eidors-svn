@@ -89,7 +89,9 @@ function do_unit_test
    img.show_slices.img_cols = 1;
    slice1 = calc_slices(img,[inf inf 2]);
    subplot(231); show_fem(fmdl); title 'fmdl'
-   subplot(234); show_fem(img);  title '3D'
+   img0 = img;
+   img0.elem_data = img0.elem_data(:,3);
+   subplot(234); show_fem(img0);  title '3D'
    subplot(232); show_slices(img,[inf,inf,2]); title '3D rec';
    eidors_colourbar(img);
 
@@ -127,8 +129,12 @@ function do_unit_test
    hold on
    h2 = show_fem(imd2.fwd_model);
    h2.EdgeColor = 0.8*ones(3,1);
+   show_fem(img0.fwd_model);
    hold off
    view(-20,40)
+
+
+
    unit_test_cmp('slice Nan', isnan(slice1), isnan(slice2))
    slice1(isnan(slice1))= 0;
    slice2(isnan(slice2))= 0;
