@@ -1,4 +1,4 @@
-function [out, out2, out3] = level_model_slice(varargin)
+function [out, out2, out3, out4] = level_model_slice(varargin)
 %LEVEL_MODEL_SLICE - level 3D points for slicing at z=0
 % 
 % XYZ = LEVEL_MODEL_SLICE(NODES, LEVEL)
@@ -29,14 +29,22 @@ function [out, out2, out3] = level_model_slice(varargin)
 %
 % N = LEVEL_MODEL_SLICE(LEVEL) returns the number of slices defined in LEVEL.
 %
+% [__, C, M] = LEVEL_MODEL_SLICE(NODES/MDL, __) returns the center C and 
+% tranformation matrix M.
+%
+% [__, C, M, ifun] = LEVEL_MODEL_SLICE(NODES/MDL,__) also returns a function 
+% for an inverse transformation.
+%
 % [C,M] = LEVEL_MODEL_SLICE(LEVEL, SN) (discouraged) returns the center C and
-% rotation matrix M of slice SN (optional, default 1). An error is thrown if
-% level is scalar. Note that two outputs must always be requested for this 
-% syntax.  
+% transformation matrix M of slice SN (optional, default 1). An error is 
+% thrown if level is scalar. Note that two outputs must always be requested for 
+% this syntax.  
 %
 % [C,M] = LEVEL_MODEL_SLICE(NODES, LEVEL, SN) (discouraged) allows to obtain C
 % and M when LEVEL is scalar. Note that two outputs must always be requested for
 % this syntax. 
+%
+
 
 % (C) 2006-2022 Andy Adler and Bartek Grychtol 
 % License: GPL version 2 or version 3
@@ -50,7 +58,7 @@ if nargin == 0 || isempty(varargin{1})
    error('EIDORS:WrongInput', 'level_model_slice requires non-empty input');
 end
 
-if nargout <= 1 || nargout == 3
+if nargout <= 1 || nargout >= 3
 	if nargin == 1
         % N = LEVEL_MODEL_SLICE(LEVEL) returns the number of slices defined in LEVEL
         out = get_number_of_slices(varargin{1});
@@ -77,9 +85,12 @@ if nargout <= 1 || nargout == 3
                % (nodes - C) * M' + SHIFT
                out = bsxfun(@plus, bsxfun(@minus, varargin{1}, C ) * M', SHIFT);
             end
-            if nargout == 3
+            if nargout >= 3
                 out2 = C;
                 out3 = M;
+            end
+            if nargout == 4
+               out4 = @(nodes) (nodes - SHIFT) / M' + C;
             end
         end
 	end

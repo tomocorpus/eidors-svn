@@ -36,17 +36,12 @@ switch(imdl.type)
         error('An EIDORS inverse or forward model struct required');
 end
 
-if nargin < 2, opt = struct; end
-if nargin == 2  
-   if ~isstruct(level)
-      opt.level = level;
-   else
-      opt = level;
-   end
+if nargin < 2
+   opt = struct; 
+else
+   opt.level = level;   
 end
-if nargin == 3
-   opt.level = level;
-end
+
 opt = parse_opts(fmdl,opt);
 
 [rmdl fmdl] = eidors_cache(@do_pixel_slice,{fmdl, opt},'mk_pixel_slice');
@@ -60,7 +55,7 @@ switch imdl.type
 end
 
 function [rmdl fmdl] = do_pixel_slice(fmdl, opt);
-[tmp, T, R] =level_model_slice(fmdl,opt.level);
+[tmp, ~, ~, ifun] =level_model_slice(fmdl,opt.level);
 slc = mdl_slice_mesher(tmp,[inf inf 0]);
 slc = slc.fwd_model;
 mingrid = min(slc.nodes);
@@ -138,8 +133,8 @@ end
 
 % map electrodes
 rmdl.nodes(:,3) = 0;
-rmdl.nodes =  (R\rmdl.nodes' + T'*ones(1,length(rmdl.nodes)))';
-slc.nodes =  (R\slc.nodes' + T'*ones(1,length(slc.nodes)))';
+rmdl.nodes =  ifun(rmdl.nodes);
+slc.nodes =  ifun(slc.nodes);
 
 if ~isstruct(opt.level)
    % different behaviour for the old interface
@@ -161,8 +156,8 @@ if isfield(slc, 'electrode')
     rmdl.electrode = elec;
 end
    
-
-rmdl.show_slices.levels = opt.level;
+% Not needed any more (uses fwd_model.mdl_slice_mapper)
+% rmdl.show_slices.levels = opt.level;
 
 % not quite correct, but 'rec_model' has many side effects
 rmdl = eidors_obj('fwd_model', rmdl); 
@@ -187,13 +182,13 @@ function mat_idx = calc_mat_idx(rmdl,fmdl,ff,opt)
 
 
  function opt = parse_opts(fmdl, opt)
-    if ~isfield(opt, 'imgsz'),     
+    if ~isfield(opt, 'imgsz')     
         opt.imgsz = [32 32]; 
     end
     if ~isfield(opt, 'square_pixels')
         opt.square_pixels = 0;
     end
-    if ~isfield(opt, 'level')
+    if ~isfield(opt, 'level') || isempty(opt.level)
         opt.level = get_elec_level(fmdl);
     else
         if ~isstruct(opt.level) && numel(opt.level) ==1
@@ -258,7 +253,8 @@ function do_unit_test
     opt.square_pixels = 1;
     opt.do_coarse2fine = 0;
     mdl = mk_library_model('pig_23kg_16el_lungs');
-    rmdl = mk_pixel_slice(mdl,opt);
+%     rmdl = mk_pixel_slice(mdl,opt); % deprecated
+    rmdl = mk_pixel_slice(mdl,[],opt);
     img = mk_image(rmdl,1);
     for i = 1:length(rmdl.mat_idx)
        img.elem_data(rmdl.mat_idx{i}) = i;
