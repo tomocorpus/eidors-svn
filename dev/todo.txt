@@ -29,6 +29,7 @@ Plan for 3.13:
  - print_convert (and print) works badly for defult linewidth. Think about how to fix.
 
  - Timing tests: why is left_divide slow with multiple stim patterns - line 68 - reorder?
+ - In left_divide, Octave doesn't issue warning EIDORS:leftDivideSymmetry
 
  
 
