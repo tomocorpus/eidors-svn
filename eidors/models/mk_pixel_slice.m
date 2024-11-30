@@ -37,12 +37,15 @@ switch(imdl.type)
 end
 
 if nargin < 2, opt = struct; end
-if nargin > 1 
+if nargin == 2  
    if ~isstruct(level)
       opt.level = level;
    else
       opt = level;
    end
+end
+if nargin == 3
+   opt.level = level;
 end
 opt = parse_opts(fmdl,opt);
 
@@ -138,9 +141,12 @@ rmdl.nodes(:,3) = 0;
 rmdl.nodes =  (R\rmdl.nodes' + T'*ones(1,length(rmdl.nodes)))';
 slc.nodes =  (R\slc.nodes' + T'*ones(1,length(slc.nodes)))';
 
-isf = ~isinf(opt.level);
-if nnz(isf) == 1
-   rmdl.nodes(:,isf) = opt.level(:,isf);
+if ~isstruct(opt.level)
+   % different behaviour for the old interface
+   isf = ~isinf(opt.level);
+   if nnz(isf) == 1
+      rmdl.nodes(:,isf) = opt.level(:,isf);
+   end
 end
 
 if isfield(slc, 'electrode')
@@ -190,7 +196,7 @@ function mat_idx = calc_mat_idx(rmdl,fmdl,ff,opt)
     if ~isfield(opt, 'level')
         opt.level = get_elec_level(fmdl);
     else
-        if numel(opt.level) ==1
+        if ~isstruct(opt.level) && numel(opt.level) ==1
             opt.level = [inf inf opt.level];
         end
     end

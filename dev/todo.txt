@@ -61,6 +61,7 @@ Plan for 3.12:
 	- duplication of code to remove outside elements - equivalent? Which is faster?
  + remove the figure created by mk_head_model_adult for the '10-10' setup?
 
+ - mk_pixel_slice produces different results for the old level interface (line:147)
 
  - Errors with octave 9.x
  - tutorials for new models
