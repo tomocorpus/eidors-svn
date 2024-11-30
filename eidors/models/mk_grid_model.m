@@ -13,13 +13,13 @@ function [cmdl, c2f]= mk_grid_model(fmdl, xvec, yvec, zvec, removefn);
 %  zvec - z edges (optional - to create 3D model)
 %  removefn(xyzc) - function which elements to remove, given xyzctr
 %  removefn = 'outside' => remove elements outside the fmdl
-%    e.g. removefn = @(xyz) rssq(xyz(:,1:2),2)>1.0;
+%    e.g. removefn = @(xyz) vecnorm(xyz(:,1:2),2,2)>1.0;
 %
 % if fmdl == [], then just create the grid model without c2f
 %
 % Example: for circular model
 %  grid= linspace(-2,2,20);     % x,y grid
-%  [gmdl]= mk_grid_model([],grid,grid,[], @(xyz) rssq(xyz,2)>1);
+%  [gmdl]= mk_grid_model([],grid,grid,[], @(xyz) vecnorm(xyz,2,2)>1);
 %
 % Example: for constructing an inverse model
 %  grid{1}= linspace(-2,2,20);     % x grid
@@ -297,7 +297,7 @@ end
 subplot(3,4,4); show_fem(inv_solve(imdl, vh, vi));
 hold on; hh=show_fem(img); set(hh,'FaceAlpha',0,'EdgeColor',[0,0,1]); hold off;
 
-rmfn = @(xyz) rssq(xyz,2)>1;
+rmfn = @(xyz) vecnorm(xyz,2,2)>1;
 [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
      mk_grid_model( imdl.fwd_model, grid, grid, [],rmfn );
 subplot(3,4,5); show_fem(inv_solve(imdl, vh, vi));
@@ -318,7 +318,7 @@ img2 = mk_image(cmdl, v);
 show_fem(img2)
 
 subplot(3,4,8)
-rmfn = @(xyz) rssq(xyz(:,1:2),2)>1.0;
+rmfn = @(xyz) vecnorm(xyz(:,1:2),2,2)>1.0;
 [imdl.rec_model, imdl.fwd_model.coarse2fine] = ...
     mk_grid_model(img.fwd_model, -1:.1:1, -1:.1:1, 0:.5:3,rmfn );
 %v = imdl.fwd_model.coarse2fine'*(img.elem_data-1)+1;
@@ -337,6 +337,6 @@ show_fem(img2)
 subplot(3,4,10)
    l48 = linspace(0.5,48.5,24+1); 
    l32 =-linspace(0.5,32.5,16+1) + 20; 
-   rmfn = @(xyz) rssq(xyz,2)>40;
+   rmfn = @(xyz) vecnorm(xyz,2,2)>40;
    fmdl = mk_grid_model([],l48,l32,l48,rmfn);
 show_fem(fmdl)
