@@ -467,7 +467,7 @@ function [c2f, m] = separable_calculations(fmdl,rmdl,opt)
     c2f = c2f + bsxfun(@times, sparse(vox_in_tet), m.volume)';
     
     % normalize to tet volume
-    vol = get_elem_volume(fmdl);
+    vol = get_elem_volume(fmdl, 'no_c2f');
     c2f = bsxfun(@rdivide,c2f,vol);
 
     % add tets contained in vox
