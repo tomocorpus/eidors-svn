@@ -88,30 +88,29 @@ warning off backtrace;
 eidors_default('set','mdl_normalize',@(x) 0);
 mdl = mk_common_model('c2t2',16);
 fmdl = mdl.fwd_model;
-eidors_msg('Does it come normalized?');
-eidors_msg(mdl_normalize(fmdl));
-eidors_msg('Normalize it');
+unit_test_cmp('Does it come normalized?', mdl_normalize(fmdl), 0);
 fmdl = mdl_normalize(fmdl,1);
-eidors_msg('How about now?');
-eidors_msg(mdl_normalize(fmdl));
-eidors_msg('De-normalize it');
+unit_test_cmp('Normalize it. How about now?', mdl_normalize(fmdl), 1);
 fmdl = mdl_normalize(fmdl,0);
-eidors_msg('And now?');
-eidors_msg(mdl_normalize(fmdl));
-eidors_msg('Remove the flag');
+unit_test_cmp('De-normalize it. And now?', mdl_normalize(fmdl), 0);
 fmdl = rmfield(fmdl,'normalize_measurements');
 eidors_msg(mdl_normalize(fmdl));
-eidors_msg('And now let''s set it to something stupid');
+unit_test_cmp('Remove the flag', ...
+   lastwarn, 'normalize_measurements flag not set on model. Using default: 0');
 fmdl.normalise_measurements = 1; % s, throw a warning, return default
 eidors_msg(mdl_normalize(fmdl));
+unit_test_cmp('Spelling error', ...
+   lastwarn, 'normalize_measurements flag not set on model. Using default: 0');
 fmdl.normalize_my_gran = 1; % throw a warning, return default
 eidors_msg(mdl_normalize(fmdl));
+unit_test_cmp('And now let''s set it to something stupid', ...
+   lastwarn, 'normalize_measurements flag not set on model. Using default: 0');
 fmdl.normalize = 1; % accept happily
-eidors_msg(mdl_normalize(fmdl));
+unit_test_cmp('Accept happily', mdl_normalize(fmdl), 1);
 eidors_msg('But an imdl is not acceptable!');
 try
-eidors_msg(mdl_normalize(mdl));
+    eidors_msg(mdl_normalize(mdl));
 catch
-    eidors_msg('Just so.');
+    unit_test_cmp('Just so.', 1,1);
 end
 warning(s);
