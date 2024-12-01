@@ -106,6 +106,7 @@ function ls = list_directories(have_local_data)
          'if-neonate-ventilated'
          'if-peep-acute-lung-injury'
          'jn_chest_phantom'
+         'midas-medical-sample2024'
          'yg-ventilation-colourmap'
          };
    end
