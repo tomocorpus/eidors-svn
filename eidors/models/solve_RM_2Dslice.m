@@ -18,6 +18,9 @@ function imdl = solve_RM_2Dslice(imdl, sel_fcn)
 %    sel_fcn = inline('abs(z-1.0)<0.2'); OR
 %    sel_fcn = 'abs(z-1.0)<0.2 | abs(z-2.0)<0.2' ; % two planes
 %    imdl2= solve_RM_2Dslice(imdl, sel_fcn);
+%
+% SOLVE_RM_2DSLICE applies the selection criteria to element centres. If no
+% elements are captured, increase vert_tol (see below).
 % 
 % Note that the reconstruction planes are between the
 % cut planes specified in vopt.zvec
@@ -61,6 +64,9 @@ c2f = imdl.rec_model.coarse2fine;
 vox_frac = c2f' * ff / 6; % how much of each voxel got captured
 ff = c2f * vox_frac>0; % now capture the entire voxel
 
+if ~any(ff)
+   error('Found no elements. Check your input or increase opt.vert_tol.')
+end
 
 imdl.rec_model.coarse2fine(~ff,:) = [];
 imdl.rec_model.elems(~ff,:) = [];
@@ -128,6 +134,14 @@ function do_unit_test
    subplot(231); show_fem(fmdl); title 'fmdl'
    subplot(234); show_fem(img);  title '3D'
    subplot(232); show_slices(img,[inf,inf,2]); title '3D slice';
+   got_error = false;
+   try 
+      imd2 = solve_RM_2Dslice(imdl, 2.2);
+   catch 
+      got_error = true;
+   end
+   unit_test_cmp('No elem error', got_error, true);
+   
    imd2 = solve_RM_2Dslice(imdl, 2.0);
 
    unit_test_cmp('RM size', size(imd2.solve_use_matrix.RM), [856,928]);
