@@ -401,7 +401,7 @@ switch str
     case 'beagle_32el_lungs';
       scale = 49;
       out = mk_library_model({'beagle','boundary','left_lung','right_lung'}, ...
-         [32 1 scale*0.5],[2,0,0.10],10,0,49);
+         [32 1 scale*0.5],[1.5,0,0.10],10,0,49);
 
     case 'beagle_32el_lungs_rectelec';
       scale = 49;
