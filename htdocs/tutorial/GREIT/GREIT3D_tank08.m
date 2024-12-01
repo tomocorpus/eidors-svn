@@ -1,1 +1,1 @@
-imdl3a= solve_RM_2Dslice(imdl3,1.5);
+imdl3a= select_RM_slice(imdl3,1.5);
