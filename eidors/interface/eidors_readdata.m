@@ -41,19 +41,27 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %           - output: [vv] = eidors_readdata( fname, 'DIXTAL', [], encodepage );
 %    - New Carefusion "EIT" file format
 %        format = "GOEIIMF-EIT" or "carefusion"
+%
 %    - HDF5-based format
 %        format = 'h5' or 'hdf5' documented at
 %       Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
 %        after filename, add ":DataSetName" or all are loaded
+%
+%    - Medas Medical 'VTM' format
+%       For the Ventom device
+%
 %    - Sciospec text 'EIT' format
 %        format = 'Sciospec-EIT'
 %
 %    - Sheffield MK I "RAW" file format
 %        format = "RAW" or "sheffield"
+%
 %    - ITS (International Tomography Systems)
 %        format = "ITS" or "p2k"
+%
 %    - IIRC (Impedance Imaging Research Center, Korea)
 %        format = "txt" or "IIRC"
+%
 %    - University of Cape Town formats
 %        format = "UCT_SEQ"  UCT sequence file
 %           - Output: [ stimulation, meas_select]= eidors_readdata(fname, 'UCT_SEQ')
@@ -238,6 +246,14 @@ switch fmt
       d=cat(3,auxdata(:).data);
       d=d(:,1:16,1:end);
       vv=reshape(d,256,[]);
+
+   case 'vtm';
+     auxdata = read_vtm(fname);
+     flip = kron(ones(16,1),kron([-1;1],ones(6,1)));
+     vv = flip.*auxdata.di;
+     save thisisvv.mat vv
+     stim = mk_stim_patterns(16,1,[0,8],[0,1],{'rotate_meas'});
+     
 
    otherwise
       error('eidors_readdata: file "%s" format unknown', format);
@@ -1626,11 +1642,14 @@ function [vtmData] = read_vtm(full_dfile_name)
 %         dd = fread(fid,[len_frame/2 framenums],'uint16',0,'ieee-le');
 % %         dd = reshape(d,[],framenums);
         dd= zeros(192,framenums);
+        di= zeros(192,framenums);
         ss= len_header + 20  + (0:framenums-1)*len_frame;
         for k= 1:length(ss);
            if fseek(fid,ss(k),-1)<0; break; end
+           di(:,k)=fread(fid,192,'int16', 0, 'ieee-le');
            dd(:,k)=fread(fid,192,'uint16', 0, 'ieee-le');
         end
+        di(:,end) = []; % Last seems bad
         EITdata192 = dd;
         EITdata192=  -EITdata192;
         for i=1:16
@@ -1669,6 +1688,7 @@ function [vtmData] = read_vtm(full_dfile_name)
         vtmData.Medibus = Medibus;
         vtmData.Imginfo = Imginfo;
         vtmData.RawDataContact = RawDataContact/58;
+        vtmData.di = di;
         % vtmData.RawDataContact = RawDataContact/55.2688;
     else
         error('File type cannot be recognised');
@@ -1676,6 +1696,28 @@ function [vtmData] = read_vtm(full_dfile_name)
 
 
 function do_unit_test
+   pth = get_contrib_data('midas-medical-sample2024','EITData2024_10_31_08_43_09__S01.vtm');
+   [dd,auxdata,stim]= eidors_readdata(pth);
+   fmdl = mk_library_model('adult_male_16el');
+   fmdl.stimulation = stim;
+   imdl = select_imdl(fmdl, {'GREIT:NF=0.5 32x32'});
+   imgr = inv_solve(imdl, mean(dd,2),dd);
+   [ROIs,imgR] = define_ROIs(imdl,[-2,0,2],[2,0,-2],struct('normalize',0));
+   sig = -ROIs*imgr.elem_data;
+   tt = (1:size(sig,2))/10;
+   lt = {'LineWidth',2};
+   subplot(211);
+   plot(tt,sig',lt{:}); box off; xlim tight;
+    legend('RV','LV','RD','LD');
+   vertlines(50 + [1,50]*.5);
+   subplot(212);
+   imgr.get_img_data.frame_select = 500 + (1:50)*5;
+   imgr.calc_colours.ref_level = 0;
+   imgr.show_slices.img_cols = 17;
+   imgr.calc_colours.greylev =  .01;
+   imgr.calc_colours.backgnd =[1,1,1];
+   show_slices(imgr)
+return
    % LQ2 test
    pth = get_contrib_data('human-ventilation-2014','human-ventilation-2014.eit'); 
    [dd,auxdata,stim]= eidors_readdata(pth);
