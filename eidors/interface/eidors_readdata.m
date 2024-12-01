@@ -249,10 +249,14 @@ switch fmt
 
    case 'vtm';
      auxdata = read_vtm(fname);
-     flip = kron(ones(16,1),kron([-1;1],ones(6,1)));
-     vv = flip.*auxdata.di;
-     save thisisvv.mat vv
+%  Using flip is easier with than the code in read_vtm
+%    flip = kron(ones(16,1),kron([-1;1],ones(6,1)));
+%    vv = flip.*dd;
+     vv = auxdata.EITdata192;
      stim = mk_stim_patterns(16,1,[0,8],[0,1],{'rotate_meas'});
+% It's also possible to use EIDORSdata192, with no_rotate_meas
+%    vv = auxdata.EIDORSdata192;
+%    stim = mk_stim_patterns(16,1,[0,8],[0,1],{'no_rotate_meas'});
      
 
    otherwise
@@ -1646,10 +1650,10 @@ function [vtmData] = read_vtm(full_dfile_name)
         ss= len_header + 20  + (0:framenums-1)*len_frame;
         for k= 1:length(ss);
            if fseek(fid,ss(k),-1)<0; break; end
-           di(:,k)=fread(fid,192,'int16', 0, 'ieee-le');
+%          di(:,k)=fread(fid,192,'int16', 0, 'ieee-le');
            dd(:,k)=fread(fid,192,'uint16', 0, 'ieee-le');
         end
-        di(:,end) = []; % Last seems bad
+%       di(:,end) = []; % Last seems bad
         EITdata192 = dd;
         EITdata192=  -EITdata192;
         for i=1:16
@@ -1659,6 +1663,7 @@ function [vtmData] = read_vtm(full_dfile_name)
         columnIdx192 = bsxfun(@circshift,reshape(1:192,12,16),move192_index);
         columnIdx192 = columnIdx192(:);
         EIDORSdata192 = EITdata192(columnIdx192,:);% ²»°üº¬ÎÞÐ§µç¼«µÄ¾ø¶Ôµç¼«Î»ÖÃÅÅÐò
+        vtmData.dd = dd;
  %%        
 %         fseek(fid,len_header,-1); % beginning of file
 %         d = fread(fid,len-335,'float32',0,'ieee-le');%°´ÕÕfloatÀàÐÍ¶ÁÈ¡Êý¾ÝÎªµ½ÁÐÏòÁ¿d
@@ -1688,7 +1693,6 @@ function [vtmData] = read_vtm(full_dfile_name)
         vtmData.Medibus = Medibus;
         vtmData.Imginfo = Imginfo;
         vtmData.RawDataContact = RawDataContact/58;
-        vtmData.di = di;
         % vtmData.RawDataContact = RawDataContact/55.2688;
     else
         error('File type cannot be recognised');
