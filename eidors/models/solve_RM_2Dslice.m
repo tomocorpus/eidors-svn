@@ -1,5 +1,5 @@
-function imdl = solve_RM_2Dslice(imdl, sel_fcn)
-% SOLVE_RM_2DSLICE: cut slices out of an inverse model with a 
+function imdl = select_RM_slice(imdl, sel_fcn)
+% SELECT_RM_SLICE: cut slices out of an inverse model with a 
 %  reconstruction matrix solving onto a 3D (voxel) grid
 %
 % NOTE that the 3D grid must be of the structure created by MK_GRID_MODEL
@@ -13,22 +13,22 @@ function imdl = solve_RM_2Dslice(imdl, sel_fcn)
 %    imdl = mk_GREIT_model(imdl, 0.20, [], opt);
 %
 % One could cut the z=1 slice as
-%    imdl2= solve_RM_2Dslice(imdl, 1.0);
+%    imdl2= select_RM_slice(imdl, 1.0);
 % Or using 
 %    sel_fcn = inline('abs(z-1.0)<0.2'); OR
 %    sel_fcn = 'abs(z-1.0)<0.2 | abs(z-2.0)<0.2' ; % two planes
-%    imdl2= solve_RM_2Dslice(imdl, sel_fcn);
+%    imdl2= select_RM_slice(imdl, sel_fcn);
 %
-% SOLVE_RM_2DSLICE applies the selection criteria to element centres. If no
+% SELECT_RM_SLICE applies the selection criteria to element centres. If no
 % elements are captured, increase vert_tol (see below).
 % 
 % Note that the reconstruction planes are between the
 % cut planes specified in vopt.zvec
 %
 % options:
-%  imdl.solve_RM_2Dslice.vert_tol = .001;
+%  imdl.select_RM_slice.vert_tol = .001;
 %       % Vertical tolerance for elems on plane (Default .001)
-%  imdl.solve_RM_2Dslice.keep3D = 1; %keep 3D aspect of cuts
+%  imdl.select_RM_slice.keep3D = 1; %keep 3D aspect of cuts
 %
 % See also MK_GRID_MODEL, MK_VOXEL_VOLUME
 
@@ -40,11 +40,11 @@ if ischar(imdl) && strcmp(imdl,'UNIT_TEST'); do_unit_test; return; end
 
 % Options
 vert_tol = .001; try
-  vert_tol = imdl.solve_RM_2Dslice.vert_tol;
+  vert_tol = imdl.select_RM_slice.vert_tol;
 end
 
 keep3D=0; try
-  keep3D = imdl.solve_RM_2Dslice.keep3D;
+  keep3D = imdl.select_RM_slice.keep3D;
 end
 
 ctr = interp_mesh(imdl.rec_model); ct3= ctr(:,3);
@@ -136,13 +136,13 @@ function do_unit_test
    subplot(232); show_slices(img,[inf,inf,2]); title '3D slice';
    got_error = false;
    try 
-      imd2 = solve_RM_2Dslice(imdl, 2.2);
+      imd2 = select_RM_slice(imdl, 2.2);
    catch 
       got_error = true;
    end
    unit_test_cmp('No elem error', got_error, true);
    
-   imd2 = solve_RM_2Dslice(imdl, 2.0);
+   imd2 = select_RM_slice(imdl, 2.0);
 
    unit_test_cmp('RM size', size(imd2.solve_use_matrix.RM), [856,928]);
 %    unit_test_cmp('RM', imd2.solve_use_matrix.RM(1,1:2), ...
@@ -161,16 +161,16 @@ function do_unit_test
    unit_test_cmp('slice value', slice1, slice2, 1e-10)
 
    
-   imdl.solve_RM_2Dslice.keep3D = 1;
-   imd3 = solve_RM_2Dslice(imdl, 1.0);
+   imdl.select_RM_slice.keep3D = 1;
+   imd3 = select_RM_slice(imdl, 1.0);
    img = inv_solve(imd3, vh, vi);
    subplot(235); show_fem(img);
    
    sel_fcn = inline('abs(z-1.0)<0.2','z');
-   imd3 = solve_RM_2Dslice(imdl, sel_fcn);
+   imd3 = select_RM_slice(imdl, sel_fcn);
 
    sel_fcn = 'abs(z-1.0)<0.2 | abs(z-2.0)<0.2' ;
-   imd3 = solve_RM_2Dslice(imdl, sel_fcn);
+   imd3 = select_RM_slice(imdl, sel_fcn);
    img = inv_solve(imd3, vh, vi);
    subplot(236); show_fem(img);
 
