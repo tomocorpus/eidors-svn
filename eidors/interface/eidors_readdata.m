@@ -1702,6 +1702,8 @@ function do_unit_test
    fmdl.stimulation = stim;
    imdl = select_imdl(fmdl, {'GREIT:NF=0.5 32x32'});
    imgr = inv_solve(imdl, mean(dd,2),dd);
+   [~,idx] = sort(-sum(imgr.elem_data));
+   imgr.elem_data = imgr.elem_data - mean(imgr.elem_data(:,idx(1:20)),2);
    [ROIs,imgR] = define_ROIs(imdl,[-2,0,2],[2,0,-2],struct('normalize',0));
    sig = -ROIs*imgr.elem_data;
    tt = (1:size(sig,2))/10;
@@ -1717,7 +1719,7 @@ function do_unit_test
    imgr.calc_colours.greylev =  .01;
    imgr.calc_colours.backgnd =[1,1,1];
    show_slices(imgr)
-return
+
    % LQ2 test
    pth = get_contrib_data('human-ventilation-2014','human-ventilation-2014.eit'); 
    [dd,auxdata,stim]= eidors_readdata(pth);
