@@ -484,6 +484,9 @@ deprecated = {'adult_male_grychtol2016a_1x32'
           'adult_female_thorax_1x32'
           'adult_female_thorax_1x16' 
           'adult_female_thorax_2x16'};
+if exist('OCTAVE_VERSION');
+  deprecated={}; % Octave doesn't have triangulation
+end
 models = vertcat(deprecated, models);
 n_models = numel(models);
 sqrt_n_models = ceil(sqrt(n_models));
