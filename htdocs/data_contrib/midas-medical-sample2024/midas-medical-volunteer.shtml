@@ -1,0 +1,79 @@
+<html>
+[% PROCESS "../../header.html" %]
+<body>
+
+<H2>Contributed EIT Data:</H2>
+   <table>
+   <tr><th valign="top"> Authors:
+       <td>
+T. Harake, A. Adler
+       <hr>
+   <tr><th valign="top"> Date:
+       <td> 2024
+       <hr>
+   <tr><th valign="top"> Brief Description:
+       <td> 
+These data are a brief sample of breathing in a healthy
+human, measured using a Midas Medical Ventom device
+as part of system evaluation.
+The data represent a few tidal breaths as well as
+expiratory and inspiratory breath holds.
+<br>
+The data were measured on the same subject as the
+GREIT chest model given in this tutorial
+<a href="../../tutorial/GREIT/adult_ex.shtml"
+>GREIT Reconstruction for an adult human thorax geometry</a>
+
+       <hr>
+   <tr><th valign="top"> License:
+       <td> Creative Commons Artistic License
+       <hr>
+   <tr><th valign="top"> Attribution Requirement:
+       <td> 
+Data are provided as-is. No attribution is
+formally required; however, users may acknowledge
+this tutorial. The subject explicitly consents
+to making these data public under these
+requirements.
+   <tr><th valign="top"> Format:
+       <td>
+
+       <hr>
+   <tr><th valign="top"> Methods:
+       <td>
+A Midas Medical patient belt was attached to
+the seated subject and connected to the
+EIT system. The subject performed various
+breathing manoeuvres while data were collected.
+       <hr>
+   <tr><th valign="top"> Data:
+       <td> <a href="./EITData2024_10_31_08_43_09__S01.vtm"
+            >Data (EIT "VTM" format)</a>
+       <hr>
+   </table>
+
+The data may be analyzed with the following code:
+<pre>
+[% PROCESS "human_ventilation_2014.m" %]
+</pre>
+
+<center>
+   <img src="human-ventilation-2024a.jpg">
+<br>
+Reconstructions from data set.
+<i>Left:</i>
+Sample tidal ventilation image
+<i>Right:</i>
+Waveforms vs time (s), of the global (sum) signal, as 
+well as pixel waveforms at vertical locations
+corresponding to a horizonal pixel #22.
+The variations in pulsatility as well as
+tidal excursions are seen.
+</center>
+
+<p>
+<small>
+    Last Modified: $Date$
+</small>
+</body></html>
+
