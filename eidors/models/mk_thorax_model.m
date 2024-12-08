@@ -192,8 +192,8 @@ function out = build_predef_model(str)
          out = mk_thorax_model('female',ep,[5 0 .5],10);
       case 'adult_female_thorax_2x16'
          eth16 = cumsum([0.2 0.4*ones(1,7) 0.5 0.4*ones(1,7)])/6.5;
-         ep1= 360*eth16' - 90; ep1(:,2) = 200;
-         ep2= 360*eth16' - 90; ep2(:,2) = 150;
+         ep1= 360*eth16' - 90; ep1(:,2) = 250;
+         ep2= 360*eth16' - 90; ep2(:,2) = 175;
          out = mk_thorax_model('female',[ep1;ep2],[5 0 .5],10);
    end
 end

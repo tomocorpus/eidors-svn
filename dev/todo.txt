@@ -31,7 +31,11 @@ Plan for 3.13:
  - Timing tests: why is left_divide slow with multiple stim patterns - line 68 - reorder?
  - In left_divide, Octave doesn't issue warning EIDORS:leftDivideSymmetry
 
+ - in calc_R_prior, we use a hack in octave to reimplement ldl. Fix since it's broken
  
+ - think about gmsh_mk_fwd_model and valid_fwd_model
+ - place_elec_on_surf
+	 - equidistant electrodes not implemented
 
 Plan for 3.12:
  - Update wikipedia eidors for latest release
@@ -45,7 +49,6 @@ Plan for 3.12:
  - look into *.msz got exist warning 
 
  + remove all tests based on condest (which is unreliable for singular)
- - think about gmsh_mk_fwd_model and valid_fwd_model
  - fix tests on : 
 	- solve_RM_2Dslice
 	+ remove_unused_nodes
@@ -53,8 +56,6 @@ Plan for 3.12:
 
  - add eidors_cache test for ng.opt existing or not in current folder
 	
- - place_elec_on_surf
-	 - equidistant electrodes not implemented
  - mk_c2f_circ_mapping
 	 - uses contained_elems_2d_old - why?
 	 - The NaNs created for outside target take a lot of memory
@@ -68,11 +69,11 @@ Plan for 3.12:
  - tutorials for new models
  - cleanup mk_library_model tutorial (unused image/code files)
 
- - fix gmsh failure in mk_thorax_model('adult_female_thorax_2x16');
+ + fix gmsh failure in mk_thorax_model('adult_female_thorax_2x16');
 
  - add unit tests space_electrodes
 
- - add startup code to look for netgen-5.3 in startup and create batch file
+ - add build code to create ng.sh in cache for netgen-5.3 in startup and create batch file
  - add wine install instructions for eidors/linux
 
  + Fix calc_noise_figure unit tests
