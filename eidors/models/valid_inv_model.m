@@ -11,6 +11,8 @@ function [pass, err_str] = valid_inv_model(imdl)
 % (C) 2015 Alistair Boyle. License: GPL version 2 or version 3
 % $Id$
 
+if ischar(imdl) && strcmp(imdl,'UNIT_TEST'); do_unit_test; return; end
+
 pass = 1;
 err_str = '';
 
@@ -107,3 +109,17 @@ end
 
 function t=isfunc(f)
 t=isa(f, 'function_handle') || isa(f, 'char');
+
+function do_unit_test
+   imdl = mk_common_model('a2c0',2);
+   pass=1; 
+   try   [pass, err_str] = valid_inv_model(imdl);
+   catch pass=0; 
+   end
+   unit_test_cmp('valid_inv_model 1',pass,1);
+
+   imdl= rmfield(imdl,'solve');
+   try   [pass, err_str] = valid_inv_model(imdl);
+   catch pass=0; 
+   end
+   unit_test_cmp('valid_inv_model 2',pass,0);

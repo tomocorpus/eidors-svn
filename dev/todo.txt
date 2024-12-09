@@ -45,8 +45,8 @@ Plan for 3.12:
  + more careful errors in hdf5/eidors_readdata
  + write tests for hdf5 in eidors_readdata
 
- - add unit_tests to valid_fwd_model, valid_inv_model
- - look into *.msz got exist warning 
+ + add unit_tests to valid_fwd_model, valid_inv_model
+ + look into *.msz got exist warning 
 
  + remove all tests based on condest (which is unreliable for singular)
  - fix tests on : 
@@ -71,7 +71,7 @@ Plan for 3.12:
 
  + fix gmsh failure in mk_thorax_model('adult_female_thorax_2x16');
 
- - add unit tests space_electrodes
+ + add unit tests space_electrodes
 
  - add build code to create ng.sh in cache for netgen-5.3 in startup and create batch file
  - add wine install instructions for eidors/linux
