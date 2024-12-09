@@ -649,9 +649,33 @@ function do_unit_test
    catch
       eidors_msg('Error on anonymous function: correct',2);
    end
+   test_ng_optcache
    test_debug
    test_priority
    test_disk_caching
+
+function y=fake_modelling_function(x)
+   global fake_modelling_function_value
+   fake_modelling_function_value = 1;
+   y=x+1;
+
+function test_ng_optcache
+   delete('ng.opt');
+   global fake_modelling_function_value; 
+   fake_modelling_function_value = 0;
+   copt.cache_on_ng_opt = true;
+   y = eidors_cache(@fake_modelling_function, 1, copt);
+   unit_test_cmp('test_ng_optcache 1', y, 2);
+   unit_test_cmp('test_ng_optcache 2', fake_modelling_function_value, 1);
+   fake_modelling_function_value = 0;
+   y = eidors_cache(@fake_modelling_function, 1, copt);
+   unit_test_cmp('test_ng_optcache 1', y, 2);
+   unit_test_cmp('test_ng_optcache 2', fake_modelling_function_value, 0);
+   ng_write_opt(); % create default
+   y = eidors_cache(@fake_modelling_function, 1, copt);
+%  function will get called because ng.opt exists
+   unit_test_cmp('test_ng_optcache 1', y, 2);
+   unit_test_cmp('test_ng_optcache 2', fake_modelling_function_value, 1);
 
 function [v1 v2] = test_function(a,b,c,d)
    v1 = rand(1);

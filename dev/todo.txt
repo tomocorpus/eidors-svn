@@ -54,7 +54,7 @@ Plan for 3.12:
 	+ remove_unused_nodes
 	+ GREIT3D_distribution
 
- - add eidors_cache test for ng.opt existing or not in current folder
+ + add eidors_cache test for ng.opt existing or not in current folder
 	
  - mk_c2f_circ_mapping
 	 - uses contained_elems_2d_old - why?
