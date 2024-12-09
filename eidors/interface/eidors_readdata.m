@@ -45,7 +45,8 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %    - HDF5-based format
 %        format = 'h5' or 'hdf5' documented at
 %       Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
-%        after filename, add ":DataSetName" or all are loaded
+%        the frame_range parameter specifies which dataset to load
+%        e.g. eidors_readdata('montreal_data_1995_breathold.h5','h5','datasetEIT')
 %
 %    - Medas Medical 'VTM' format
 %       For the Ventom device
@@ -114,7 +115,7 @@ switch fmt
    case {'h5','hdf5'};
       fmt = 'hdf5';
       % Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
-      [vv, auxdata, stim]= h5_readdata( fname );
+      [vv, auxdata, stim]= h5_readdata( fname, frame_range );
 
    case 'mceit';
       [vv,curr,volt,auxdata_out,auxtime,rawdata] = mceit_readdata( fname );
@@ -277,8 +278,8 @@ function check_file_exists(fname)
 %  vv is the voltages
 %  auxdata is all the data
 %  stim is reconstructed stim
+% Fname : datasetname
 function [vv, auxdata, stim]= h5_readdata( fname, datasetname );
-   if nargin==1; datasetname = false; end
    version = h5read(fname, '/VERSION');
    if version<2023.4; error('HDF5 version too old'); end
    try
@@ -290,8 +291,13 @@ function [vv, auxdata, stim]= h5_readdata( fname, datasetname );
    Data = info.Groups;
    if length(Data)==1;
       ff=1;
-   else %% TODO, figure it out
-      ff = find({Data(:).Name}==["/data/",fname{2}]);
+   else  %% TODO, figure it out
+      dsn = {Data(:).Name};
+      ff = find(strcmp(dsn,['/data/',datasetname]));
+      if isempty(ff);
+         error(['Need to specify which dataset to load. [', ...
+               strjoin(dsn, ' , '),'] are available']); 
+      end
    end
    Data = Data(ff);
 
