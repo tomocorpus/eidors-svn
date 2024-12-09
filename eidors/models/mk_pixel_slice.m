@@ -136,13 +136,13 @@ rmdl.nodes(:,3) = 0;
 rmdl.nodes =  ifun(rmdl.nodes);
 slc.nodes =  ifun(slc.nodes);
 
-if ~isstruct(opt.level)
-   % different behaviour for the old interface
-   isf = ~isinf(opt.level);
-   if nnz(isf) == 1
-      rmdl.nodes(:,isf) = opt.level(:,isf);
-   end
-end
+% no longer needed, level_model_slice does this
+% if ~isstruct(opt.level)
+%    isf = ~isinf(opt.level);
+%    if nnz(isf) == 1
+%       rmdl.nodes(:,isf) = opt.level(:,isf);
+%    end
+% end
 
 if isfield(slc, 'electrode')
    for i = flipud(1:numel(slc.electrode))
