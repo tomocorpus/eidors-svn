@@ -16,6 +16,8 @@ function [pass, err_str] = valid_fwd_model(fmdl, type)
 % (C) 2015 Alistair Boyle. License: GPL version 2 or version 3
 % $Id$
 
+if ischar(fmdl) && strcmp(fmdl,'UNIT_TEST'); do_unit_test; return; end
+
 pass = 1;
 err_str = '';
 
@@ -238,3 +240,17 @@ if any((elec.nodes > nn) | (elec.nodes < 1))
    pass = 0;
    err_str = [err_str '- field "electrode(' num2str(i) ').nodes do not exist on the model.nodes\n'];
 end
+
+function do_unit_test
+   fmdl = mk_circ_tank(2,[],0);
+   pass=1; 
+   try   [pass, err_str] = valid_fwd_model(fmdl);
+   catch pass=0; 
+   end
+   unit_test_cmp('valid_fwd_model 1',pass,1);
+
+   fmdl= rmfield(fmdl,'nodes');
+   try   [pass, err_str] = valid_fwd_model(fmdl);
+   catch pass=0; 
+   end
+   unit_test_cmp('valid_fwd_model 2',pass,0);
