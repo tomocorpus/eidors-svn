@@ -40,10 +40,10 @@ Plan for 3.13:
 Plan for 3.12:
  - Update wikipedia eidors for latest release
  - Update mexmac / maxmaci64 for new hash. Remove if too old
- - Post sample h5 data
- - HDF5 file format
- - more careful errors in hdf5/eidors_readdata
- - write tests for hdf5 in eidors_readdata
+ + Post sample h5 data
+ + HDF5 file format
+ + more careful errors in hdf5/eidors_readdata
+ + write tests for hdf5 in eidors_readdata
 
  - add unit_tests to valid_fwd_model, valid_inv_model
  - look into *.msz got exist warning 

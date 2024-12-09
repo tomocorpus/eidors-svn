@@ -1745,3 +1745,9 @@ function do_unit_test
    pth = get_contrib_data('et-healthy-breathing','ET_Test_File_Healthy_Lung_01_01.get');
    [dd,auxdata,stim]= eidors_readdata(pth);
    unit_test_cmp('Draeger.get:frame_rate', isnan(auxdata.frame_rate), true);
+
+   pth = write_hdf5_sample;
+   [dd,~,stim]= eidors_readdata(pth,'h5','datasetEIT');
+   unit_test_cmp('hdf5:size', size(dd), [256, 34]);
+   unit_test_cmp('hdf5:stim', size(stim), [1, 256]);
+   unit_test_cmp('hdf5:data', dd(1:6), [0       0   13441   10288   24740   19477]);

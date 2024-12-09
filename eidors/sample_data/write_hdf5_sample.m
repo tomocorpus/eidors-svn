@@ -1,7 +1,18 @@
 % Write HDF5 Sample data
 % Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
 % $Id$
-function write_hdf5_sample
+function fname = write_and_test;
+  fname = 'montreal_data_1995_breathold.h5';
+  delete(fname)
+  hdf5_sample_write
+  [dd,~,stim] = eidors_readdata('montreal_data_1995_breathold.h5','h5','datasetEIT');
+  imdl = mk_common_model('c2t2',16);
+  imdl.fwd_model.stimulation = stim;
+  imdl.fwd_model = rmfield(imdl.fwd_model,'meas_select');
+  imgr = inv_solve(imdl, dd(:,1), dd);
+  show_slices(imgr);
+
+function hdf5_sample_write
    load 'montreal_data_1995.mat'
    txt = fileread('montreal_data_1995.readme');
    h5createwrite('/VERSION',2023.4,'double');
