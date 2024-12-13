@@ -47,6 +47,8 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %       Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
 %        the frame_range parameter specifies which dataset to load
 %        e.g. eidors_readdata('montreal_data_1995_breathold.h5','h5','datasetEIT')
+%       If format 'h5-all' or 'hdf5-all' or dataset = '{:all:}', then all datasets are
+%        loaded into a cell array
 %
 %    - Medas Medical 'VTM' format
 %       For the Ventom device
@@ -116,6 +118,11 @@ switch fmt
       fmt = 'hdf5';
       % Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
       if nargin<3; frame_range=[]; end
+      [vv, auxdata, stim]= h5_readdata( fname, frame_range );
+
+   case {'h5-all','hdf5-all'};
+      fmt = 'hdf5';
+      frame_range = '{:all:}';
       [vv, auxdata, stim]= h5_readdata( fname, frame_range );
 
    case 'mceit';
@@ -1765,3 +1772,10 @@ function do_unit_test
    unit_test_cmp('hdf5:size', size(dd), [208, 34]);
    unit_test_cmp('hdf5:stim', size(stim), [1, 208]);
    unit_test_cmp('hdf5:data', dd(1:6), [13441   10288   24740   19477  15029 9780]);
+
+   [dd,~,stim]= eidors_readdata(pth,'h5-all');
+   [dd,~,stim]= eidors_readdata(pth,'hdf5-all');
+   unit_test_cmp('hdf5:size:1', size(dd{1}), [544,1]);
+   unit_test_cmp('hdf5:size:2', size(dd{2}), [208,34]);
+   unit_test_cmp('hdf5:data:1', dd{1}(1:4), [ -3674 -3610 -3871 -4177]');
+   unit_test_cmp('hdf5:data:2', dd{2}(1:4), [13441   10288   24740   19477]);
