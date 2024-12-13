@@ -264,11 +264,13 @@ switch fmt
    otherwise
       error('eidors_readdata: file "%s" format unknown', format);
 end
-auxdata.format = fmt;
-
-if ~isfield(auxdata,'frame_rate');
-   auxdata.frame_rate = NaN; % NaN for unknown
+if ~iscell(auxdata)
+   auxdata.format = fmt;
+   if ~isfield(auxdata,'frame_rate');
+      auxdata.frame_rate = NaN; % NaN for unknown
+   end
 end
+
 
 function check_file_exists(fname)
    if ~exist(fname,'file')
@@ -290,6 +292,14 @@ function [vv, auxdata, stim]= h5_readdata( fname, datasetname );
    end
 
    Data = info.Groups;
+
+   if strcmp(datasetname,'{:all:}')
+      for ff =  1:length(Data)
+        [vv{ff},auxdata{ff},stim{ff}] = h5_one_dataset(fname, Data(ff)); 
+      end
+      return
+   end
+   
    if length(Data)==1;
       ff=1;
    else  %% TODO, figure it out
@@ -300,11 +310,11 @@ function [vv, auxdata, stim]= h5_readdata( fname, datasetname );
                strjoin(dsn, ' , '),'] are available']); 
       end
    end
-%  Data = Data(ff);
    [vv,auxdata,stim] = h5_one_dataset(fname, Data(ff)); 
 
 function [vv,auxdata,stim] = h5_one_dataset(fname, Data); 
    auxdata= struct();
+   assert( strcmp(Data.Name(1:6), '/data/') );
    for i=1:length(Data.Datasets)
       name = Data.Datasets(i).Name;
       data = h5read(fname, [Data.Name, '/', name]);
@@ -312,6 +322,7 @@ function [vv,auxdata,stim] = h5_one_dataset(fname, Data);
       outname( (outname == ')') | (outname == '(') ) = '_';
       eval([outname,'=data;']); % Use eval: we want dots to turn into subfields: aux.Meas.V.Abs
    end
+   auxdata.DataSet = Data.Name(7:end);
 
    try
       vv = auxdata.Meas.V;
@@ -1751,6 +1762,6 @@ function do_unit_test
 
    pth = write_hdf5_sample;
    [dd,~,stim]= eidors_readdata(pth,'h5','datasetEIT');
-   unit_test_cmp('hdf5:size', size(dd), [256, 34]);
-   unit_test_cmp('hdf5:stim', size(stim), [1, 256]);
-   unit_test_cmp('hdf5:data', dd(1:6), [0       0   13441   10288   24740   19477]);
+   unit_test_cmp('hdf5:size', size(dd), [208, 34]);
+   unit_test_cmp('hdf5:stim', size(stim), [1, 208]);
+   unit_test_cmp('hdf5:data', dd(1:6), [13441   10288   24740   19477  15029 9780]);
