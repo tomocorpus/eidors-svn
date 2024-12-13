@@ -300,15 +300,17 @@ function [vv, auxdata, stim]= h5_readdata( fname, datasetname );
                strjoin(dsn, ' , '),'] are available']); 
       end
    end
-   Data = Data(ff);
+%  Data = Data(ff);
+   [vv,auxdata,stim] = h5_one_dataset(fname, Data(ff)); 
 
+function [vv,auxdata,stim] = h5_one_dataset(fname, Data); 
    auxdata= struct();
    for i=1:length(Data.Datasets)
       name = Data.Datasets(i).Name;
       data = h5read(fname, [Data.Name, '/', name]);
       outname = ['auxdata.',name];
       outname( (outname == ')') | (outname == '(') ) = '_';
-      eval([outname,'=data;']);
+      eval([outname,'=data;']); % Use eval: we want dots to turn into subfields: aux.Meas.V.Abs
    end
 
    try
