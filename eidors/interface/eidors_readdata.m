@@ -115,6 +115,7 @@ switch fmt
    case {'h5','hdf5'};
       fmt = 'hdf5';
       % Possner, Bulst, Adler "HDF5-based data format for EIT data", Conf. EIT2023
+      if nargin<3; frame_range=[]; end
       [vv, auxdata, stim]= h5_readdata( fname, frame_range );
 
    case 'mceit';
