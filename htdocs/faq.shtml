@@ -203,6 +203,22 @@ This is a toolkit of routines for you to build a code which suits your
 application.
 
 <p><li id="netgencompile"><b>
+Using EIDORS with MacOS (from eidors v3.12)
+</b><p>
+If you download the eidors version with netgen, then EIDORS can run using the windows netgen.exe file. In order to do this, you need the <tt>wine</tt> emulator.
+<ol>
+<li> In stall <a href="https://brew.sh/">homebrew</a>
+<li> In a terminal: <tt>brew install wine-stable</tt>
+<li> Allow wine in <a href="https://support.apple.com/en-nz/guide/mac-help/mh40616/mac">macos</a>.
+ a) Run <tt>wine</tt> in terminal (and see '“Wine Stable” cannot be opened because the developer cannot be verified.').
+ b) Next: Apple menu  &gt; System Settings, then click Privacy & Security in the sidebar. Security, click Open. Click Open Anyway.
+<li> In matlab add homebrew to path	
+<tt>&gt;&gt;setenv('PATH',[getenv('PATH'),':/opt/homebrew/bin'])</tt>
+</ol>
+EIDORS should now be able to run netgen on a mac this way.
+
+
+<p><li id="netgencompile"><b>
 Compiling Netgen under Linux
 </b><p>
 Over the years there have been a number of people who have asked for
