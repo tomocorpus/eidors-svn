@@ -19,10 +19,23 @@ FEM model (left) and reconstructed image (centre) and sequence (right)
 <ul>
 <li> <a href="http://www.matlab.com">Matlab</a> (&ge;2017b) or
      <a href="http://www.octave.org">Octave</a> (&ge;8.4),
-<li> <a href="http://netgen-mesher.sf.net">Netgen Mesher</a> (optional),
-(Direct link to 
-<a href="http://sourceforge.net/projects/netgen-mesher/files/netgen-mesher/5.3/">Netgen 5.3</a>)
-<li> <a href="http://geuz.org/gmsh/">Gmsh Mesher</a> (optional)
+<li> Netgen
+   <ul>
+      <li>Using eidors+ng package
+          <ul>
+             <li>Windows: no extra install required
+             <li>Linux: Install <tt>wine</tt> (see <a href="faq.shtml#netgenlinuxwine">FAQ: Netgen Linux/Wine</a>)
+             <li>MacOS: Install <tt>wine-stable</tt> (see <a href="faq.shtml#netgenmacoswine">FAQ: Netgen MacOS/Wine</a>)
+          </ul>
+      <li>Using your own netgen install
+    <br> Download <a href="http://netgen-mesher.sf.net">Netgen Mesher</a> 
+         (Direct link to 
+    <a href="http://sourceforge.net/projects/netgen-mesher/files/netgen-mesher/5.3/">Netgen 5.3</a>)
+         See <a href="./faq.shtml#netgencompile">FAQ:Netgencompile</a> for compile instructions.
+      EIDORS will ask for the path to netgen when required)
+   </ul>
+
+   <li> <a href="http://geuz.org/gmsh/">Gmsh Mesher</a> (optional; required for 3D thorax geometries). See <a href="./faq.shtml#gmshcompile">FAQ:Gmshcompile</a>.
 </ul>
 
 <H3>Getting Started</H3>
@@ -30,25 +43,20 @@ FEM model (left) and reconstructed image (centre) and sequence (right)
 To try the EIDORS software, follow these steps:
 <ol>
 <li> Download EIDORS :
-    <br>&minus; <i>Release (30 December 2022):</i>
-         <a href="http://prdownloads.sf.net/eidors3d/eidors-v3.11.zip"
-             >EIDORS 3.11</a>, or
-         <a href="http://prdownloads.sf.net/eidors3d/eidors-v3.11-ng.zip"
-             >EIDORS 3.11 with Netgen 5.3</a> (for windows 64 bit).
+    <br>&minus; <i>Release (?? December 2024):</i>
+         <a href="http://prdownloads.sf.net/eidors3d/eidors-v3.12-ng.zip"
+             >EIDORS 3.12 with Netgen 5.3</a>, or
+         <a href="http://prdownloads.sf.net/eidors3d/eidors-v3.12.zip"
+             >EIDORS 3.12</a>.
        Or <a href="./download.shtml"><i>Developer Version</i></a>
     <br>&minus; <i>Optional ready-made FEM models:</i>
          <a href="http://prdownloads.sf.net/eidors3d/model_library.zip"
              >model_library</a> (7 Jul 2012)
+        (installation instructions for model_library are included in a README file)
 
 <li> Unzip the software in a directory such as
       <tt>/path/to/eidors</tt>(UNIX) or <tt>C:\path\to\eidors</tt>(Windows)
 
-<br> (installation instructions for model_library are included in a README file)
-
-<li> Download and install 
-<a href="http://sourceforge.net/projects/netgen-mesher/files/netgen-mesher/5.3/"
-     >Netgen</a> (Unless version with netgen installed.
-      EIDORS will ask for the path to netgen when required)
 
 <li> Start Matlab
 

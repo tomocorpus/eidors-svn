@@ -202,7 +202,7 @@ and claim that your code is vastly superior than EIDORS' best shot
 This is a toolkit of routines for you to build a code which suits your
 application.
 
-<p><li id="netgencompile"><b>
+<p><li id="netgenmacoswine"><b>
 Using EIDORS with MacOS (from eidors v3.12)
 </b><p>
 If you download the eidors version with netgen, then EIDORS can run using the windows netgen.exe file. In order to do this, you need the <tt>wine</tt> emulator.
@@ -221,23 +221,23 @@ EIDORS should now be able to run netgen on a mac this way.
 <p><li id="netgencompile"><b>
 Compiling Netgen under Linux
 </b><p>
-Over the years there have been a number of people who have asked for
-help compiling and installing Netgen. I had a script or two from years
-back that I have, at various times, suggested people use as a starting
-point for compiling under linux. It is, generally, not easy to
+It is now (v3.12+) recommended to use wine to run the win32 netgen executable
+under linux and MacOS. Tests show this has an approx 10% time penalty vs
+a native package, but avoids the compile headaches below.
+<p>
+It is, generally, not easy to
 successfully compile as there are a number of patches and the build
-options and dependencies can be a bit tricky to work through. I've
-recently gone back through my notes and those build scripts and got
-them fully operational again. There are now scripts available in my
+options and dependencies can be a bit tricky to work through. 
+There are now scripts available in
 dev/a_boyle directory for three versions of netgen: 4.9.13, 5.3.1 and
-6.0_beta.</p>
+6.0_beta.
 
 <p>All versions apply necessary patches, compile, install to a designated
 location (either local or system wide), and provide a netgen wrapper
 which sets necessary environment variables to allow netgen to run
 under Matlab/EIDORS. The builds have been tested on Gentoo
 (2017-04-25), Ubuntu (16.04) and will most likely work on other
-gnu/linux distributions. These are not for Mac or Windows.</p>
+gnu/linux distributions. These are not for Mac or Windows.
 
 <p><ol>
 <li><a href="https://sourceforge.net/p/eidors3d/code/HEAD/tree/trunk/dev/a_boyle/install-netgen-4.9.13">install-netgen-4.9.13</a></li>
@@ -318,7 +318,7 @@ place_elec_on_surf.
 
 Here is how to build a fixed copy:
 <Ol>
-<li> Remove liboce  ... this interferes with the build (don't know why)
+<li> Remove liboce  ... this interferes with the build (no longer required on many linux distributions)
 <pre>
   $ sudo apt-get remove 'liboce.*'
 </pre>
