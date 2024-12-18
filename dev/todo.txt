@@ -80,7 +80,7 @@ Plan for 3.12:
  + add unit tests space_electrodes
 
  - add build code to create ng.sh in cache for netgen-5.3 in startup and create batch file
- - add wine install instructions for eidors/linux
+ + add wine install instructions for eidors/linux
 
  + Fix calc_noise_figure unit tests
  

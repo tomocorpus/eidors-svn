@@ -125,10 +125,34 @@ Yes, please look at the <a href="tutorial/index.html">tutorial</a>.
 </b><p>
 EIDORS is licenced under the GNU 
 <a href="http://www.gnu.org/licenses/gpl.html"
-    >General Public License</a>. Uses are free to
-use, modify, and distribute their modifications.
+    >General Public License</a> version 2 or version 3.
+Uses are free to use, modify, and distribute their modifications,
+under the terms of (GPL version 2) or (GPL version 3) at their choice.
 All modifications must include the source code, or
 instructions on how to obtain it.
+
+<p><li id="netgenlinuxwine"><b>
+Using EIDORS with Netgen on Linux (starting from eidors v3.12)
+</b><p>
+If you download the version with netgen, then EIDORS can run using the windows netgen.exe file. In order to do this, install the <tt>wine</tt> emulator.
+<p>
+Wine can be installed via the package manager on most distributions.
+In debian/ubuntu, use <tt>sudo apt install wine</tt>.
+
+<p><li id="netgenmacoswine"><b>
+Using EIDORS with Netgen on MacOS (starting from eidors v3.12)
+</b><p>
+If you download the version with netgen, then EIDORS can run using the windows netgen.exe file. In order to do this, install the <tt>wine</tt> emulator.
+<ol>
+<li> In stall <a href="https://brew.sh/">homebrew</a>
+<li> In a terminal: <tt>brew install wine-stable</tt>
+<li> Allow wine in <a href="https://support.apple.com/en-nz/guide/mac-help/mh40616/mac">macos</a>.
+ a) Run <tt>wine</tt> in terminal (and see '“Wine Stable” cannot be opened because the developer cannot be verified.').
+ b) Next: Apple menu  &gt; System Settings, then click Privacy & Security in the sidebar. Security, click Open. Click Open Anyway.
+<li> In matlab add homebrew to path	
+<tt>&gt;&gt;setenv('PATH',[getenv('PATH'),':/opt/homebrew/bin'])</tt>
+</ol>
+EIDORS should now be able to run netgen on a mac this way.
 
 <p><li><b>
     May I include EIDORS in a commercial product
@@ -180,7 +204,7 @@ references:
   "Uses and abuses of EIDORS: An extensible software base for EIT"
    Submitted to <i>Physiol. Meas.</i>, Nov. 2005
 </ul>
-However, certain data sets may require reference to a different
+Certain data sets may require reference to a different
 paper. Please read the documentation for the particular data
 set.
 
@@ -201,21 +225,6 @@ and claim that your code is vastly superior than EIDORS' best shot
 (Yes, we exagerate, slightly).
 This is a toolkit of routines for you to build a code which suits your
 application.
-
-<p><li id="netgenmacoswine"><b>
-Using EIDORS with MacOS (from eidors v3.12)
-</b><p>
-If you download the eidors version with netgen, then EIDORS can run using the windows netgen.exe file. In order to do this, you need the <tt>wine</tt> emulator.
-<ol>
-<li> In stall <a href="https://brew.sh/">homebrew</a>
-<li> In a terminal: <tt>brew install wine-stable</tt>
-<li> Allow wine in <a href="https://support.apple.com/en-nz/guide/mac-help/mh40616/mac">macos</a>.
- a) Run <tt>wine</tt> in terminal (and see '“Wine Stable” cannot be opened because the developer cannot be verified.').
- b) Next: Apple menu  &gt; System Settings, then click Privacy & Security in the sidebar. Security, click Open. Click Open Anyway.
-<li> In matlab add homebrew to path	
-<tt>&gt;&gt;setenv('PATH',[getenv('PATH'),':/opt/homebrew/bin'])</tt>
-</ol>
-EIDORS should now be able to run netgen on a mac this way.
 
 
 <p><li id="netgencompile"><b>
