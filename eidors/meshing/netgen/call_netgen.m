@@ -88,30 +88,44 @@ while( 1 )
    if status==0; break; end
    try
       if islinux
-         global eidors_objects;
-         ignore_errors = 0;
-         if isfield(eidors_objects,'ng_ignore_errors');
-            ignore_errors = eidors_objects.ng_ignore_errors;
+         % Check for a version of netgen shipped with eidors
+         % Fixme if we ship a different version of netgen
+         netgen_path = [eidors_cache('eidors_path'),'/../Netgen-5.3_x64/bin'];
+         ngsh_path = [cache_path, '/ng.sh'];
+         if exist(netgen_path)
+            fprintf('Creating batch file to access Netgen. Ensure wine is installed\n')
+            fid= fopen(ngsh_path,'w');
+            if fid<0; error('Unable to write to %s',cache_path); end
+            fprintf(fid,['NETGEN="',netgen_path,'" NETGENDIR="',netgen_path, ...
+                         '" wine "',netgen_path,'" $1 $2 $3\n']);
+            fclose(fid);
+            system(['chmod a+x "',ngsh_path,'"']); % make executable
+         else
+            global eidors_objects;
+            ignore_errors = 0;
+            try
+               ignore_errors = eidors_objects.ng_ignore_errors;
+            end
+            fprintf(['It seems that netgen has not worked (on linux). ' ...
+               'Check that netgen is installed and on the path. ' ...
+               'Check the environment variable NETGENDIR is set. ' ...
+               ' This can be set via the following commands:\n' ...
+               '  setenv(''NETGENDIR'',''/path/to/netgen/bin'');\n' ...
+               '  setenv(''PATH'',[''/path/to/netgen/bin:'',getenv(''PATH'')]);\n' ...
+               'Please enter a new netgen file name\n' ]);
+            if ignore_errors == 1;
+               eidors_msg('Ignoring Netgen Error (as requested)',1);
+               break;
+            end
+            ng_name = input( ...
+              'netgen file name (with path)? [or i=ignore, e=error, a=always ignore]','s');
+            if strcmp(ng_name,'i'); break;end
+            if strcmp(ng_name,'a');
+                eidors_objects.ng_ignore_errors = 1;
+                break;
+            end
+            if strcmp(ng_name,'e'); error('user requested'),end;
          end
-         fprintf(['It seems that netgen has not worked (on linux). ' ...
-            'Check that netgen is installed and on the path. ' ...
-            'Check the environment variable NETGENDIR is set. ' ...
-            ' This can be set via the following commands:\n' ...
-            '  setenv(''NETGENDIR'',''/path/to/netgen/bin'');\n' ...
-            '  setenv(''PATH'',[''/path/to/netgen/bin:'',getenv(''PATH'')]);\n' ...
-            'Please enter a new netgen file name\n' ]);
-         if ignore_errors == 1;
-            eidors_msg('Ignoring Netgen Error (as requested)',1);
-            break;
-         end
-         ng_name = input( ...
-           'netgen file name (with path)? [or i=ignore, e=error, a=always ignore]','s');
-         if strcmp(ng_name,'i'); break;end
-         if strcmp(ng_name,'a');
-             eidors_objects.ng_ignore_errors = 1;
-             break;
-         end
-         if strcmp(ng_name,'e'); error('user requested'),end;
       else % Windows
          % Check for a version of netgen shipped with eidors
          % Fixme if we ship a different version of netgen
