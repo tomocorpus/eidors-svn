@@ -97,7 +97,7 @@ while( 1 )
             fid= fopen(ngsh_path,'w');
             if fid<0; error('Unable to write to %s',cache_path); end
             fprintf(fid,['NETGEN="',netgen_path,'" NETGENDIR="',netgen_path, ...
-                         '" wine "',netgen_path,'" $1 $2 $3\n']);
+                         '" wine "',netgen_path,'/netgen.exe" $1 $2 $3\n']);
             fclose(fid);
             system(['chmod a+x "',ngsh_path,'"']); % make executable
          else
