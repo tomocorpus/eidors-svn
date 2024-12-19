@@ -1620,12 +1620,12 @@ function [vtmData] = read_vtm(full_dfile_name)
             error('Î´Ê¶±ðµÄÎÄ¼þ');
         end
 %%         
-            systemdata1 = native2unicode(Header(3:208))';
+            systemdata1 = native2unicode(Header(3:206))';
             str1 = regexpi(systemdata1, '([^\t\f\n\r]*)', 'match');
 %             systemparm = {'DeviceModel','Frequency','Framerate','Amplitude','Time'};
             for i = 1:length(str1)
                 parm = regexpi(str1{1,i},':','split');
-                parmname = string(parm{1,1});                
+                parmname = char(parm{1,1});                
                 if length(parm)>2
                     parmvalue = parm{1,2};
                     for j = 3:length(parm)
