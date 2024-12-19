@@ -66,7 +66,10 @@ end
 rmdl = mk_grid_model([],varargin{1:end-last});
 
 ROIa = mk_approx_c2f(fmdl,rmdl);
-ROIs = ROIa.' * recc2f./sum(recc2f,1);
+% Octave ./ doesn't expand dimensions for sparse for v9.2
+% ROIs = ROIa.' * recc2f./sum(recc2f,1);
+% Bug report submitted to octave: 2024-12-19
+ROIs = ROIa.' * bsxfun(@rdivide, recc2f, sum(recc2f,1) );
 if ~isempty(opts.reorder)
    ROIs = ROIs(opts.reorder(:),:);
 end
@@ -91,6 +94,21 @@ function do_unit_test
 %  do_3D_test
 
 function do_GREIT_test
+   imdl = mk_common_model('n3r2',[16,2]);
+   [ROIs,imgR] = define_ROIs(imdl,-1:0.5:1,-1:0.5:1);
+   unit_test_cmp('n3r2: 2D 1',     size(ROIs), [16,828]);
+   unit_test_cmp('n3r2: 2D 2',     ROIs(:,1:9), ...
+       [0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0]*ones(1,9));
+   unit_test_cmp('n3r2: 2D 2',     ROIs(:,10:11), ...
+       [0,0;0,0;0,0;0,0;0,0;0,0;0,0;0,0;
+        0,0;0,0;0,0;95,80;0,0;0,0;0,0;5,20]/100,1e-14);
+   [ROIs,imgR] = define_ROIs(imdl,-1:1,-1:1,0:2);
+   unit_test_cmp('n3r2: 3D 1',     size(ROIs), [8,828]);
+   unit_test_cmp('n3r2: 3D 2',     ROIs(:,1:9), ...
+       [0;0;0;1;0;0;0;0]*ones(1,9),1e-14);
+   unit_test_cmp('n3r2: 3D 3',     ROIs(:,61:69), ...
+       [0;0;1;0;0;0;0;0]*ones(1,9),1e-14);
+
    fmdl = mk_library_model('neonate_32el_lungs');
    [stim,msel] = mk_stim_patterns(32,1,[0,5],[0,5],{'no_meas_current_next2'},1);
    fmdl.stimulation = stim;
