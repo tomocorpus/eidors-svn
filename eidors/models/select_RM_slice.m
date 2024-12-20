@@ -166,10 +166,16 @@ function do_unit_test
    img = inv_solve(imd3, vh, vi);
    subplot(235); show_fem(img);
    
-   sel_fcn = inline('abs(z-1.0)<0.2','z');
+   sel_fcn = inline('abs(z-1.0)<0.2','z'); % fails in octave
+   if exist('OCTAVE_VERSION')
+      sel_fcn = @(z) abs(z-1.0)<0.2; 
+   end
    imd3 = select_RM_slice(imdl, sel_fcn);
 
    sel_fcn = 'abs(z-1.0)<0.2 | abs(z-2.0)<0.2' ;
+   if exist('OCTAVE_VERSION')
+      sel_fcn = @(z) abs(z-1.0)<0.2 | abs(z-2.0)<0.2;
+   end
    imd3 = select_RM_slice(imdl, sel_fcn);
    img = inv_solve(imd3, vh, vi);
    subplot(236); show_fem(img);
