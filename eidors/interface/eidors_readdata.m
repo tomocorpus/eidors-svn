@@ -263,10 +263,10 @@ switch fmt
 %    vv = flip.*dd;
      vv = auxdata.EITdata192;
      stim = mk_stim_patterns(16,1,[0,8],[0,1],{'rotate_meas'});
+
 % It's also possible to use EIDORSdata192, with no_rotate_meas
 %    vv = auxdata.EIDORSdata192;
 %    stim = mk_stim_patterns(16,1,[0,8],[0,1],{'no_rotate_meas'});
-     
 
    otherwise
       error('eidors_readdata: file "%s" format unknown', format);
@@ -1727,29 +1727,6 @@ function [vtmData] = read_vtm(full_dfile_name)
 
 
 function do_unit_test
-   pth = get_contrib_data('midas-medical-sample2024','EITData2024_10_31_08_43_09__S01.vtm');
-   [dd,auxdata,stim]= eidors_readdata(pth);
-   fmdl = mk_library_model('adult_male_16el');
-   fmdl.stimulation = stim;
-   imdl = select_imdl(fmdl, {'GREIT:NF=0.5 32x32'});
-   imgr = inv_solve(imdl, mean(dd,2),dd);
-   [~,idx] = sort(-sum(imgr.elem_data));
-   imgr.elem_data = imgr.elem_data - mean(imgr.elem_data(:,idx(1:20)),2);
-   [ROIs,imgR] = define_ROIs(imdl,[-2,0,2],[2,0,-2],struct('normalize',0));
-   sig = -ROIs*imgr.elem_data;
-   tt = (1:size(sig,2))/10;
-   lt = {'LineWidth',2};
-   subplot(211);
-   plot(tt,sig',lt{:}); box off; xlim tight;
-    legend('RV','LV','RD','LD');
-   vertlines(50 + [1,50]*.5);
-   subplot(212);
-   imgr.get_img_data.frame_select = 500 + (1:50)*5;
-   imgr.calc_colours.ref_level = 0;
-   imgr.show_slices.img_cols = 17;
-   imgr.calc_colours.greylev =  .01;
-   imgr.calc_colours.backgnd =[1,1,1];
-   show_slices(imgr)
 
    % LQ2 test
    pth = get_contrib_data('human-ventilation-2014','human-ventilation-2014.eit'); 
@@ -1779,3 +1756,29 @@ function do_unit_test
    unit_test_cmp('hdf5:size:2', size(dd{2}), [208,34]);
    unit_test_cmp('hdf5:data:1', dd{1}(1:4), [ -3674 -3610 -3871 -4177]');
    unit_test_cmp('hdf5:data:2', dd{2}(1:4), [13441   10288   24740   19477]);
+
+   % Midas Med test
+   pth = get_contrib_data('midas-medical-sample2024','EITData2024_10_31_08_43_09__S01.vtm');
+   [dd,auxdata,stim]= eidors_readdata(pth);
+   fmdl = mk_library_model('adult_male_16el');
+   fmdl.stimulation = stim;
+%  vs = fwd_solve(mk_image(fmdl,1));
+
+   imdl = select_imdl(fmdl, {'GREIT:NF=0.5 32x32'});
+   imgr = inv_solve(imdl, mean(dd,2),dd);
+   imgr.elem_data = subtract_rank(imgr.elem_data,0.95);
+   [ROIs,imgR] = define_ROIs(imdl,[-2,0,2],[2,0,-2],struct('normalize',0));
+   sig = -ROIs*imgr.elem_data;
+   tt = (1:size(sig,2))/10;
+   lt = {'LineWidth',2};
+   subplot(211);
+   plot(tt,sig',lt{:}); box off; xlim tight;
+    legend('RV','LV','RD','LD');
+   vertlines(50 + [1,50]*.5);
+   subplot(212);
+   imgr.get_img_data.frame_select = 500 + (1:50)*5;
+   imgr.calc_colours.ref_level = 0;
+   imgr.show_slices.img_cols = 17;
+   imgr.calc_colours.greylev =  .01;
+   imgr.calc_colours.backgnd =[1,1,1];
+   show_slices(imgr)
