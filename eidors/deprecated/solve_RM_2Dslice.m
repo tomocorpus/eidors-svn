@@ -15,7 +15,7 @@ function imdl = select_RM_slice(imdl, sel_fcn)
 % One could cut the z=1 slice as
 %    imdl2= select_RM_slice(imdl, 1.0);
 % Or using 
-%    sel_fcn = inline('abs(z-1.0)<0.2'); OR
+%    sel_fcn = @(z) abs(z-1.0)<0.2; OR
 %    sel_fcn = 'abs(z-1.0)<0.2 | abs(z-2.0)<0.2' ; % two planes
 %    imdl2= select_RM_slice(imdl, sel_fcn);
 %
@@ -169,9 +169,15 @@ function do_unit_test
    subplot(235); show_fem(img);
    
    sel_fcn = inline('abs(z-1.0)<0.2','z');
+   if exist('OCTAVE_VERSION')
+      sel_fcn = @(z) abs(z-1.0)<0.2; 
+   end
    imd3 = select_RM_slice(imdl, sel_fcn);
 
    sel_fcn = 'abs(z-1.0)<0.2 | abs(z-2.0)<0.2' ;
+   if exist('OCTAVE_VERSION')
+      sel_fcn = @(z) abs(z-1.0)<0.2 | abs(z-2.0)<0.2;
+   end
    imd3 = select_RM_slice(imdl, sel_fcn);
    img = inv_solve(imd3, vh, vi);
    subplot(236); show_fem(img);

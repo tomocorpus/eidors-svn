@@ -15,7 +15,7 @@ function imdl = select_RM_slice(imdl, sel_fcn)
 % One could cut the z=1 slice as
 %    imdl2= select_RM_slice(imdl, 1.0);
 % Or using 
-%    sel_fcn = inline('abs(z-1.0)<0.2'); OR
+%    sel_fcn = @(z) abs(z-1.0)<0.2; OR
 %    sel_fcn = 'abs(z-1.0)<0.2 | abs(z-2.0)<0.2' ; % two planes
 %    imdl2= select_RM_slice(imdl, sel_fcn);
 %
