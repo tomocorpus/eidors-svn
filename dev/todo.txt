@@ -67,7 +67,7 @@ Plan for 3.12:
  + remove the figure created by mk_head_model_adult for the '10-10' setup?
 
  - cleanup and unit tests for call_netgen. 
- - Errors with octave 9.x
+ + Errors with octave 9.x
  
  - tutorials for new models (bp3d, mk_thorax_models, head)
 	- cleanup mk_library_model tutorial (unused image/code files)
