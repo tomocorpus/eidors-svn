@@ -94,8 +94,11 @@ switch length(varargin)
    case 0
       out = mk_organ_image(out, organspec); % for the sake of completeness 
    case 1
-      if isempty(varargin{1})
+      if isempty(varargin{1}) 
          out = get_torso;
+         if ~isempty(organspec)
+            out = mk_organ_image(out, organspec);
+         end
       elseif ischar(varargin{1}) 
          copyright = '(C) EIDORS Project';
          out = build_predef_elecs(varargin{1}, organspec);
