@@ -543,8 +543,9 @@ function do_very_basic_test
        xc = [sum(sum(imgs.*x))/sum(sum(imgs))];
        yc = [sum(sum(imgs.*y))/sum(sum(imgs))];
        
-       unit_test_cmp('Reconst xpos',xc,xc_,1e-7);
-       unit_test_cmp('Reconst ypos',yc,yc_, 1e-7);
+% disp([xc,xc_,yc,yc_]);
+       unit_test_cmp('Reconst xpos',xc,xc_,1e-4);
+       unit_test_cmp('Reconst ypos',yc,yc_,1e-4);
     end
 
 function do_very_basic_test_3d

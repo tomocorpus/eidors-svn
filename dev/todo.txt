@@ -14,6 +14,8 @@ Plan for 3.13:
 
  - do we need both join_models and merge_meshes?
 
+ - GREIT on octave is slightly different to matlab. Why? See mk_GREIT_model:550.
+
  - Refactor eidors_writeimg
  - Add Draeger bin file to eidors_writeimg
  - add code to check netgen-5.3 is legit (check hash)
