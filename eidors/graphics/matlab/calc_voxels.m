@@ -90,13 +90,14 @@ end
 
 [~, ~, ~, opt] = define_voxels(img.fwd_model, opt);
 
-if do_c2f % method 'acerage'
+if do_c2f % method 'average'
     rmdl = mk_grid_model([],opt.xvec,opt.yvec,opt.zvec);
     c2f = mk_grid_c2f(img.fwd_model, rmdl, opt);
     fvol = get_elem_volume(img.fwd_model,'no_c2f');
     % need bsxfun because of octave, and it's super slow
     f2c = bsxfun(@times, c2f, fvol)';
-    f2c = f2c ./ sum(f2c,2);
+    %f2c = f2c ./ sum(f2c,2); % MATLAB:array:SizeLimitExceeded
+    f2c = spdiag(1./sum(f2c,2)) * f2c;
     rimg = mk_image(rmdl,f2c*img.elem_data);
     V = calc_grid_points(rimg, opt.x_pts, opt.y_pts, opt.z_pts);
 else % method 'centre'
