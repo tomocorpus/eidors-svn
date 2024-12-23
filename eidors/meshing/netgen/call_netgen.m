@@ -34,20 +34,38 @@ if nargin<4
    finelevel= eidors_default('get','call_netgen_finelevel');
 end
 
-islinux = isunix;
-
 % Netgen executable filename
 cache_path = eidors_cache('cache_path');
-if  islinux
+eidors_path= eidors_cache('eidors_path');
+if  isunix
    % If the file ng.sh has been created, call it instead
-   % If we're calling the windows netgen, then use something like
-   % NETGENDIR=/path/to/netgen-5.3_x64/bin wine "/path/to/Netgen-5.3_x64/bin/netgen.exe" $1 $2 $3
-   if exist([cache_path,'/ng.sh'],'file')
+   % If we're calling netgen.exe, then use 
+   % NETGEN=/path/to/netgen-5.3_x64/bin NETGENDIR=/path/to/netgen-5.3_x64/bin wine "/path/to/Netgen-5.3_x64/bin/netgen.exe" $1 $2 $3
+   if isfile([cache_path,'/ng.sh'])
+      ng_name = [cache_path,'/ng.sh'];
+   elseif isdir([eidors_path,'/../Netgen-5.3_x64/bin'])
+      % Check for a version of netgen shipped with eidors
+      % Fixme if we ship a different version of netgen
+      netgen_path = [eidors_path,'/../Netgen-5.3_x64/bin'];
+      ngsh_path = [cache_path, '/ng.sh'];
+      if exist(netgen_path)
+         fprintf('Creating batch file to access Netgen. Ensure wine is installed\n')
+         [status] = system('wine --version'); % test wine works
+         if status~=0;
+            error('<wine> must be installed to use provided netgen.exe');
+         end
+         fid= fopen(ngsh_path,'w');
+         if fid<0; error('Unable to write to %s',cache_path); end
+         fprintf(fid,['NETGEN="',netgen_path,'" NETGENDIR="',netgen_path, ...
+                      '" wine "',netgen_path,'/netgen.exe" $1 $2 $3\n']);
+         fclose(fid);
+         system(['chmod a+x "',ngsh_path,'"']); % make executable
+      end
       ng_name = [cache_path,'/ng.sh'];
    else
       ng_name = 'netgen';
    end
-else
+else % windows
    ng_name = [cache_path,'/ng'];
 end
     
@@ -69,7 +87,7 @@ if ~isempty(msz_file)
 end
 
 while( 1 )
-   if ~islinux
+   if ~isunix
       % on Linux, Netgen runs in the current directory
       % enforce this behaviour in Windows
       oldpath = getenv('NETGEN_USER_DIR');
@@ -86,11 +104,12 @@ while( 1 )
    status= system_cmd( sys_cmd );
 
    if status==0; break; end
+keyboard
    try
-      if islinux
+      if isunix
          % Check for a version of netgen shipped with eidors
          % Fixme if we ship a different version of netgen
-         netgen_path = [eidors_cache('eidors_path'),'/../Netgen-5.3_x64/bin'];
+         netgen_path = [eidors_path,'/../Netgen-5.3_x64/bin'];
          ngsh_path = [cache_path, '/ng.sh'];
          if exist(netgen_path)
             fprintf('Creating batch file to access Netgen. Ensure wine is installed\n')
@@ -129,7 +148,7 @@ while( 1 )
       else % Windows
          % Check for a version of netgen shipped with eidors
          % Fixme if we ship a different version of netgen
-         netgen_path = [eidors_cache('eidors_path'),'/../Netgen-5.3_x64/bin'];
+         netgen_path = [eidors_path,'/../Netgen-5.3_x64/bin'];
          if exist(netgen_path)
             fprintf('Creating batch file to access Netgen.\n')
             fid= fopen([cache_path, '/ng.bat'],'w');
