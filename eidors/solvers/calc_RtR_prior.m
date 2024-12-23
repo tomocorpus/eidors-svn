@@ -155,7 +155,8 @@ function calc_model_prior_test;
       inv_mdl= imdl;
       inv_mdl.R_prior= p;
       R= calc_R_prior(inv_mdl);
-      test = std(R'*R,0,'all'); 
+%     test = std(R'*R,0,'all'); 
+      test = std(reshape(R'*R,[],1),0); % compatible with R2017b
       unit_test_cmp(['R_prior (R''*R): ', func2str(p)], test, test_R(i), 1e-12)
    end
       
