@@ -1,8 +1,8 @@
-function imdl = solve_3D_slice(imdl,varargin)
-%SOLVE_3D_slice convert a 3D dual-model reconstruction matrix model to 2D
+function imdl = map_RM_slice(imdl,varargin)
+%map_RM_slice convert a 3D dual-model reconstruction matrix model to 2D
 %
-% imdl = SOLVE_3D_slice(imdl, level)
-% imdl = SOLVE_3D_slice(imdl, level, opt) accepts the same parameters as
+% imdl = map_RM_slice(imdl, level)
+% imdl = map_RM_slice(imdl, level, opt) accepts the same parameters as
 %  MK_PIXEL_SLICE.
 %
 % See also MK_PIXEL_SLICE
@@ -95,7 +95,7 @@ function do_unit_test
    subplot(232); show_slices(img,[inf,inf,2]); title '3D rec';
    eidors_colourbar(img);
 
-   imd2 = solve_3D_slice(imdl,[Inf Inf 2.0],struct('z_depth',0.2));
+   imd2 = map_RM_slice(imdl,[Inf Inf 2.0],struct('z_depth',0.2));
 
    unit_test_cmp('RM size', size(imd2.solve_use_matrix.RM), [856,928]);
 %    unit_test_cmp('RM', imd2.solve_use_matrix.RM(1,1:2), ...
@@ -117,7 +117,7 @@ function do_unit_test
    opt.z_depth = 0.5;
    opt.square_pixes = true;
    opt.imgsz = [64 64];
-   imd2 = solve_3D_slice(imdl, level, opt);
+   imd2 = map_RM_slice(imdl, level, opt);
    img = inv_solve(imd2, vh, vi);
    img.elem_data = img.elem_data(:,3);
    h1 = show_fem(img);
