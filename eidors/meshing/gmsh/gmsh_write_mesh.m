@@ -154,7 +154,7 @@ if isfield(mdl, 'mat_idx') && ~isempty(mdl.mat_idx)
       mat_vec(idx) = i;
    end
    if isfield(mdl,'mat_names') && ~isempty(mdl.mat_names)
-      assert(numel(mdl.mat_names), numel(mdl.mat_idx),'Every mat_idx must have a name!')
+      assert(numel(mdl.mat_names) == numel(mdl.mat_idx),'Every mat_idx must have a name!')
    end
    if any(mat_vec==0)
       mdl.mat_idx(end+1) = {find(mat_vec==1)};
