@@ -145,7 +145,7 @@ warning(ws.state, 'backtrace');
 function out = get_torso()
 contrib = 'bp3d-torso'; file =  'bp3d_torso.mat';
 load(get_contrib_data(contrib,file),'torso');
-eidors_msg('Buidling bp3d body surface', 2);
+eidors_msg('Building bp3d body surface', 2);
 out = gmsh_stl2tet(torso);
 out = fix_boundary(out);
 out.name = 'BP3D Torso Model';
