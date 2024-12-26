@@ -46,8 +46,17 @@ function h5createwrite(DS, data, datatype);
    fname = 'montreal_data_1995_breathold.h5';
    sz = size(data);
    if strcmp(datatype,'string');
-      sz=1;
-      data = convertCharsToStrings(data);
+      ver = eidors_obj('interpreter_version');
+keyboard
+      if ~ver.isoctave && ver.ver>=10 %only in newer versions
+         sz=1;
+         data = convertCharsToStrings(data);
+      else
+         data(data>255) = 'e'; % we know this string, it only has e acute
+         data = uint8(data);
+         datatype='uint8'; 
+         sz=length(data);
+      end
    end
    h5create(fname,DS,sz, 'Datatype', datatype);
    h5write(fname,DS, full(data));
