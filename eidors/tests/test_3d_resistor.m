@@ -1,6 +1,11 @@
 % Create 3D model of a Rectangular resistor
 % $Id$
-function test_3d_resistor
+function test_3d_resistor(opt)
+
+if nargin>0 && strcmp(opt,'UNIT_TEST'); resistor_test; return; end
+resistor_test;
+
+function vals = resistor_test;
 
 ll=5*1; % length
 ww=1*2; % width
