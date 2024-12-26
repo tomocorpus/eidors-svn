@@ -46,8 +46,7 @@ function h5createwrite(DS, data, datatype);
    fname = 'montreal_data_1995_breathold.h5';
    sz = size(data);
    if strcmp(datatype,'string');
-      ver = eidors_obj('interpreter_version');
-keyboard
+      ver = eidors_obj('interpreter_version')
       if ~ver.isoctave && ver.ver>=10 %only in newer versions
          sz=1;
          data = convertCharsToStrings(data);
