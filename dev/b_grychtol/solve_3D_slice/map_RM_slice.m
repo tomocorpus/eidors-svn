@@ -1,11 +1,21 @@
 function imdl = map_RM_slice(imdl,varargin)
-%map_RM_slice convert a 3D dual-model reconstruction matrix model to 2D
+%map_RM_slice - map a 3D reconstruction matrix to an arbitrary 2D slice
 %
-% imdl = map_RM_slice(imdl, level)
-% imdl = map_RM_slice(imdl, level, opt) accepts the same parameters as
-%  MK_PIXEL_SLICE.
+% IMDL2 = map_RM_slice(IMDL3, LEVEL)
+% IMDL2 = map_RM_slice(IMDL3, LEVEL, OPT) 
+%  Maps the reconstruction matrix in IMDL3.solve_use_matrix.RM onto an 
+%  arbitrary slice defined by LEVEL. IMDL3 must be a dual-model inverse 
+%  model providing IMDL3.rec_model and IMDL3.fwd_model.coarse2fine.
+%  The OPT struct defines the pixel grid of the new reconstruction; see 
+%  MK_PIXEL_SLICE for details.
 %
-% See also MK_PIXEL_SLICE
+% Note: 
+% - If the provided imdl.rec_model used medical orientation (decreasing
+%   imdl.rec_model.mdl_slice_mapper.y_pts), it may be necessary to flip the
+%   orientation of the resultant imdl.rec_model.
+% - For selecting a horizontal cut, consider SELECT_RM_SLICE instead. 
+%
+% See also MK_PIXEL_SLICE, SELECT_RM_SLICE
 
 if ischar(imdl) && strcmp(imdl,'UNIT_TEST'); do_unit_test; return; end
 [rec, fwd] = mk_pixel_slice(imdl.rec_model,varargin{:});
@@ -43,7 +53,7 @@ RM = s2c * imdl.solve_use_matrix.RM;
 % Same approach:
 r2c = c2r' * spdiag(rvol);
 % again, in general, we don't know the volume of each element (because the
-% coarse elements on the rec_model could theoreticall extend beyond the 
+% coarse elements on the rec_model could theoretically extend beyond the 
 % elements of it, though we don't build such rec_models). We take the max
 % of two estimates:
 vol_fmdl = get_elem_volume(imdl.fwd_model);
@@ -82,12 +92,10 @@ function do_unit_test
 
    img = inv_solve(imdl, vh, vi);
    unit_test_cmp('img size', size(img.elem_data), [4280,5]);
-   [mm,ll] =max(img.elem_data(:,1));
-%    unit_test_cmp('img', [mm,ll], ...
-%        [0.426631207850641, 1274], 1e-10);
 
    img.show_slices.img_cols = 1;
    slice1 = calc_slices(img,[inf inf 2]);
+
    subplot(231); show_fem(fmdl); title 'fmdl'
    img0 = img;
    img0.elem_data = img0.elem_data(:,3);
@@ -95,21 +103,26 @@ function do_unit_test
    subplot(232); show_slices(img,[inf,inf,2]); title '3D rec';
    eidors_colourbar(img);
 
-   imd2 = map_RM_slice(imdl,[Inf Inf 2.0],struct('z_depth',0.2));
+   imd2 = map_RM_slice(imdl,[Inf Inf 2.0],struct('z_depth',0.25));
+   % flip for medical orientation
+   imd2.rec_model.mdl_slice_mapper.y_pts = ...
+      fliplr(imd2.rec_model.mdl_slice_mapper.y_pts);
 
    unit_test_cmp('RM size', size(imd2.solve_use_matrix.RM), [856,928]);
-%    unit_test_cmp('RM', imd2.solve_use_matrix.RM(1,1:2), ...
-%        [-13.546930204198315   9.664897892799864], 1e-8);
+   rm1 = imdl.solve_use_matrix.RM(856*2 + (1:856),:);
+   rm2 = imd2.solve_use_matrix.RM;
+   unit_test_cmp('RM values', rm2, rm1, 1e-10);
 
    img = inv_solve(imd2, vh, vi);
    unit_test_cmp('img size', size(img.elem_data), [856,5]);
-   [mm,ll] =max(img.elem_data(:,1));
-%    unit_test_cmp('img', [mm,ll], ...
-%        [0.031608449353163, 453], 1e-10);
+   im1 = img0.elem_data(856*2 + (1:856));
+   unit_test_cmp ('img values', img.elem_data(:,3), im1, 1e-13);
+
    img.show_slices.img_cols = 1;
    slice2 = calc_slices(img);
    subplot(235), show_slices(img); title('2D rec')
    eidors_colourbar(img);
+
    subplot(2,3,[3,6])
 
    level = struct( 'centre', [0 0 2],...
@@ -138,8 +151,8 @@ function do_unit_test
    unit_test_cmp('slice Nan', isnan(slice1), isnan(slice2))
    slice1(isnan(slice1))= 0;
    slice2(isnan(slice2))= 0;
-   % this woudl be a special case, need a better test
-%    unit_test_cmp('slice value', slice1, slice2, 1e-10)
+   % special case:
+   unit_test_cmp('slice values', slice1, slice2, 1e-13)
 
   
 
@@ -154,7 +167,7 @@ function [vh,vi] = test_fwd_solutions;
    posns= linspace(1.0,3.0,5);
    str=''; for i=1:length(posns);
       extra{i} = sprintf('ball%03d',round(posns(i)*100));
-      str = [str,sprintf('solid %s=sphere(0.5,0,%f;0.1); ', extra{i}, posns(i))];
+      str = [str,sprintf('solid %s=sphere(0.5,0.3,%f;0.1); ', extra{i}, posns(i))];
    end
    extra{i+1} = str;
    fmdl= ng_mk_cyl_models([4,1,.2],[16,1.5,2.5],[0.05],extra); 
