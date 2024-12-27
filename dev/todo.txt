@@ -80,7 +80,7 @@ Plan for 3.12:
  - Check tutorial model_reduction/model_reduction.html 
 	- review tutorial sections (model reduction under pre-packaged FEMs)
 
- - finish solve_3D_slice -> map_RM_slice
+ + finish solve_3D_slice -> map_RM_slice
 
  + fix gmsh failure in mk_thorax_model('adult_female_thorax_2x16');
 
