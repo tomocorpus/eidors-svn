@@ -44,6 +44,10 @@ Plan for 3.13:
 	 - The NaNs created for outside target take a lot of memory
  - mk_grid_model & mk_voxel_volume
 	- duplication of code to remove outside elements - equivalent? Which is faster?
+	
+ - map_RM_slice
+	- support non-grid 3D rec_model (based on 3D-3D dual model tutorial)
+	- factor out get_RM from inv_solve_diff_GN_one_step (for testing)
 
 Plan for 3.12:
  - Update wikipedia eidors for latest release

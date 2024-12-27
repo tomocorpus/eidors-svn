@@ -14,8 +14,15 @@ function imdl = map_RM_slice(imdl,varargin)
 %   imdl.rec_model.mdl_slice_mapper.y_pts), it may be necessary to flip the
 %   orientation of the resultant imdl.rec_model.
 % - For selecting a horizontal cut, consider SELECT_RM_SLICE instead. 
+% - At the moment, MAP_RM_SLICE only works for voxel-based rec_models as
+%   as provided by MK_GRID_MODEL or MK_VOXEL_VOLUME.
 %
-% See also MK_PIXEL_SLICE, SELECT_RM_SLICE
+% See also MK_PIXEL_SLICE, SELECT_RM_SLICE, MK_VOXEL_VOLUME, MK_GRID_MODEL
+
+% TODO:
+% - Expand support for any 3D rec_model (see 3D-3D dual tutorial), test
+% with inv_solve_diff_GN_one_step (factor out get_RM).
+
 
 if ischar(imdl) && strcmp(imdl,'UNIT_TEST'); do_unit_test; return; end
 [rec, fwd] = mk_pixel_slice(imdl.rec_model,varargin{:});
