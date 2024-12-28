@@ -40,7 +40,7 @@ function do_unit_test
   x = subtract_rank(ed,.3);
   expect = [0;0] + [-2:7];
   unit_test_cmp('subtract_rank1',x,expect);
-  x = subtract_rank(ed,[.1,.3]) 
+  x = subtract_rank(ed,[.1,.3]);
   expect = [0;0] + [-1:8];
   unit_test_cmp('subtract_rank2',x,expect);
 
