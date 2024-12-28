@@ -1,6 +1,7 @@
 % Setup a 3D rec_model 
 vopt.cube_voxels = true;
-vopt.imgsz = [64, 64, 64]; % looks nice, but takes very long; consider 32.
+%vopt.imgsz = [64, 64, 64]; % looks nice, but takes very long
+vopt.imgsz = [48, 48, 48]; % A bit faster
 vopt.downsample = [2, 1]; % reduce density of targets
 vopt.save_memory = 1;
 [imdl, distr] = GREIT3D_distribution(fmdl,vopt);
