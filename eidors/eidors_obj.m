@@ -227,7 +227,7 @@ function obj = order_fields(obj)
       case 'data'
          field_order = {'type', 'name', 'meas'};
       otherwise
-         warning(['Encountered an unexpected object type %s. ' ...
+         warning(['Encountered an unexpected object type: ', obj.type,  ...
             'Please report on the eidors mailing list if it''s not your typo.'])
          return 
    end
