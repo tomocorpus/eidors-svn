@@ -1,4 +1,4 @@
-imdl = eidors_obj('inv_solve','test');
+imdl = eidors_obj('inv_model','test');
 
 imdl.hyperparameter.value = .3;
 if 0
