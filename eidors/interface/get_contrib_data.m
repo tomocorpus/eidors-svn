@@ -84,10 +84,12 @@ function ls = list_directories(have_local_data)
       ls = ls(isdir)';
    else % static list
       ls = {'Dargaville-ICM2010'
+         'aa_montreal_data'
          'ab_2d_thorax_model'
          'at-head-mesh'
          'at-thorax-mesh'
          'bb-human-arm'
+         'bp3d-torso'
          'cg-2012-ards-recruitment'
          'cg_deforming_tank_phantom'
          'cg_normal_breathing_2006'
