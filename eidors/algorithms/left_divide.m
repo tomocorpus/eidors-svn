@@ -123,10 +123,15 @@ function V= non_iterative(E,I);
 %                   V= P*linsolve(EP,P*I,opts);
                     Pd= sqrt(1./diag(E)); % must be +ve
                     Pd(Pd>1e100) = 1e100;
-                    E  = (Pd.*E); E  = E .*(Pd');
+                    E  = bsxfun(@times, Pd,E);
+                    E  = bsxfun(@times, E, Pd');
+%                   E  = Pd .* E;
+%                   E  = E .*(Pd');
 %                   EP = (Pd.*E) .* (Pd'); % Stupid Matlab gets killed
                     E =0.5*(E + E'); %force symmetric
-                    V= Pd.*linsolve(E,Pd.*I,opts);
+%                   V= Pd.*linsolve(E,Pd.*I,opts);
+                    V= bsxfun(@times, Pd, linsolve(E, ...
+                       bsxfun(@times, Pd, I) ,opts));
 % TODO: many ways to improve memory handling. Maybe need mex file?
                      
                 end

@@ -1773,7 +1773,7 @@ function do_unit_test
    sig = -ROIs*imgr.elem_data;
    lt = {'LineWidth',2};
    subplot(211);
-   plot(imgr.time,sig',lt{:}); box off; xlim tight;
+   plot(imgr.time,sig',lt{:}); box off; xlim([0,max(imgr.time)]);
     legend('RV','LV','RD','LD');
    vertlines(50 + [1,50]*.5);
    subplot(212);
