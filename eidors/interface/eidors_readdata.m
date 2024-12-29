@@ -1721,6 +1721,7 @@ function [vtmData] = read_vtm(full_dfile_name)
         vtmData.Imginfo = Imginfo;
         vtmData.RawDataContact = RawDataContact/58;
         % vtmData.RawDataContact = RawDataContact/55.2688;
+        vtmData.frame_rate = 19.7636;
     else
         error('File type cannot be recognised');
     end
@@ -1762,6 +1763,7 @@ function do_unit_test
    [dd,auxdata,stim]= eidors_readdata(pth);
    fmdl = mk_library_model('adult_male_16el');
    fmdl.stimulation = stim;
+   fmdl.frame_rate = auxdata.frame_rate;
 %  vs = fwd_solve(mk_image(fmdl,1));
 
    imdl = select_imdl(fmdl, {'GREIT:NF=0.5 32x32'});
@@ -1769,10 +1771,9 @@ function do_unit_test
    imgr.elem_data = subtract_rank(imgr.elem_data,0.95);
    [ROIs,imgR] = define_ROIs(imdl,[-2,0,2],[2,0,-2],struct('normalize',0));
    sig = -ROIs*imgr.elem_data;
-   tt = (1:size(sig,2))/10;
    lt = {'LineWidth',2};
    subplot(211);
-   plot(tt,sig',lt{:}); box off; xlim tight;
+   plot(imgr.time,sig',lt{:}); box off; xlim tight;
     legend('RV','LV','RD','LD');
    vertlines(50 + [1,50]*.5);
    subplot(212);
