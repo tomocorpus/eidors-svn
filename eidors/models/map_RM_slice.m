@@ -44,7 +44,9 @@ r2s = s2r' * spdiag(rvol); % volume of each slice elem built from rec elems
 s_area = get_elem_volume(rec); 
 s_hght = max(sum(r2s,2)) ./ s_area; 
 svol = s_area .* s_hght;
-r2s = r2s ./ svol;
+% Need bsxfun in octave for sparse divide
+% r2s = r2s ./ svol;
+r2s = bsxfun(@rdivide, r2s, svol);
 
 if 0
    c = ones(size(c2f,2),1);
@@ -66,7 +68,9 @@ r2c = c2r' * spdiag(rvol);
 vol_fmdl = get_elem_volume(imdl.fwd_model);
 vol_rmdl = get_elem_volume(imdl.rec_model);
 rvol = max([vol_rmdl, vol_fmdl],[],2);
-r2c = r2c ./ rvol;
+% Need bsxfun in octave for sparse divide
+% r2c = r2c ./ rvol;
+r2c = bsxfun(@rdivide, r2c, rvol);
 
 c2f = imdl.fwd_model.coarse2fine * r2c * s2r;
 
@@ -148,7 +152,7 @@ function do_unit_test
    xlim([-1 1]); ylim([-1 1]); zlim([0 4]);
    hold on
    h2 = show_fem(imd2.fwd_model);
-   h2.EdgeColor = 0.8*ones(3,1);
+   set(h2,'EdgeColor',  0.8*ones(3,1));
    show_fem(img0.fwd_model);
    hold off
    view(-20,40)
