@@ -61,3 +61,42 @@ print_convert('torso_colors_01.jpg','-r600')
 %%
 view(0,0)
 print_convert('torso_colors_02.jpg','-r600')
+
+clf
+torso.calc_colours.ref_level = 1;
+torso.calc_colours.transparency_thresh = .01;
+%show_3d_slices(torso, [1242],[],[]);
+for i = [13 15 19:22]
+   torso.elem_data(torso.fwd_model.mat_idx{i}) = 3;
+end
+
+[slc, p] = mdl_slice_mesher(torso, [inf inf 1242]);
+slc.calc_colours.ref_level = 1;
+slc.calc_colours.transparency_thresh = .01;
+h = show_fem(slc);
+set(h,'LineWidth',1)
+ch = get(gca,'Children');
+% need a custom colormap
+idx = unique(get(ch(18), 'FaceVertexCData'));
+color = [  .3     0     0; % lung
+            1    .7    .7; % vessel
+           .75    0     0; % heart wall
+           0      0     1; % deox HB
+           1      0     0; % oxHB 
+            ];
+c = ones(254,3);
+for i = 1:numel(idx)
+   c(idx(i),:) = color(i,:);
+end
+colormap(c);
+view(2)
+set(gca,'ydir','reverse')
+p.FaceVertexCData(:) = 0;
+h2 = patch(p);
+set(h2,'FaceAlpha',0)
+set(h2,'LineWidth',0.1)
+set(h2,'EdgeAlpha',.8)
+axis off
+print_convert('torso_slice_01.jpg','-r600');
+
+
