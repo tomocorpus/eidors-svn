@@ -113,12 +113,22 @@ function V= non_iterative(E,I);
                 if 0 % conditioning
                     V= linsolve(E,I,opts);
                 else
-                    P= spdiag(sqrt(1./diag(E)));
-                    P_ = abs(P)>1e100; % prevent ridiculous values
+% Matlab does bad things with memory with sparse x full.
+%  Instead use .* 
+%                   P= spdiag(sqrt(1./diag(E)));
+%                   P_ = abs(P)>1e100; % prevent ridiculous values
                         % large values lead to non-pos-def chol
-                    P(P_) = 1e100 * sign(P(P_));
-                    EP = P*E*P; EP=0.5*(EP+EP'); %force symmetric
-                    V= P*linsolve(EP,P*I,opts);
+%                   P(P_) = 1e100 * sign(P(P_));
+%                   EP = P*E*P; EP=0.5*(EP+EP'); %force symmetric
+%                   V= P*linsolve(EP,P*I,opts);
+                    Pd= sqrt(1./diag(E)); % must be +ve
+                    Pd(Pd>1e100) = 1e100;
+                    E  = (Pd.*E); E  = E .*(Pd');
+%                   EP = (Pd.*E) .* (Pd'); % Stupid Matlab gets killed
+                    E =0.5*(E + E'); %force symmetric
+                    V= Pd.*linsolve(E,Pd.*I,opts);
+
+                     
                 end
             catch Mexcp
                 
