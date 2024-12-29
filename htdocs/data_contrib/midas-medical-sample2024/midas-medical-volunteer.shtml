@@ -54,11 +54,11 @@ breathing manoeuvres while data were collected.
 
 The data may be analyzed with the following code:
 <pre>
-[% PROCESS "human_ventilation_2014.m" %]
+[% PROCESS "vtm_data_2024.m" %]
 </pre>
 
 <center>
-   <img src="human-ventilation-2024a.jpg">
+   <img src="vtm_data_2024a.jpg">
 <br>
 Reconstructions from data set.
 <i>Left:</i>
