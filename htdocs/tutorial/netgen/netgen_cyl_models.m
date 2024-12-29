@@ -1,10 +1,11 @@
 function netgen_cyl_models( numbers )
 
-if nargin==0; numbers = 1:20; end
+% Torus no longer works with netgen 5.3+. Too high mesh density
+if nargin==0; numbers = [1:18,20]; end
 for i=numbers(:)';
+   fprintf('======\n\n netgen_cyl_models(%d)\n\n========\n',i);
    do_sim(i);
 end
-!for i in netgen_cyl_models*.png ; do convert -trim -depth 8 $i $i ; done
 
 function do_sim( number )
 switch number
@@ -123,8 +124,8 @@ case 18;
 show_fem(img);
 
 case 19;
-    t1= 'solid obj1 = torus( 0, 0,  .8; 1, 0, 0; .4 ; .12);';
-    t2= 'solid obj2 = torus( 0, 0, 1.2; 0, 1, 0; .4 ; .12);';
+    t1= 'solid obj1 = torus( 0, 0,  .8; 1, 0, 0; .4 ; .15);';
+    t2= 'solid obj2 = torus( 0, 0, 1.2; 0, 1, 0; .4 ; .15);';
     extra={'obj1','obj2',[t1,t2]};
     fmdl= ng_mk_cyl_models(2,[6,.5],[0.3,0.2],extra);
     img= mk_image(fmdl,1);
