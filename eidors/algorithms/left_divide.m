@@ -123,6 +123,7 @@ function V= non_iterative(E,I);
 %                   V= P*linsolve(EP,P*I,opts);
                     Pd= sqrt(1./diag(E)); % must be +ve
                     Pd(Pd>1e100) = 1e100;
+% In octave, bsxfun is more accutate than times. Not sure why
                     E  = bsxfun(@times, Pd,E);
                     E  = bsxfun(@times, E, Pd');
 %                   E  = Pd .* E;
