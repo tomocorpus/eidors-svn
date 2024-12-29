@@ -74,9 +74,13 @@ function out = mk_thorax_model_bp3d(varargin)
 % correctly.
 %
 % See also MK_THORAX_MODEL, PLACE_ELEC_ON_SURF
+%
+% For usage examples: pubs/conferences/EIT2024/torso-mesh-bp3d/mk_figures.m
 
 % (C) 2024 Bartek Grychtol. License: GPL v2 or v3
 % $Id$
+
+if nargin>=1 && strcmp(varargin{1},'UNIT_TEST'); do_unit_test; return; end
 
 citeme(mfilename)
 
@@ -462,3 +466,10 @@ out = [eidors_objects.model_cache filesep 'bp3d-torso'];
 if ~exist(out, 'dir')
    mkdir(out);
 end
+
+function do_unit_test
+   torso = mk_thorax_model_bp3d('2x16_odd-even','fine');
+   expect = [206.019760131836   45.109825134277   1641.201293945312];
+   unit_test_cmp('extent',max(torso.fwd_model.nodes), expect,1e-10);
+   unit_test_cmp('#elems', num_elems(torso), 6894847);
+   unit_test_cmp('#nodes', num_nodes(torso), 1193751);
