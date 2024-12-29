@@ -127,7 +127,7 @@ function V= non_iterative(E,I);
 %                   EP = (Pd.*E) .* (Pd'); % Stupid Matlab gets killed
                     E =0.5*(E + E'); %force symmetric
                     V= Pd.*linsolve(E,Pd.*I,opts);
-
+% TODO: many ways to improve memory handling. Maybe need mex file?
                      
                 end
             catch Mexcp
