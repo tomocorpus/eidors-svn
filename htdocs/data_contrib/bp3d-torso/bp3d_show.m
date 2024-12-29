@@ -98,5 +98,3 @@ set(h2,'LineWidth',0.1)
 set(h2,'EdgeAlpha',.8)
 axis off
 print_convert('torso_slice_01.jpg','-r600');
-
-
