@@ -401,6 +401,31 @@ Use the command:
 <p>
 
 <p><li><b>
+<tt>Matlab "Killed" under linux</tt>
+</b><p>
+When using large EIDORS models, Linux will sometimes kill the matlab process when it asks for a large memory allocation. The approach can be <a href="https://askubuntu.com/a/1389617">explained</a> as
+<blockquote>
+Linux is usually configured by default to treat memory allocation the way
+airlines treat reservations. It "honors" more allocations than it can actually
+supply, &hellip; On an airplane, overbooked passengers aren't pushed off the
+plane in mid-air. On Linux, that's exactly what happens:  &hellip;  In your
+case, the victim is Matlab. 
+</blockquote>
+Solutions are to:
+<ul>
+  <li>Get a computer with more memory
+  <li>Create more <a href="https://www.baeldung.com/linux/increase-swap-space">swap space</a>, with something like:
+<pre>
+sudo fallocate -l 4G /swapfile_extend_4GB
+sudo mkswap /swapfile_extend_4GB 
+sudo chmod 600 /swapfile_extend_4GB
+sudo swapon /swapfile_extend_4GB 
+swapon --show
+</pre>
+</ul>
+
+
+<p><li><b>
 Matlab prints ugly bitmapped figures rather than vector graphics
 </b><p>
 Matlab seems to try to guess what the user wants. At any rate,
