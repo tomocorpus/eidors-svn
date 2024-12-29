@@ -4,7 +4,7 @@
 
 echo "# Template script" > script.sh
 (find ../htdocs -name \*shtml -not -name nav-sidebar.shtml \
-  -exec echo -n "( cd " \;  \
+  -exec echo -n "( echo {} && cd " \;  \
   -exec dirname -z {} \; \
   -exec echo -n " && tpage " \;  \
   -exec basename -z {} \; \
