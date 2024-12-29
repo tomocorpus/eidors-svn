@@ -1,7 +1,7 @@
 % Create 3D model of a tunnel $Id$ 
 
 % Reconstruct entire image (slow)
-imdl = mk_common_model('d2c2',N_elec);
+imdl = mk_common_model('a2c2',N_elec); % placeholder, then change fmdl
 imdl.fwd_model = fmdl;
 imdl.jacobian_bkgnd.value = cond_mdl;
 
