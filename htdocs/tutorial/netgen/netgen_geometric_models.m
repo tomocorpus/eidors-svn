@@ -564,6 +564,6 @@ electrode_geometry{i+2}.sphere.radius = 0.2;
 electrode_geometry{i+2}.sphere.center = [-0.4,-0.4,0.0];
 fmdl = ng_mk_geometric_models(body_geometry, electrode_geometry);
 img = mk_image(fmdl,1);
-img.elem_data(fmdl.mat_idx{2}) = 1.1;
+%img.elem_data(fmdl.mat_idx{2}) = 1.1; %TODO: fix bug
 show_fem_enhanced( img );
 print_convert netgen_geometric_models38.png
