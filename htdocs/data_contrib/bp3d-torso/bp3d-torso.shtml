@@ -73,7 +73,7 @@ The data is used by the functions <code>mk_thorax_model_bp3d</code> and <code>mk
 
 <!---
 <pre>
-[% PROCESS "analyze01.m" %]
+[% PROCESS "bp3d_show.m" %]
 </pre>
 --->
 
