@@ -7,6 +7,35 @@ EIDORS package.
 <ul>
 
 <p><li> <b>
+ 29 December 2024
+   </b><br>
+<b>EIDORS Version 3.12 release</b>
+<p>Blobby the walrus is proud to announce the
+release of EIDORS version 3.12,
+available at <a href="http://www.eidors.org">www.eidors.org</a>,
+and DOI:<a href="http://dx.doi.org/10.5281/zenodo.14569098">10.5281/zenodo.14569098</a>.
+This release fixes bugs and includes new features:
+<ul>
+<LI> Expanded hardware support / Sentec LQ5 support / Midas-Medical
+<LI> New data formats (Sciospec and HDF5)
+<LI> d-bar solver with Dirichlet-Neumann estimation
+<LI> Improved solver preconditioning
+<LI> Improved Octave support
+<LI> New faster hash (xxHash) for object caching
+<LI> Improved Control of netgen refinement
+<LI> 3D perfusion and ˙V/Q analysis tools
+<LI> Improved FFT-based filtering functions
+<LI> Expanded data contributions
+<LI> Improved Instrument models
+<LI> Expanded shape library with new species shapes
+<LI> (As always) speed-ups and bug fixes
+</ul>
+Details of the release are in: Adler &amp; Grychtol, 
+<a href="http://doi.org/10.5281/zenodo.13316995">EIDORS Version 3.12</a>
+p. 16, Conf. EIT 2024, Hangzhou, China, June 27&minus;30, 2024.
+
+
+<p><li> <b>
  30 December 2022
    </b><br>
 <b>EIDORS Version 3.11 release</b>

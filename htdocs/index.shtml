@@ -43,7 +43,7 @@ FEM model (left) and reconstructed image (centre) and sequence (right)
 To try the EIDORS software, follow these steps:
 <ol>
 <li> Download EIDORS :
-    <br>&minus; <i>Release (?? December 2024):</i>
+    <br>&minus; <i>Release (29 December 2024):</i>
          <a href="http://prdownloads.sf.net/eidors3d/eidors-v3.12-ng.zip"
              >EIDORS 3.12 with Netgen 5.3</a>, or
          <a href="http://prdownloads.sf.net/eidors3d/eidors-v3.12.zip"
