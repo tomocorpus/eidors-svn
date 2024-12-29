@@ -49,9 +49,19 @@ Plan for 3.13:
 	- support non-grid 3D rec_model (based on 3D-3D dual model tutorial)
 	- factor out get_RM from inv_solve_diff_GN_one_step (for testing)
 
-Plan for 3.12:
+Post 3.12 tutorials:
+ 
+ - tutorials for new models (bp3d, mk_thorax_models, head)
+	- cleanup mk_library_model tutorial (unused image/code files)
+ - Tutorials for 3D visualization (calc_voxels)
+ 
+ - Check tutorial model_reduction/model_reduction.html 
+	- review tutorial sections (model reduction under pre-packaged FEMs)
+
  - Update wikipedia eidors for latest release
- - Update mexmac / maxmaci64 for new hash. Remove if too old
+
+Plan for 3.12:
+ + Update mexmac / maxmaci64 for new hash. Remove if too old
  + Post sample h5 data
  + HDF5 file format
  + more careful errors in hdf5/eidors_readdata
@@ -70,15 +80,8 @@ Plan for 3.12:
 	
  + remove the figure created by mk_head_model_adult for the '10-10' setup?
 
- - cleanup and unit tests for call_netgen. 
+ + cleanup and unit tests for call_netgen. 
  + Errors with octave 9.x
- 
- - tutorials for new models (bp3d, mk_thorax_models, head)
-	- cleanup mk_library_model tutorial (unused image/code files)
- - Tutorials for 3D visualization (calc_voxels)
- 
- - Check tutorial model_reduction/model_reduction.html 
-	- review tutorial sections (model reduction under pre-packaged FEMs)
 
  + finish solve_3D_slice -> map_RM_slice
 
