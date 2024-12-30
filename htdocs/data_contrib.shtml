@@ -129,7 +129,7 @@ use the data.</b>
 <h3>Reconstruction Models and Simulation Data</h3>
 
 <ul>
-<li> <a href="./data_contrib/bp3d-torso/bp3d_torso.shtml"
+<li> <a href="./data_contrib/bp3d-torso/bp3d-torso.shtml"
       >Torso 3D surface meshes with organs</a>
       By: B. Grychtol
 <li> <a href="./data_contrib/db_backproj_matrix/db_backproj_matrix.shtml"
