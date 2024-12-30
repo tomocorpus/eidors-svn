@@ -71,11 +71,9 @@ Data are stored in Matlab v7 file format. See <a href="https://zenodo.org/record
 <p>
 The data is used by the functions <code>mk_thorax_model_bp3d</code> and <code>mk_thorax_model</code>.
 
-<!---
 <pre>
 [% PROCESS "bp3d_show.m" %]
 </pre>
---->
 
 For other examples of the use, see <tt>eidors-svn/pubs/conferences/EIT2024/torso-mesh-bp3d/mk_figures.m</tt>
 
