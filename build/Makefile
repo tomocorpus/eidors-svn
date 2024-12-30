@@ -187,7 +187,7 @@ step9a:
 	cp README $P/..
 	cp -r ../htdocs/doc $P
 
-VERSION=v3.11
+VERSION=v3.12
 step10:
 	mkdir -p $(REL)
 	rm -f $P/robots.txt
