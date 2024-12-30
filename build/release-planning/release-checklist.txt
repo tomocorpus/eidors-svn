@@ -22,17 +22,18 @@
 - run build_docs.m in build set VERSION=0 #update docs on the website
 - upload htdocs to website and mirror using htdocs_update
 - run package script: makerfiles steps0 .. 3 3a 4 .. 9
-   make step1
-   for i in 2 3 3a 4 5 6 7 8 ; do make step$i ; done
-- run build docs with VERSION=1 (do not uncomment cd ~/eidors-release)
+   make step1 step5 step6 step7 step8 step9 step9a
+- run build docs with VERSION=1
 - copy doc directory to eidors-release
    rm -r ~/eidors-release/htdocs/doc
    cd ~/docs/eidors/htdocs
    mv doc ~/eidors-release/htdocs/
 - copy README to ~/eidors-release
 - Update VERSION in Makfile
-- make step10
-- make step11
+- make step10 # puts in $HOME/release
+- Replace ~/eidors-release/README with README+NG
+- Copy Netgen-5.3 to ~/eidors-release
+- make step10 # and rename to eidors-v3.xx-ng.zip
 - download and test release
 - Tag release => make tag-release
 - run html build script ???
