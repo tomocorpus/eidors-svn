@@ -35,7 +35,7 @@ if ischar(axis_handle) && strcmp(axis_handle,'UNIT_TEST'); do_unit_test; return;
 % TODO (update 2 apr 2012):
 %  - make crop_model work for 2D fems
 
-if isstr(fcn_handle)
+if ischar(fcn_handle)
   fcn_handle = inline(fcn_handle,'x','y','z');
 end
 
