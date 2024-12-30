@@ -22,7 +22,7 @@
 - run build_docs.m in build set VERSION=0 #update docs on the website
 - upload htdocs to website and mirror using htdocs_update
 - run package script: makerfiles steps0 .. 3 3a 4 .. 9
-   make step1 step5 step6 step7 step8 step9 step9a
+   make step1 step6 step6a step7 step8 step9 step9a
 - run build docs with VERSION=1
 - copy doc directory to eidors-release
    rm -r ~/eidors-release/htdocs/doc

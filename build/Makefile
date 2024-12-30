@@ -147,9 +147,6 @@ step1:
 	echo "################### 1 ####################" )  
 
 
-# create and EIDORS-docs.html files
-step5:
-	cp $P/index.shtml $P/EIDORS-docs.html
 
 # create web links to big files
 step6:
@@ -167,6 +164,10 @@ step6:
           -e's{(href|src) \s* = \s* ($$q)(.*/)?([^\2]*?)(\2) }' \
           -e '{$$1 = "$$m{$$4}"}x;' \
         \{} \;
+
+# create and EIDORS-docs.html files
+step6a:
+	cp $P/index.shtml $P/EIDORS-docs.html
 
 # erase too big files
 step7:
@@ -195,6 +196,15 @@ step10:
 	rm -f $(REL)/eidors-$(VERSION).zip
 	cp -r $P/.. $(REL)/eidors-$(VERSION)
 	(cd $(REL) && zip -r eidors-$(VERSION).zip eidors-$(VERSION))
+
+step10n:
+	mkdir -p $(REL)
+	# make sure Netgen in folder
+	rm -f $P/robots.txt
+	rm -fr $(REL)/eidors-$(VERSION)-ng
+	rm -f $(REL)/eidors-$(VERSION)-ng.zip
+	cp -r $P/.. $(REL)/eidors-$(VERSION)-ng
+	(cd $(REL) && zip -r eidors-$(VERSION)-ng.zip eidors-$(VERSION)-ng)
 
 step11:
 	cp $(REL)/eidors-$(VERSION).zip $(HOME)/public_html
