@@ -78,7 +78,7 @@ The data is used by the functions <code>mk_thorax_model_bp3d</code> and <code>mk
 For other examples of the use, see <tt>eidors-svn/pubs/conferences/EIT2024/torso-mesh-bp3d/mk_figures.m</tt>
 
 <center>
-   <img src="EIT2024-BP3d-model.jpg">
+   <img src="EIT2024-BP3D-model.jpg">
 <br>
 Illustrations of an FEM with multiple electrode planes generated with <code>mk_thorax_model_bp3d</code>.
 A) Full model with coloured organ regions, B) zoomed image into the full model
