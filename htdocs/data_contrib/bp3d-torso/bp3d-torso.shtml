@@ -31,9 +31,9 @@ Torso Organ Meshes (1.0.0) [Data set].
 and described in
 <ul>
 B Grychtol and A Adler.
-<a href="https://doi.org/10.1088/1361-6579/ad2eb3"
->Anatomically accurate torso mesh for EIT</a>
-  <i>Physiol Meas</i>  45:035010, 2024.
+<a href="https://www.sce.carleton.ca/faculty/adler/publications/2024/grychtol-EIT2024-torso-mesh-bp3d.pdf"
+>Anatomically accurate torso mesh for EIT</a>,
+  p. 84, <a href="http://doi.org/10.5281/zenodo.13316995">Conf. EIT 2024</a>, Hangzhou, China, June 27−30, 2024.
 </ul>
        <hr>
    <tr><th valign="top"> License:
