@@ -78,6 +78,7 @@ if opts.normalize
 end
 imgR= mk_image(fmdl,ROIs.');
 imgR.calc_colours.ref_level = 0;
+imgR.show_slices.img_cols = size(imgR.elem_data,2);
 
 % Can only replace in this case
 if strcmp(imdl.type,'inv_model') && ...
