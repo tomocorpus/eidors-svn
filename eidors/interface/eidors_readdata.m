@@ -1679,6 +1679,9 @@ function [vtmData] = read_vtm(full_dfile_name)
            if fseek(fid,ss(k),-1)<0; break; end
 %          di(:,k)=fread(fid,192,'int16', 0, 'ieee-le');
            dd(:,k)=fread(fid,192,'uint16', 0, 'ieee-le');
+% To read all the frame data
+%          if fseek(fid,ss(k)-20,-1)<0; break; end
+%          vtmData.All(:,k) = fread(fid,len_frame/2,'uint16', 0, 'ieee-le');
         end
 %       di(:,end) = []; % Last seems bad
         EITdata192 = dd;
