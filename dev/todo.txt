@@ -11,6 +11,7 @@ Plan for 3.13:
     - pass an option to eidors_cache (but how to give control to the user?)
     - read in a list of what's on disk on startup to avoid exist() checks
  - test octave to see if doesn't give errors to stderr in call_delaunay
+ - code to specify electrodes in fem models on either side of sternum
 
  - do we need both join_models and merge_meshes?
 
