@@ -26,6 +26,7 @@ function print_convert(filename, varargin)
 %                                        % smoother.
 %   opt.crop_slack   = [top,bot,left,right] %don't crop right to boundary
 %   opt.figno        = number            % print figure, otherwise gca
+%   opt.rotate       = [0,90,180,270]    % rotate figure counterclockwise (default 0)
 %
 %  Note that opt.imwrite_opts takes precedence over opt.jpeq_quality.
 %
@@ -72,6 +73,7 @@ im = print(pp.figno,'-RGBImage',pp.resolution);
 
 im = bitmap_downsize(im, pp.factor);
 im = crop_image(im,pp);
+im = rot90(im,floor(pp.rotate/90));
 try
    imwrite(im,pp.filename,pp.imwrite_opts{:});
 catch e
@@ -231,6 +233,7 @@ function pp = parse_options(filename,varargin)
    pp.factor = default_factor;
    pp.resolution = sprintf('-r%d',125 * pp.factor);
    pp.crop_slack = [0,0,0,0];
+   pp.rotate = 0;
    pp.figno = get(gcf,'Number');
    pp.old = {};
 
@@ -328,6 +331,9 @@ function pp = parse_options(filename,varargin)
      if isfield(opt,'crop_slack');
         pp.crop_slack = opt.crop_slack;
      end
+     if isfield(opt,'rotate');
+        pp.rotate = opt.rotate;
+     end
    else
       error('Can''t parse options');
    end
@@ -419,5 +425,8 @@ function do_unit_test
 
    clear opt; opt.supersampling_factor = 8;
    print_convert('pc18.png', opt);
+
+   clear opt; opt.rotate = 90;
+   print_convert('pc19.png', opt);
 
 
