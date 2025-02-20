@@ -272,9 +272,12 @@ switch fmt
       error('eidors_readdata: file "%s" format unknown', format);
 end
 if ~iscell(auxdata)
-   auxdata.format = fmt;
-   if ~isfield(auxdata,'frame_rate');
-      auxdata.frame_rate = NaN; % NaN for unknown
+   % if auxdata is a structure. need to assign to each
+   for i=1:length(auxdata);
+      auxdata(i).format = fmt;
+      if ~isfield(auxdata,'frame_rate');
+         auxdata(i).frame_rate = NaN; % NaN for unknown
+      end
    end
 end
 
