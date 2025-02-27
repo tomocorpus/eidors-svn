@@ -110,6 +110,8 @@ if nargin < 2
    end
 end
 
+if nargin<3; frame_range = []; end
+
 
 auxdata = struct(); % default, can be overriden if the format has it
 fmt = pre_proc_spec_fmt( format, fname );
@@ -225,7 +227,7 @@ switch fmt
       stim = mk_stim_patterns(32,1,[0,5],[0,5],{'no_rotate_meas','no_meas_current'},.005);
 
    case {'lq4','lq5'}
-      [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra, patPosition] = landquart4_readdata( fname );
+      [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra, patPosition] = landquart4_readdata( fname, frame_range );
       auxdata.event = evtlist;
       auxdata.elec_impedance = elecImps;
       auxdata.t_abs = tStampsAbs;
@@ -1164,7 +1166,7 @@ function [vv, elecImps, tStampsAbs, tStampsRel] = landquart2_readdata( fname )
 % check event Type:
 %                 If type != 0, then ignore payload and move by payload size to the next frame.
 %                 Otherwise, frame-payload starts
-function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra, patPosition] = landquart4_readdata( fname )
+function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extra, patPosition] = landquart4_readdata( fname, frame_range )
    evtlist = [];
    [fid msg]= fopen(fname,'r','ieee-le','UTF-8');
    try
@@ -1214,6 +1216,9 @@ function [vv, evtlist, elecImps, tStampsAbs, tStampsRel, n_elec, amp, skip, extr
          evti = 1;
          % Check there is at least 'eit_frame_offset' ahead in file
          while fseek(fid, eit_frame_offset,'cof') ~= -1
+% TODO: put in frame_range
+%           if ~isempty(frame_range) && i>max(frame_range); break; end
+            if i>nFrames; break; end
             if mod(i, 100) == 0
                 progress_msg(i, nFrames);
             end

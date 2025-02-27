@@ -1,4 +1,5 @@
 Plan for 3.13:
+ - Put frame_range limits into eidors_readdata (esp into lq4 format)
  - Speed up / clean up _higher_order code
  - Fix _higher_order to handle faces-type electrodes
  - Test speed of fwd_model_parameters: what fraction of time
@@ -12,6 +13,8 @@ Plan for 3.13:
     - read in a list of what's on disk on startup to avoid exist() checks
  - test octave to see if doesn't give errors to stderr in call_delaunay
  - code to specify electrodes in fem models on either side of sternum
+
+ - allow show_images with contours for vector of images
 
  - do we need both join_models and merge_meshes?
 
