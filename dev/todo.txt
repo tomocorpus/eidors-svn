@@ -3,6 +3,8 @@ Plan for 3.13:
  - Speed up / clean up _higher_order code
  - Fix _higher_order to handle faces-type electrodes
  - Test speed of fwd_model_parameters: what fraction of time
+ - Add a "c2f-aware" mode to interp_mesh
+ - Add 3D tests to define_ROIs
  - Remove NODE / ELEM use nodes elems
  - Make simplified fwd_model_parameters
  - Cache-to-disk ideas:

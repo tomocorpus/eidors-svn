@@ -8,6 +8,7 @@ function [ROIs, imgR, imdl] = define_ROIs(imdl, varargin)
 %     opts.reorder = reorder defined ROIs
 %     opts.normalize = set ROI of each =1
 %     opts.usec2f    = true if use fwd_model.coarse2fine
+%     opts.remove_from_boundary = elim voxels distance from boundary
 % 
 %   ROIs: matrix [n_ROIs x n_elems]
 %   imgR: image of ROIs (mostly for debugging)
@@ -41,7 +42,10 @@ end
 %     opts.normalize = set ROI of each =1
 %     opts.usec2f    = true if use fwd_model.coarse2fine
 opts = mergestructs(struct( ...
-    'reorder',[],'normalize',false,'usec2f',false), opts);
+    'reorder',[], ...
+    'normalize',false, ...
+    'usec2f',false, ...
+    'remove_from_boundary',false), opts);
 
 recc2f = 1;
 switch imdl.type
@@ -73,6 +77,9 @@ ROIs = ROIa.' * bsxfun(@rdivide, recc2f, sum(recc2f,1) );
 if ~isempty(opts.reorder)
    ROIs = ROIs(opts.reorder(:),:);
 end
+if opts.remove_from_boundary > 0
+   ROIs = process_boundary(fmdl,ROIs,opts);
+end
 if opts.normalize
    ROIs = ROIs ./ sum(ROIs,2);
 end
@@ -88,6 +95,22 @@ if strcmp(imdl.type,'inv_model') && ...
    imdl.rec_model.coarse2fine = ROIa;
    imdl.solve_use_matrix.RM = ROIs*imdl.solve_use_matrix.RM;
 end
+
+% process the boundary and remove as reqd
+function ROIs = process_boundary(fmdl,ROIs,opts);
+  ctrs = interp_mesh(fmdl,0); % elem centre
+  % if we have coarse2fine, interpolate to ctr of voxel
+  if isfield(fmdl,'coarse2fine');
+    ctrs = fmdl.coarse2fine' * ctrs; 
+    ctrs = ctrs ./ sum(fmdl.coarse2fine)';
+  end
+  bdy = find_boundary(fmdl);
+  % nodes in bdy_num x bdy_elemx x dims
+  bdy = reshape(fmdl.nodes(bdy,:), size(bdy,1), size(bdy,2), []);
+  bdy = permute(mean(bdy,2),[1,3,2]);
+  dist_min= min(pdist2(bdy,ctrs));
+  idx = dist_min < opts.remove_from_boundary;
+  ROIs(:,idx) = 0;
 
 function do_unit_test
    do_GREIT_test
@@ -116,12 +139,19 @@ function do_GREIT_test
    fmdl.meas_select = msel;
    imdl= select_imdl(fmdl,'GREIT:NF=0.500 32x32');
    [ROIs,imgR] = define_ROIs(imdl,-1:0.5:1,-1:0.5:1);
-   subplot(221); show_slices(imgR)
+   subplot(321); show_slices(imgR)
    imdl= select_imdl(fmdl,'GREIT:NF=0.500 16x16');
    [ROIs,imgR] = define_ROIs(imdl,-1:0.5:1,-1:0.5:1);
-   subplot(222); show_slices(imgR)
+   subplot(322); show_slices(imgR)
    opts.reorder = reshape(1:16,4,4)';
    [ROIs,imgR] = define_ROIs(imdl,-1:0.5:1,-1:0.5:1,opts);
-   subplot(223); show_slices(imgR)
+   subplot(323); show_slices(imgR)
    [ROIs,imgR] = define_ROIs(imdl,-1:0.5:1,1:-0.5:-1,opts);
-   subplot(224); show_slices(imgR)
+   subplot(324); show_slices(imgR)
+   imdl= select_imdl(fmdl,'GREIT:NF=0.500 32x32');
+   clear opts
+   [ROIs,imgR] = define_ROIs(imdl,-1:1:1,-1:1:1);
+   subplot(325); show_slices(imgR)
+   opts.remove_from_boundary = 0.2;
+   [ROIs,imgR] = define_ROIs(imdl,-1:1:1,-1:1:1,opts);
+   subplot(326); show_slices(imgR)
