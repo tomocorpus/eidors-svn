@@ -99,7 +99,6 @@ if nargin > 1 && ischar(varargin{end})
    varargin(end) = [];
 end
 
-keyboard
 switch length(varargin)
    case 0
       out = mk_organ_image(out, organspec); % for the sake of completeness 
