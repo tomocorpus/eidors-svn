@@ -10,6 +10,13 @@ function h = show_3d_slices(img, varargin);
 % h = show_3d_slices(...) returns a cell array of handles to the individual
 % slices { z_slices, x_slices, y_slices, any_slices }
 %
+% Example:
+%   fmdl=mk_library_model('adult_male_16el_lungs');
+%   img=mk_image(fmdl,1);
+%   img.elem_data(vertcat(fmdl.mat_idx{2:3})) = 0.3;
+%   lvl.centre = [0.2,0.1,0.8]; lvl.normal_angle = [0,-0.5,1];
+%   show_3d_slices(img,0.2,-0.5,[],lvl);
+%
 % See also: level_model_slice, mdl_slice_mesher
 
 % (C) 2007-2012 Andy Adler & Bartlomiej Grychtol. 
