@@ -17,6 +17,11 @@ function out = mk_thorax_model_bp3d(varargin)
 %    '2x16_adjacent' - like square, but with adjacent stimulation
 %    '1x32_ring'     - single ring of 32 electrodes
 %
+% Electrode positions can be specified as
+%  ep = [- 5   1350; -172  1350; -140  1050];
+%  fmdl = mk_thorax_model('bp3d',ep,[10 0 1],20);
+%  fmdl = mk_thorax_model_bp3d(out, 'fine');
+%
 % IMG = MK_THORAX_MODEL_BP3D(... , organspec)
 % Returns a torso model containing organ shapes as an image structure. Can
 % be used with all the above electrode defintions. 
@@ -94,6 +99,7 @@ if nargin > 1 && ischar(varargin{end})
    varargin(end) = [];
 end
 
+keyboard
 switch length(varargin)
    case 0
       out = mk_organ_image(out, organspec); % for the sake of completeness 
@@ -106,6 +112,8 @@ switch length(varargin)
       elseif ischar(varargin{1}) 
          copyright = '(C) EIDORS Project';
          out = build_predef_elecs(varargin{1}, organspec);
+      elseif isstruct(varargin{1}) % fwd_model
+         out = mk_organ_image(varargin{1}, organspec);
       else
          error('EIDORS:WrongInput','Electrode specification not understood');
       end
