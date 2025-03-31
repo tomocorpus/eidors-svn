@@ -9,6 +9,7 @@ torso = mk_thorax_model_bp3d('2x16_odd-even','fine');
 
 %%
 fmdl = torso.fwd_model;
+fmdl = fix_boundary(fmdl);
 clf
 h = show_fem(fmdl);
 ch = get(gca, 'Children');
