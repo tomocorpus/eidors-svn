@@ -120,7 +120,11 @@ set(h2,'FaceAlpha',0)
 set(h2,'LineWidth',0.1)
 set(h2,'EdgeAlpha',.8)
 axis off
+keyboard
+print_convert('torso_slice_01a.jpg','-r200');
 print_convert('torso_slice_01.jpg','-r600');
+view(50,25); print_convert('torso_slice_01b.jpg','-r400');
+view(50,25); print_convert('torso_slice_01b.png','-r400');
 
 %%
 Q = calc_mesh_quality(torso.fwd_model);
