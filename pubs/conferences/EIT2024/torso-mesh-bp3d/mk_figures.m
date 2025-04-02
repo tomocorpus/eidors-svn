@@ -7,6 +7,9 @@
 
 torso = mk_thorax_model_bp3d('2x16_odd-even','fine');
 
+%LUNGCOLOUR = [0,0,0.5];
+ LUNGCOLOUR = [0.3,0,0]; % Original for conf paper
+
 %%
 fmdl = torso.fwd_model;
 fmdl = fix_boundary(fmdl);
@@ -25,8 +28,8 @@ hold on
 
 idx   = [   2,    3,    4];
 alpha = [   .3,   .3,    1];
-color = [  .3     0     0;
-           .3     0     0;
+color = [ LUNGCOLOUR;
+          LUNGCOLOUR;
            .75    0     0;];
 
 for i = 1:numel(idx)
@@ -101,7 +104,7 @@ set(h,'LineWidth',1)
 ch = get(gca,'Children');
 % need a custom colormap
 idx = unique(get(ch(18), 'FaceVertexCData'));
-color = [  .3     0     0; % lung
+color = [  LUNGCOLOUR;
             1    .7    .7; % vessel
            .75    0     0; % heart wall
            0      0     1; % deox HB
