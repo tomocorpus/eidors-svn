@@ -1616,12 +1616,14 @@ function [vtmData] = read_vtm(full_dfile_name)
         len_Medibus = 242  ;  % 2+60*4
         len_imginfo = 102  ;  % 2+25*4
         len_frame = len_data + len_Medibus +len_imginfo;
-        try
             file_inf = dir(full_dfile_name);
+        if length(file_inf)==1 % only one file
             len = file_inf.bytes;
+        else
+            error(['Problem with file: ', full_dfile_name]);
+        end
             framenums=(len-len_header-2)/len_frame;
             framenums=int32(framenums);
-        end
         fid=fopen(full_dfile_name,'r');
         Header = fread(fid,len_header,'uint8'); 
         if ~strcmp(sprintf('%02X',Header(1:2)),'AA55')
