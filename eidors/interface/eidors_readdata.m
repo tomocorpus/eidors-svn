@@ -97,7 +97,8 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 
 if nargin>=1 && strcmp(fname,'UNIT_TEST'); do_unit_test; return; end
 
-fname = check_file_exists(fname);
+fname
+fname = check_file_exists(fname) 
 
 if nargin < 2
 % unspecified file format, autodetect
@@ -288,7 +289,9 @@ function fname = check_file_exists(fname)
    if ~exist(fname,'file')
       error([fname,' does not exist']);
    end
-   fname = which(fname); % TODO use octave equivalent
+   if ~(any(fname=='/') || any(fname=='\\')) % no path seps get full path
+      fname = which(fname); % TODO use octave equivalent
+   end
 
 % HDF5 format. 
 %  vv is the voltages
