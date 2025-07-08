@@ -97,8 +97,7 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 
 if nargin>=1 && strcmp(fname,'UNIT_TEST'); do_unit_test; return; end
 
-fname
-fname = check_file_exists(fname) 
+fname = check_file_exists(fname);
 
 if nargin < 2
 % unspecified file format, autodetect
