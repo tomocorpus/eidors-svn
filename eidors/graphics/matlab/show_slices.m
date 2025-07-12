@@ -167,11 +167,11 @@ if isfield(img(1),'show_slices') && isfield(img(1).show_slices,'contour_levels')
    ish= ishold;
    if isnumeric(clevs)
       if ~ish; hold on; end 
-      contour_caller(msm.x_pts, msm.y_pts, rimg, clevs, contour_properties{:});
+      contour_caller(surf_rotate, msm.x_pts, msm.y_pts, rimg, clevs, contour_properties{:});
       if ~ish; hold off; end 
    elseif clevs % true but not numeric
       if ~ish; hold on; end 
-      contour_caller( msm.x_pts, msm.y_pts, rimg, contour_properties{:});
+      contour_caller(surf_rotate, msm.x_pts, msm.y_pts, rimg, contour_properties{:});
       if ~ish; hold off; end 
    else
       error('img.show_slices.contour_levels parameter not understood');
@@ -198,16 +198,30 @@ function image_via_surf( msm, out_img, surf_rotate)
    surf(x,y,z,out_img,'EdgeColor','none','FaceColor','flat');
 
   
-function contour_caller(x,y,r,c, varargin);
-   if exist('OCTAVE_VERSION');
-      % Octave contour doesn't accept props 
+function contour_caller(surf_rotate,x,y,r,c, varargin);
+   if ~isempty(surf_rotate); % Need to do it completely differently to manage matlab
       if isnumeric(c)
-         contour(x, y, r, c);
+         c = contourc(x, y, r, c);
       else
-         contour(x, y, r);
+         c = contourc(x, y, r);
+      end
+      i=1; while i<size(c,2); 
+         l= c(2,i); idx = i+(1:l); % parse contour object
+         xyz = surf_rotate* c(:,idx); 
+         line(xyz(1,:), xyz(2,:), xyz(3,:), varargin{:} );
+         i=i+1+l;
       end
    else
-      contour(x, y, r, c, varargin{:});
+      if exist('OCTAVE_VERSION');
+         % Octave contour doesn't accept props 
+         if isnumeric(c)
+            contour(x, y, r, c);
+         else
+            contour(x, y, r);
+         end
+      else
+         contour(x, y, r, c, varargin{:});
+      end
    end
 
 function do_unit_test
