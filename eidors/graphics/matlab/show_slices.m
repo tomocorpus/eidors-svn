@@ -167,16 +167,11 @@ if isfield(img(1),'show_slices') && isfield(img(1).show_slices,'contour_levels')
    ish= ishold;
    if isnumeric(clevs)
       if ~ish; hold on; end 
-      contour(msm.x_pts, msm.y_pts, rimg, clevs, contour_properties{:});
+      contour_caller(msm.x_pts, msm.y_pts, rimg, clevs, contour_properties{:});
       if ~ish; hold off; end 
    elseif clevs % true but not numeric
       if ~ish; hold on; end 
-      if exist('OCTAVE_VERSION');
-      % Octave contour doesn't accept props 
-         contour(msm.x_pts, msm.y_pts, rimg);
-      else
-         contour(msm.x_pts, msm.y_pts, rimg, contour_properties{:});
-      end
+      contour_caller( msm.x_pts, msm.y_pts, rimg, contour_properties{:});
       if ~ish; hold off; end 
    else
       error('img.show_slices.contour_levels parameter not understood');
@@ -203,6 +198,17 @@ function image_via_surf( msm, out_img, surf_rotate)
    surf(x,y,z,out_img,'EdgeColor','none','FaceColor','flat');
 
   
+function contour_caller(x,y,r,c, varargin);
+   if exist('OCTAVE_VERSION');
+      % Octave contour doesn't accept props 
+      if isnumeric(c)
+         contour(x, y, r, c);
+      else
+         contour(x, y, r);
+      end
+   else
+      contour(x, y, r, c, varargin{:});
+   end
 
 function do_unit_test
    clf; sp=0;
