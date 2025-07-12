@@ -185,12 +185,19 @@ function  rimg = filter_image(rimg, filt);
    for j1 = 1:sz3; for j2 = 1:sz4; 
       rsl = rimg(:,:,j1,j2);
 
-      rna = isnan(rsl);
-      rsl(rna) = 0;
-      rsl = conv2(rsl, filt, 'same');
-      rsl(rna) = NaN;
 
-      rimg(:,:,j1,j2) = rsl;
+%     Old code would put zeros at edge - replaced in 3.12+
+%     rna = isnan(rsl);
+%     rsl(rna) = 0;
+%     rsl_= conv2(rsl, filt, 'same');
+%     rsl(rna) = NaN;
+
+%     Preserve code at edge
+      rsl_= conv2(rsl, filt, 'same');
+      rna = isnan(rsl_);
+      rsl_(rna) = rsl(rna);
+
+      rimg(:,:,j1,j2) = rsl_;
    end; end
 
 function do_unit_test
