@@ -60,6 +60,8 @@ Plan for 3.13:
 	
  - bug in ng_mk_geometric_models (see r7123)
 
+ + fixed show_slices to have surf_rotate option
+
 Plan for 3.12:
  - Update wikipedia eidors for latest release
  - Update mexmac / maxmaci64 for new hash. Remove if too old

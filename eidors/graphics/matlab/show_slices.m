@@ -29,6 +29,7 @@ function out_img= show_slices( img, levels, vh )
 %   img.show_slices.contour_levels = #    => Put this many contour lines
 %   img.show_slices.contour_levels = vector => Put contours at these locations
 %   img.show_slices.contour_properties => e.g. {'Color',[0,0,0],'LineWidth',2}
+%   img.show_slices.surf_rotate = 3x2 e.g. [1,0,0;0,0,1]' (x=>x, y=>z) (uses surf)
 %   img.calc_slices.filter => e.g. conv2(ones(5),ones(5))/5^4   
 %
 % Show slices is roughly equivalent to:
@@ -108,6 +109,11 @@ end
 %   rimg(isnan(rnimg)) = NaN;
 %end
 
+try   surf_rotate = img(1).show_slices.surf_rotate;
+catch surf_rotate = []; % no rotation
+end
+
+
 n_col = 0;
 try  n_col = img(1).show_slices.img_cols;
 end
@@ -125,7 +131,11 @@ try pts = mdl_slice_mapper(img.fwd_model,'get_points'); end
 
 if axes_msm && size(rimg,3)==1 && ~isempty(pts)
    msm.x_pts = pts{1}; msm.y_pts = pts{2};
-   image(msm.x_pts, msm.y_pts, out_img);
+   if isempty(surf_rotate)
+      image(msm.x_pts, msm.y_pts, out_img);
+   else
+      image_via_surf( msm, out_img, surf_rotate)
+   end
    set(gca,'Ydir','normal');
 else
    image(out_img);
@@ -175,23 +185,42 @@ end
 
 if nargout==0; clear('out_img'); end
 
+% Fight hard against matlab's supid ideas to use surf in 3D
+function image_via_surf( msm, out_img, surf_rotate)
+   % Work around the idiots in matlab who P(*&U)(UB up the surf function and don't provide
+   xpts = conv2(msm.x_pts(:)',[1,1]/2,'valid');
+   xpts = [xpts(:,1:2)*[2;-1],xpts,xpts(:,end-[1,0])*[-1;2]]; % guess at an interpolation
+   ypts = conv2(msm.y_pts(:)',[1,1]/2,'valid');
+   ypts = [ypts(:,1:2)*[2;-1],ypts,ypts(:,end-[1,0])*[-1;2]]; % guess at an interpolation
+   [ax1, ax2] = meshgrid(xpts,ypts); ax= [ax1(:),ax2(:)];
+   x = 0*ax1; y=x; z=x; % set shape
+   x(:) = ax*surf_rotate(1,:)'; % There has to be an easier way
+   y(:) = ax*surf_rotate(2,:)';
+   z(:) = ax*surf_rotate(3,:)';
+   
+   out_img(:,end+1) = NaN; % extra stupidity for matlab to ignore
+   out_img(end+1,:) = NaN; % extra stupidity for matlab to ignore
+   surf(x,y,z,out_img,'EdgeColor','none','FaceColor','flat');
+
+  
+
 function do_unit_test
    clf; sp=0;
    %1
    img=calc_jacobian_bkgnd(mk_common_model('a2t3',8)); 
    img.elem_data=toeplitz(1:size(img.fwd_model.elems,1),1);
-   sp=sp+1;subplot(4,5,sp); show_slices(img) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img) 
    %2
    img.calc_colours.npoints= 128;
-   sp=sp+1;subplot(4,5,sp); show_slices(img) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img) 
    %3
    img.calc_colours.npoints= 32;
    img.elem_data=toeplitz(1:size(img.fwd_model.elems,1),1:3);
-   sp=sp+1;subplot(4,5,sp); show_slices(img) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img) 
 
    %4
    img.show_slices.img_cols= 1;
-   sp=sp+1;subplot(4,5,sp); show_slices(img) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img) 
 
    %5
    imgn = rmfield(img,'elem_data');
@@ -201,7 +230,7 @@ function do_unit_test
    img.fwd_model.mdl_slice_mapper.npx = 10;
    img.fwd_model.mdl_slice_mapper.npy = 20;
    img.fwd_model.mdl_slice_mapper.level = [inf,inf,0];
-   sp=sp+1;subplot(4,5,sp); show_slices(img);
+   sp=sp+1;subplot(5,5,sp); show_slices(img);
 
    %6
    img.elem_data = img.elem_data(:,1);
@@ -209,16 +238,16 @@ function do_unit_test
    img.fwd_model.mdl_slice_mapper.x_pts = linspace(-100,100,20);
    img.fwd_model.mdl_slice_mapper.y_pts = linspace(-150,150,30);
    img.fwd_model.mdl_slice_mapper.level = [inf,inf,0];
-   sp=sp+1;subplot(4,5,sp); show_slices(img);
+   sp=sp+1;subplot(5,5,sp); show_slices(img);
 
    %7
-   sp=sp+1;subplot(4,5,sp); show_slices(imgn) 
+   sp=sp+1;subplot(5,5,sp); show_slices(imgn) 
 
    %8
    imgn.fwd_model.mdl_slice_mapper.x_pts = linspace(-100,100,20);
    imgn.fwd_model.mdl_slice_mapper.y_pts = linspace(-150,150,30);
    imgn.fwd_model.mdl_slice_mapper.level = [inf,inf,0];
-   sp=sp+1;subplot(4,5,sp); show_slices(imgn) 
+   sp=sp+1;subplot(5,5,sp); show_slices(imgn) 
 
 
 % 3D images
@@ -226,15 +255,15 @@ function do_unit_test
    img=calc_jacobian_bkgnd(mk_common_model('n3r2',[16,2])); 
    img.calc_colours.npoints= 16;
    img.elem_data=toeplitz(1:size(img.fwd_model.elems,1),1);
-   sp=sp+1;subplot(4,5,sp); show_slices(img,2) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img,2) 
 
    %10
    img.elem_data=img.elem_data*[1:3];
-   sp=sp+1;subplot(4,5,sp); show_slices(img,2) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img,2) 
 
    %11
    img.elem_data=img.elem_data(:,1:2);
-   sp=sp+1;subplot(4,5,sp); show_slices(img,[inf,inf,1;0,inf,inf;0,1,inf]);
+   sp=sp+1;subplot(5,5,sp); show_slices(img,[inf,inf,1;0,inf,inf;0,1,inf]);
 
    %12
    img.show_slices.sep = 5;
@@ -242,7 +271,7 @@ function do_unit_test
    img.fwd_model.mdl_slice_mapper.y_pts = linspace(-1,1,30);
    img.fwd_model.mdl_slice_mapper.level = [inf,inf,0];
 
-   sp=sp+1;subplot(4,5,sp); show_slices(img,2) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img,2) 
 
    %13
    img.fwd_model = rmfield(img.fwd_model, 'mdl_slice_mapper');
@@ -250,32 +279,32 @@ function do_unit_test
    levels=[inf,inf,1,1,1;
            0,inf,inf,2,1;
            0,1,inf,3,1];
-   sp=sp+1;subplot(4,5,sp); show_slices(img,levels) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img,levels) 
 
    %14
    levels=[inf,inf,1,1,1;
            0,inf,inf,2,2;
            0,1,inf,  1,3];
-   sp=sp+1;subplot(4,5,sp); show_slices(img,levels) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img,levels) 
 
    %15
    img.elem_data = img.elem_data * [1,2];
    levels=[inf,inf,1,1,1;
            0,inf,inf,2,1;
            0,1,inf,  3,1];
-   sp=sp+1;subplot(4,5,sp); show_slices(img,levels) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img,levels) 
    
    %16
-   sp=sp+1;subplot(4,5,sp); show_slices(img,levels(:,1:3),levels(:,4:5)) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img,levels(:,1:3),levels(:,4:5)) 
    
    %17
    m = calc_slices(img,levels(:,1:3));
-   sp=sp+1;subplot(4,5,sp); show_slices(m) 
+   sp=sp+1;subplot(5,5,sp); show_slices(m) 
    
    %18
    img.elem_data = img.elem_data(:,1);
    img.show_slices.contour_levels = true;
-   sp=sp+1;subplot(4,5,sp); show_slices(img) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img) 
 
    %19
    img.fwd_model.mdl_slice_mapper = struct('level',[inf,inf,1], ...
@@ -283,7 +312,7 @@ function do_unit_test
    img.show_slices.axes_msm = true;
    img.show_slices.contour_properties = {'LineWidth',2};
    img.show_slices.contour_levels = 1:300;
-   sp=sp+1;subplot(4,5,sp); show_slices(img) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img) 
 
    %20
    l48 = linspace(0.5,48.5,24+1); 
@@ -292,4 +321,14 @@ function do_unit_test
    fmdl = mk_grid_model([],l48,l32,l48,rmfn);
    xyz = interp_mesh(fmdl); 
    img = mk_image(fmdl, sum(xyz,2));
-   sp=sp+1;subplot(4,5,sp); show_slices(img,3) 
+   sp=sp+1;subplot(5,5,sp); show_slices(img,3) 
+
+   
+%  Surface rotate
+   img = mk_image(mk_common_model('n3r2',[16,2]),1);
+   img.elem_data=toeplitz(1:size(img.fwd_model.elems,1),1);
+   img.fwd_model.mdl_slice_mapper = struct('x_pts',-1:.2:1, 'y_pts',0.2:.2:1.8,'level',[inf,0,inf]);
+   img.show_slices.axes_msm = true;
+   sp=sp+1;subplot(5,5,sp); show_slices(img); axis on
+   img.show_slices.surf_rotate = [1,0,0;0,0,1]';
+   sp=sp+1;subplot(5,5,sp); show_slices(img); axis on
