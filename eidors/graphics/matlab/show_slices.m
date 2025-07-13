@@ -195,7 +195,8 @@ function image_via_surf( msm, out_img, surf_rotate)
    
    out_img(:,end+1) = NaN; % extra stupidity for matlab to ignore
    out_img(end+1,:) = NaN; % extra stupidity for matlab to ignore
-   surf(x,y,z,out_img,'EdgeColor','none','FaceColor','flat');
+   surf(x,y,z,out_img,'EdgeColor','none','FaceColor','flat', ...
+      'CDataMapping','direct'); % Absolutely required to make matlab do what we actually want
 
   
 function contour_caller(surf_rotate,x,y,r,c, varargin);
