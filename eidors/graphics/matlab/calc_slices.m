@@ -192,10 +192,12 @@ function  rimg = filter_image(rimg, filt);
 %     rsl_= conv2(rsl, filt, 'same');
 %     rsl(rna) = NaN;
 
-%     Preserve code at edge
+%     Preserve code at edge - add then remove nans
+      rsl = [nan(sz1+2,1), [nan(1,sz2);rsl;nan(1,sz2)], nan(sz1+2,1)]; 
       rsl_= conv2(rsl, filt, 'same');
       rna = isnan(rsl_);
       rsl_(rna) = rsl(rna);
+      rsl_ = rsl_(2:end-1,2:end-1);
 
       rimg(:,:,j1,j2) = rsl_;
    end; end
