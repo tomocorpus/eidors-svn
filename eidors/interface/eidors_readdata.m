@@ -288,7 +288,7 @@ function fname = check_file_exists(fname)
    if ~exist(fname,'file')
       error([fname,' does not exist']);
    end
-   if ~(any(fname=='/') || any(fname=='\\')) % no path seps get full path
+   if ~(any(fname=='/') || any(fname=='\')) % no path seps get full path
       fname = which(fname); % TODO use octave equivalent
    end
 
