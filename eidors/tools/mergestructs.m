@@ -7,6 +7,10 @@ function s_out = mergestructs(s_in, varargin)
 %   s1 = struct('a',1,'b',2);
 %   s2 = struct('c',5,'b',3);
 %   mergestructs(s1,s2) => .a=1, .b=3, .c=3
+%   s3 = struct('d',7,'b',4);
+%   mergestructs(s1,s2,s3) => .a=1, .b=4, .c=3, .d=7
+%
+% Later struct elements override earlier
 % 
 % Note this only processes the top level of a struct tree
 
