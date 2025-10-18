@@ -204,7 +204,7 @@ function fmt = parse_format(filename)
     if isempty(ext); error('no filename extension detected (%s)',filename); end
     switch ext{1}
        case {'jpg', 'jpeg'}
-          fmt = 'jpg';
+          fmt = 'jpeg';
        case {'j2c', 'j2k', 'jp2'}
           fmt = 'jp2';
        case {'tif','tiff'}
@@ -216,7 +216,7 @@ function fmt = parse_format(filename)
 function pp = parse_options(filename,varargin)
 
    pp.fmt = parse_format(filename);
-   if strcmp(filename, ['{clipboard}.',pp.fmt])
+   if startsWith(filename, '{clipboard}.');
       pp.clip = true;
       pp.filename = [tempname(),'.',pp.fmt];
    else
@@ -298,12 +298,12 @@ function pp = parse_options(filename,varargin)
      if isfield(opt,'jpeg_quality')
         pp.jpeg_quality = opt.jpeg_quality;
      end
-     if strcmp(pp.fmt,'jpg')
+     if strcmp(pp.fmt,'jpeg')
         pp.imwrite_opts = {'quality',pp.jpeg_quality};
      end
      if isfield(opt,'imwrite_opts');
         pp.imwrite_opts = opt.imwrite_opts;
-        if strcmp(pp.fmt,'jpg') && ~any(strcmpi(pp.imwrite_opts,'quality'))
+        if strcmp(pp.fmt,'jpeg') && ~any(strcmpi(pp.imwrite_opts,'quality'))
            pp.imwrite_opts(end+1:end+2) = {'quality',pp.jpeg_quality};
         end
      end
