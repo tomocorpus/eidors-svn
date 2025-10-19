@@ -27,6 +27,7 @@ function [fmdl,mat_idx] = ng_mk_cyl_models(cyl_shape, elec_pos, ...
 % EXTRA_NG_CODE
 %   string of extra code to put into netgen geo file. Normally this
 %   would be to insert extra materials into the space
+%   extra_ng_code = {'',''} to ignore
 %
 % OUTPUT:
 %  fmdl    - fwd_model object

@@ -49,6 +49,11 @@ function [fmdl,mat_idx] = ng_mk_extruded_model(shape, elec_pos, elec_shape, ...
 %
 % Specify either a common electrode shape or for each electrode
 %
+% EXTRA_NG_CODE
+%   string of extra code to put into netgen geo file. Normally this
+%   would be to insert extra materials into the space
+%   extra_ng_code = {'',''} to ignore
+%
 % CITATION_REQUEST:
 % AUTHOR: B Grychtol et al.
 % TITLE: Impact of model shape mismatch on reconstruction quality in

@@ -24,6 +24,11 @@ function [fmdl,mat_idx] = ng_mk_gen_models(shape_str, elec_pos,  elec_shape, ele
 %  elec_obj = 'obj_name' or {'name','for','each','elec'} where
 %    the name is the primitive netgen object (cylinder, plane, etc) which the electrode intersects
 %
+% EXTRA_NG_CODE
+%   string of extra code to put into netgen geo file. Normally this
+%   would be to insert extra materials into the space
+%   extra_ng_code = {'',''} to ignore
+%
 % OUTPUT:
 %  fmdl    - fwd_model object
 %  mat_idx - indices of materials
