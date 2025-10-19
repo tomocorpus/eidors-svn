@@ -40,7 +40,7 @@ function [mapping, failed] = circ_mapping(mdl,xyzr,copt)
             correctmap = pi*xyzr(end,:).^2;
          else
             % No analytic way to calculate correct value (for non extruded models)
-            correctmap = (get_elem_volume(mdl)'*mapping);
+            correctmap = (get_elem_volume(mdl,'no_c2f')'*mapping);
          end
       case 4; % use for 3D and spherical maps
          [mapping failed] = contained_elems_3d( mdl, xyzr );
@@ -49,7 +49,7 @@ function [mapping, failed] = circ_mapping(mdl,xyzr,copt)
     end
 
     % Correct
-    vol = get_elem_volume(mdl,-2)'; %-2 => don't use c2f
+    vol = get_elem_volume(mdl,'no_c2f')'; %-2 => don't use c2f
 
     % Octave doesn't expand for sparse
 %   mapping = mapping .* (correctmap./(vol*mapping));
