@@ -59,6 +59,7 @@ if ischar(xyz) && strcmp(xyz,'UNIT_TEST'), do_unit_test; return, end
 
 copt.cache_obj = {xyzr, radius, opt.rec_model.nodes, opt.rec_model.elems, opt.steepness};
 copt.fstr = 'GREIT_desired_img_sigmoid';
+if isfield(opt,'cache_to_disk'); copt.cache_to_disk = opt.cache_to_disk; end
 PSF = eidors_cache(@desired_soln,{xyzr, radius, opt},copt);
 
 
