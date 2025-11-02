@@ -14,6 +14,7 @@ function varargout=eidors_cache( command, varargin )
 %   eidors_cache(___, order)
 %       - sort by specific order. Valid values are
 %         {time}, size, effort, count, rank
+%       - specify size*, time* to list in inverse order
 %
 %   eidors_cache( 'get_obj_type', type_string )
 %       - returns id of all objects of type type_string
@@ -415,20 +416,23 @@ function cache_list (order)
 
    meta(:,N+1) = num2cell(get_cache_priority);
    switch order
-       case 'time'
+       case {'time','time*'}
            meta = sortrows(meta,c.time); % sort by time
-       case {'prop','name'}
+       case {'prop','name','prop*','name*'}
            meta = sortrows(meta,c.prop); % sort by name
-       case 'rank'
+       case {'rank','rank*'}
            meta = sortrows(meta,N+1); % sort by rank
-       case 'size'
+       case {'size','size*'}
            meta = sortrows(meta,-c.size); % sort by rank
-       case 'effort'
+       case {'effort','effort*'}
            meta = sortrows(meta,-c.effort);
-       case 'count'
+       case {'count','count*'}
            meta = sortrows(meta,-c.count);
        otherwise
            error('Unrecognized sort order');
+   end
+   if order(end)=='*'
+      meta = flipud(meta);
    end
 
    meta = meta';
