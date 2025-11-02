@@ -508,7 +508,7 @@ function do_unit_test
    unit_test_cmp('get-set1',val,2);
    unit_test_cmp('get-set2',id,id_);
    id_= eidors_obj('set-cache',id_,'addition',3);
-   [val,id] = eidors_obj('get-cache',{1,'plus',1},'addition') ;
+   [val,id] = eidors_obj('get-cache',{1,'plus',1},'addition');
    unit_test_cmp('get-set3',val,3);
    [val,id] = eidors_obj('get-cache',id_,'addition') ;
    unit_test_cmp('get-set4',val,3);

@@ -37,6 +37,14 @@ function varargout=eidors_cache( command, varargin )
 %      - eg. eidors_cache( 'clear_name', 'inv_solve_diff_GN_one_step')
 %      - clear all variables with name
 %
+%   eidors_cache( 'collect_recent', {name1, name2, name1, ...))
+%      - eg. eidors_cache( 'collect_recent', {'inv_solve_diff_GN_one_step'}))
+%      - gets the last use of name, unless name is mentioned more times, when each gets the more recent version
+%      - returns struct( id, 'name', name, 'val', val)
+%
+%   eidors_cache( 'install_to_cache', struct form 'collect_recent')
+%      - provides a way to collect data to save
+%
 %   eidors_cache( 'clear_model_library' );
 %      - clear the eidors model library directory
 %      - NOTE: this function is experimental.
@@ -175,14 +183,35 @@ switch command
       remove_objids
 
    case 'clear'
-     switch nargin
-       case 2
-        eidors_cache('clear_name',limit);
-       case 1
-        eidors_cache('clear_all');
-       otherwise
-         error('Wrong number of inputs');
-     end
+      switch nargin
+        case 2
+         eidors_cache('clear_name',limit);
+        case 1
+         eidors_cache('clear_all');
+        otherwise
+          error('Wrong number of inputs');
+      end
+
+%   eidors_cache( 'collect_recent', {name1, name2, name1, ...))
+   case 'collect_recent'
+      tseen = struct(); 
+      out = struct();
+      for i=1:length(limit)
+         namei = limit{i};
+         tseen.( namei ) = (isfield(tseen,namei) && tseen.( namei ))+1; %inc
+         ids = eidors_cache('get_obj_type',namei);
+         idnthlarge = ids{end - tseen.(namei) + 1};
+         out.( idnthlarge ).name = namei;
+         out.( idnthlarge ).val = eidors_obj('get-cache',idnthlarge, namei);
+      end
+      varargout{1} = out;
+         
+%   eidors_cache( 'install_to_cache', struct form 'collect_recent')
+   case 'install_to_cache'
+      for id = fieldnames( limit )'; idi= id{1};  % to iterate
+         obji = limit.( idi );
+         eidors_obj('set-cache', idi, obji.name, obji.val);
+      end
 
    case 'cache_size'
       if nargin==2
@@ -689,6 +718,33 @@ function test_ng_optcache
 %  function will get called because ng.opt exists
    unit_test_cmp('test_ng_optcache 1', y, 2);
    unit_test_cmp('test_ng_optcache 2', fake_modelling_function_value, 1);
+
+   eidors_cache clear
+   fake_modelling_function_value = 0;
+   y = eidors_cache(@fake_modelling_function, 555);
+   unit_test_cmp('test_cache_install 1', fake_modelling_function_value, 1);
+
+   fake_modelling_function_value = 0;
+   y = eidors_cache(@fake_modelling_function, 555);
+   unit_test_cmp('test_cache_install 2', fake_modelling_function_value, 0);
+   y = eidors_cache(@fake_modelling_function, 556);
+   y = eidors_cache(@fake_modelling_function, 557);
+
+   collect = eidors_cache('collect_recent', {'fake_modelling_function','fake_modelling_function'}); % get last two
+   fnames = fieldnames( collect )'; 
+   vals = [collect.(fnames{1}).val{1}, collect.(fnames{2}).val{1}]; % Stupid M(*&^(* why no sortcut!!
+   unit_test_cmp('test_cache_install 3', sort(vals), [557,558]);
+
+   eidors_cache clear
+   eidors_cache('install_to_cache', collect);
+   fake_modelling_function_value = 0;
+   y = eidors_cache(@fake_modelling_function, 557);
+   unit_test_cmp('test_cache_install 4', fake_modelling_function_value, 0);
+   y = eidors_cache(@fake_modelling_function, 556);
+   unit_test_cmp('test_cache_install 5', fake_modelling_function_value, 0);
+   y = eidors_cache(@fake_modelling_function, 555);
+   unit_test_cmp('test_cache_install 6', fake_modelling_function_value, 1);
+
 
 function [v1 v2] = test_function(a,b,c,d)
    v1 = rand(1);
