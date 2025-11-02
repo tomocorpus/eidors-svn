@@ -30,6 +30,9 @@ function [obj_id, extra_out] = eidors_obj(type,name, varargin )
 %    example: % set jacobian
 %        obj_id = eidors_obj('set-cache',cache_obj, 'jacobian', J);
 %
+%    exmple: specify by varid
+%        obj_id = eidors_obj('set-cache','id_7C ... 72', 'jacobian', J);
+%
 %    example: % get jacobian or '[]' if not set
 %        [J, obj_id] = eidors_obj('get-cache',cache_obj, 'jacobian');
 %
@@ -417,7 +420,14 @@ function obj= new_obj( type, name, varargin );
 % to create an obj_id. The goal is to allow proper caching
 % of calculated matrices, by detecting when a previous
 % calculation with same parameters has been made
+%
+% if var{1} is a string = id_[16 chars] then this is the id
 function obj_id= calc_obj_id( var )
+   if ischar(var{1}) && length(var{1}) == 40+3 && strcmp(var{1}(1:3),'id_')
+     obj_id = var{1};
+     return
+   end
+      
    try 
       obj_id= eidors_var_id( var );
    catch
@@ -492,4 +502,14 @@ function do_unit_test
    et = eidors_obj(im);
    unit_test_cmp('type 0',et,'image');
 
+
+   id_= eidors_obj('set-cache',{1,'plus',1},'addition',2);
+   [val,id] = eidors_obj('get-cache',{1,'plus',1},'addition');
+   unit_test_cmp('get-set1',val,2);
+   unit_test_cmp('get-set2',id,id_);
+   id_= eidors_obj('set-cache',id_,'addition',3);
+   [val,id] = eidors_obj('get-cache',{1,'plus',1},'addition') ;
+   unit_test_cmp('get-set3',val,3);
+   [val,id] = eidors_obj('get-cache',id_,'addition') ;
+   unit_test_cmp('get-set4',val,3);
    
