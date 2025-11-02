@@ -15,6 +15,9 @@ function varargout=eidors_cache( command, varargin )
 %       - sort by specific order. Valid values are
 %         {time}, size, effort, count, rank
 %
+%   eidors_cache( 'get_obj_type', type_string )
+%       - returns id of all objects of type type_string
+%
 %   eidors_cache( 'clear_old'. timestamp );
 %   eidors_cache( 'clear_new', timestamp );
 %      - clear all variables older (or newer) than timestamp
@@ -303,6 +306,9 @@ switch command
          cache_list;
       end
 
+   case 'get_obj_type'
+      idx = find(strcmp( eidors_objects.cache.meta(:,2), limit));
+      varargout{1}= eidors_objects.cache.meta(idx,1);
 
    case 'clear_max'
       if ischar(limit); limit= str2double(limit); end
@@ -362,6 +368,8 @@ function cache_list (order)
       meta = eidors_objects.cache.meta;
    catch
       return
+   end
+   if nargin==2
    end
    if nargin == 0
        order = 'time';
@@ -613,8 +621,13 @@ function do_unit_test
    eidors_obj('set-cache', rand(1) , 't1', rand(2e3));
    eidors_obj('set-cache', rand(1) , 't2', rand(2e3));
    eidors_obj('set-cache', rand(1) , 't3', rand(2e3));
+   eidors_obj('set-cache', rand(1) , 't3', 555);
    eidors_cache
    eidors_cache list
+   ids = eidors_cache('get_obj_type','t3');
+   val = eidors_obj('get-cache',ids{2},'t3');
+   unit_test_cmp('get-set',val,555);
+   
    eidors_cache('clear_name','t3');
    eidors_cache
    eidors_cache list
