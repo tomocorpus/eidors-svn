@@ -53,6 +53,11 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %    - Medas Medical 'VTM' format
 %       For the Ventom device
 %
+%    - Infivision 'GET' format
+%       Format = 'iget' ### TODO Change format id
+%       Note: this format is created using "ETSA" software to export the file
+%       For the Invision ET1000 Device: 16 electrodes
+%
 %    - Sciospec text 'EIT' format
 %        format = 'Sciospec-EIT'
 %
@@ -269,6 +274,14 @@ switch fmt
 % It's also possible to use EIDORSdata192, with no_rotate_meas
 %    vv = auxdata.EIDORSdata192;
 %    stim = mk_stim_patterns(16,1,[0,8],[0,1],{'no_rotate_meas'});
+
+   case 'iget';
+     [vv, inj_curr, inj_volt] = read_infivision_get_file(fname);
+     [stim,msel] = mk_stim_patterns(16,1,[0,2],[0,2], {'no_meas_current','rotate_meas'}, inj_curr(1,1));
+     aux.inj_curr = inj_curr;
+     aux.inj_volt = inj_volt;
+     aux.frame_rate = 20; % TODO Check on FR
+     aux.msel = msel;
 
    otherwise
       error('eidors_readdata: file "%s" format unknown', format);
@@ -1742,6 +1755,42 @@ function [vtmData] = read_vtm(full_dfile_name)
         error('File type cannot be recognised');
     end
 
+function [vv, inj_curr, inj_volt] = read_infivision_get_file(fname)
+    % Number of floats per frame
+    num_floats_per_frame = 256;
+
+    % Number of floats for each section
+    num_measured_voltages = 208;
+    num_injection_currents = 16;
+    num_injection_voltages = 16;
+    num_dummy_values = 16;
+
+    % Open the file in binary read mode
+    fid = fopen(fname, 'rb');
+    if fid == -1
+        error('Unable to open file: %s', fname);
+    end
+
+    % Read the entire file as 32-bit floats
+    raw_data = fread(fid, inf, 'float32');
+    fclose(fid);
+
+    % Calculate number of frames
+    if rem( length(raw_data), num_floats_per_frame) ~=0
+      eidors_msg('File length strange - cropping file',0);
+      raw_data=raw_data(1:floor(length(raw_data)/num_floats_per_frame)*num_floats_per_frame);
+    end
+    num_frames = floor(length(raw_data) / num_floats_per_frame);
+    fprintf('Number of frames read: %d\n', num_frames);
+    
+    data_mat = reshape(raw_data, num_floats_per_frame, num_frames);
+    vv = data_mat(1:num_measured_voltages, :);
+    % vv = untwist(vv);
+    inj_curr = data_mat(209:224, :);
+    inj_volt = data_mat(225:240, :);
+    dummy = data_mat(241:256, :);
+
+    fprintf('GET file successfully read and parsed into %d frames.\n', num_frames);
 
 function do_unit_test
 
