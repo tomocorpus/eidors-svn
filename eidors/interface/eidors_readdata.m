@@ -278,10 +278,10 @@ switch fmt
    case 'iget';
      [vv, inj_curr, inj_volt] = read_infivision_get_file(fname);
      [stim,msel] = mk_stim_patterns(16,1,[0,2],[0,2], {'no_meas_current','rotate_meas'}, inj_curr(1,1));
-     aux.inj_curr = inj_curr;
-     aux.inj_volt = inj_volt;
-     aux.frame_rate = 20; % TODO Check on FR
-     aux.msel = msel;
+     auxdata.inj_curr = inj_curr;
+     auxdata.inj_volt = inj_volt;
+     auxdata.frame_rate = 20; % TODO Check on FR
+     auxdata.msel = msel;
 
    otherwise
       error('eidors_readdata: file "%s" format unknown', format);
