@@ -53,8 +53,8 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %    - Medas Medical 'VTM' format
 %       For the Ventom device
 %
-%    - Infivision 'GET' format
-%       Format = 'iget' ### TODO Change format id
+%    - Infivision 'MES' format
+%       Format = 'imes' ### TODO Change format id
 %       Note: this format is created using "ETSA" software to export the file
 %       For the Invision ET1000 Device: 16 electrodes
 %
@@ -275,8 +275,8 @@ switch fmt
 %    vv = auxdata.EIDORSdata192;
 %    stim = mk_stim_patterns(16,1,[0,8],[0,1],{'no_rotate_meas'});
 
-   case 'iget';
-     [vv, inj_curr, inj_volt] = read_infivision_get_file(fname);
+    case 'imes';
+     [vv, inj_curr, inj_volt] = read_infivision_mes_file(fname);
      [stim,msel] = mk_stim_patterns(16,1,[0,2],[0,2], {'no_meas_current','rotate_meas'}, inj_curr(1,1));
      auxdata.inj_curr = inj_curr;
      auxdata.inj_volt = inj_volt;
@@ -1755,7 +1755,7 @@ function [vtmData] = read_vtm(full_dfile_name)
         error('File type cannot be recognised');
     end
 
-function [vv, inj_curr, inj_volt] = read_infivision_get_file(fname)
+function [vv, inj_curr, inj_volt] = read_infivision_mes_file(fname)
     % Number of floats per frame
     num_floats_per_frame = 256;
 
