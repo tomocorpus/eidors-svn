@@ -18,6 +18,8 @@ Plan for 3.13:
  - test octave to see if doesn't give errors to stderr in call_delaunay
  - code to specify electrodes in fem models on either side of sternum
 
+ - Remove error code in call_netgen: errors should just return to terminal
+
  - allow show_images with contours for vector of images
 
  - do we need both join_models and merge_meshes?
@@ -60,6 +62,7 @@ Plan for 3.13:
 	- factor out get_RM from inv_solve_diff_GN_one_step (for testing)
 	
  - bug in ng_mk_geometric_models (see r7123)
+ - Do we need to call interp_mesh so much. Cache it?
 
  + fixed show_slices to have surf_rotate option
 
