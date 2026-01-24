@@ -64,6 +64,10 @@ Plan for 3.13:
  - bug in ng_mk_geometric_models (see r7123)
  - Do we need to call interp_mesh so much. Cache it?
 
+ + Add code for infivision file format
+ - Add test code for infivision file format
+
+ + Labels for electrodes in show_fem
  + fixed show_slices to have surf_rotate option
 
 Plan for 3.12:

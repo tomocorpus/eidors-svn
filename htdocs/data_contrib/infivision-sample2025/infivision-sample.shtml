@@ -1,0 +1,49 @@
+<html>
+[% PROCESS "../../header.html" %]
+<body>
+
+<H2>Contributed EIT Data:</H2>
+   <table>
+   <tr><th valign="top"> Authors:
+       <td>
+Lana Chen, Andy Adler
+       <hr>
+   <tr><th valign="top"> Date:
+       <td> 2025
+       <hr>
+   <tr><th valign="top"> Brief Description:
+       <td> 
+The dataset represents a sample of healthy human breathing, collected by
+Infivision Medical Imaging Technology Co. for system evaluation. It includes a
+series of tidal breaths as well as expiratory and inspiratory breath-holding
+phases.  The data are provided as a .mes file exported from the Infivision EIT
+System Analysis (ETSA) software.
+       <hr>
+   <tr><th valign="top"> License:
+       <td> Creative Commons Artistic License
+       <hr>
+   <tr><th valign="top"> Attribution Requirement:
+       <td> 
+Data are provided as-is, with no formal attribution required. However, acknowledgment of this tutorial is appreciated. The subject has explicitly consented to the public release of these data under these conditions.
+   <tr><th valign="top"> Format:
+       <td>
+EIT data were acquired using an Infivision ET1000 device at a sampling rate of 20 frames/s. The excitation frequency was 20 kHz, current 0.7 mA.
+       <hr>
+   <tr><th valign="top"> Methods:
+       <td>
+An Infivision electrode belt was attached to the subject in a supine position and connected to the EIT system. Data were collected during various breathing maneuvers by the subject.
+       <hr>
+   <tr><th valign="top"> Data:
+       <td> <a href=""
+            >Data (EIT "mes" format)</a>
+       <hr>
+   </table>
+
+The data may be analyzed with the following code:
+
+<p>
+<small>
+    Last Modified: $Date$
+</small>
+</body></html>
+
