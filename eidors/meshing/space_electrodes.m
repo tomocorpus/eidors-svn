@@ -40,8 +40,10 @@ function th = ellip_space_elecs( n_elecs, rad )
    %  by default. So, rather than install a toolkit for it, we integrate numerically.
    if n_elecs==0; th=[]; return; end
    
-   th = linspace(0,2*pi, 1000*(n_elecs)); th(1)=[]; % Accuracy to 100x spacing
-   len = cumsum( sqrt( rad(1)*cos(th).^2 + rad(2)*sin(th).^2 ) );
+   th = linspace(0,2*pi, 1000*(n_elecs)); % Accuracy to 1000x spacing
+   pos = [rad(1)*sin(th); rad(2)*cos(th)]';
+   dpos= rssq(diff(pos),2);
+   len = [0;cumsum(dpos)];
    len = len/max(len);
    xi = linspace(0,1,n_elecs+1); xi(1)= []; xi(end)=[];
    yi = interp1(len,th,xi);
