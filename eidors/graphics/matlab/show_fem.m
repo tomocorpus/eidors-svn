@@ -25,6 +25,12 @@ function hh=show_fem( mdl, options)
 %
 % to change line properties:
 %      hh=show_fem(...); set(hh,'EdgeColor',[0,0,1];
+%
+% Electrode numbering
+%      hh=show_fem(mdl, [0,1.02]); % 1 = number, fontsize= round(.02*1000);
+% Electrode labelling
+%    add a electrode(1).label = 'Elec A' field
+%    hh=show_fem(mdl, [0,2.02]); % 2 = label, fontsize= round(.02*1000);
 
 % (C) 2005-2011 Andy Adler. License: GPL version 2 or version 3
 % $Id$
@@ -278,6 +284,7 @@ for e=1:length(mdl.electrode)
           case {1 true}
              txt = num2str(e);
           case 2
+             txt = '-'; % Unlabelled
              try, txt = mdl.electrode(e).label; end
           otherwise; error('value of number_electrodes not understood');
        end
@@ -836,3 +843,10 @@ function do_unit_test
    fmdlA= mat_idx_to_electrode(fmdl3,{1:2});
 
    subplot(4,4,15); show_fem(fmdlA,[0,1]); view(0,20);
+
+   subplot(4,4,16); % Labels
+    fmdl = ng_mk_cyl_models(.4,[4,0.2],0.1);
+    k=0; for l = {'a','b','c','d'}; k=k+1;
+      fmdl.electrode(k).label = l;
+    end
+    show_fem(fmdl,[0,2.04]);
