@@ -7,6 +7,13 @@ function [thrad,thdeg] = space_electrodes(spacing_type, n_elecs, params);
 % INPUT: n_elecs = number of electrodes
 %  spacing_type = 'ellipse':
 %    params = eliptical radii [r_x r_y]
+%  spacing_type = 'ellipse-space':  % space [first,last] around centre
+%    params = eliptical radii [r_x r_y]
+%
+% Usage example:
+% ellip= [1.1,0.9];
+% [~,thdeg] = space_electrodes('ellipse', 32, ellip);
+% fmdl = ng_mk_ellip_models([1,ellip],thdeg*[1,0] + [0,0.5],0.05);
 
 % (C) 2024 Andy Adler . License: GPL v2 or v3.
 % $Id$
@@ -16,6 +23,9 @@ if ischar(spacing_type) && strcmp(spacing_type,'UNIT_TEST'); do_unit_test; retur
 switch spacing_type
    case 'ellipse';
       thrad = ellip_space_elecs( n_elecs, params );
+   case 'ellipse-space';
+      thrad = ellip_space_elecs( 2*n_elecs, params );
+      thrad(1:2:end) = []; % drop centre electrode
    otherwise
       error('spacing_type not recognized')
 end
@@ -30,7 +40,7 @@ function th = ellip_space_elecs( n_elecs, rad )
    %  by default. So, rather than install a toolkit for it, we integrate numerically.
    if n_elecs==0; th=[]; return; end
    
-   th = linspace(0,2*pi, 100*(n_elecs)); th(1)=[]; % Accuracy to 100x spacing
+   th = linspace(0,2*pi, 1000*(n_elecs)); th(1)=[]; % Accuracy to 100x spacing
    len = cumsum( sqrt( rad(1)*cos(th).^2 + rad(2)*sin(th).^2 ) );
    len = len/max(len);
    xi = linspace(0,1,n_elecs+1); xi(1)= []; xi(end)=[];
@@ -52,4 +62,18 @@ function do_unit_test
   th = space_electrodes('ellipse',16,[1,2]); 
   unit_test_cmp('ellipse [1,2]', th(1), 0, 1e-14);
   unit_test_cmp('ellipse [1,2]', [th(1), min(diff(th)) max(diff(th))], ...
-        [ 0   0.340379981348740   0.462371789340561 ], 1e-14);
+        [ 0   0.340861236200482   0.462219163446295 ], 1e-14);
+
+  [~,th] = space_electrodes('ellipse-space',16,[1,2]); 
+  unit_test_cmp('ellipse-space [1,2]', mean([th(1),th(end)-360])/360, 0, 1e-6);
+  
+  unit_test_cmp('ellipse-space [1,2]', th(1), 13.555876019146920, 1e-14);
+
+  ellip= [2,1];
+  [~,thdeg] = space_electrodes('ellipse', 32, ellip);
+  fmdl = ng_mk_ellip_models([1,ellip],thdeg*[1,0] + [0,0.5],0.05);
+  for i=1:num_elecs(fmdl);
+    ctr(i,:) = mean(fmdl.nodes(fmdl.electrode(i).nodes,:));
+  end
+  dist = rssq(ctr,2);
+dist
