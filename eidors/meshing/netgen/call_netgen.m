@@ -121,7 +121,6 @@ while( 1 )
    status= system_cmd( sys_cmd );
 
    if status==0; break; end % 
-   try
       if isunix
          global eidors_objects;
          ignore_errors = 0;
@@ -202,11 +201,4 @@ while( 1 )
             end
          end
       end
-   catch e
-      if strncmp(computer,'PC',2)
-         % restore Netgen settings on Windows
-         setenv('NETGEN_USER_DIR', oldpath);
-      end
-      rethrow(e)
-   end
 end
