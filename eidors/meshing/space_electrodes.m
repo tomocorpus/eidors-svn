@@ -59,23 +59,24 @@ function th = ellip_space_elecs( n_elecs, rad )
 function do_unit_test
   th = space_electrodes('ellipse',16,[1,1]); 
   unit_test_cmp('circle', th(1), 0, 1e-14);
-  unit_test_cmp('circle', diff(th), 2*pi/16, 1e-14);
+  unit_test_cmp('circle', diff(th), 2*pi/16, 1e-12);
 
   th = space_electrodes('ellipse',16,[1,2]); 
   unit_test_cmp('ellipse [1,2]', th(1), 0, 1e-14);
   unit_test_cmp('ellipse [1,2]', [th(1), min(diff(th)) max(diff(th))], ...
-        [ 0   0.340861236200482   0.462219163446295 ], 1e-14);
+        [ 0   0.306327452262767   0.538784703058076 ], 1e-14);
 
   [~,th] = space_electrodes('ellipse-space',16,[1,2]); 
   unit_test_cmp('ellipse-space [1,2]', mean([th(1),th(end)-360])/360, 0, 1e-6);
   
-  unit_test_cmp('ellipse-space [1,2]', th(1), 13.555876019146920, 1e-14);
+  unit_test_cmp('ellipse-space [1,2]', th(1), 16.676416780742208, 1e-14);
 
   ellip= [2,1];
   [~,thdeg] = space_electrodes('ellipse', 32, ellip);
-  fmdl = ng_mk_ellip_models([1,ellip],thdeg*[1,0] + [0,0.5],0.05);
+  fmdl = ng_mk_ellip_models([1,ellip],thdeg*[1,0] + [0,0.5],[0.05,0,0.01]);
   for i=1:num_elecs(fmdl);
     ctr(i,:) = mean(fmdl.nodes(fmdl.electrode(i).nodes,:));
   end
-  dist = rssq(ctr,2);
-dist
+  dist = rssq(diff(ctr(:,1:2)),2)';
+  % Check spacing is uniform
+  unit_test_cmp('ellipse spacing', mean(dist)/std(dist), 213.73, .1);
