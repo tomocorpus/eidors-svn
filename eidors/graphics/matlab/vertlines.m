@@ -15,6 +15,8 @@ function hh=vertlines( xpts, opts );
   hh=line([1;1]*xpts,yl'*oo,-[1;1]*oo,'Color',[0,0,0], ...
       'HandleVisibility','off',opts{:});
   ylim(yl);
+  uistack(hh,'bottom'); % put vertlines underneath
+  if nargout==0; clear hh; end
 
 
 function do_unit_test
