@@ -72,13 +72,13 @@ while( 1 )
    end
    status= system_cmd( sys_cmd );
 
-   if status==0; break; end % 
+   if status==0;
+      % successful call. leave
+      
+      break;
+   end % 
       if isunix
-         global eidors_objects;
-         ignore_errors = 0;
-         try
-            ignore_errors = eidors_objects.ng_ignore_errors;
-         end
+         ignore_errors = get_from_global('ng_ignore_errors');
          fprintf(['It seems that netgen has not worked (on linux). ' ...
             'If you downloaded a eidors-v??-ng, check <wine> is installed. ' ...
             'Otherwise, Check that netgen is installed and on the path. ' ...
@@ -206,4 +206,11 @@ function ng_name = get_netgen_executable();
       else
          ng_name = 'netgen.exe';
       end
+   end
+
+function var = get_from_global(varname)
+   global eidors_objects;
+   var = 0;
+   try
+      var = eidors_objects.( varname );
    end
