@@ -16,6 +16,8 @@ function status= call_netgen(geo_file, vol_file, msz_file, finelevel)
 %
 % To debug the shapes and view the netgen interface, use
 %   eidors_debug on call_netgen
+%
+% will remove ng.opt unless: eidors_objects.keep_ng_opt =true
 
 % $Id$
 % (C) 2006 Andy Adler. Licensed under GPL V2
@@ -74,6 +76,7 @@ while( 1 )
 
    if status==0;
       % successful call. leave
+      remove_ng_opt();
       
       break;
    end % 
@@ -205,6 +208,16 @@ function ng_name = get_netgen_executable();
          fclose(fid);
       else
          ng_name = 'netgen.exe';
+      end
+   end
+
+function remove_ng_opt();
+   if ~get_from_global('keep_ng_opt')
+      % need to protect delete if file not exist
+      % Horrible race condition. Why, Matlab, why?
+      % Can't use try/catch because of stupid warnings.
+      if exist('ng.opt','file'); 
+         delete('ng.opt');
       end
    end
 
