@@ -216,9 +216,11 @@ function remove_ng_opt();
       % need to protect delete if file not exist
       % Horrible race condition. Why, Matlab, why?
       % Can't use try/catch because of stupid warnings.
-      if exist('ng.opt','file'); 
-         delete('ng.opt');
-      end
+      % can't use exist(), because no control of path
+      % only way. Create then delete
+      % don't check for errors since we are doing such a kludge
+      fclose(fopen('ng.opt','w'));
+      delete('ng.opt');
    end
 
 function var = get_from_global(varname)
