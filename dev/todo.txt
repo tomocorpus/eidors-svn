@@ -18,6 +18,8 @@ Plan for 3.13:
  - test octave to see if doesn't give errors to stderr in call_delaunay
  - code to specify electrodes in fem models on either side of sternum
 
+ - Fix bug in EIDORS colourbar - example from Mar22notes code with c2f
+
  - Remove error code in call_netgen: errors should just return to terminal
 
  - allow show_images with contours for vector of images
