@@ -192,7 +192,6 @@ function faces = calc_elec_faces(elems,femobj);
 function do_unit_test
    clf; do_unit_test_contained_shape(true)
    clf; do_unit_test_contained_shape(false)
-   return
    clf; subplot(221);
    do_unit_test_2d(true)
    do_unit_test_2d(false)
@@ -295,17 +294,25 @@ function do_unit_test_contained_shape(node_elecs_flag)
     shape_str = [shape, splus ];
     fmdl = ng_mk_gen_models(shape_str,[],[],'');
     fmdl.mat_idx_to_electrode.nodes_electrode = node_elecs_flag;
-    fmdl = mat_idx_to_electrode(fmdl,{1,2,3,5});
+    fmdl1= mat_idx_to_electrode(fmdl,{1,2,3,5});
     if node_elecs_flag
         sizes = [8,61,61,134];
         for i=1:4; 
            unit_test_cmp('Contained ', ...
-              size(fmdl.electrode(i).nodes),[1,sizes(i)])
+              size(fmdl1.electrode(i).nodes),[1,sizes(i)])
         end
     else
         sizes = [12,118,118,264];
         for i=1:4; 
            unit_test_cmp('Contained ', ...
-              size(fmdl.electrode(i).faces),[sizes(i),3])
+              size(fmdl1.electrode(i).faces),[sizes(i),3])
         end
     end
+    fmdl1= mat_idx_to_electrode(fmdl,{1,2,3,5});
+
+    % Now compare and reverse electrodes
+    fmdl2= mat_idx_to_electrode(fmdl,{1,2});
+    fmdl3= mat_idx_to_electrode(fmdl,{2,1});
+    fmdl3.electrode = fmdl3.electrode([2,1]);
+    unit_test_cmp('Reverse order', ...
+      eidors_var_id(fmdl2), eidors_var_id(fmdl3));
