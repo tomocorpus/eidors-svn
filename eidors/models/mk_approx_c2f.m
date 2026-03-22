@@ -29,6 +29,10 @@ function [mapping, outside] = mk_approx_c2f( f_mdl, c_mdl );
 %     indicates the +/- z_depth which elements in 2D are
 %     considered to be extruded in 3D (default inf)
 %
+% The level of interpolation is set by
+%     f_mdl.interp_mesh.n_interp
+%       (DEFAULT) 7 - mdl_dims
+%
 % NOTES:
 % if c_mdl and f_mdl do not cover the same area, then 
 %    sum(c2f') will not be 1. If all coarse elements cover
