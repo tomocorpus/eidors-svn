@@ -200,6 +200,7 @@ function do_unit_test
    do_unit_test_3d_netgen(false)
    do_unit_test_3d_netgen2(true)
    do_unit_test_3d_netgen2(false)
+   do_reverse_order_test()
 
 function do_unit_test_2d(nodes_electrode)
    fmdl = getfield(mk_common_model('a2c2',1),'fwd_model');
@@ -316,3 +317,14 @@ function do_unit_test_contained_shape(node_elecs_flag)
     fmdl3.electrode = fmdl3.electrode([2,1]);
     unit_test_cmp('Reverse order', ...
       eidors_var_id(fmdl2), eidors_var_id(fmdl3));
+
+function do_reverse_order_test()
+   extra = {'ball','el1','el2',[ ...
+     'solid ball=sphere(0,0,2;0.15);' ...
+     'solid el1 =sphere(0,0,1;0.1);' ...
+     'solid el2 =sphere(0,0,3;0.1);' ...
+          ]};
+   fmdl = ng_mk_cyl_models([5,5],[],[],extra);
+   [fmdl_,rm_elems] = mat_idx_to_electrode(fmdl,{4,3});
+   fmdl.elems(rm_elems,:) = [];
+   unit_test_cmp('Backwards elecs',fmdl.elems, fmdl_.elems);
