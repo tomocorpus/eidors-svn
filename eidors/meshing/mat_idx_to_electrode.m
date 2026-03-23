@@ -32,12 +32,18 @@ end
 
 rm_elems = [];
 for i = 1:length(mat_idxes)
-   if elec_faces 
-      [fmdl,rm_elemi] = create_electrode_faces_from_mat_idx(fmdl, mat_idxes{i});
-   else
-      [fmdl,rm_elemi] = create_electrode_nodes_from_mat_idx(fmdl, mat_idxes{i});
-   end
+   mat_idxesi = mat_idxes{i};
+   rm_elemi = vertcat(fmdl.mat_idx{mat_idxesi});
    rm_elems = union(rm_elems,rm_elemi); 
+end 
+
+for i = 1:length(mat_idxes)
+   mat_idxesi = mat_idxes{i};
+   if elec_faces 
+      fmdl = create_electrode_faces_from_mat_idx(fmdl, mat_idxesi);
+   else
+      fmdl = create_electrode_nodes_from_mat_idx(fmdl, mat_idxesi);
+   end
 end
 
 fmdl = remove_unused_nodes(fmdl); % used to use , 'quiet') but that doesn't flag model errors
@@ -321,10 +327,12 @@ function do_unit_test_contained_shape(node_elecs_flag)
 function do_reverse_order_test()
    extra = {'ball','el1','el2',[ ...
      'solid ball=sphere(0,0,2;0.15);' ...
-     'solid el1 =sphere(0,0,1;0.1);' ...
-     'solid el2 =sphere(0,0,3;0.1);' ...
+     'solid el1 =orthobrick(0.9,0.9,0.9;1.1,1.1,1.1);' ...
+     'solid el2 =orthobrick(0.9,0.9,1.9;1.1,1.1,2.1);' ...
           ]};
    fmdl = ng_mk_cyl_models([5,5],[],[],extra);
-   [fmdl_,rm_elems] = mat_idx_to_electrode(fmdl,{4,3});
-   fmdl.elems(rm_elems,:) = [];
-   unit_test_cmp('Backwards elecs',fmdl.elems, fmdl_.elems);
+   [fmdl43,rm_elems43] = mat_idx_to_electrode(fmdl,{4,3});
+   [fmdl34,rm_elems34] = mat_idx_to_electrode(fmdl,{3,4});
+   fmdl_43 = fmdl;
+   fmdl_43.elems(rm_elems43,:) = [];
+   unit_test_cmp('Backwards elecs',fmdl43.elems, fmdl34.elems);
