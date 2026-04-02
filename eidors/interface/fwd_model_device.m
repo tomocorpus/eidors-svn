@@ -1,7 +1,7 @@
 function fmdl = fmdl_model_device(fmdl,device, opt);
 % FMDL_MODEL_DEVICE: set vendor/device specific parameters
 % fmdl_model_device is a utility function to set vendor and device specific parameters.
-% It sets the 'stimulation' and 'normalize_measurements' fields to the vendor-typical values
+% It sets the 'stimulation', 'normalize_measurements', 'meas_select' fields to the vendor-typical values
 %
 % Usage:
 % fmdl = fmdl_model_device(fmdl,device, opt);
@@ -24,7 +24,7 @@ switch lower(device)
   case {'draeger','dräger','pulmovista500'}
     fmdl=mdl_normalize(fmdl,true);
     mA = 0.01; % Estimate from docs
-    fmdl.stimulation = mk_stim_patterns(16,1, ...
+    [fmdl.stimulation, fmdl.meas_select] = mk_stim_patterns(16,1, ...
        [0,1],[0,1],{'no_meas_current','rotate_meas'},mA);
 
   case {'sentec','swisstom'}
@@ -34,7 +34,7 @@ switch lower(device)
     fmdl=mdl_normalize(fmdl,false);
     mA = 0.01; % Estimate from docs
     SS = [0,opt.skip+1];
-    fmdl.stimulation = mk_stim_patterns(32,1, ...
+    [fmdl.stimulation, fmdl.meas_select] = mk_stim_patterns(32,1, ...
        SS,SS,{sprintf('no_meas_current_next%d',opt.next)},mA);
 
   otherwise error('No information about device');
