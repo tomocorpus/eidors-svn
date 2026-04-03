@@ -906,8 +906,10 @@ function write_geo_file(geofn, tank_height, tank_shape, ...
     else
         fprintf(fid,'tlo trunk -transparent;\n');
     end
-    if ~isempty(extra_ng_code{1})
-        fprintf(fid,'tlo %s -col=[0,1,0];\n',extra_ng_code{1});
+    for i=1:length(extra_ng_code)-1
+       if ~isempty(extra_ng_code{i})
+          fprintf(fid,'tlo %s  -col=[0,1,0];\n',extra_ng_code{i});
+       end
     end
 
     if isfield(tank_shape,'additional_shapes')
@@ -1203,8 +1205,10 @@ vtx(unused_v,:) = [];
 
 %%
 function do_unit_test
- do_unit_test_basic;
- do_unit_test_human_thorax;
+ clf
+ subplot(221); do_unit_test_basic;
+ subplot(222); do_unit_test_square;
+ subplot(223); do_unit_test_human_thorax;
 
 
 function do_unit_test_basic;
@@ -1248,7 +1252,7 @@ function do_unit_test_basic;
     fmdl = ng_mk_extruded_model({300,a,[4,25]},[16,1.11,150],[1]);
     show_fem(fmdl);
 
-function do_unit_test_human_thorax
+function do_unit_test_square
 % load CT2
 
 %[fmdl, mat_idx] = ng_mk_extruded_model({150,flipud(trunk),1},[16,0,75],[0.01]);
@@ -1269,4 +1273,29 @@ function do_unit_test_human_thorax
  [fmdl, mat_idx] = ng_mk_extruded_model({2,{trunk, heart_lung, heart},1},[16,1,1],[0.1]);
 
  
-  figure, show_fem( fmdl );
+  show_fem( fmdl );
+
+function do_unit_test_human_thorax
+  shapes = shape_library('get','adult_male');
+  nel = 16;
+  el_theta = linspace(0,1,nel*2 + 1);
+  el_theta = el_theta(2:2:end);
+  xy = fourier_fit(shapes.boundary,'fit_spacing',el_theta);
+  str = '';
+  for i=1:size(xy,1);
+    eln = sprintf('el%03d',i);
+    extra{i} = eln;
+    str = [str, sprintf('solid %s = sphere(%f,%f,%f;%f);',eln, ...
+      xy(i,:),.2,.05)];
+  end
+  extra{end+1} = str;
+
+  fmdl = ng_mk_extruded_model( ...
+    {.4,shapes.boundary,[4,50],.1}, ...
+    [],[],extra);
+
+  img = mk_image(fmdl,1);
+  for i=2:length(fmdl.mat_idx);
+    img.elem_data(fmdl.mat_idx{i}) = 1.1 + i/20;
+  end
+  show_fem(img);
