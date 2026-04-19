@@ -20,5 +20,9 @@ end
 if eidors_debug('query','system_cmd')
    disp(cmd);
 end
-[status,result] = system(cmd,'-echo');
+if exist('OCTAVE_VERSION');
+   [status,result] = system(cmd); % -echo not supported
+else
+   [status,result] = system(cmd,'-echo');
+end
 
