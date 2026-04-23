@@ -1,5 +1,5 @@
 % DOI for EIDORS v3.13 ?  10.5281/zenodo.19702479
-% DOI for slices 10.5281/zenodo.19702540
+% DOI for slides 10.5281/zenodo.19702540
 \documentclass[10pt,a4paper]{article}
 % ========================== DO NOT MODIFY =================================== %
 \usepackage[a4paper,left=2.0cm,top=2.0cm,right=2.0cm,bottom=2.0cm]{geometry}
@@ -11,12 +11,21 @@
 \usepackage{multicol}
 \usepackage{amssymb,amsmath} % If amsmath is required
 \usepackage{graphicx}
+\usepackage{booktabs}
 \usepackage{titling}
 \usepackage{authblk} % Formats affiliation section
 \usepackage{float}
 \usepackage{enumitem}
 \usepackage{siunitx}
 \usepackage{xcolor}
+
+\def\xH/{\hat{\mathbf{x}}}
+\def\JB/{\mathbf{J}}
+\def\yB/{\mathbf{y}}
+\def\vB/{\mathbf{v}}
+\usepackage{bm} % bold Greek
+\def\SG/{\bm{Sigma}}
+\def\RB/{\mathbf{R}}
 
 \newcommand{\ConferenceName}{26\textsuperscript{th} International Conference on Biomedical Applications of Electrical Impedance Tomography (EIT 2026), Sheffield, UK}
 \def\xH/{\hat{\mathbf{x}}}
@@ -124,15 +133,15 @@
 \noindent {\bf Abstract:}
 This paper announces the release of version 3.13 of the
 EIDORS software suite. We review its new features, and 
-discusses its growth and use.
+make available suitable EIT illustrations.
 
 \section{Introduction}
 
 We proudly announce the release of EIDORS version 3.13,
 for the 24th Int.\ Conf.\ on Biomedical Applications of EIT,
 in July 2026.
-The software is available at \href{www.eidors.org}{eidors.org}\, and licensed under the GNU GPLv2 or GPLv3. Archived versions are now available on Zenodo
-\cite{eidors3p12,
+The software is available at \href{www.eidors.org}{eidors.org}\, and licensed under the GNU GPLv2 or GPLv3. Archived versions are available on Zenodo
+\cite{eidors3p13, eidors3p12,
       eidors3p11,
       eidors3p10,
       eidors3p9p1,
@@ -150,43 +159,29 @@ EIDORS also aims to share data and promote
 collaboration.
 
 \section{New Features}
-Release 3.12 of EIDORS builds upon a strong foundation in reconstruction
+Release 3.13 of EIDORS builds upon a strong foundation in reconstruction
 algorithms, adding and improving a number of aspects.
 \begin{itemize}
-\item D-bar solver with Dirichlet-Neumann estimation
-\item New data formats (Sciospec and HDF5)\cite{possner2023hdf5}
-\item Improved solver preconditioning
-\item Improved Octave support
-\item New faster hash (xxHash) for object caching
-\item Improved Control of netgen refinement
-\item 3D perfusion and $\dot{\rm V}$/Q analysis tools\cite{araos2023VQ}
-\item Improved FFT-based filtering functions
-\item Expanded data contributions (e.g.~fig.2)
-\item Improved Instrument models
-\item Expanded shape library with new species shapes
+\item improved / less fragile netgen interface
+\item refactored extruded mesh shapes
+\item support for Acousto-electric tomography
+\item improved documentation
+\item graphcs improvements and bug work-arounds
+\item support for new vendor file formats
+\item better octave support
 
 \item (As always) speed-ups and bug fixes 
 \end{itemize}
 
 \section{Growth}
-EIDORS-related citations continue to grow. Current citation results are
-shown in
- table~1.  %table~\ref{tbl:cite}.
-%
-The EIDORS code-base is growing
-%(fig.~\ref{fig:loc})
-(fig.~1)
- with significant effort being applied to
-improving test coverage, refining performance and implementing new features.
- In 2012, a {\tt dev} (development) staging area was created for
-contributions in progress.
+EIDORS-related citations continue to grow (table~1).  %table~\ref{tbl:cite}.
 
 \begin{table}[H]
   \footnotesize
 \centering
 %From: http://amath.colorado.edu/documentation/LaTeX/reference/tables/ex1.html
 \caption{EIDORS Citations
- (May 2024, scholar.google.com).
+ (Apr 2026, scholar.google.com).
 }
 \label{tbl:cite}
 \begin{tabular}{r@{\hspace{1mm}}lcr}
@@ -195,21 +190,21 @@ contributions in progress.
   %{@{\extracolsep{\fill}}@{}|c|ccc|r|}
   \midrule
   \cite{vauhkonen2001} & A MATLAB package for the EIDORS project \ldots\hspace{-5mm}  
-    & 2001 & 336 \\
+    & 2001 & 370 \\
   \cite{polydorides2002phd} & Image reconstruction algorithms for \ldots
-    & 2002 & 194 \\
+    & 2002 & 211 \\
   \cite{polydorides2002matlab} & A Matlab toolkit for three-dimensional \ldots
-    & 2002 & 564 \\
+    & 2002 & 613 \\
   \cite{adler2005} & EIDORS: Towards a community-based \ldots
-    & 2005 & 38 \\
+    & 2005 & 53 \\
   \cite{adler2006} & Uses and abuses of {EIDORS}: An extensible \ldots
-    & 2006 & 956 \\
+    & 2006 & 1109 \\
   \cite{adler2008} & Simple FEMs aren't as good as we thought \ldots
     & 2008 &  26 \\
   \cite{adler2017} & EIDORS version 3.9
-    & 2017 & 34 \\
+    & 2017 & 40 \\
   \cite{adler2017} & EIDORS version 3.10
-    & 2019 & 5 \\
+    & 2019 & 9 \\
   \bottomrule
 \end{tabular}
 \vspace{-1em}
@@ -230,40 +225,59 @@ contributions in progress.
 \label{fig:loc}
 \end{figure}
 
+\section{EIT Illustrations}
+
+We make available software and illustrations of the basic
+concepts of EIT.
+Software is available in {\tt eidors/examples} and
+figures at \href{https://doi.org/10.5281/zenodo.19702540}
+                            {DOI:10.5281/zenodo.19702540}, 
+under an creative commons license for
+use in papers and presentations (fig~2).
+
+The earliest EIT systems used a weighted backprojection approach
+to image reconstruction.
+This approach was superceeded by Gauss-Newton and Bayesian approaches:
+there are no longer any clinical or research EIT systems which use backprojection.
+Nevertheless, illustrations of ``how EIT works''
+with pictures of backprojection. We feel this is misleading an 
+unnecessarily difficult to understand. 
+
+Instead, Linearized time-difference EIT image reconstruction seeks 
+a solution $\xH/$ which minimizes:
+$\| \xH/ - \JB/ \yB/ \|$
+for sensitivity matrix $\JB/$ and difference data $\yB/$,
+giving
+$\xH/ =
+ ( \JB/^T  \JB/^T + \RB/ )^{-1} 
+\JB/^T
+ \yB/ = (\mbox{Filter})(\mbox{Backprojection})\yB/.
+$
+
+
 \begin{figure}[H]
   \vspace{-2.5mm}
 \centering
 % trim=left botm right top
- \includegraphics[width=.99\columnwidth]{../../../../htdocs/data_contrib/db-horse3d-2024/db-horse3d-2024-01.jpg}
+%\includegraphics[width=.99\columnwidth]{../../../../htdocs/data_contrib/db-horse3d-2024/db-horse3d-2024-01.jpg}
 \caption{%
-Reconstruction of 3D EIT data from a
-horse during baseline (left) and rebreathing (right).
-Data are reconstructed into a parasagittal slice, 
-modified frontal slice, and three transverse slices.
-Middle: normalized to the maximum in each image. 
-Bottom: normalized to the same limit.
-Source:
-\href{http://eidors.org/data\_contrib/db-horse3d-2024}
-            {eidors.org/data\_contrib/db-horse3d-2024}
 }
 \label{fig:horse}
 \end{figure}
 \vspace{-2mm}
 
 \section{Discussion}
-The structure of EIDORS has been relatively stable due, in part, to some early design choices:
-a modular framework and data structure,
-cross-platform support, integration of meshing,
-tutorials, and the contributed data repository.
-These aspects, along with an open source code-base, have enabled EIDORS to
-maintain research relevance.
-Version 3.12 (hopefully) continues the tradition.
+EIDORS version 3.13 (hopefully) continues to be useful.
 
 
 
 
 \footnotesize
 \begin{thebibliography}{}
+\bibitem{eidors3p13}
+   Adler A, ``EIDORS v3.13'',
+\href{http://dx.doi.org/10.5281/zenodo.19702479}{DOI:10.5281/zenodo.19702479},
+    2026.
 \bibitem{eidors3p12}
    Adler A, Grychtol B, ``EIDORS v3.12'',
 \href{http://dx.doi.org/10.5281/zenodo.13316995}{DOI:10.5281/zenodo.13316995},
