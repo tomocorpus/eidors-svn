@@ -1,14 +1,14 @@
 function graph_loc
    %% Graph the lines of code
-   datafile; dat = loc; t=dat(:,6);
+   datafile; dat = loc; t=dat(:,7);
    clf
    hold on;
-   plot(t,1e-3*dat(:,3),          '-','Color',[0,2,0]/3,'LineWidth',3,'DisplayName','Tutorials');
-   plot(t,1e-3*dat(:,2:4)*[1;1;1],'-','Color',[2,0,0]/3,'LineWidth',3,'DisplayName','Total');
-   plot(t,1e-3*dat(:,2)          ,'-','Color',[1,1,0]/3,'LineWidth',3,'DisplayName','Eidors');
-   plot(t,1e-3*dat(:,4),          '-','Color',[0,0,2]/3,'LineWidth',3,'DisplayName','Dev');
+    plot(t,1e-3*dat(:,4),            '-','Color',[0,2,0]/3,'LineWidth',3,'DisplayName','Tutorials');
+    plot(t,1e-3*dat(:,2:5)*[1;1;1;1],'-','Color',[2,0,0]/3,'LineWidth',3,'DisplayName','Total');
+    plot(t,1e-3*dat(:,2:3)*[1;1]    ,'-','Color',[1,1,0]/3,'LineWidth',3,'DisplayName','Eidors'); % + eidors3d
+    plot(t,1e-3*dat(:,5),            '-','Color',[0,0,2]/3,'LineWidth',3,'DisplayName','Dev');
 
-   k=1;for yy=2004:2024;
+   k=1;for yy=2004:2026;
      tt(k) = (datenum(yy,1,1)-datenum(1970,1,1))*86400;
      tl{k} = num2str(yy); if rem(yy,2)==1; tl{k}=''; end
    k=k+1; end
@@ -28,7 +28,7 @@ function graph_loc
 function releaselines
 
 release= [
-(datenum(2024,06,27)-datenum(1970,1,1))*86400; % eidors-v3.12 % EIT conf
+(datenum(2024,12,30)-datenum(1970,1,1))*86400; % eidors-v3.12 
 (datenum(2022,12,31)-datenum(1970,1,1))*86400; % eidors-v3.11
 (datenum(2019,12,31)-datenum(1970,1,1))*86400; % eidors-v3.10
 (datenum(2018,06,1)-datenum(1970,1,1))*86400; % eidors-v3.9.1
