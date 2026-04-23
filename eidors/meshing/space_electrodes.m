@@ -32,6 +32,10 @@ end
 
 thdeg = 180/pi*thrad;
 
+% sqrt(sum of squared rows. Not available in older matlab as rssq
+function v = rssq_row(x)
+  v = sqrt(sum( x.^2, 2));
+
 % equally space n_elecs around an ellipse of outer radius rad(1),rad(2)
 function th = ellip_space_elecs( n_elecs, rad )
    % The radius is the integral of sqrt((r1*sin(th))^2 + (r2*cos(th))^2)
@@ -42,7 +46,7 @@ function th = ellip_space_elecs( n_elecs, rad )
    
    th = linspace(0,2*pi, 1000*(n_elecs)); % Accuracy to 1000x spacing
    pos = [rad(1)*sin(th); rad(2)*cos(th)]';
-   dpos= rssq(diff(pos),2);
+   dpos= rssq_row(diff(pos));
    len = [0;cumsum(dpos)];
    len = len/max(len);
    xi = linspace(0,1,n_elecs+1); xi(1)= []; xi(end)=[];
@@ -77,6 +81,6 @@ function do_unit_test
   for i=1:num_elecs(fmdl);
     ctr(i,:) = mean(fmdl.nodes(fmdl.electrode(i).nodes,:));
   end
-  dist = rssq(diff(ctr(:,1:2)),2)';
+  dist = rssq_row(diff(ctr(:,1:2)))';
   % Check spacing is uniform
   unit_test_cmp('ellipse spacing', mean(dist)/std(dist), 213.73, .1);
