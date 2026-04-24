@@ -1,5 +1,5 @@
-function imgs= mk_figures_baby(fig, prm)
-% mk_figures_baby: Create a set of EIT images from the "Wikipedia EIT baby" contributed data set
+function imgs= EIT_intro(fig, prm)
+% EIT_intro: Create a set of EIT images from the "Wikipedia EIT baby" contributed data set
 % (c) 2020-2026 Andy Adler. Licenced under GPL v2 or v3
 % $Id$
    if nargin==0; 
@@ -21,6 +21,7 @@ function imgs= mk_figures_baby(fig, prm)
       case 2; mk_figure2
       case 3; mk_figure3
       case 4; mk_figure4
+      case 4.1; mk_figure4a
       case 5; mk_figure5
       case 6;
         fig_with_reconstruction_sensitivity(1.8, [0.15,0.45], [1,2,12,13],2.5);
@@ -255,6 +256,9 @@ function imgs = reconst_images
     imgs.calc_colours.clim = 15;
     imgs.calc_colours.transparency_thresh =0;
 
+function mk_figure4a
+    fig_with_sensitivity(1.8,[0.15,0.45],[1,3,8,10])
+    print_convert equipotentiala.png
     
 function mk_figure4
     fig_with_sensitivity(1.8,[0.15,0.45],[1,6,8,10])
