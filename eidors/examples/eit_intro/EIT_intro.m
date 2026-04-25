@@ -225,6 +225,7 @@ function fig_with_image(zlevel, heart)
     for i = 0:5;
         xofs = i*0.8;
         imgc.elem_data = imgs.elem_data(:,66+i);
+        
         imgc.fwd_model.nodes(:,1) = ...
         imgs.fwd_model.nodes(:,1) + xofs;
         set(show_fem(imgc),'EdgeAlpha',0);
@@ -235,6 +236,7 @@ function fig_with_image(zlevel, heart)
     end
     hold off
     colormap(cmap)
+keyboard
     print_convert image_sequence.png
 %figure(2);show_slices(imgs);
 
@@ -242,7 +244,7 @@ function imdl = GREIT_from_img(img, pats);
     fmdl = mdl_normalize(img.fwd_model,1);
     [fmdl.stimulation,fmdl.meas_select] = mk_stim_patterns(16,1,pats{:});
 
-    opt.imgsz = [64 64]; opt.noise_figure = 0.5;
+    opt.imgsz = [64 64]; opt.noise_figure = 0.4;
     imdl = mk_GREIT_model(fmdl, 0.25, [], opt);
 
 function imgs = reconst_images
@@ -253,7 +255,7 @@ function imgs = reconst_images
     vv= eidors_readdata('P04P-1016.get'); vi=vv; vh=vv(:,61);
     imgs = inv_solve(imdl,vh,vi);
     imgs.calc_colours.ref_level = 0;
-    imgs.calc_colours.clim = 15;
+    imgs.calc_colours.clim = 10;
     imgs.calc_colours.transparency_thresh =0;
 
 function mk_figure4a
