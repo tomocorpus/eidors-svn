@@ -17,12 +17,13 @@ function imgs= EIT_intro(fig, prm)
          imgs.calc_colours.ref_level = 1;
       case 'baby_backproj'; 
          backprojection_show();
-      case 1; mk_figure1
-      case 2; mk_figure2
-      case 3; mk_figure3
-      case 4; mk_figure4
+      case 1;   mk_figure1
+      case 2;   mk_figure2
+      case 3;   mk_figure3
+      case 4;   mk_figure4
       case 4.1; mk_figure4a
-      case 5; mk_figure5
+      case 4.2; mk_figure4b
+      case 5;   mk_figure5
       case 6;
         fig_with_reconstruction_sensitivity(1.8, [0.15,0.45], [1,2,12,13],2.5);
         !mv contour.pdf contour1213.pdf
@@ -236,7 +237,6 @@ function fig_with_image(zlevel, heart)
     end
     hold off
     colormap(cmap)
-keyboard
     print_convert image_sequence.png
 %figure(2);show_slices(imgs);
 
@@ -260,6 +260,10 @@ function imgs = reconst_images
 
 function mk_figure4a
     fig_with_sensitivity(1.8,[0.15,0.45],[1,3,8,10])
+    print_convert equipotentiala.png
+
+function mk_figure4b
+    fig_with_sensitivity(1.8,[0.15,0.45],[1,2,8,9])
     print_convert equipotentiala.png
     
 function mk_figure4
