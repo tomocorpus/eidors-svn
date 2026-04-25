@@ -15,8 +15,6 @@ function imgs= EIT_intro(fig, prm)
    switch fig; 
       case 'baby_fem'; imgs = baby_fem();
          imgs.calc_colours.ref_level = 1;
-      case 'baby_backproj'; 
-         backprojection_show();
       case 1;   mk_figure1
       case 2;   mk_figure2
       case 3;   mk_figure3
@@ -30,6 +28,8 @@ function imgs= EIT_intro(fig, prm)
         fig_with_reconstruction_sensitivity(1.8, [0.15,0.45], [1,2,10,11],1);
         !mv contour.pdf contour1011.pdf
         print_convert equipotential.png
+      case {7,'baby_backproj'}; 
+         backprojection_show();
       case 'fig_with_equipotential'
          imgs= equipotential_slice(prm{1},prm{2},prm{3});
       case 'fig_sensitivity'
@@ -327,3 +327,42 @@ function backprojection_show();
     plot(sin(th)*MAG+MAG, ...
          cos(th)*MAG*Baby_Ellip(2)/Baby_Ellip(1)+MAG,'k','LineWidth',2);
     view(0,-70);
+
+function show_backprojections(fmdl,imdl,ball);
+  imgs = mk_image(fmdl,1);    vh = fwd_solve(imgs);
+  imgs.elem_data(ball) = 1.1; vi = fwd_solve(imgs);
+  vx = vh.meas + diag( vi.meas - vh.meas ); 
+  ied = getfield(inv_solve(imdl,vh,vx),'elem_data');
+  ball = fmdl.mat_idx{2};
+  [~,most] = sort(min(ied(ball,:)));
+  idx = most(end-(0:2:20));
+
+  cla; hold on;
+  vh = ones(208,1);
+  THR=0.45;
+% for idxi = length(idx):-1:1;
+  for idxi = 1:4
+    vi_= vh; vi_(idx(idxi)) = vi.meas(idx(idxi));
+    img = inv_solve(imdl,vh,vi_);
+    lev = THR*max(img.elem_data);
+    img.elem_data(img.elem_data< THR*lev)=0;
+    img.calc_colours.ref_level = 0;
+    img.calc_colours.backgnd = [1,1,1];
+    img.calc_colours.greylev = -.1;
+    img.calc_slices.filter = ones(5)/9;
+    img.show_slices.contour_levels = [1,1]*0.4*lev;
+    img.show_slices.contour_properties = {'LineWidth',2,'Color',[0,0,0]};
+%   img.show_slices.axes_msm = true;
+    rimg = calc_slices(img);
+    rimg = calc_colours(rimg,img);
+    rimg(rimg==128)=1;
+    mask = (rimg>128) -  bwareaopen(rimg>128,150);
+    rimg(~mask)=1;
+    
+    elem_ptr = mdl_slice_mapper( fmdl, 'elem');
+    img.elem_data( elem_ptr(find(mask)) ) = 0;
+    show_slices(img);
+    set(gca,'YDir','reverse','XDir','reverse');
+  end
+  hh=get(gca,'Children');
+  set(hh(2:2:end),'AlphaData',0.2);
