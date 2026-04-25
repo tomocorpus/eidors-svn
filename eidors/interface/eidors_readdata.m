@@ -50,7 +50,7 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %       If format 'h5-all' or 'hdf5-all' or dataset = '{:all:}', then all datasets are
 %        loaded into a cell array
 %
-%    - Medas Medical 'VTM' format
+%    - Midas Medical 'VTM' format
 %       For the Ventom device
 %
 %    - Infivision 'MES' format
@@ -263,6 +263,7 @@ switch fmt
       d=d(:,1:16,1:end);
       vv=reshape(d,256,[]);
 
+% VTM file format
    case 'vtm';
      auxdata = read_vtm(fname);
 %  Using flip is easier with than the code in read_vtm
@@ -1623,7 +1624,6 @@ function s=sciospec_frame(fname);
 % Contribution by Zhanqi Zhao <zhanqizhao@gzhmu.edu.cn>
 function [vtmData] = read_vtm(full_dfile_name)
 %READ_vtm 
-%   ´Ë´¦ÏÔÊ¾ÏêÏ¸ËµÃ÷
     [~,~,file_ext]= fileparts(full_dfile_name);
     if  strcmp(file_ext,'.vtm') %.bin File, image data
         
@@ -1643,9 +1643,9 @@ function [vtmData] = read_vtm(full_dfile_name)
         fid=fopen(full_dfile_name,'r');
         Header = fread(fid,len_header,'uint8'); 
         if ~strcmp(sprintf('%02X',Header(1:2)),'AA55')
-            error('Î´Ê¶±ðµÄÎÄ¼þ');
+            error('Header not valid');
         end
-%%         
+
             systemdata1 = native2unicode(Header(3:206))';
             str1 = regexpi(systemdata1, '([^\t\f\n\r]*)', 'match');
 %             systemparm = {'DeviceModel','Frequency','Framerate','Amplitude','Time'};
@@ -1683,7 +1683,7 @@ function [vtmData] = read_vtm(full_dfile_name)
            if fseek(fid,ss(k),-1)<0; break; end
            dd(:,k)=fread(fid,530,'uint8', 0, 'ieee-le');
         end
-        ETDdata = dd(3:3+527,:);% 528Ô­Ê¼Êý¾Ý
+        ETDdata = dd(3:3+527,:);
         contact0=ETDdata((9+192)*2+1:((9+192)*2+32),:);
         for row=1:16
             RawDataContact(row,:)=contact0((row-1)*2+2,:)*256+contact0((row-1)*2+1,:); 
