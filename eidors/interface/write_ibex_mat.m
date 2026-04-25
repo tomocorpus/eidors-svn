@@ -4,6 +4,7 @@ function write_ibex_mat(fname, fmdl, imgs, frame_rate)
 %    fname - file name to write to 
 %    fmdl  - the fmdl to use, including lung regions
 %    imgr  - the reconstructed image requence
+%      :as a 32x32 array OR as an EIDORS image
 %    frame_rate - frame rate of acq data
 %
 %
@@ -13,9 +14,23 @@ function write_ibex_mat(fname, fmdl, imgs, frame_rate)
 % $Id$
 
 [llROI, rlROI, thROI] = get_ROIs(fmdl);
+imgs = proc_imgs(imgs);
 imgs(isnan(imgs))= 0;
 data = create_data(imgs, frame_rate, thROI, llROI, rlROI );
 save(fname,'data');
+
+function imgs = proc_imgs(imgs);
+   if isfield(imgs,'type') && strcmp(imgs.type,'image');
+      imgr.calc_colours.npoints = 32; % must reconstruct to 32x32
+      imgs = calc_slices(imgs);
+   end
+
+   if size(imgs,1)~=32 || size(imgs,2)~=32
+      error('need a 32x32 image for Ibex');
+   end
+
+   nanloc = isnan(imgs);
+   imgs(nanloc) = 0;
 
 function [llung_ROI, rlung_ROI, thorax_ROI] = get_ROIs(fmdl);
     lmi = length(fmdl.mat_idx);
