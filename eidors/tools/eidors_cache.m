@@ -139,6 +139,7 @@ if nargin==1 && ischar(command) && strcmp(command,'UNIT_TEST');
 
 global eidors_objects;
 if nargin<1
+   fprintf('EIDORS_CACHE: enabled = %d\n', eidors_objects.cache_enable );
    fprintf('EIDORS_CACHE: current max memory = %.0f MB\n', ...
          eidors_objects.max_cache_size/(1024*1024));
    ww= whos('eidors_objects');
