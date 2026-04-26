@@ -309,16 +309,16 @@ function img = baby_fem(hcut, topcut);
 
 function backprojection_show();
     zmid = .05;
-    ng_write_opt('MSZZPLANE',[0,0,zmid,1,0.05]);
-    extra = {'ball','solid ball = sphere(0.15,0.27,0.1;0.03);'};
+    ng_write_opt('MSZZPLANE',[0,0,zmid,1,0.1]);
+    extra = {'ball',sprintf('solid ball = sphere(0.18,0.24,%f;0.06);',zmid)};
     Baby_Ellip = [1.15,0.85];
-    fmdl = ng_mk_ellip_models([2*zmid,Baby_Ellip],[16,zmid],[.06,0,.02],extra);
+    fmdl = ng_mk_ellip_models([2*zmid,Baby_Ellip],[16,zmid],[.05, zmid*2, .01],extra);
     fmdl.nodes(:,1) = -fmdl.nodes(:,1);
     fmdl.mdl_slice_mapper.npoints = 100; %calc_colours('npoints');
     fmdl.mdl_slice_mapper.level = [inf,inf,zmid]; 
     fmdl.stimulation = mk_stim_patterns(16,1,[0,1],[0,1]);
-    imdl = select_imdl(fmdl,{'Basic GN dif'}); imdl.hyperparameter.value = .0003;
-    %imdl = select_imdl(fmdl,{'GREIT:NF=1 32x32'});
+    imdl = select_imdl(fmdl,{'Basic GN dif'}); imdl.hyperparameter.value = .0005;
+%   imdl = select_imdl(fmdl,{'GREIT:NF=1 32x32'});
 
     ball = fmdl.mat_idx{2};
     show_backprojections(fmdl,imdl,ball)
@@ -350,7 +350,7 @@ function show_backprojections(fmdl,imdl,ball);
     img.calc_colours.backgnd = [1,1,1];
     img.calc_colours.greylev = -.1;
     img.calc_slices.filter = ones(5)/9;
-    img.show_slices.contour_levels = [1,1]*0.4*lev;
+    img.show_slices.contour_levels = [1,1]*0.5*lev;
     img.show_slices.contour_properties = {'LineWidth',2,'Color',[0,0,0]};
 %   img.show_slices.axes_msm = true;
     rimg = calc_slices(img);
