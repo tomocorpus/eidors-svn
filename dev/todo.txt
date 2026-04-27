@@ -1,4 +1,5 @@
 Plan for 3.13:
+ - easily calculate the "Weiner filter" form of linear reconsts
  - Check mk_c2f_circ_mapping correctly uses c2f in case=3
  - Check octave can find files via "which" in eidors_readdata
  - Put frame_range limits into eidors_readdata (esp into lq4 format)
