@@ -52,21 +52,6 @@ img = data_mapper(img,1);
 img = scale_to_fit_data(img, inv_model, data1, data2);
 
 
-function RM = get_RM( inv_model )
-   img_bkgnd= calc_jacobian_bkgnd( inv_model );
-   J = calc_jacobian( img_bkgnd);
-
-   RtR = calc_RtR_prior( inv_model );
-   W   = calc_meas_icov( inv_model );
-   hp  = calc_hyperparameter( inv_model );
-    
-   % left_divide now has handling to force symmetric methods when matrices
-   % are symmetric up to floating point error.
-   RM  = left_divide((J'*W*J +  hp^2*RtR),J'*W);
-   
-   
-
-   
    
 function [img, step_size] = scale_to_fit_data(img, inv_model, data1, data2)
    % find the step size to multiply sol by to best fit data
