@@ -27,7 +27,7 @@ function imgs= EIT_intro(fig, prm)
         !mv contour.pdf contour1213.pdf
         fig_with_reconstruction_sensitivity(1.8, [0.15,0.45], [1,2,10,11],1);
         !mv contour.pdf contour1011.pdf
-        print_convert equipotential.png
+        print_convert equipotential.jpg
       case {7,'baby_backproj'}; 
          backprojection_show();
       case 'fig_with_equipotential'
@@ -51,7 +51,7 @@ function mk_figure1 % baby FEM image
     img.calc_colours.clim= 1;
      show_fem_enhanced(img,opt);
     axis off
-    print_convert baby_fem.png
+    print_convert baby_fem.jpg
 
 function mk_figure2 % heart bigger and smaller
     for fn = 1:2; switch fn
@@ -70,18 +70,18 @@ function mk_figure2 % heart bigger and smaller
         img.calc_colours.clim= 1;
         show_fem_enhanced(img,opt);
         axis off
-        print_convert(sprintf('baby_heart%d.png',fn))
+        print_convert(sprintf('baby_heart%d.jpg',fn))
     end
 
 function mk_figure3 % Figure with Equipotentials
     fig_with_equipotential(1.8,[0.15,0.45],[1,6,1,6])
-    print_convert equip1_diastole.png
+    print_convert equip1_diastole.jpg
     fig_with_equipotential(1.8,[0.2 ,0.40],[1,6,1,6])
-    print_convert equip1_systole.png
+    print_convert equip1_systole.jpg
     fig_with_equipotential(1.8,[0.15,0.45],[16,5,1,6])
-    print_convert equip2_diastole.png
+    print_convert equip2_diastole.jpg
     fig_with_equipotential(1.8,[0.2 ,0.40],[16,5,1,6])
-    print_convert equip2_systole.png
+    print_convert equip2_systole.jpg
 
 function [img,opt] = basic_fem(zlevel,heart);
     img = baby_fem([zlevel,heart]);
@@ -237,7 +237,7 @@ function fig_with_image(zlevel, heart)
     end
     hold off
     colormap(cmap)
-    print_convert image_sequence.png
+    print_convert image_sequence.jpg
 %figure(2);show_slices(imgs);
 
 function imdl = GREIT_from_img(img, pats); 
@@ -310,7 +310,7 @@ function img = baby_fem(hcut, topcut);
 function backprojection_show();
     zmid = .05;
     ng_write_opt('MSZZPLANE',[0,0,zmid,1,0.1]);
-    extra = {'ball',sprintf('solid ball = sphere(0.18,0.24,%f;0.06);',zmid)};
+    extra = {'ball',sprintf('solid ball = sphere(0.18,0.24,%f;0.04);',zmid)};
     Baby_Ellip = [1.15,0.85];
     fmdl = ng_mk_ellip_models([2*zmid,Baby_Ellip],[16,zmid],[.05, zmid*2, .01],extra);
     fmdl.nodes(:,1) = -fmdl.nodes(:,1);
@@ -327,18 +327,35 @@ function backprojection_show();
     plot(sin(th)*MAG+MAG, ...
          cos(th)*MAG*Baby_Ellip(2)/Baby_Ellip(1)+MAG,'k','LineWidth',2);
     view(0,-70);
+    print_convert backprojection_show.jpg
 
 function show_backprojections(fmdl,imdl,ball);
+  USE_REC_MODEL = 0;
   imgs = mk_image(fmdl,1);    vh = fwd_solve(imgs);
   imgs.elem_data(ball) = 1.1; vi = fwd_solve(imgs);
   vx = vh.meas + diag( vi.meas - vh.meas ); 
+  if USE_REC_MODEL
   imdl.rec_model = mdl2d_from3d(fmdl);
+  imdl.rec_model.mdl_slice_mapper = struct('level', [inf,inf,0], ...
+           'x_pts', linspace(-1.2,1.2,101), ...
+           'y_pts', linspace(-0.8,0.8,101));
   imdl.fwd_model.coarse2fine = mk_coarse_fine_mapping(fmdl,imdl.rec_model);
+  end
   imdl.solve = @inv_solve_diff_GN_one_step;
   ied = getfield(inv_solve(imdl,vh,vx),'elem_data');
   ball = fmdl.mat_idx{2};
-keyboard
-  [~,most] = sort(min(ied(ball,:)));
+  xyz = interp_mesh(fmdl);
+  xyz = mean(xyz(ball,:));
+  if USE_REC_MODEL
+  rmdl = imdl.rec_model;
+  else
+  rmdl = fmdl;
+  end
+  els = elem_select(rmdl,@(x,y,z) ...
+     (x-xyz(1)).^2 + ...
+     (y-xyz(2)).^2 < .01^2);
+  fied = sum(ied(find(els),:));
+  [~,most] = sort(abs(fied));
   idx = most(end-(0:2:20));
 
   cla; hold on;
@@ -363,7 +380,7 @@ keyboard
     mask = (rimg>128) -  bwareaopen(rimg>128,150);
     rimg(~mask)=1;
     
-    elem_ptr = mdl_slice_mapper( fmdl, 'elem');
+    elem_ptr = mdl_slice_mapper( rmdl, 'elem');
     img.elem_data( elem_ptr(find(mask)) ) = 0;
     show_slices(img);
     set(gca,'YDir','reverse','XDir','reverse');
