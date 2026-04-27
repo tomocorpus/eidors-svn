@@ -332,8 +332,12 @@ function show_backprojections(fmdl,imdl,ball);
   imgs = mk_image(fmdl,1);    vh = fwd_solve(imgs);
   imgs.elem_data(ball) = 1.1; vi = fwd_solve(imgs);
   vx = vh.meas + diag( vi.meas - vh.meas ); 
+  imdl.rec_model = mdl2d_from3d(fmdl);
+  imdl.fwd_model.coarse2fine = mk_coarse_fine_mapping(fmdl,imdl.rec_model);
+  imdl.solve = @inv_solve_diff_GN_one_step;
   ied = getfield(inv_solve(imdl,vh,vx),'elem_data');
   ball = fmdl.mat_idx{2};
+keyboard
   [~,most] = sort(min(ied(ball,:)));
   idx = most(end-(0:2:20));
 
