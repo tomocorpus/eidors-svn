@@ -38,6 +38,8 @@ else
     W   = calc_meas_icov( inv_model );
     hp  = calc_hyperparameter( inv_model );
     
+   % left_divide now has handling to force symmetric methods when matrices
+   % are symmetric up to floating point error.
     RM = (J'*W*J +  hp^2*RtR)\J'*W;
 end
 
