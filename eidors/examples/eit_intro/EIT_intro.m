@@ -74,6 +74,30 @@ function mk_figure2 % heart bigger and smaller
     end
 
 function mk_figure3 % Figure with Equipotentials
+    if exist('figure3.mat');
+    imgs1= equipotential_slice(1.8,[0.2 ,0.40],[16,5,1,6]);
+    imgh1= equipotential_slice(1.8,[0.2 ,0.40]);
+    imgs2= equipotential_slice(1.8,[0.15,0.45],[1,6,1,6]);
+    imgh2= equipotential_slice(1.8,[0.15,0.45]);
+    imgs3= equipotential_slice(1.8,[0.2 ,0.40],[1,6,1,6]);
+    imgh3= equipotential_slice(1.8,[0.2 ,0.40]);
+    imgs4= equipotential_slice(1.8,[0.15,0.45],[16,5,1,6]);
+    imgh4= equipotential_slice(1.8,[0.15,0.45]);
+    save figure3.mat imgs1 imgs2 imgs3 imgs4;
+    els
+    load figure3.mat
+    end
+
+    % if req'd load figure3 here
+    show_fig_with_equipotential(imgs1,1.8,[0.2 ,0.40]);
+    print_convert equip1_diastole.jpg
+    show_fig_with_equipotential(imgs2,1.8,[0.15,0.45]);
+    print_convert equip1_systole.jpg
+    show_fig_with_equipotential(imgs3,1.8,[0.2 ,0.40]);
+    print_convert equip2_diastole.jpg
+    show_fig_with_equipotential(imgs4,1.8,[0.15,0.45]);
+    print_convert equip2_systole.jpg
+if 0
     fig_with_equipotential(1.8,[0.15,0.45],[1,6,1,6])
     print_convert equip1_diastole.jpg
     fig_with_equipotential(1.8,[0.2 ,0.40],[1,6,1,6])
@@ -82,6 +106,7 @@ function mk_figure3 % Figure with Equipotentials
     print_convert equip2_diastole.jpg
     fig_with_equipotential(1.8,[0.2 ,0.40],[16,5,1,6])
     print_convert equip2_systole.jpg
+end
 
 function [img,opt] = basic_fem(zlevel,heart);
     img = baby_fem([zlevel,heart]);
@@ -97,7 +122,10 @@ function [img,opt] = basic_fem(zlevel,heart);
     img.calc_colours.clim= 2;
     img.opt = opt;
     if nargout > 0; return ; end
-    show_fem_enhanced(img,opt);
+    show_basic_fem(img);
+
+function show_basic_fem(img);
+    show_fem_enhanced(img,img.opt);
     cmap = colormap;
     cmap = cmap(1:end-3,:);
     cmap(140:end,1) = cmap(140:end,1:2)*[1;1]/1.5;
@@ -106,8 +134,11 @@ function [img,opt] = basic_fem(zlevel,heart);
     show_fem_enhanced(img,opt);
 
 function fig_with_equipotential(zlevel, heart, ssmm)
-    clf
     imgs = equipotential_slice(zlevel,heart, ssmm);
+    show_fig_with_equipotential(imgs,zlevel,heart);
+
+function show_fig_with_equipotential(imgs,zlevel,heart);
+    clf
     show_slices(imgs);
     hh= get(gca,'Children');
     delete(hh(2))
@@ -260,19 +291,19 @@ function imgs = reconst_images
 
 function mk_figure4a
     fig_with_sensitivity(1.8,[0.15,0.45],[1,3,8,10])
-    print_convert equipotentiala.png
+    print_convert equipotentiala.jpg
 
 function mk_figure4b
     fig_with_sensitivity(1.8,[0.15,0.45],[1,2,8,9])
-    print_convert equipotentiala.png
+    print_convert equipotentiala.jpg
     
 function mk_figure4
     fig_with_sensitivity(1.8,[0.15,0.45],[1,6,8,10])
-    print_convert equipotential.png
+    print_convert equipotential.jpg
 
 function mk_figure5
     fig_with_image(1.6,[0.15,0.45])
-    print_convert equipotential.png
+    print_convert equipotential.jpg
      
 function img = baby_fem(hcut, topcut);
     if nargin==0; hcut = 2.0; end
@@ -285,7 +316,7 @@ function img = baby_fem(hcut, topcut);
        'solid llung = ellipsoid(-0.40,-0.05,1.5;0,0,1.2;0,0.6,0;0.55,0,0);' ...
        'solid rlung = ellipsoid( 0.40,-0.05,1.5;0,0,1.2;0,0.6,0;0.55,0,0);' ...
        'solid lbot = plane(0,0,%f;0,0,1) and top;'  ...
-       'solid heart_= sphere(0.1, %f,1.8;%f) -maxh=0.05;' ...
+       'solid heart_= sphere(-0.1, %f,1.8;%f) -maxh=0.05;' ...
        'solid heart= heart_ and lbot;' ...
        'solid lungs= (llung or rlung) and lbot and not heart_;' ...
        'solid lcut= plane(-1,0,2;-3,0, 1);' ...
