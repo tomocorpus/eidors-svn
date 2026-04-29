@@ -74,16 +74,16 @@ function mk_figure2 % heart bigger and smaller
     end
 
 function mk_figure3 % Figure with Equipotentials
-    if exist('figure3.mat');
+    if ~exist('figure3.mat');
     imgs1= equipotential_slice(1.8,[0.2 ,0.40],[16,5,1,6]);
-    imgh1= equipotential_slice(1.8,[0.2 ,0.40]);
+    imgh1= basic_fem(          1.8,[0.2 ,0.40]);
     imgs2= equipotential_slice(1.8,[0.15,0.45],[1,6,1,6]);
-    imgh2= equipotential_slice(1.8,[0.15,0.45]);
+    imgh2= basic_fem(          1.8,[0.15,0.45]);
     imgs3= equipotential_slice(1.8,[0.2 ,0.40],[1,6,1,6]);
-    imgh3= equipotential_slice(1.8,[0.2 ,0.40]);
+    imgh3= basic_fem(          1.8,[0.2 ,0.40]);
     imgs4= equipotential_slice(1.8,[0.15,0.45],[16,5,1,6]);
-    imgh4= equipotential_slice(1.8,[0.15,0.45]);
-    save figure3.mat imgs1 imgs2 imgs3 imgs4;
+    imgh4= basic_fem(          1.8,[0.15,0.45]);
+    save figure3.mat imgs1 imgs2 imgs3 imgs4 imgh1 imgh2 imgh3 imgh4;
     els
     load figure3.mat
     end
@@ -135,15 +135,16 @@ function show_basic_fem(img);
 
 function fig_with_equipotential(zlevel, heart, ssmm)
     imgs = equipotential_slice(zlevel,heart, ssmm);
-    show_fig_with_equipotential(imgs,zlevel,heart);
+    imgh = basic_fem(zlevel,heart);
+    show_fig_with_equipotential(imgs,imgh);
 
-function show_fig_with_equipotential(imgs,zlevel,heart);
+function show_fig_with_equipotential(imgs,imgh);
     clf
     show_slices(imgs);
     hh= get(gca,'Children');
     delete(hh(2))
     hold on
-    basic_fem(zlevel,heart);
+    show_basic_fem(imgh);
     hold off
     axis off
 
