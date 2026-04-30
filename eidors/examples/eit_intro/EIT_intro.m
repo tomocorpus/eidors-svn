@@ -17,6 +17,7 @@ function imgs= EIT_intro(fig, prm)
          imgs.calc_colours.ref_level = 1;
       case 1;   mk_figure1
       case 2;   mk_figure2
+% This does not work with matlab 2026a
       case 3;   mk_figure3
       case 4;   mk_figure4
       case 4.1; mk_figure4a
@@ -84,18 +85,18 @@ function mk_figure3 % Figure with Equipotentials
     imgs4= equipotential_slice(1.8,[0.15,0.45],[16,5,1,6]);
     imgh4= basic_fem(          1.8,[0.15,0.45]);
     save figure3.mat imgs1 imgs2 imgs3 imgs4 imgh1 imgh2 imgh3 imgh4;
-    els
+    else
     load figure3.mat
     end
 
     % if req'd load figure3 here
-    show_fig_with_equipotential(imgs1,1.8,[0.2 ,0.40]);
+    show_fig_with_equipotential(imgs1,imgh1)
     print_convert equip1_diastole.jpg
-    show_fig_with_equipotential(imgs2,1.8,[0.15,0.45]);
+    show_fig_with_equipotential(imgs2,imgh2)
     print_convert equip1_systole.jpg
-    show_fig_with_equipotential(imgs3,1.8,[0.2 ,0.40]);
+    show_fig_with_equipotential(imgs3,imgh3)
     print_convert equip2_diastole.jpg
-    show_fig_with_equipotential(imgs4,1.8,[0.15,0.45]);
+    show_fig_with_equipotential(imgs4,imgh4)
     print_convert equip2_systole.jpg
 if 0
     fig_with_equipotential(1.8,[0.15,0.45],[1,6,1,6])
@@ -131,7 +132,7 @@ function show_basic_fem(img);
     cmap(140:end,1) = cmap(140:end,1:2)*[1;1]/1.5;
     cmap(140:end,2) = cmap(140:end,2)/3;
     img.calc_colours.cmap_type= cmap;
-    show_fem_enhanced(img,opt);
+    show_fem_enhanced(img,img.opt);
 
 function fig_with_equipotential(zlevel, heart, ssmm)
     imgs = equipotential_slice(zlevel,heart, ssmm);
@@ -296,7 +297,7 @@ function mk_figure4a
 
 function mk_figure4b
     fig_with_sensitivity(1.8,[0.15,0.45],[1,2,8,9])
-    print_convert equipotentiala.jpg
+    print_convert equipotentialb.jpg
     
 function mk_figure4
     fig_with_sensitivity(1.8,[0.15,0.45],[1,6,8,10])
