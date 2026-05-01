@@ -17,7 +17,6 @@ function imgs= EIT_intro(fig, prm)
          imgs.calc_colours.ref_level = 1;
       case 1;   mk_figure1
       case 2;   mk_figure2
-% This does not work with matlab 2026a
       case 3;   mk_figure3
       case 4;   mk_figure4
       case 4.1; mk_figure4a
@@ -305,7 +304,7 @@ function mk_figure4
 
 function mk_figure5
     fig_with_image(1.6,[0.15,0.45])
-    print_convert equipotential.jpg
+    print_convert reconstructed_images.jpg
      
 function img = baby_fem(hcut, topcut);
     if nargin==0; hcut = 2.0; end
