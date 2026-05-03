@@ -74,20 +74,18 @@ function mk_figure2 % heart bigger and smaller
         print_convert(sprintf('baby_heart%d.jpg',fn))
     end
 
+function [imgs,imgb] = slice_and_fem_calc(zlevels,heart,ssmm)
+    imgs= equipotential_slice(zlevels(1), heart, ssmm);
+    imgh= basic_fem(          zlevels(2), heart);
+
 function mk_figure3 % Figure with Equipotentials
-    if ~exist('figure3.mat');
-    imgs1= equipotential_slice(1.8,[0.2 ,0.40],[16,5,1,6]);
-    imgh1= basic_fem(          1.6,[0.2 ,0.40]);
-    imgs2= equipotential_slice(1.8,[0.15,0.45],[1,6,1,6]);
-    imgh2= basic_fem(          1.6,[0.15,0.45]);
-    imgs3= equipotential_slice(1.8,[0.2 ,0.40],[1,6,1,6]);
-    imgh3= basic_fem(          1.6,[0.2 ,0.40]);
-    imgs4= equipotential_slice(1.8,[0.15,0.45],[16,5,1,6]);
-    imgh4= basic_fem(          1.6,[0.15,0.45]);
-    save figure3.mat imgs1 imgs2 imgs3 imgs4 imgh1 imgh2 imgh3 imgh4;
-    else
-    load figure3.mat
-    end
+    opt.cache_to_disk = '.';
+    zl = [1.8,1.6];
+    h0 = [0.2,0.4]; h1 = [0.15,0.45];
+    [imgs1,imgb1] = eidors_cache(@slice_and_fem_calc, {zl,h0,[16,5,1,6]},opt);
+    [imgs2,imgb2] = eidors_cache(@slice_and_fem_calc, {zl,h0,[1,6,1,6]},opt);
+    [imgs3,imgb3] = eidors_cache(@slice_and_fem_calc, {zl,h1,[16,5,1,6]},opt);
+    [imgs4,imgb4] = eidors_cache(@slice_and_fem_calc, {zl,h1,[1,6,1,6]},opt);
 
     % if req'd load figure3 here
     show_fig_with_equipotential(imgs1,imgh1)
