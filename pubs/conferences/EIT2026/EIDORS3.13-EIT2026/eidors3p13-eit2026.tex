@@ -138,7 +138,7 @@ make available suitable EIT illustrations.
 \section{Introduction}
 
 We proudly announce the release of EIDORS version 3.13,
-for the 24th Int.\ Conf.\ on Biomedical Applications of EIT,
+for the 26th Int.\ Conf.\ on Biomedical Applications of EIT,
 in July 2026.
 The software is available at \href{www.eidors.org}{eidors.org}\, and licensed under the GNU GPLv2 or GPLv3. Archived versions are available on Zenodo
 \cite{eidors3p13, eidors3p12,
@@ -164,7 +164,7 @@ algorithms, adding and improving a number of aspects.
 \begin{itemize}
 \item improved / less fragile netgen interface
 \item refactored extruded mesh shapes
-\item support for Acousto-electric tomography
+\item support for acousto-electric tomography
 \item improved documentation
 \item graphcs improvements and bug work-arounds
 \item support for new vendor file formats
@@ -237,47 +237,48 @@ figures at \href{https://doi.org/10.5281/zenodo.19702540}
 under an creative commons license for
 use in papers and presentations (fig~\ref{fig:illustrations}).
 
-The earliest EIT systems used a weighted backprojection approach
-to image reconstruction.
-This approach was superceeded by Gauss-Newton and Bayesian approaches:
-there are no longer any clinical or research EIT systems which use backprojection.
-Nevertheless, illustrations of ``how EIT works''
-with pictures of backprojection. We feel this is misleading an 
-unnecessarily difficult to understand. 
+Illustrations of equipotential backprojection are often used
+to illustrate ``how EIT works'', even though this 
+is no longer used in any clinical or research EIT systems.
 
-Instead, linearized time-difference EIT image reconstruction seeks 
-a solution $\xH/$ which minimizes:
+However, it is possible to illustrate linearized time-difference EIT image reconstruction
+in this way (Fig~\ref{fig:illustrations}C).
+From a solution $\xH/$ which minimizes:
 $\| \xH/ - \JB/ \yB/ \|$
 for sensitivity matrix $\JB/$ and difference data $\yB/$,
-giving
 $\xH/ =
  ( \JB/^T  \JB/^T + \RB/ )^{-1} 
 \JB/^T
  \yB/ = (\mbox{Filter})(\mbox{Backprojection})\yB/
-$ (Fig~\ref{fig:illustrations}b).
+$
 
 
 \begin{figure}[H]
   \vspace{-2.5mm}
 \centering
-%\includegraphics[page=2,width=.5\columnwidth]{figures-EIDORS-v3.13.pdf}
+ \includegraphics[page=2,width=.6\columnwidth]{figures-EIDORS-v3.13.pdf}
+\put(-184,45){\bf (A)}
+
  \includegraphics[page=3,width=.99\columnwidth]{figures-EIDORS-v3.13.pdf}
-\put(-230,95){\bf (A)}
+\put(-230,95){\bf (B)}
 
 \vspace{2mm}
 \raisebox{9mm}{\includegraphics[page=4,width=.4\columnwidth]{figures-EIDORS-v3.13.pdf}}
  \includegraphics[page=18,width=.59\columnwidth]{figures-EIDORS-v3.13.pdf}%
-\put(-230,90){\bf (B)}%
-\put(-130,90){\bf (C)}%
+\put(-230,90){\bf (C)}%
+\put(-130,90){\bf (D)}%
 \caption{%
-EIT Illustrations: (A) adjacent-drive measurement and the equipotential lines
+EIT Illustrations
+ (Images and data from \cite{heinrich2006}):
+(A) Subject and FEM;
+(B) adjacent-drive measurement and the equipotential lines
 associated with a change in heart blood volume;
-(B) EIT image from four most sensitive measurements of the heart region;
-(C) EIT images and waveforms of breathing and heart activity.
+(C) EIT image from four most sensitive measurements of the heart region;
+(D) EIT images and waveforms of breathing and heart activity.
 }
 \label{fig:illustrations}
 \end{figure}
-\vspace{-2mm}
+\vspace{-5mm}
 
 
 
