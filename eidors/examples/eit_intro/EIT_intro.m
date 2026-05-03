@@ -8,7 +8,7 @@ function imgs= EIT_intro(fig, prm)
      mk_figure3;
      mk_figure4;
      mk_figure5;
-     backprojection_show();
+     backprojection_show(1:3);
    end
 
 
@@ -29,7 +29,7 @@ function imgs= EIT_intro(fig, prm)
         !mv contour.pdf contour1011.pdf
         print_convert fig6-.jpg
       case {7,'baby_backproj'}; 
-        backprojection_show();
+        backprojection_show(1:3);
         print_convert backprojection_show.jpg
       case 'fig_with_equipotential'
          imgs= equipotential_slice(prm{1},prm{2},prm{3});
@@ -344,10 +344,11 @@ function img = baby_fem(hcut, topcut);
     img.elem_data(fmdl.mat_idx{3}) = 1.5;
 
 
-function backprojection_show();
+function backprojection_show(idxlist);
     zmid = .05;
-    ng_write_opt('MSZZPLANE',[0,0,zmid,1,0.02]);
-    extra = {'ball',sprintf('solid ball = sphere(0.18,0.24,%f;0.04);',zmid)};
+    maxh = .05;
+    ng_write_opt('MSZZPLANE',[0,0,zmid,1,maxh]);
+    extra = {'ball',sprintf('solid ball = sphere(0.08,0.24,%f;0.03);',zmid)};
     Baby_Ellip = [1.20,0.80];
     fmdl = ng_mk_ellip_models([2*zmid,Baby_Ellip],[16,zmid],[.2, zmid*2, .01],extra);
     fmdl.nodes(:,1) = -fmdl.nodes(:,1);
@@ -366,10 +367,14 @@ function backprojection_show();
     clf
     imgh.elem_data(:) = 1;
     imgh.fwd_model.nodes(:,3) = imgh.fwd_model.nodes(:,3) + 0.01; % move back a bit so don't interfere with the image
-    show_backprojections(fmdl,imdl,ball)
-    hold on
     show_basic_fem(imgh);
+    hold on
+    show_backprojections(fmdl,imdl,ball,idxlist)
     hold off
+    cmap = colormap;
+    cmap(end+(-2:0),:) = [0.7;0.5;0.3]*[0,1,0];
+    colormap(cmap);
+    keyboard
 
 
 
@@ -384,7 +389,7 @@ function backprojection_show();
     plot(sin(th)*MAG+MAG, ...
          cos(th)*MAG*Baby_Ellip(2)/Baby_Ellip(1)+MAG,'k','LineWidth',2);
 
-function show_backprojections(fmdl,imdl,ball);
+function show_backprojections(fmdl,imdl,ball,idxlist);
   USE_REC_MODEL = 1;
   imgs = mk_image(fmdl,1);    vh = fwd_solve(imgs);
   imgs.elem_data(ball) = 1.1; vi = fwd_solve(imgs);
@@ -407,13 +412,12 @@ function show_backprojections(fmdl,imdl,ball);
   els = elem_select(rmdl,@(x,y,z) ...
      (x-xyz(1)).^2 + ...
      (y-xyz(2)).^2 < .01^2);
-  fied = sum(ied(find(els),:));
+  fied = sum(ied(find(els),:),1);
   [~,most] = sort(abs(fied));
   idx = most(end-(0:2:20));
 
   vh = ones(208,1);
   THR=0.45;
-% for idxi = length(idx):-1:1;
   ed = 0;
   for idxi = 1:3
     vi_= vh; vi_(idx(idxi)) = vi.meas(idx(idxi));
@@ -439,18 +443,18 @@ function show_backprojections(fmdl,imdl,ball);
     img.show_slices.axes_msm = true;
     ed = ed + img.elem_data;
     show_slices(img);
-%   set(gca,'YDir','reverse','XDir','reverse');
   end
   hh=get(gca,'Children');
   for hi = hh(:)'
     if strcmp(get(hi,'Type'),'image');
-      set(hi,'AlphaData',0.8);
+%     set(hi,'AlphaData',0.8);
       delete(hi)
     end
   end
   img.show_slices.contour_levels = [];
   img.elem_data = ed;
   img.calc_colours.transparency_thresh = .2;
+  img.calc_colours.clim = max(ed)*1.02; %colourmap messed up for electrodes. Need to reset and stay away from max
   [a,b]=view;
   hi = show_fem(img);
   set(hi,'EdgeColor','none');
