@@ -74,38 +74,31 @@ function mk_figure2 % heart bigger and smaller
         print_convert(sprintf('baby_heart%d.jpg',fn))
     end
 
-function [imgs,imgb] = slice_and_fem_calc(zlevels,heart,ssmm)
+function imgsb = slice_and_fem_calc(zlevels,heart,ssmm)
     imgs= equipotential_slice(zlevels(1), heart, ssmm);
-    imgh= basic_fem(          zlevels(2), heart);
+    imgb= basic_fem(          zlevels(2), heart);
+    imgsb = {imgs,imgb};
 
 function mk_figure3 % Figure with Equipotentials
     opt.cache_to_disk = '.';
     zl = [1.8,1.6];
     h0 = [0.2,0.4]; h1 = [0.15,0.45];
-    [imgs1,imgb1] = eidors_cache(@slice_and_fem_calc, {zl,h0,[16,5,1,6]},opt);
-    [imgs2,imgb2] = eidors_cache(@slice_and_fem_calc, {zl,h0,[1,6,1,6]},opt);
-    [imgs3,imgb3] = eidors_cache(@slice_and_fem_calc, {zl,h1,[16,5,1,6]},opt);
-    [imgs4,imgb4] = eidors_cache(@slice_and_fem_calc, {zl,h1,[1,6,1,6]},opt);
 
-    % if req'd load figure3 here
-    show_fig_with_equipotential(imgs1,imgh1)
+    imgsb1 = eidors_cache(@slice_and_fem_calc, {zl,h0,[16,5,1,6]},opt);
+    show_fig_with_equipotential(imgsb1{1},imgsb1{2})
     print_convert equip1_diastole.jpg
-    show_fig_with_equipotential(imgs2,imgh2)
+
+    imgsb3 = eidors_cache(@slice_and_fem_calc, {zl,h1,[16,5,1,6]},opt);
+    show_fig_with_equipotential(imgsb3{1},imgsb3{2})
     print_convert equip1_systole.jpg
-    show_fig_with_equipotential(imgs3,imgh3)
+
+    imgsb2 = eidors_cache(@slice_and_fem_calc, {zl,h0,[1,6,1,6]},opt);
+    show_fig_with_equipotential(imgsb2{1},imgsb2{2})
     print_convert equip2_diastole.jpg
-    show_fig_with_equipotential(imgs4,imgh4)
+
+    imgsb4 = eidors_cache(@slice_and_fem_calc, {zl,h1,[1,6,1,6]},opt);
+    show_fig_with_equipotential(imgsb4{1},imgsb4{2})
     print_convert equip2_systole.jpg
-if 0
-    fig_with_equipotential(1.8,[0.15,0.45],[1,6,1,6])
-    print_convert equip1_diastole.jpg
-    fig_with_equipotential(1.8,[0.2 ,0.40],[1,6,1,6])
-    print_convert equip1_systole.jpg
-    fig_with_equipotential(1.8,[0.15,0.45],[16,5,1,6])
-    print_convert equip2_diastole.jpg
-    fig_with_equipotential(1.8,[0.2 ,0.40],[16,5,1,6])
-    print_convert equip2_systole.jpg
-end
 
 function [img,opt] = basic_fem(zlevel,heart);
     img = eidors_cache(@basic_fem_calc, {zlevel,heart}, struct('cache_to_disk','.'));
