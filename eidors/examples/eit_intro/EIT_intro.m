@@ -27,7 +27,7 @@ function imgs= EIT_intro(fig, prm)
         !mv contour.pdf contour1213.pdf
         fig_with_reconstruction_sensitivity(1.8, [0.15,0.45], [1,2,10,11],1);
         !mv contour.pdf contour1011.pdf
-        print_convert equipotential.jpg
+        print_convert fig6-.jpg
       case {7,'baby_backproj'}; 
          backprojection_show();
       case 'fig_with_equipotential'
@@ -109,6 +109,12 @@ if 0
 end
 
 function [img,opt] = basic_fem(zlevel,heart);
+    img = eidors_cache(@basic_fem_calc, {zlevel,heart}, struct('cache_to_disk','.'));
+    opt = img.opt;
+    if nargout > 0; return ; end
+    show_basic_fem(img);
+
+function img = basic_fem_calc(zlevel,heart);
     img = baby_fem([zlevel,heart]);
     img.fwd_model.nodes(:,3) = img.fwd_model.nodes(:,3) + zlevel;
     mi = img.fwd_model.mat_idx;
@@ -121,8 +127,6 @@ function [img,opt] = basic_fem(zlevel,heart);
     img.calc_colours.ref_level= 0.95;
     img.calc_colours.clim= 2;
     img.opt = opt;
-    if nargout > 0; return ; end
-    show_basic_fem(img);
 
 function show_basic_fem(img);
     show_fem_enhanced(img,img.opt);
@@ -345,7 +349,7 @@ function backprojection_show();
     extra = {'ball',sprintf('solid ball = sphere(0.18,0.24,%f;0.04);',zmid)};
     Baby_Ellip = [1.15,0.85];
     fmdl = ng_mk_ellip_models([2*zmid,Baby_Ellip],[16,zmid],[.05, zmid*2, .01],extra);
-    fmdl.nodes(:,1) = -fmdl.nodes(:,1);
+%   fmdl.nodes(:,1) = -fmdl.nodes(:,1);
     fmdl.mdl_slice_mapper.npoints = 100; %calc_colours('npoints');
     fmdl.mdl_slice_mapper.level = [inf,inf,zmid]; 
     fmdl.stimulation = mk_stim_patterns(16,1,[0,1],[0,1]);
@@ -353,7 +357,24 @@ function backprojection_show();
 %   imdl = select_imdl(fmdl,{'GREIT:NF=1 32x32'});
 
     ball = fmdl.mat_idx{2};
+    imgh = basic_fem(          1.8,[0.2 ,0.40]);
+
+
+    clf
+    imgh.elem_data(:) = 1;
+    show_basic_fem(imgh);
+    hold on
     show_backprojections(fmdl,imdl,ball)
+    hold off
+
+    keyboard
+
+
+
+
+
+
+
     th=linspace(0,2*pi,101);
     MAG = 50.5;
     plot(sin(th)*MAG+MAG, ...
@@ -363,14 +384,15 @@ function backprojection_show();
 
 function show_backprojections(fmdl,imdl,ball);
   USE_REC_MODEL = 0;
+  msm = struct('level', [inf,inf,0], ...
+           'x_pts', linspace(-1.2,1.2,101), ...
+           'y_pts', linspace( 0.8,-0.8,101));
   imgs = mk_image(fmdl,1);    vh = fwd_solve(imgs);
   imgs.elem_data(ball) = 1.1; vi = fwd_solve(imgs);
   vx = vh.meas + diag( vi.meas - vh.meas ); 
   if USE_REC_MODEL
   imdl.rec_model = mdl2d_from3d(fmdl);
-  imdl.rec_model.mdl_slice_mapper = struct('level', [inf,inf,0], ...
-           'x_pts', linspace(-1.2,1.2,101), ...
-           'y_pts', linspace(-0.8,0.8,101));
+  imdl.rec_model.mdl_slice_mapper = msm;
   imdl.fwd_model.coarse2fine = mk_coarse_fine_mapping(fmdl,imdl.rec_model);
   end
   imdl.solve = @inv_solve_diff_GN_one_step;
@@ -390,7 +412,6 @@ function show_backprojections(fmdl,imdl,ball);
   [~,most] = sort(abs(fied));
   idx = most(end-(0:2:20));
 
-  cla; hold on;
   vh = ones(208,1);
   THR=0.45;
 % for idxi = length(idx):-1:1;
@@ -414,8 +435,11 @@ function show_backprojections(fmdl,imdl,ball);
     
     elem_ptr = mdl_slice_mapper( rmdl, 'elem');
     img.elem_data( elem_ptr(find(mask)) ) = 0;
+    img.fwd_model.mdl_slice_mapper = msm;
+    img.show_slices.axes_msm = true;
     show_slices(img);
     set(gca,'YDir','reverse','XDir','reverse');
   end
   hh=get(gca,'Children');
+keyboard
   set(hh(2:2:end),'AlphaData',0.2);
