@@ -29,7 +29,7 @@ function imgs= EIT_intro(fig, prm)
         !mv contour.pdf contour1011.pdf
         print_convert fig6-.jpg
       case {7,'baby_backproj'}; 
-        backprojection_show(1:3);
+        backprojection_show([1:3,7]);
         print_convert backprojection_show.jpg
       case 'fig_with_equipotential'
          imgs= equipotential_slice(prm{1},prm{2},prm{3});
@@ -77,13 +77,13 @@ function mk_figure2 % heart bigger and smaller
 function mk_figure3 % Figure with Equipotentials
     if ~exist('figure3.mat');
     imgs1= equipotential_slice(1.8,[0.2 ,0.40],[16,5,1,6]);
-    imgh1= basic_fem(          1.8,[0.2 ,0.40]);
+    imgh1= basic_fem(          1.6,[0.2 ,0.40]);
     imgs2= equipotential_slice(1.8,[0.15,0.45],[1,6,1,6]);
-    imgh2= basic_fem(          1.8,[0.15,0.45]);
+    imgh2= basic_fem(          1.6,[0.15,0.45]);
     imgs3= equipotential_slice(1.8,[0.2 ,0.40],[1,6,1,6]);
-    imgh3= basic_fem(          1.8,[0.2 ,0.40]);
+    imgh3= basic_fem(          1.6,[0.2 ,0.40]);
     imgs4= equipotential_slice(1.8,[0.15,0.45],[16,5,1,6]);
-    imgh4= basic_fem(          1.8,[0.15,0.45]);
+    imgh4= basic_fem(          1.6,[0.15,0.45]);
     save figure3.mat imgs1 imgs2 imgs3 imgs4 imgh1 imgh2 imgh3 imgh4;
     else
     load figure3.mat
@@ -346,9 +346,9 @@ function img = baby_fem(hcut, topcut);
 
 function backprojection_show(idxlist);
     zmid = .05;
-    maxh = .05;
+    maxh = .02;
     ng_write_opt('MSZZPLANE',[0,0,zmid,1,maxh]);
-    extra = {'ball',sprintf('solid ball = sphere(0.08,0.24,%f;0.03);',zmid)};
+    extra = {'ball',sprintf('solid ball = sphere(0.08,0.200,%f;0.03);',zmid)};
     Baby_Ellip = [1.20,0.80];
     fmdl = ng_mk_ellip_models([2*zmid,Baby_Ellip],[16,zmid],[.2, zmid*2, .01],extra);
     fmdl.nodes(:,1) = -fmdl.nodes(:,1);
@@ -361,7 +361,7 @@ function backprojection_show(idxlist);
 %   imdl = select_imdl(fmdl,{'GREIT:NF=1 32x32'});
 
     ball = fmdl.mat_idx{2};
-    imgh = basic_fem(          1.5,[0.2 ,0.40]);
+    imgh = basic_fem(          1.6,[0.2 ,0.40]);
 
 
     clf
@@ -374,7 +374,6 @@ function backprojection_show(idxlist);
     cmap = colormap;
     cmap(end+(-2:0),:) = [0.7;0.5;0.3]*[0,1,0];
     colormap(cmap);
-    keyboard
 
 
 
@@ -419,7 +418,7 @@ function show_backprojections(fmdl,imdl,ball,idxlist);
   vh = ones(208,1);
   THR=0.45;
   ed = 0;
-  for idxi = 1:3
+  for idxi = idxlist
     vi_= vh; vi_(idx(idxi)) = vi.meas(idx(idxi));
     img = inv_solve(imdl,vh,vi_);
     lev = THR*max(img.elem_data);
