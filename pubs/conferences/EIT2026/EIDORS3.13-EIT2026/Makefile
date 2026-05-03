@@ -10,11 +10,11 @@ eidors3p13-eit2026.pdf: $(FIGURES).pdf
 
 %.pdf: %.tex
 	$(latexmk) $<
-	gs -sDEVICE=pdfwrite -dPrinted=false -dCompatibilityLevel=1.5 -dNOPAUSE -dQUIET -dBATCH -sOutputFile=$@-- $@
+	gs -sDEVICE=pdfwrite -dPrinted=false -dCompatibilityLevel=1.8 -dNOPAUSE -dQUIET -dBATCH -sOutputFile=$@-- $@
 	mv $@-- $@
 
 $(FIGURES).pptx:
-	wget https://zenodo.org/records/19702540/files/$(FIGURES).pptx?download=1 -o $(FIGURES).pptx
+	wget https://zenodo.org/records/19702540/files/$(FIGURES).pptx?download=1 -O $(FIGURES).pptx
 
 $(FIGURES).pdf: %.pdf: %.pptx
 	soffice --convert-to pdf $<
