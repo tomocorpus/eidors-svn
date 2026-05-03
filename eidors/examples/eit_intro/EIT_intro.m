@@ -366,7 +366,7 @@ function backprojection_show(idxlist);
 
     clf
     imgh.elem_data(:) = 1;
-    imgh.fwd_model.nodes(:,3) = imgh.fwd_model.nodes(:,3) + 0.01; % move back a bit so don't interfere with the image
+    imgh.fwd_model.nodes(:,3) = imgh.fwd_model.nodes(:,3) + 0.001; % move back a bit so don't interfere with the image
     show_basic_fem(imgh);
     hold on
     show_backprojections(fmdl,imdl,ball,idxlist)
@@ -452,7 +452,7 @@ function show_backprojections(fmdl,imdl,ball,idxlist);
   end
   img.show_slices.contour_levels = [];
   img.elem_data = ed;
-  img.calc_colours.transparency_thresh = .2;
+  img.calc_colours.transparency_thresh = .4;
   img.calc_colours.clim = max(ed)*1.02; %colourmap messed up for electrodes. Need to reset and stay away from max
   [a,b]=view;
   hi = show_fem(img);
