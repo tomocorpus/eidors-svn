@@ -19,7 +19,7 @@ function graph_loc
    releaselines
    hold off;
    set(gca,'Box','off')
-   set(gcf,'PaperPosition',[1,1,6,2.5]);
+   set(gcf,'PaperPosition',[1,1,6,2.0]);
    legend('location','northwest');
    ylabel('Lines of Code (x1000)')
    print -dpdf fig_loc.pdf

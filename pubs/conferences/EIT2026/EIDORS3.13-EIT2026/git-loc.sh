@@ -6,7 +6,7 @@ OUTF=datafile.m
 LASTREV=$(cd $REPO && git svn log --oneline HEAD^^^^^..HEAD | head -1 | cut -f1 -d'|' | sed 's/r//')
 echo "LastRev is $LASTREV";
 echo 'loc = [ % all eidors eidors3d htdocs   dev   version  date' > $OUTF
-for ver in `seq 1 $LASTREV`; do 
+for ver in `seq 7000 $LASTREV`; do 
    echo "$REPO: VER=$ver";
    GITVER=`(cd $REPO && git svn find-rev r$ver)`;
 #  (cd $REPO && git checkout $GITVER && git clean -d -x -f); ## Seems not to work
