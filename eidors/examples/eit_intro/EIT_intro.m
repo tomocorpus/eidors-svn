@@ -92,7 +92,7 @@ function mk_figure3 % Figure with Equipotentials
        show_fig_with_equipotential(imgsb1{1},imgsb1{2})
        print_convert(sprintf('equip%d_diastole.jpg',pat));
 
-       imgsb2 = eidors_cache(@slice_and_fem_calc, {zl,h1,[16,5,1,6]},opt);
+       imgsb2 = eidors_cache(@slice_and_fem_calc, {zl,h1,ssmm},opt);
        show_fig_with_equipotential(imgsb2{1},imgsb2{2})
        print_convert(sprintf('equip%d_systole.jpg',pat));
     end
