@@ -84,9 +84,14 @@ function mk_figure3 % Figure with Equipotentials
     zl = [1.8,1.6];
     h0 = [0.2,0.4]; h1 = [0.15,0.45];
 
-    for pat = [1:2]; switch pat
+    for pat = [1:9]; switch pat
        case 1; ssmm = [16,5,1,6];
        case 2; ssmm = [1,6,1,6];
+       case 3; ssmm = [5,6,5,6];
+       case 4; ssmm = [15,16,15,16];
+       case 5; ssmm = [16,1,16,1];
+       case 6; ssmm = [1,2,1,2];
+       case 7; break;
        end
        imgsb1 = eidors_cache(@slice_and_fem_calc, {zl,h0,ssmm},opt);
        show_fig_with_equipotential(imgsb1{1},imgsb1{2})
