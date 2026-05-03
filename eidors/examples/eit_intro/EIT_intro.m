@@ -29,7 +29,8 @@ function imgs= EIT_intro(fig, prm)
         !mv contour.pdf contour1011.pdf
         print_convert fig6-.jpg
       case {7,'baby_backproj'}; 
-         backprojection_show();
+        backprojection_show();
+        print_convert backprojection_show.jpg
       case 'fig_with_equipotential'
          imgs= equipotential_slice(prm{1},prm{2},prm{3});
       case 'fig_sensitivity'
@@ -345,54 +346,52 @@ function img = baby_fem(hcut, topcut);
 
 function backprojection_show();
     zmid = .05;
-    ng_write_opt('MSZZPLANE',[0,0,zmid,1,0.1]);
+    ng_write_opt('MSZZPLANE',[0,0,zmid,1,0.02]);
     extra = {'ball',sprintf('solid ball = sphere(0.18,0.24,%f;0.04);',zmid)};
-    Baby_Ellip = [1.15,0.85];
-    fmdl = ng_mk_ellip_models([2*zmid,Baby_Ellip],[16,zmid],[.05, zmid*2, .01],extra);
-%   fmdl.nodes(:,1) = -fmdl.nodes(:,1);
-    fmdl.mdl_slice_mapper.npoints = 100; %calc_colours('npoints');
-    fmdl.mdl_slice_mapper.level = [inf,inf,zmid]; 
+    Baby_Ellip = [1.20,0.80];
+    fmdl = ng_mk_ellip_models([2*zmid,Baby_Ellip],[16,zmid],[.2, zmid*2, .01],extra);
+    fmdl.nodes(:,1) = -fmdl.nodes(:,1);
+    msm = struct('level', [inf,inf,0], ...
+           'x_pts', linspace(-1.2,1.2,101), ...
+           'y_pts', linspace(-0.8,0.8,101));
+    fmdl.mdl_slice_mapper = msm;
     fmdl.stimulation = mk_stim_patterns(16,1,[0,1],[0,1]);
     imdl = select_imdl(fmdl,{'Basic GN dif'}); imdl.hyperparameter.value = .0005;
 %   imdl = select_imdl(fmdl,{'GREIT:NF=1 32x32'});
 
     ball = fmdl.mat_idx{2};
-    imgh = basic_fem(          1.8,[0.2 ,0.40]);
+    imgh = basic_fem(          1.5,[0.2 ,0.40]);
 
 
     clf
     imgh.elem_data(:) = 1;
-    show_basic_fem(imgh);
-    hold on
+    imgh.fwd_model.nodes(:,3) = imgh.fwd_model.nodes(:,3) + 0.01; % move back a bit so don't interfere with the image
     show_backprojections(fmdl,imdl,ball)
+    hold on
+    show_basic_fem(imgh);
     hold off
 
-    keyboard
 
 
 
+    return
 
-
+    % Old code to put a circle on the image
 
 
     th=linspace(0,2*pi,101);
     MAG = 50.5;
     plot(sin(th)*MAG+MAG, ...
          cos(th)*MAG*Baby_Ellip(2)/Baby_Ellip(1)+MAG,'k','LineWidth',2);
-    view(0,-70);
-    print_convert backprojection_show.jpg
 
 function show_backprojections(fmdl,imdl,ball);
-  USE_REC_MODEL = 0;
-  msm = struct('level', [inf,inf,0], ...
-           'x_pts', linspace(-1.2,1.2,101), ...
-           'y_pts', linspace( 0.8,-0.8,101));
+  USE_REC_MODEL = 1;
   imgs = mk_image(fmdl,1);    vh = fwd_solve(imgs);
   imgs.elem_data(ball) = 1.1; vi = fwd_solve(imgs);
   vx = vh.meas + diag( vi.meas - vh.meas ); 
   if USE_REC_MODEL
   imdl.rec_model = mdl2d_from3d(fmdl);
-  imdl.rec_model.mdl_slice_mapper = msm;
+  imdl.rec_model.mdl_slice_mapper = fmdl.mdl_slice_mapper;
   imdl.fwd_model.coarse2fine = mk_coarse_fine_mapping(fmdl,imdl.rec_model);
   end
   imdl.solve = @inv_solve_diff_GN_one_step;
@@ -415,7 +414,8 @@ function show_backprojections(fmdl,imdl,ball);
   vh = ones(208,1);
   THR=0.45;
 % for idxi = length(idx):-1:1;
-  for idxi = 1:4
+  ed = 0;
+  for idxi = 1:3
     vi_= vh; vi_(idx(idxi)) = vi.meas(idx(idxi));
     img = inv_solve(imdl,vh,vi_);
     lev = THR*max(img.elem_data);
@@ -430,16 +430,29 @@ function show_backprojections(fmdl,imdl,ball);
     rimg = calc_slices(img);
     rimg = calc_colours(rimg,img);
     rimg(rimg==128)=1;
-    mask = (rimg>128) -  bwareaopen(rimg>128,150);
+    mask = (rimg>128) -  bwareaopen(rimg>128,200);
     rimg(~mask)=1;
     
     elem_ptr = mdl_slice_mapper( rmdl, 'elem');
     img.elem_data( elem_ptr(find(mask)) ) = 0;
-    img.fwd_model.mdl_slice_mapper = msm;
+%   img.fwd_model.mdl_slice_mapper = msm;
     img.show_slices.axes_msm = true;
+    ed = ed + img.elem_data;
     show_slices(img);
-    set(gca,'YDir','reverse','XDir','reverse');
+%   set(gca,'YDir','reverse','XDir','reverse');
   end
   hh=get(gca,'Children');
-keyboard
-  set(hh(2:2:end),'AlphaData',0.2);
+  for hi = hh(:)'
+    if strcmp(get(hi,'Type'),'image');
+      set(hi,'AlphaData',0.8);
+      delete(hi)
+    end
+  end
+  img.show_slices.contour_levels = [];
+  img.elem_data = ed;
+  img.calc_colours.transparency_thresh = .2;
+  [a,b]=view;
+  hi = show_fem(img);
+  set(hi,'EdgeColor','none');
+  set(hi,'FaceAlpha',0.5);
+  view(a,b);
