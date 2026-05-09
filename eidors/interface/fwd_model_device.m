@@ -1,10 +1,10 @@
-function fmdl = fmdl_model_device(fmdl,device, opt);
+function fmdl = fmdl_model_device(fmdl,device, opt, frame_rate);
 % FMDL_MODEL_DEVICE: set vendor/device specific parameters
 % fmdl_model_device is a utility function to set vendor and device specific parameters.
 % It sets the 'stimulation', 'normalize_measurements', 'meas_select' fields to the vendor-typical values
 %
 % Usage:
-% fmdl = fmdl_model_device(fmdl,device, opt);
+% fmdl = fmdl_model_device(fmdl,device, opt, frame_rate);
 % 
 % Devices and Options:
 %  Draeger/Pulmovista:
@@ -12,6 +12,9 @@ function fmdl = fmdl_model_device(fmdl,device, opt);
 %  Sentec/Swisstom
 %    - Default: opt.skip = 4; opt.next = 1;
 %    - sets skip pattern, meas_current_next, and mdl_normalize=false
+%
+%  frame_rate
+%    - If provided, sets the frame_rate
 
 % (C) 2024 Andy Adler License: GPL ver 2 or 3
 % $Id$
@@ -19,26 +22,47 @@ function fmdl = fmdl_model_device(fmdl,device, opt);
 if ischar(fmdl) && strcmp(fmdl,'UNIT_TEST'); do_unit_test(); return; end
 
 if nargin<3; opt=struct(); end
+if isempty(opt); opt=struct(); end
 
 switch lower(device)
   case {'draeger','dräger','pulmovista500'}
     fmdl=mdl_normalize(fmdl,true);
-    mA = 0.01; % Estimate from docs
+    if ~isfield(opt,'Current');
+       opt.Current = 0.005; % Estimate from docs
+    end
     [fmdl.stimulation, fmdl.meas_select] = mk_stim_patterns(16,1, ...
-       [0,1],[0,1],{'no_meas_current','rotate_meas'},mA);
+       [0,1],[0,1],{'no_meas_current','rotate_meas'},opt.Current);
 
   case {'sentec','swisstom'}
-
     if ~isfield(opt,'skip'); opt.skip = 4; end
     if ~isfield(opt,'next'); opt.next = 1; end
     fmdl=mdl_normalize(fmdl,false);
-    mA = 0.01; % Estimate from docs
+    if ~isfield(opt,'Current');
+       opt.Current = 0.005; % Estimate from docs
+    end
     SS = [0,opt.skip+1];
     [fmdl.stimulation, fmdl.meas_select] = mk_stim_patterns(32,1, ...
-       SS,SS,{sprintf('no_meas_current_next%d',opt.next)},mA);
+       SS,SS,{sprintf('no_meas_current_next%d',opt.next)},opt.Current);
+
+  case {'midas-vtm100'}
+    if ~isfield(opt,'skip'); opt.skip = 7; end
+    fmdl=mdl_normalize(fmdl,false);
+    if ~isfield(opt,'Current');
+       opt.Current = 0.005; % Estimate from docs
+    end
+    SP = [0,opt.skip+1];
+    MP = [0,1];
+    [fmdl.stimulation, fmdl.meas_select] = mk_stim_patterns(16,1, ...
+       SP,MP,{'rotate_meas','no_meas_current'},opt.Current);
+
 
   otherwise error('No information about device');
 end
+
+if nargin>=4;
+  fmdl.frame_rate = frame_rate;
+end
+ 
 
 function do_unit_test
    fmdl = getfield(mk_common_model('a2c2',16), ...
@@ -54,10 +78,20 @@ function do_unit_test
        1  2 11 10; 3  4 14 13]);
    unit_test_cmp('Draeger',fmdl.normalize_measurements, true);
 
+   fmdl = fwd_model_device(fmdl,'Midas-VTM100');
+   ssmm = stim_meas_list(fmdl.stimulation);
+   unit_test_cmp('Midas-VTM100',size(ssmm,1),192);
+   ssmm(1,:)
+   unit_test_cmp('Midas-VTM100',ssmm(1,:), [1,9,3,2]);
  
    fmdl = getfield(mk_common_model('b2c2',32), ...
                    'fwd_model');
-   fmdl = fwd_model_device(fmdl,'Sentec');
+   fmdl_= fwd_model_device(fmdl,'Sentec');
+   fmdl = fwd_model_device(fmdl,'Sentec',[]);
+   unit_test_cmp('empty',fmdl_,fmdl);
+   fmdl = fwd_model_device(fmdl,'Sentec',[],10.1);
+   unit_test_cmp('FR',fmdl.frame_rate, 10.1);
+
    ssmm = stim_meas_list(fmdl.stimulation);
    unit_test_cmp('Sentec',size(ssmm,1),736);
    unit_test_cmp('Sentec',ssmm([8,35],:), [
