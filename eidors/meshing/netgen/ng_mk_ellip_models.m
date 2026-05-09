@@ -11,6 +11,7 @@ function [fmdl,mat_idx] = ng_mk_ellip_models(ellip_shape, elec_pos, ...
 %
 % ELECTRODE POSITIONS:
 %  elec_pos = [n_elecs_per_plane,z_planes] 
+%     centre electrode is on sternum, unless n_elecs_per_plane is negative, then spaced around sternum
 %     OR
 %  elec_pos = [degrees,z] centres of each electrode (N_elecs x 2)
 %
@@ -248,7 +249,13 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, hig, rad, is2D );
    if size(elec_pos,1) == 1
        % Parse elec_pos = [n_elecs_per_plane,z_planes] 
       n_elecs= elec_pos(1); % per plane
-      th = space_electrodes('ellipse', n_elecs, rad );
+      if n_elecs > 0 % put electrode at centre
+        th = space_electrodes('ellipse', n_elecs, rad );
+      else
+        n_elecs = abs(n_elecs);
+        th = space_electrodes('ellipse', 2*n_elecs, rad );
+        th(1:2:end) = [];
+      end
 
       on_elecs = ones(n_elecs, 1);
       el_th = []; 
