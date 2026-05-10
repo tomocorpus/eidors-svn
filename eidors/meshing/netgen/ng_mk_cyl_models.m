@@ -16,6 +16,7 @@ function [fmdl,mat_idx] = ng_mk_cyl_models(cyl_shape, elec_pos, ...
 %
 % ELECTRODE SHAPES::
 %  elec_shape = [width,height, maxsz]  % Rectangular elecs
+%     centre electrode is on top centre, unless n_elecs_per_plane is negative, then spaced around top centre
 %     OR
 %  elec_shape = [radius, 0, maxsz ]    % Circular elecs
 %     OR
@@ -258,7 +259,14 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, hig, rad, is2D );
    if size(elec_pos,1) == 1
        % Parse elec_pos = [n_elecs_per_plane,z_planes] 
       n_elecs= elec_pos(1); % per plane
-      th = linspace(0,2*pi, n_elecs+1)'; th(end)=[];
+      if n_elecs>0
+        th = linspace(0,2*pi, n_elecs+1)'; th(end)=[];
+      else
+        % n_elecs means space around centre
+        n_elecs = -n_elecs;
+        th = linspace(0,2*pi, 2*n_elecs+1)';
+        th(1:2:end)=[];
+      end
 
       on_elecs = ones(n_elecs, 1);
       el_th = []; 
@@ -437,7 +445,8 @@ function do_unit_test
   for tn = 1:do_test_number(0)
      fprintf('>>> ng_mk_cyl_models: TEST #%d\n',tn);
      fmdl= do_test_number(tn);
-     show_fem(fmdl);
+     subplot(4,6,tn);
+     show_fem(fmdl); view(10,70);
   end
 
 function fmdl= do_test_number(tn)
@@ -457,7 +466,7 @@ function fmdl= do_test_number(tn)
 
    case 4;
 % 3D cylinder. Radius = 1. 6 circ elecs with elec refinement
-    fmdl= ng_mk_cyl_models(3,[7,1],[0.2,0,0.05]); 
+    fmdl= ng_mk_cyl_models(3,[-6,1],[0.2,0,0.05]); 
 
    case 5;
 % 3D cylinder. Radius = 1. 7 rect elecs with no refinement
@@ -521,7 +530,7 @@ function fmdl= do_test_number(tn)
 
    case 17;
 % Simple 3D cylinder with a ball
-    extra={'ball','solid ball = sphere(0.5,0.5,2;0.4);'};
+    extra={'ball','solid ball = sphere(0.4,0.4,2;0.4);'};
     ng_write_opt('MSZBRICK',[-1,1,-1,1,2,3,0.1]);  
     fmdl= ng_mk_cyl_models(3,[0],[],extra); 
     delete('ng.opt');
