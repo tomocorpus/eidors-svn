@@ -478,9 +478,16 @@ function hh= show_3d_fem( mdl, options )
    else
       error('Simplices are not 2D or 3D in mdl. Unsure how to display');
    end
-   hh= trimesh(ee, mdl.nodes(:,1), ...
-                   mdl.nodes(:,2), ...
-                   mdl.nodes(:,3));
+   % STUPID MATLAB. If v 2026a or newer, need to force ee to be a "triangulation". Otherwise it goes out of its way to break
+   % So instead, we need to figure out what trimesh does, and call the low-level code. 
+   ver= eidors_obj('interpreter_version');
+   if ~ver.isoctave && ver.ver > 26
+     hh = patch('faces',ee,'vertices',mdl.nodes,'facecolor','none','parent',gca);
+   else
+     hh= trimesh(ee, mdl.nodes(:,1), ...
+                     mdl.nodes(:,2), ...
+                     mdl.nodes(:,3));
+   end
    set(hh, 'EdgeColor', [0,0,0]);
    axis('image');
    hidden('off');
