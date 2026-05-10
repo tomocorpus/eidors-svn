@@ -32,6 +32,7 @@ function [fmdl,mat_idx] = ng_mk_extruded_model(shape, elec_pos, elec_shape, ...
 %             Any fractional part (e.g. 0.15) is interpreted as a starting
 %             position -- fraction of 2*pi for values spacing < 1 and
 %             fraction of total perimeter for spacing > 1.
+%             if n_elecs is negative, this means space equally around thorax
 %     OR
 %  elec_pos = [degrees,z] centres of each electrode (N_elecs x 2)
 %
@@ -513,6 +514,10 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, tank_shape, hig, i
        end
    
       n_elecs= elec_pos(1); % per plane
+      n_elecs_negative = n_elecs<0;
+      if n_elecs_negative
+         n_elecs = 2*abs(n_elecs);
+      end
       offset = elec_pos(2) - floor(elec_pos(2));
       switch floor(elec_pos(2))
           case 0
@@ -545,6 +550,10 @@ function [elecs, centres] = parse_elecs(elec_pos, elec_shape, tank_shape, hig, i
               end
           otherwise;
              error('Unrecognized value of curve_type specified in floor(elec_pos(2))')
+      end
+      if n_elecs_negative
+         th(1:2:end) = [];
+         n_elecs= abs(elec_pos(1)); % per plane
       end
 
       on_elecs = ones(n_elecs, 1);
@@ -1206,9 +1215,19 @@ vtx(unused_v,:) = [];
 %%
 function do_unit_test
  clf
- subplot(221); do_unit_test_basic;
- subplot(222); do_unit_test_square;
- subplot(223); do_unit_test_human_thorax;
+%subplot(221); do_unit_test_basic;
+%subplot(222); do_unit_test_square;
+%subplot(223); do_unit_test_human_thorax;
+
+ subplot(224);
+  clf;
+ 
+  shapes = shape_library('get','adult_male');
+  Nel = -16;
+  fmdl = ng_mk_extruded_model( ...
+    {2,shapes.boundary,[4,90],.5}, ...
+    [Nel,1,1],[.1]);
+  show_fem(fmdl);
 
 
 function do_unit_test_basic;
