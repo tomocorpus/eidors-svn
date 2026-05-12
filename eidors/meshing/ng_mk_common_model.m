@@ -282,7 +282,7 @@ function do_unit_test
      fmdl= do_test_number(tn);
      subplot(3,3,rem(tn-1,9)+1)
      title(sprintf('test #%d',tn));
-     show_fem(fmdl); drawnow
+     show_fem(fmdl); view(10,30); drawnow
   end
 
 function fmdl= do_test_number(tn)
@@ -292,6 +292,7 @@ function fmdl= do_test_number(tn)
 % Simple 3D cylinder. Radius = 1. No electrodes
     fmdl= ng_mk_common_model('cyl',3,[0],[]); 
 
+   case 0; fmdl = 1;
    case 2;
 % Simple 2D cylinder. Radius = 2. Set minsize to refine
     fmdl= ng_mk_common_model('cyl',[0,2,.2],[0],[]); 
