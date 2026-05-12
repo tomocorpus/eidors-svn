@@ -1640,12 +1640,12 @@ function [vtmData] = read_vtm(full_dfile_name)
 
     framenums=(len-len_header-2)/len_frame;
 
-        dd= zeros(530,framenums); 
-        ss= len_header + (0:framenums-1)*len_frame;
-        for k= 1:length(ss);
-           if fseek(fid,ss(k),-1)<0; break; end
-           dd(:,k)=fread(fid,530,'uint8', 0, 'ieee-le');
-        end
+    dd= zeros(len_data,framenums); 
+    for k= 1:framenums
+       ss= len_header + (k-1)*len_frame;
+       if fseek(fid,ss,-1)<0; break; end
+       dd(:,k)=fread(fid,530,'uint8', 0, 'ieee-le');
+    end
         ETDdata = dd(3:3+527,:);
         contact0=ETDdata((9+192)*2+1:((9+192)*2+32),:);
         for row=1:16
