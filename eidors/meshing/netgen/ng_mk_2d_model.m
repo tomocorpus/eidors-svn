@@ -141,7 +141,7 @@ fnamevol =  [fnamebase, '.vol'];
 write_in2d_file(fnamein2d, points, seg, eidx, eref);
 
 call_netgen( fnamein2d, fnamevol);
-if i_wrote_ng_opt; delete('ng.opt'); end
+% if i_wrote_ng_opt; delete('ng.opt'); end % no longer required. call_netgen deletes
 
 mdl = ng_mk_fwd_model( fnamevol, [], 'ng', []);
 
