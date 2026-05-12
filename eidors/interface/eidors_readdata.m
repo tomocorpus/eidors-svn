@@ -1666,42 +1666,34 @@ function [vtmData] = read_vtm(full_dfile_name)
     didx = 2*(0:191);
     dd= ETDdata(20 + didx   ,:)*256 + ...
         ETDdata(20 + didx -1,:); % little endian
-    EITdata192 = dd;
-        EITdata192=  -EITdata192;
-        for i=1:16
+
+    % Invert EIT which were measured opposite to stimulation direction
+    EITdata192 = - dd;
+    for i=1:16
            EITdata192(12*i-5:12*i,:)=  -EITdata192(12*i-5:12*i,:);
-        end
-        move192_index = [0,0,1,2,3,4,5,6,6,6,7,8,9,10,11,12];
-        columnIdx192 = bsxfun(@circshift,reshape(1:192,12,16),move192_index);
-        columnIdx192 = columnIdx192(:);
-        EIDORSdata192 = EITdata192(columnIdx192,:);
-        vtmData.dd = dd;
- %%        
-%         fseek(fid,len_header,-1); % beginning of file
-%         d = fread(fid,len-335,'float32',0,'ieee-le');%°´ÕÕfloatÀàÐÍ¶ÁÈ¡Êý¾ÝÎªµ½ÁÐÏòÁ¿d
-%         dd = reshape(d,[],framenums);
-        dd= zeros(60,framenums);
-        ss= len_header + len_data + 2  + (0:framenums-1)*len_frame;
-        for k= 1:length(ss);
-           if fseek(fid,ss(k),-1)<0; break; end
-           dd(1:52,k)=fread(fid,52,'float32', 0, 'ieee-le');
-        end
-        Medibus = dd;
-%%
-        dd= zeros(25,framenums);
-        ss= len_header + len_data + len_Medibus + 2 + (0:framenums-1)*len_frame;
-        for k= 1:length(ss);
-           if fseek(fid,ss(k),-1)<0; break; end
-           dd(:,k)=fread(fid,25,'float32', 0, 'ieee-le');
-        end
-        Imginfo = dd;
+    end
+
+    % Medibus data
+    Medibus= zeros(60,framenums);
+    for k= 1:framenums 
+       ss= len_header + len_data + 2  + (k-1)*len_frame;
+       if fseek(fid,ss,-1)<0; break; end
+       Medibus(1:52,k)=fread(fid,52,'float32', 0, 'ieee-le');
+    end
+
+    % Img info
+    Imginfo= zeros(25,framenums);
+    for k= 1:framenums
+       ss= len_header + len_data + len_Medibus + 2 + (k-1)*len_frame;
+       if fseek(fid,ss,-1)<0; break; end
+       Imginfo(:,k)=fread(fid,25,'float32', 0, 'ieee-le');
+    end
         fclose(fid);
 %% 
         vtmData.Patient = Patient;
         vtmData.Systemparm = Systemparm;        
         vtmData.ETDdata = ETDdata;
         vtmData.EITdata192 = EITdata192;
-        vtmData.EIDORSdata192 = EIDORSdata192;
         vtmData.Medibus = Medibus;
         vtmData.Imginfo = Imginfo;
         vtmData.RawDataContact = RawDataContact/58;
