@@ -107,7 +107,7 @@ end
 
 function mdl = ng_mk_2d_model_do(shape, elec_pos, elec_shape)
 
-[shape,i_wrote_ng_opt] = process_maxsz(shape);
+shape = process_maxsz(shape);
 
 points = [];
 eidx = [];
@@ -141,7 +141,6 @@ fnamevol =  [fnamebase, '.vol'];
 write_in2d_file(fnamein2d, points, seg, eidx, eref);
 
 call_netgen( fnamein2d, fnamevol);
-% if i_wrote_ng_opt; delete('ng.opt'); end % no longer required. call_netgen deletes
 
 mdl = ng_mk_fwd_model( fnamevol, [], 'ng', []);
 
@@ -161,7 +160,7 @@ end
 
 mdl = eidors_obj('fwd_model',mdl,'name','ng_mk_2d_model');
 
-function [shape,i_wrote_ng_opt] = process_maxsz(shape)
+function shape = process_maxsz(shape)
 maxsz = [];
 if numel(shape{end})==1
     maxsz = shape{end};
@@ -169,9 +168,6 @@ if numel(shape{end})==1
 end
 if ~isempty(maxsz)
     ng_write_opt('meshoptions.fineness',6,'options.meshsize',maxsz);
-    i_wrote_ng_opt = true;
-else
-    i_wrote_ng_opt = false;
 end
 
 function mdl = find_electrodes(mdl, elec_pts, e_idx)
