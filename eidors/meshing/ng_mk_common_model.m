@@ -35,16 +35,19 @@ function fmdl = ng_mk_common_model(mdl_type, ...
 % Simple 3D cylinder. Radius = 1. No electrodes
 %   fmdl= ng_mk_common_model('cyl',2,[8,.5],[0.05]); 
 
-% (C) Andy Adler, 2015.  Licenced under GPL v2 or v3
+% (C) Andy Adler, 2015-2026.  Licenced under GPL v2 or v3
 % $Id$
 
 if ischar(mdl_type) && strcmp(mdl_type,'UNIT_TEST'); do_unit_test; return; end
+
+if nargin<5; maxh= []; end
 
 if isstruct(mdl_type)
    error('No code yet to process options structs');
 else switch lower(mdl_type)
       case 'cyl'
          [body_geom, elec_geom, pp] = cyl_geom( mdl_shape, elec_pos, elec_shape);
+         set_ng_refinement(elec_geom, maxh)
          fmdl = ng_mk_geometric_models(body_geom, elec_geom);
          fmdl.body_geometry      = body_geom;
          fmdl.electrode_geometry = elec_geom;
@@ -59,6 +62,9 @@ end; end
    if mdl_dim(fmdl)==3 && pp.is2D
       fmdl = mdl2d_from3d(fmdl);
    end
+
+function set_ng_refinement(elec_geom, maxh)
+  if isempty(maxh); return; end
 
 % For 2D circle
 function [shape, elec_pos, elec_shape] = circ_geom( mdl_shape, elec_pos, elec_shape);
@@ -290,8 +296,7 @@ function fmdl= do_test_number(tn)
    switch tn
    case 1;
 % Simple 3D cylinder. Radius = 1. No electrodes
-    fmdl= ng_mk_common_model('cyl',3,[0],[]); 
-
+    fmdl= ng_mk_common_model('cyl',3,[0],[],.1); 
    case 0; fmdl = 1;
    case 2;
 % Simple 2D cylinder. Radius = 2. Set minsize to refine
