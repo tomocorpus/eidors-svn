@@ -47,7 +47,8 @@ if isstruct(mdl_type)
 else switch lower(mdl_type)
       case 'cyl'
          [body_geom, elec_geom, pp] = cyl_geom( mdl_shape, elec_pos, elec_shape);
-         set_ng_refinement(elec_geom, maxh)
+         set_ng_refinement(elec_pos, mdl_shape, maxh)
+body_geom
          fmdl = ng_mk_geometric_models(body_geom, elec_geom);
          fmdl.body_geometry      = body_geom;
          fmdl.electrode_geometry = elec_geom;
@@ -63,8 +64,21 @@ end; end
       fmdl = mdl2d_from3d(fmdl);
    end
 
-function set_ng_refinement(elec_geom, maxh)
+function set_ng_refinement(elec_pos, mdl_shape, maxh)
   if isempty(maxh); return; end
+  if isempty(elec_pos); return; end
+  rad = 1;
+  if length(mdl_shape)>1; rad=mdl_shape(2); end
+ 
+
+  if size(elec_pos,1); %spec as Nel, planes
+    top = max(elec_pos(2:end));
+    bot = min(elec_pos(2:end));
+  else
+    top = max(elec_pos(:,2));
+    bot = min(elec_pos(:,2));
+  end
+  ng_write_opt('MSZCYLINDER',[0,0,bot,0,0,top,rad,maxh]);
 
 % For 2D circle
 function [shape, elec_pos, elec_shape] = circ_geom( mdl_shape, elec_pos, elec_shape);
@@ -297,14 +311,14 @@ function fmdl= do_test_number(tn)
    case 1;
 % Simple 3D cylinder. Radius = 1. No electrodes
     fmdl= ng_mk_common_model('cyl',3,[0],[],.1); 
-   case 0; fmdl = 1;
    case 2;
 % Simple 2D cylinder. Radius = 2. Set minsize to refine
     fmdl= ng_mk_common_model('cyl',[0,2,.2],[0],[]); 
 
    case 3;
 % 3D cylinder. Radius = 1. 2 planes of 8 elecs with radius 0.1
-    fmdl= ng_mk_common_model('cyl',3,[8,1,2],[0.1]); 
+    fmdl= ng_mk_common_model('cyl',3,[8,1,2],[0.1],.05); 
+   case 0; fmdl = 3;
 
    case 4;
 % 3D cylinder. Radius = 1. 6 circ elecs with elec refinement
