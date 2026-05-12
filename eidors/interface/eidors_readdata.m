@@ -1663,18 +1663,10 @@ function [vtmData] = read_vtm(full_dfile_name)
 %         fseek(fid,len_header,-1); % beginning of file
 %         dd = fread(fid,[len_frame/2 framenums],'uint16',0,'ieee-le');
 % %         dd = reshape(d,[],framenums);
-    dd= zeros(192,framenums);
-        ss= len_header + 20  + (0:framenums-1)*len_frame;
-        for k= 1:length(ss);
-           if fseek(fid,ss(k),-1)<0; break; end
-%          di(:,k)=fread(fid,192,'int16', 0, 'ieee-le');
-           dd(:,k)=fread(fid,192,'uint16', 0, 'ieee-le');
-% To read all the frame data
-%          if fseek(fid,ss(k)-20,-1)<0; break; end
-%          vtmData.All(:,k) = fread(fid,len_frame/2,'uint16', 0, 'ieee-le');
-        end
-%       di(:,end) = []; % Last seems bad
-        EITdata192 = dd;
+    didx = 2*(0:191);
+    dd= ETDdata(20 + didx   ,:)*256 + ...
+        ETDdata(20 + didx -1,:); % little endian
+    EITdata192 = dd;
         EITdata192=  -EITdata192;
         for i=1:16
            EITdata192(12*i-5:12*i,:)=  -EITdata192(12*i-5:12*i,:);
