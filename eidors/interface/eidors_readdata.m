@@ -1647,6 +1647,7 @@ function [vtmData] = read_vtm(full_dfile_name)
        if fseek(fid,ss,-1)<0; break; end
        oneframe = fread(fid,len_data,'uint8', 0, 'ieee-le');
        assert(all(oneframe(1:2) == [170;102]), 'Frame HDR not 0xAA66');
+keyboard
        ETDdata(:,k)= oneframe(3:end);
     end
     contact0=ETDdata((9+192)*2+1:((9+192)*2+32),:);
