@@ -1638,31 +1638,32 @@ function [vtmData] = read_vtm(full_dfile_name)
     len_imginfo = 102  ;  % 2+25*4
     len_frame = len_data + len_Medibus +len_imginfo;
 
-    framenums=(len-len_header-2)/len_frame;
+    % Last frame is different - remove
+    framenums=(len-len_header-2)/len_frame - 1;
 
-    dd= zeros(len_data,framenums); 
+    ETDdata = zeros(len_data-2,framenums); 
     for k= 1:framenums
        ss= len_header + (k-1)*len_frame;
        if fseek(fid,ss,-1)<0; break; end
-       dd(:,k)=fread(fid,530,'uint8', 0, 'ieee-le');
+       oneframe = fread(fid,len_data,'uint8', 0, 'ieee-le');
+       assert(all(oneframe(1:2) == [170;102]), 'Frame HDR not 0xAA66');
+       ETDdata(:,k)= oneframe(3:end);
     end
-        ETDdata = dd(3:3+527,:);
-        contact0=ETDdata((9+192)*2+1:((9+192)*2+32),:);
-        for row=1:16
-            RawDataContact(row,:)=contact0((row-1)*2+2,:)*256+contact0((row-1)*2+1,:); 
-        end
-        temp=RawDataContact(1,:);
-        
-        for row=1:15
-            RawDataContact(row,:)=min(RawDataContact(row,:),RawDataContact(row+1,:));
-        end
-        RawDataContact(16,:)=min(RawDataContact(16,:),temp);
+    contact0=ETDdata((9+192)*2+1:((9+192)*2+32),:);
+    for row=1:16
+        RawDataContact(row,:)=contact0((row-1)*2+2,:)*256+contact0((row-1)*2+1,:); 
+    end
+    temp=RawDataContact(1,:);
+    
+    for row=1:15
+        RawDataContact(row,:)=min(RawDataContact(row,:),RawDataContact(row+1,:));
+    end
+    RawDataContact(16,:)=min(RawDataContact(16,:),temp);
         
 %         fseek(fid,len_header,-1); % beginning of file
 %         dd = fread(fid,[len_frame/2 framenums],'uint16',0,'ieee-le');
 % %         dd = reshape(d,[],framenums);
-        dd= zeros(192,framenums);
-        di= zeros(192,framenums);
+    dd= zeros(192,framenums);
         ss= len_header + 20  + (0:framenums-1)*len_frame;
         for k= 1:length(ss);
            if fseek(fid,ss(k),-1)<0; break; end
@@ -1681,7 +1682,7 @@ function [vtmData] = read_vtm(full_dfile_name)
         move192_index = [0,0,1,2,3,4,5,6,6,6,7,8,9,10,11,12];
         columnIdx192 = bsxfun(@circshift,reshape(1:192,12,16),move192_index);
         columnIdx192 = columnIdx192(:);
-        EIDORSdata192 = EITdata192(columnIdx192,:);% ²»°üº¬ÎÞÐ§µç¼«µÄ¾ø¶Ôµç¼«Î»ÖÃÅÅÐò
+        EIDORSdata192 = EITdata192(columnIdx192,:);
         vtmData.dd = dd;
  %%        
 %         fseek(fid,len_header,-1); % beginning of file
