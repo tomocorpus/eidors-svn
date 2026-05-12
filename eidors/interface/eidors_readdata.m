@@ -54,7 +54,7 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %       For the Ventom device
 %
 %    - Infivision 'MES' format
-%       Format = 'imes' ### TODO Change format id
+%       Format = 'mes'
 %       Note: this format is created using "ETSA" software to export the file
 %       For the Invision ET1000 Device: 16 electrodes
 %
@@ -1622,61 +1622,24 @@ function s=sciospec_frame(fname);
   fclose(fid);
 
 % Contribution by Zhanqi Zhao <zhanqizhao@gzhmu.edu.cn>
+% Refactored for 20-electrode system: A.Adler
 function [vtmData] = read_vtm(full_dfile_name)
-%READ_vtm 
-    [~,~,file_ext]= fileparts(full_dfile_name);
-    if  strcmp(file_ext,'.vtm') %.bin File, image data
+   [~,~,file_ext]= fileparts(full_dfile_name);
+   if ~strcmp(file_ext,'.vtm')
+      error('Incorrect file type (vtm file)');
+   end
+
+   [fid,len] = vtm_open_file(full_dfile_name);
+   len_header  = 333  ;  % 2+204+2+125 = 333
+   [Patient,Systemparm] = vtm_header(fid, len_header);
         
-        len_header  = 333  ;  % 2+204+2+125 = 333
-        len_data    = 530  ;  % 2+528
-        len_Medibus = 242  ;  % 2+60*4
-        len_imginfo = 102  ;  % 2+25*4
-        len_frame = len_data + len_Medibus +len_imginfo;
-            file_inf = dir(full_dfile_name);
-        if length(file_inf)==1 % only one file
-            len = file_inf.bytes;
-        else
-            error(['Problem with file: ', full_dfile_name]);
-        end
-            framenums=(len-len_header-2)/len_frame;
-            framenums=int32(framenums);
-        fid=fopen(full_dfile_name,'r');
-        Header = fread(fid,len_header,'uint8'); 
-        if ~strcmp(sprintf('%02X',Header(1:2)),'AA55')
-            error('Header not valid');
-        end
+    len_data    = 530  ;  % 2+528
+    len_Medibus = 242  ;  % 2+60*4
+    len_imginfo = 102  ;  % 2+25*4
+    len_frame = len_data + len_Medibus +len_imginfo;
 
-            systemdata1 = native2unicode(Header(3:206))';
-            str1 = regexpi(systemdata1, '([^\t\f\n\r]*)', 'match');
-%             systemparm = {'DeviceModel','Frequency','Framerate','Amplitude','Time'};
-            for i = 1:length(str1)
-                parm = regexpi(str1{1,i},':','split');
-                parmname = char(parm{1,1});                
-                if length(parm)>2
-                    parmvalue = parm{1,2};
-                    for j = 3:length(parm)
-                        parmvalue = [parmvalue,':',parm{1,j}];
-                    end
-                elseif length(parm)<2
-                    break;
-                else
-                    parmvalue = parm{1,2};
-                end
-                Systemparm.(parmname) = parmvalue;
-            end
+    framenums=(len-len_header-2)/len_frame;
 
-            patientdata1 = Header(209:209+124)';
-            Patient.PatientID   = native2unicode(patientdata1(1:20), 'UTF-8');
-            Patient.Name        = native2unicode(patientdata1(21:50), 'UTF-8');
-            Patient.Age         = native2unicode(patientdata1(51:53), 'UTF-8');
-            Patient.Gender      = native2unicode(patientdata1(54:55), 'UTF-8');
-            Patient.Departments = native2unicode(patientdata1(56:85), 'UTF-8');
-            Patient.Notes       = native2unicode(patientdata1(86:125), 'UTF-8');
-
-%%     
-%         fseek(fid,len_header,-1); % beginning of file
-%         dd = fread(fid,[len_frame framenums],'uint8',0,'ieee-le');
-%         dd = reshape(d,[],framenums);
         dd= zeros(530,framenums); 
         ss= len_header + (0:framenums-1)*len_frame;
         for k= 1:length(ss);
@@ -1751,9 +1714,49 @@ function [vtmData] = read_vtm(full_dfile_name)
         vtmData.RawDataContact = RawDataContact/58;
         % vtmData.RawDataContact = RawDataContact/55.2688;
         vtmData.frame_rate = 19.7636;
-    else
-        error('File type cannot be recognised');
-    end
+
+function [fid,len] = vtm_open_file(full_dfile_name);
+   fid=fopen(full_dfile_name,'r');
+   file_inf = dir(full_dfile_name);
+   if length(file_inf)==1 % only one file
+       len = file_inf.bytes;
+   else
+       error(['Problem with file: ', full_dfile_name]);
+   end
+
+function [Patient,Systemparm] = vtm_header(fid, len_header)
+   Header = fread(fid,len_header,'uint8'); 
+   if ~strcmp(sprintf('%02X',Header(1:2)),'AA55')
+     error('VTM: Header not valid');
+   end
+
+   systemdata1 = native2unicode(Header(3:206))';
+   str1 = regexpi(systemdata1, '([^\t\f\n\r]*)', 'match');
+%    systemparm = {'DeviceModel','Frequency','Framerate','Amplitude','Time'};
+   for i = 1:length(str1)
+       parm = regexpi(str1{1,i},':','split');
+       parmname = char(parm{1,1});                
+       if length(parm)>2
+           parmvalue = parm{1,2};
+           for j = 3:length(parm)
+               parmvalue = [parmvalue,':',parm{1,j}];
+           end
+       elseif length(parm)<2
+           break;
+       else
+           parmvalue = parm{1,2};
+       end
+       Systemparm.(parmname) = parmvalue;
+   end
+
+   patientdata1 = Header(209:209+124)';
+   Patient.PatientID   = native2unicode(patientdata1(1:20), 'UTF-8');
+   Patient.Name        = native2unicode(patientdata1(21:50), 'UTF-8');
+   Patient.Age         = native2unicode(patientdata1(51:53), 'UTF-8');
+   Patient.Gender      = native2unicode(patientdata1(54:55), 'UTF-8');
+   Patient.Departments = native2unicode(patientdata1(56:85), 'UTF-8');
+   Patient.Notes       = native2unicode(patientdata1(86:125), 'UTF-8');
+
 
 function [vv, inj_curr, inj_volt] = read_infivision_mes_file(fname)
     % Number of floats per frame
