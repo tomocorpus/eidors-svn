@@ -21,6 +21,7 @@ Plan for 3.13:
  - code to specify electrodes in fem models on either side of sternum
  - put default calc_colours onto inv_model
  - check vrange in select_imdl => does it calc correctly. Give error if used incorrectly
+ - unit tests for grid_inv_mapper
 
  - Fix bug in EIDORS colourbar - example from Mar22notes code with c2f
 

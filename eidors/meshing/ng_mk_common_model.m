@@ -1,8 +1,8 @@
 function fmdl = ng_mk_common_model(mdl_type, ...
-               mdl_shape, elec_pos, elec_shape);
+               mdl_shape, elec_pos, elec_shape, maxh);
 % NG_MK_COMMON_MODEL: utility to create common models
 % fmdl = ng_mk_cyl_model(mdl_type,
-%              mdl_shape, elec_pos, elec_shape);
+%              mdl_shape, elec_pos, elec_shape, maxh);
 %
 % MDL_TYPE = 'CYL'
 %    mdl_shape = {height, [radius, [maxsz]]}
@@ -51,6 +51,7 @@ else switch lower(mdl_type)
       case 'circ'
          [shape, elec_pos, elec_shape] = circ_geom( mdl_shape, elec_pos, elec_shape);
          fmdl = ng_mk_2d_model(shape, elec_pos, elec_shape);
+      case 'body-arms'
       otherwise
          error('mdl_type = (%s) not available (yet)', mdl_type);
 end; end
