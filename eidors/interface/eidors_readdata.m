@@ -51,12 +51,12 @@ function [vv, auxdata, stim]= eidors_readdata( fname, format, frame_range, extra
 %        loaded into a cell array
 %
 %    - Midas Medical 'VTM' format
-%       For the Ventom device
+%       For the Ventom-100 device
 %
 %    - Infivision 'MES' format
-%       Format = 'mes'
-%       Note: this format is created using "ETSA" software to export the file
+%       Format = 'mes' 
 %       For the Invision ET1000 Device: 16 electrodes
+%       Note: this format is created using "ETSA" software to export the file from the internal Invision system
 %
 %    - Sciospec text 'EIT' format
 %        format = 'Sciospec-EIT'
@@ -276,7 +276,7 @@ switch fmt
 %    vv = auxdata.EIDORSdata192;
 %    stim = mk_stim_patterns(16,1,[0,8],[0,1],{'no_rotate_meas'});
 
-    case 'imes';
+    case 'mes';
      [vv, inj_curr, inj_volt] = read_infivision_mes_file(fname);
      [stim,msel] = mk_stim_patterns(16,1,[0,2],[0,2], {'no_meas_current','rotate_meas'}, inj_curr(1,1));
      auxdata.inj_curr = inj_curr;
@@ -1647,7 +1647,6 @@ function [vtmData] = read_vtm(full_dfile_name)
        if fseek(fid,ss,-1)<0; break; end
        oneframe = fread(fid,len_data,'uint8', 0, 'ieee-le');
        assert(all(oneframe(1:2) == [170;102]), 'Frame HDR not 0xAA66');
-keyboard
        ETDdata(:,k)= oneframe(3:end);
     end
     contact0=ETDdata((9+192)*2+1:((9+192)*2+32),:);
@@ -1799,6 +1798,13 @@ function do_unit_test
    [dd,auxdata,stim]= eidors_readdata(pth);
    unit_test_cmp('Draeger.get:frame_rate', isnan(auxdata.frame_rate), true);
 
+%  hdf5_test();
+
+   midas_medical_test()
+
+   infivision_medical_test()
+
+function hdf5_test();
    pth = write_hdf5_sample;
    [dd,~,stim]= eidors_readdata(pth,'h5','datasetEIT');
    unit_test_cmp('hdf5:size', size(dd), [208, 34]);
@@ -1812,6 +1818,7 @@ function do_unit_test
    unit_test_cmp('hdf5:data:1', dd{1}(1:4), [ -3674 -3610 -3871 -4177]');
    unit_test_cmp('hdf5:data:2', dd{2}(1:4), [13441   10288   24740   19477]);
 
+function midas_medical_test()
    % Midas Med test
    pth = get_contrib_data('midas-medical-sample2024','EITData2024_10_31_08_43_09__S01.vtm');
    [dd,auxdata,stim]= eidors_readdata(pth);
@@ -1837,3 +1844,5 @@ function do_unit_test
    imgr.calc_colours.greylev =  .01;
    imgr.calc_colours.backgnd =[1,1,1];
    show_slices(imgr)
+
+function infivision_medical_test()
