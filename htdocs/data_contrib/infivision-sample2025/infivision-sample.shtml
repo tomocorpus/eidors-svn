@@ -34,12 +34,28 @@ EIT data were acquired using an Infivision ET1000 device at a sampling rate of 
 An Infivision electrode belt was attached to the subject in a supine position and connected to the EIT system. Data were collected during various breathing maneuvers by the subject.
        <hr>
    <tr><th valign="top"> Data:
-       <td> <a href=""
-            >Data (EIT "mes" format)</a>
+       <br> Data are available at <a href="https://zenodo.org/records/18363391">https://zenodo.org/records/18363391</a>
+       <td> <a href="https://zenodo.org/records/18363391/files/Healthy_Lung_Breate_Hold.mes"
+            >Data "Healthy_Lung_Breate_Hold.mes" (EIT "mes" format)</a>
+       <td> <a href="https://zenodo.org/records/18363391/files/Healthy_Lung.mes"
+            >Data "Healthy_Lung_Breate_Hold.mes" (EIT "mes" format)</a>
        <hr>
    </table>
 
 The data may be analyzed with the following code:
+<pre>
+[% PROCESS "mes_data_2025.m" %]
+</pre>
+
+<center>
+   <img src="Healthy_Lung_Breate_Hold.jpg">
+<br>
+Reconstructions from data set.
+<i>Top:</i>
+Ventral and Dorsal impedance waveforms
+<i>Bottom:</i>
+Reconstructed images during two time segments (vertical bars)
+</center>
 
 <p>
 <small>
