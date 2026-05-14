@@ -11,6 +11,7 @@ Plan for 3.13:
  - Add 3D tests to define_ROIs
  - Remove NODE / ELEM use nodes elems
  - Make simplified fwd_model_parameters
+ - Add zenodo files to get_contrib_data
  - Cache-to-disk ideas:
     + dump the whole of eidors cache to disk and load later (exists)
     + set opt.cache_to_disk for particular call
