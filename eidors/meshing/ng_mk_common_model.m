@@ -31,6 +31,21 @@ function fmdl = ng_mk_common_model(mdl_type, ...
 %    For point electrodes, do not specify too small a maxh (ie < .1),
 %      otherwise netgen has a problem and crashes
 %
+% MDL_TYPE = 'BODY-ARMS'
+%    mdl_shape = {height, [ellip_xy, [maxsz]]}
+%       ellip_xy (OPT)  -> (default = 1.1,0.9)
+%       maxsz  (OPT)  -> max size of mesh elems (default = course mesh)
+%   
+%    ELECTRODE POSITIONS:
+%     elec_pos = [n_elecs_per_plane,z_planes] 
+%        OR
+%     elec_pos = [degrees,z] centres of each electrode (N_elecs x 2)
+%
+% ELECTRODE SHAPES::
+%    elec_shape = [width,height, maxsz]  % Rectangular elecs
+%       OR
+%    elec_shape = [radius, 0, maxsz ]    % Circular elecs
+%
 % USAGE EXAMPLES:
 % Simple 3D cylinder. Radius = 1. No electrodes
 %   fmdl= ng_mk_common_model('cyl',2,[8,.5],[0.05]); 
@@ -48,7 +63,6 @@ else switch lower(mdl_type)
       case 'cyl'
          [body_geom, elec_geom, pp] = cyl_geom( mdl_shape, elec_pos, elec_shape);
          set_ng_refinement(elec_pos, mdl_shape, maxh)
-body_geom
          fmdl = ng_mk_geometric_models(body_geom, elec_geom);
          fmdl.body_geometry      = body_geom;
          fmdl.electrode_geometry = elec_geom;
@@ -56,6 +70,8 @@ body_geom
          [shape, elec_pos, elec_shape] = circ_geom( mdl_shape, elec_pos, elec_shape);
          fmdl = ng_mk_2d_model(shape, elec_pos, elec_shape);
       case 'body-arms'
+         pp.is2D = false;
+         fmdl = body_arms_model(mdl_shape,elec_pos,elec_shape,maxh);
       otherwise
          error('mdl_type = (%s) not available (yet)', mdl_type);
 end; end
@@ -78,7 +94,10 @@ function set_ng_refinement(elec_pos, mdl_shape, maxh)
     top = max(elec_pos(:,2));
     bot = min(elec_pos(:,2));
   end
-  ng_write_opt('MSZCYLINDER',[0,0,bot,0,0,top,rad,maxh]);
+  delta = rad/10;
+  ng_write_opt('MSZCYLINDER', ...
+         [0,0,bot-delta, ...
+          0,0,top+delta,rad,maxh]);
 
 % For 2D circle
 function [shape, elec_pos, elec_shape] = circ_geom( mdl_shape, elec_pos, elec_shape);
@@ -295,6 +314,13 @@ function elec = elec_spec( row, is2D, hig, rad, el_th, el_z )
      % Do nothing
   end
 
+function fmdl = body_arms_model(shape,elec_pos,elec_shape,maxh);
+   switch length(shape)
+     case 1; shape = [shape, 1.1, 0.9];
+     case 2; shape = [shape, shape(2)];
+   end
+   set_ng_refinement(elec_pos, shape, maxh)
+   fmdl = ng_mk_ellip_models(shape,elec_pos,elec_shape);
 
 function do_unit_test
   for tn = 1:do_test_number(0)
