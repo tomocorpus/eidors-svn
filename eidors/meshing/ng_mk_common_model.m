@@ -86,7 +86,6 @@ function set_ng_refinement(elec_pos, mdl_shape, maxh)
   rad = 1;
   if length(mdl_shape)>1; rad=mdl_shape(2); end
  
-
   if size(elec_pos,1); %spec as Nel, planes
     top = max(elec_pos(2:end));
     bot = min(elec_pos(2:end));
@@ -320,7 +319,14 @@ function fmdl = body_arms_model(shape,elec_pos,elec_shape,maxh);
      case 2; shape = [shape, shape(2)];
    end
    set_ng_refinement(elec_pos, shape, maxh)
-   fmdl = ng_mk_ellip_models(shape,elec_pos,elec_shape);
+   hig = shape(1); wid = shape(2);
+   extra = {'arms',sprintf([ 'solid arms =(' ...
+     'cylinder(0,0,%f;-2,0, %f;0.4) or ' ...
+     'cylinder(0,0,%f; 2,0, %f;0.4) ) and ' ...
+     'orthobrick(%f,%f,0;%f,%f,%f);' ], ...
+     hig*1.25*[1,1,1,1]-[0,2,0,2],wid*1.5*[-1,-1,1,1],hig-.01),
+     };
+   fmdl = ng_mk_ellip_models(shape,elec_pos,elec_shape, extra);
 
 function do_unit_test
   for tn = 1:do_test_number(0)
@@ -391,6 +397,12 @@ function fmdl= do_test_number(tn)
     fmdl = ng_mk_common_model('circ',[0,1,.10], [9], [0]);
    case 16;
     fmdl = ng_mk_common_model('circ',[0,2,.05], [9], [0.1,100]);
+
+   case 17;
+    fmdl= ng_mk_common_model('body-arms',[2,1.1,0.9],[-16,1],[0.05]); 
+
+   case 18;
+    fmdl= ng_mk_common_model('body-arms',[2],[-16,1],[0.05],.05); 
 
    case 0; fmdl = 16; %%%% RETURN MAXIMUM
    otherwise;
