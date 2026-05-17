@@ -99,7 +99,9 @@ end; end
 
 function set_ng_refinement(elec_pos, mdl_shape, maxh)
   if isempty(maxh); return; end
-  if isempty(elec_pos); return; end
+  if isempty(maxh); return; end
+  if isempty(elec_pos); return; end % ignore if no electrodes
+  if elec_pos==0; return; end % ignore if no electrodes
   rad = 1;
   if length(mdl_shape)>1; rad=mdl_shape(2); end
  
@@ -434,6 +436,7 @@ function fmdl= do_test_number(tn)
 % 3D cylinder. Various elecs at 0, 30, 60, 90 in planes
     el_pos = [0,0.5;30,1;60,1.5;90,2.0];
     el_sz  = [0.2,0,0.1;0.1,0,0.05;0.2,0.2,0.02;0.2,0.4,0.5];
+    fmdl= ng_mk_common_model('cyl',3,el_pos,el_sz,.1); % with refinement 
     fmdl= ng_mk_common_model('cyl',3,el_pos,el_sz); 
 
 
