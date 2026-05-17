@@ -452,7 +452,7 @@ function fmdl= do_test_number(tn)
     fmdl= ng_mk_common_model('body-arms',[2,1.1,0.9],[-16,1],[0.05]); 
 
    case 18;
-    fmdl= ng_mk_common_model('body-arms',[2],[-16,1],[0.05],.05); 
+    fmdl= ng_mk_common_model('body-arms',[3],[-16,1.2,1.8],[0.05],.05); 
 
    case 19;
     fmdl= ng_mk_common_model('body-arms-organs',[3,1.1,0.9,NaN,1.2],[-16,1],[0.05],.1); 
