@@ -32,9 +32,10 @@ function fmdl = ng_mk_common_model(mdl_type, ...
 %      otherwise netgen has a problem and crashes
 %
 % MDL_TYPE = 'BODY-ARMS'
+%    An elliptical model with illustrative arms
 %    An elliptical model with lungs and heart, centred at 1.5
 %
-%    mdl_shape = {height, [ellip_xy, [maxsz]]}
+%    mdl_shape = [height, [ellip_xy, [maxsz]]]
 %       ellip_xy (OPT)  -> (default = 1.1,0.9)
 %       maxsz  (OPT)  -> max size of mesh elems (default = course mesh)
 %
@@ -50,9 +51,18 @@ function fmdl = ng_mk_common_model(mdl_type, ...
 %       OR
 %    elec_shape = [radius, 0, maxsz ]    % Circular elecs
 %
+% MDL_TYPE = 'BODY-ARMS-ORGANS'
+%    An elliptical model with lungs and heart, centred at 1.5
+%    Parameters are the same as the 'BODY-ARMS' case, except a "diaphram" parameter is added 
+%    mdl_shape = [height, [ellip_xy, [maxsz]]] => diaphram height is 1
+%    mdl_shape = [height, [ellip_xy, [maxsz], [diaphragm]] => specify height
+%   To use the default maxsz, specify NaN e.g [3,1.1,0.9,NaN,1.3];
+%
 % USAGE EXAMPLES:
-% Simple 3D cylinder. Radius = 1. No electrodes
+% Simple 3D cylinder. 
 %   fmdl= ng_mk_common_model('cyl',2,[8,.5],[0.05]); 
+% Body with arms, refined in centre region
+%   fmdl= ng_mk_common_model('body-arms',3,[16,1.5],[0.1,0.2,.02],.05); 
 
 % (C) Andy Adler, 2015-2026.  Licenced under GPL v2 or v3
 % $Id$
@@ -76,6 +86,9 @@ else switch lower(mdl_type)
       case 'body-arms'
          pp.is2D = false;
          fmdl = body_arms_model(mdl_shape,elec_pos,elec_shape,maxh);
+      case 'body-arms-organs'
+         pp.is2D = false;
+         fmdl = body_arms_organs_model(mdl_shape,elec_pos,elec_shape,maxh);
       otherwise
          error('mdl_type = (%s) not available (yet)', mdl_type);
 end; end
@@ -322,6 +335,25 @@ function fmdl = body_arms_model(shape,elec_pos,elec_shape,maxh);
    switch length(shape)
      case 1; shape = [shape, 1.1, 0.9];
      case 2; shape = [shape, shape(2)];
+   end
+   set_ng_refinement(elec_pos, shape, maxh)
+   hig = shape(1); wid = shape(2);
+   extra = {'arms',sprintf([ ...
+     'solid arms_=(cylinder(0,0,%f;-2,0, %f;0.4) ) or ' ...
+                 '(cylinder(0,0,%f; 2,0, %f;0.4) );' ...
+     'solid left =plane(%f,0,0;-1,0,0) and plane(%f,0,0; 1,0,0);' ...
+     'solid right=plane(%f,0,0; 1,0,0) and plane(%f,0,0;-1,0,0);' ...
+     'solid top=  plane(0,0,%f;0,0, 1);' ...
+     'solid arms = arms_ and (left or right) and top;'], ...
+     hig*1.25*[1,1,1,1]-[0,2,0,2],wid*[-1.5,-0.85,1.5,0.85],hig-.01)
+     };
+   fmdl = ng_mk_ellip_models(shape,elec_pos,elec_shape, extra);
+
+function fmdl = body_arms_organs_model(shape,elec_pos,elec_shape,maxh);
+   diaphragm = 1;
+   switch length(shape)
+     case 1; shape = [shape, 1.1, 0.9];
+     case 2; shape = [shape, shape(2)];
      case 5; diaphragm = shape(5);
              shape(5) = []; % cut off the last
              if isnan(shape(4)); shape(4) = []; end
@@ -344,7 +376,6 @@ function fmdl = body_arms_model(shape,elec_pos,elec_shape,maxh);
      'solid arms = arms_ and (left or right) and top;'], diaphragm, ...
      hig*1.25*[1,1,1,1]-[0,2,0,2],wid*[-1.5,-0.85,1.5,0.85],hig-.01)
      };
-   extra{end}
    fmdl = ng_mk_ellip_models(shape,elec_pos,elec_shape, extra);
 
 function do_unit_test
@@ -361,7 +392,8 @@ function fmdl= do_test_number(tn)
    switch tn
    case 1;
 % Simple 3D cylinder. Radius = 1. No electrodes
-    fmdl= ng_mk_common_model('cyl',3,[0],[],.1); 
+    fmdl= ng_mk_common_model('cyl',3,[0],[]); 
+
    case 2;
 % Simple 2D cylinder. Radius = 2. Set minsize to refine
     fmdl= ng_mk_common_model('cyl',[0,2,.2],[0],[]); 
@@ -369,7 +401,6 @@ function fmdl= do_test_number(tn)
    case 3;
 % 3D cylinder. Radius = 1. 2 planes of 8 elecs with radius 0.1
     fmdl= ng_mk_common_model('cyl',3,[8,1,2],[0.1],.05); 
-   case 0; fmdl = 3;
 
    case 4;
 % 3D cylinder. Radius = 1. 6 circ elecs with elec refinement
@@ -423,7 +454,10 @@ function fmdl= do_test_number(tn)
    case 18;
     fmdl= ng_mk_common_model('body-arms',[2],[-16,1],[0.05],.05); 
 
-   case 0; fmdl = 16; %%%% RETURN MAXIMUM
+   case 19;
+    fmdl= ng_mk_common_model('body-arms-organs',[3,1.1,0.9,NaN,1.2],[-16,1],[0.05],.1); 
+
+   case 0; fmdl = 19; %%%% RETURN MAXIMUM
    otherwise;
      error('huh?')
    end
