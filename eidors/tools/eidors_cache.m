@@ -529,7 +529,11 @@ function varargout = cache_shorthand(fhandle, varargin)
    try
       fstr = opt.fstr;
    catch
-      fstr = func2str(fhandle);
+      if ischar(fhandle)
+         fstr = fhandle;
+      else
+         fstr = func2str(fhandle);
+      end
    end
    if isfield(opt, 'log_level')
        level_in = opt.log_level;
