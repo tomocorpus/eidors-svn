@@ -30,6 +30,7 @@ function out_img= show_slices( img, levels, vh )
 %   img.show_slices.contour_levels = vector => Put contours at these locations
 %   img.show_slices.contour_properties => e.g. {'Color',[0,0,0],'LineWidth',2}
 %   img.show_slices.surf_rotate = 3x2 e.g. [1,0,0;0,0,1]' (x=>x, y=>z) (uses surf)
+%   img.show_slices.background_transparent = true (set background elements to transparent, otherwise false)
 %   img.calc_slices.filter => e.g. conv2(ones(5),ones(5))/5^4   
 %
 % Show slices is roughly equivalent to:
@@ -113,6 +114,11 @@ try   surf_rotate = img(1).show_slices.surf_rotate;
 catch surf_rotate = []; % no rotation
 end
 
+try background_transparent = img(1).show_slices.background_transparent;
+catch
+  background_transparent = false; % set normal
+end
+
 
 n_col = 0;
 try  n_col = img(1).show_slices.img_cols;
@@ -134,7 +140,7 @@ if axes_msm && size(rimg,3)==1 && ~isempty(pts)
    if isempty(surf_rotate)
       image(msm.x_pts, msm.y_pts, out_img);
    else
-      image_via_surf( msm, out_img, surf_rotate)
+      image_via_surf( msm, out_img, surf_rotate, background_transparent)
    end
    set(gca,'Ydir','normal');
 else
@@ -180,9 +186,9 @@ end
 
 if nargout==0; clear('out_img'); end
 
-% Fight hard against matlab's supid ideas to use surf in 3D
-function image_via_surf( msm, out_img, surf_rotate)
-   % Work around the idiots in matlab who P(*&U)(UB up the surf function and don't provide
+% Fight hard against matlab's stupid ideas to use surf in 3D
+function image_via_surf( msm, out_img, surf_rotate, background_transparent)
+   % Work around the idiots in matlab who P(*&U)(UB up the surf function and don't provide any other way to do it right
    xpts = conv2(msm.x_pts(:)',[1,1]/2,'valid');
    xpts = [xpts(:,1:2)*[2;-1],xpts,xpts(:,end-[1,0])*[-1;2]]; % guess at an interpolation
    ypts = conv2(msm.y_pts(:)',[1,1]/2,'valid');
@@ -193,6 +199,9 @@ function image_via_surf( msm, out_img, surf_rotate)
    y(:) = ax*surf_rotate(2,:)';
    z(:) = ax*surf_rotate(3,:)';
    
+   if background_transparent 
+     out_img(out_img==1) = NaN;
+   end
    out_img(:,end+1) = NaN; % extra stupidity for matlab to ignore
    out_img(end+1,:) = NaN; % extra stupidity for matlab to ignore
    surf(x,y,z,out_img,'EdgeColor','none','FaceColor','flat', ...
