@@ -12,6 +12,7 @@ Plan for 3.13:
  - Remove NODE / ELEM use nodes elems
  - Make simplified fwd_model_parameters
  - Add zenodo files to get_contrib_data
+ - mk_common_models has cache problems with RtR_prior = 'eidors_default'
  - Cache-to-disk ideas:
     + dump the whole of eidors cache to disk and load later (exists)
     + set opt.cache_to_disk for particular call
