@@ -610,7 +610,7 @@ function bytes = cache_ng_opt_bytes
    ff = strfind(bytes,mszstr);
    if isempty(ff); return; end
    if length(ff)>1
-      eidors_msg('Unexpected bug. Check ng.opt writer',1);
+      eidors_msg('Unexpected bug parsing msz file. Check ng.opt writer',1);
    end
    bytescut(1) = ff(1)+length(mszstr);
    ff = strfind(bytes(bytescut(1):end),'.msz');
