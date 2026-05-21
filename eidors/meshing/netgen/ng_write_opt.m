@@ -21,7 +21,6 @@ function opt = ng_write_opt(varargin)
 %
 %  NG_WRITE_OPT('EXIST:ng.opt'): test if ng.opt file written to the current dir
 %
-% 
 %  Note: some options only take effect when meshoptions.fineness is 6
 %  (custom).
 %
@@ -106,32 +105,32 @@ end
 write_ng_file(opt);
 
 function opt = process_input(varargin)
-if mod(nargin,2)~=0
-   error('EIDORS:WrongInput','Even number of inputs expected');
-end
-mszpoints = [];
-for i = 1:nargin/2
-   idx = (i-1)*2 +1;
-   val = varargin{idx+1};
-   switch varargin{idx}
-%  ng_write_opt('MSZPOINTS', [list of x,y,z,maxh])
-   case 'MSZPOINTS'
-    %  ng_write_opt('MSZPOINTS', [list of x,y,z,maxh])
-       mszpoints = [mszpoints;val];
-   case 'MSZBRICK'
-       mszpoints = [mszpoints; msz_brick(val)];;
-   case 'MSZSPHERE'
-       mszpoints = [mszpoints; msz_sphere(val)];;
-   case 'MSZCYLINDER'
-       mszpoints = [mszpoints; msz_cylinder(val)];;
-   case 'MSZZPLANE'
-       xyz=val(1:3);
-       planeval = [xyz-[0,0,1e-6],xyz+[0,0,1e-6],val(4:5)];
-       mszpoints = [mszpoints; msz_cylinder(planeval)];
-   otherwise
-       eval(sprintf('opt.%s = val;',varargin{idx}));
+   if mod(nargin,2)~=0
+      error('EIDORS:WrongInput','Even number of inputs expected');
    end
-end
+   mszpoints = [];
+   for i = 1:nargin/2
+      idx = (i-1)*2 +1;
+      val = varargin{idx+1};
+      switch varargin{idx}
+   %  ng_write_opt('MSZPOINTS', [list of x,y,z,maxh])
+      case 'MSZPOINTS'
+       %  ng_write_opt('MSZPOINTS', [list of x,y,z,maxh])
+          mszpoints = [mszpoints;val];
+      case 'MSZBRICK'
+          mszpoints = [mszpoints; msz_brick(val)];;
+      case 'MSZSPHERE'
+          mszpoints = [mszpoints; msz_sphere(val)];;
+      case 'MSZCYLINDER'
+          mszpoints = [mszpoints; msz_cylinder(val)];;
+      case 'MSZZPLANE'
+          xyz=val(1:3);
+          planeval = [xyz-[0,0,1e-6],xyz+[0,0,1e-6],val(4:5)];
+          mszpoints = [mszpoints; msz_cylinder(planeval)];
+      otherwise
+          eval(sprintf('opt.%s = val;',varargin{idx}));
+      end
+   end
    if ~isempty(mszpoints);
        tmpname = write_tmp_mszfile( mszpoints );
        opt.options.meshsizefilename = tmpname;
@@ -227,11 +226,11 @@ end
 
 
 % write the ng.opt file
-function write_ng_file(opt)
-fid = fopen('ng.opt','w');
-flds = fieldnames(opt);
-write_field(fid,opt,[]);
-fclose(fid);
+function write_ng_file(opt);
+   fid = fopen('ng.opt','w');
+   flds = fieldnames(opt);
+   write_field(fid,opt,[]);
+   fclose(fid);
 
 
 % recurses over fields and prints to file
