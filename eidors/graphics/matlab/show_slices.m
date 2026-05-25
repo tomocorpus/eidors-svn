@@ -362,3 +362,7 @@ function do_unit_test
    sp=sp+1;subplot(5,5,sp); show_slices(img); axis on
    img.show_slices.surf_rotate = [1,0,0;0,0,1]';
    sp=sp+1;subplot(5,5,sp); show_slices(img); axis on
+
+%  Transparent background
+   img.show_slices.background_transparent = true;
+   sp=sp+1;subplot(5,5,sp); show_slices(img); axis on
