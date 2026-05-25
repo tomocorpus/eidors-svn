@@ -16,8 +16,11 @@ function [C,th] = fourier_fit(points,N,start);
 %
 % xy = fourier_fit(points,'fit_spacing',spacing);
 % example
-%  xy = fourier_fit(point,'fit_spacing',0:.1:.999);
+%  xy = fourier_fit(xy_points,'fit_spacing',0:.1:.999);
 %  th = atan2(xy(:,2)-centroid(2),xy(:,1)-centroid(1));
+%
+%  th = fourier_fit(xy_points,'fit_elec_th_from_top', N_elecs);
+%    Given a boundary xy, identify N_elecs equally spaced starting at top centre
 % 
 
 % (C) Andy Adler, 2010. Licenced under GPL v2 or v3
@@ -26,9 +29,24 @@ function [C,th] = fourier_fit(points,N,start);
 if ischar(points) && strcmp(points,'UNIT_TEST'); do_unit_test; return ; end
 
 if nargin<2; N= size(points,1); end
-if ischar(N) && strcmp(N,'fit_spacing')
-   pp = fourier_fit(points, size(points,1),points(1,:));
-   C = fourier_fit(pp, start);
+if ischar(N)
+   switch N
+      case 'fit_spacing'; 
+         pp = fourier_fit(points, size(points,1),points(1,:));
+         C = fourier_fit(pp, start);
+      case 'fit_elec_th_from_top'; 
+         Nelec = start;
+         Ninterp = 100; % 100 points on boundary interpolation
+         pts = linspace(0,1,Nelec*Ninterp+1);
+         pts(end) = []; % remove last
+         xy= fourier_fit(points,'fit_spacing',pts);
+         xy = xy - mean(xy); %remove centroid
+         th_= atan2(xy(:,1),xy(:,2));
+         [~,idx] = min(abs(th_-0)); % find top
+         th_ = [th_;th_]; % double for search
+         C = th_(idx + (0:Nelec-1)*Ninterp );
+      otherwise error('operation not understood');
+   end
    return
 end
 
