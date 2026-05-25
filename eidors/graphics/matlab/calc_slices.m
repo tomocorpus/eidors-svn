@@ -192,12 +192,23 @@ function  rimg = filter_image(rimg, filt);
 %     rsl_= conv2(rsl, filt, 'same');
 %     rsl(rna) = NaN;
 
+%     Version in 3.12 => replaced for 3.13
 %     Preserve code at edge - add then remove nans
+%     rsl = [nan(sz1+2,1), [nan(1,sz2);rsl;nan(1,sz2)], nan(sz1+2,1)]; 
+%     rsl_= conv2(rsl, filt, 'same');
+%     rna = isnan(rsl_);
+%     rsl_(rna) = rsl(rna);
+%     rsl_ = rsl_(2:end-1,2:end-1);
+
+% use ideas from https://www.mathworks.com/matlabcentral/fileexchange/41961-nanconv
       rsl = [nan(sz1+2,1), [nan(1,sz2);rsl;nan(1,sz2)], nan(sz1+2,1)]; 
-      rsl_= conv2(rsl, filt, 'same');
-      rna = isnan(rsl_);
-      rsl_(rna) = rsl(rna);
+      rsl1=  rsl;   rsl1(isnan(rsl)) = 0;  % Nans => 0
+      rsl2=0*rsl+1; rsl2(isnan(rsl)) = 0;  % Non-nans => 1
+      rsc1= conv2(rsl1, filt, 'same');
+      rsc2= conv2(rsl2, filt, 'same');
+      rsl_= rsc1./rsc2; % divide so that the zero-padded part is excluded
       rsl_ = rsl_(2:end-1,2:end-1);
+
 
       rimg(:,:,j1,j2) = rsl_;
    end; end
