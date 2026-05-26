@@ -37,7 +37,7 @@ if ischar(N)
       case 'fit_elec_th_from_top'; 
          Nelec = start;
          Ninterp = 100; % 100 points on boundary interpolation
-         pts = linspace(0,1,Nelec*Ninterp+1);
+         pts = linspace(1,0,Nelec*Ninterp+1);
          pts(end) = []; % remove last
          xy= fourier_fit(points,'fit_spacing',pts);
          xy = xy - mean(xy); %remove centroid
@@ -111,7 +111,7 @@ function xy = fit_from_fourier(C,linear_frac,start);
    
 function do_unit_test
 
-subplot(211);
+subplot(221);
 a=[-0.8981  0.1404;-0.7492  0.5146;-0.2146  0.3504;
     0.3162  0.5069; 0.7935  0.2702; 0.9615 -0.2339;
     0.6751 -0.8677; 0.0565 -0.6997;-0.3635 -0.8563;
@@ -129,7 +129,7 @@ a=[-0.8981  0.1404;-0.7492  0.5146;-0.2146  0.3504;
    plot(a(:,1),a(:,2),'r',xy(:,1),xy(:,2),'b',xy2(:,1),xy2(:,2),'m*');
    eidors_msg('VIEW GRAPH TO VERIFY',0);
 
-subplot(212);
+subplot(222);
  n_elecs = 8; centroid = mean(a);
  p = linspace(0,1,n_elecs+1)'; p(end) = [];
  xy = fourier_fit(a,'fit_spacing',p);
@@ -145,4 +145,12 @@ subplot(212);
   unit_test_cmp('fit th',diff(th(1:4)), [ -0.671324440246111;
   -1.011260720375461; -0.791975282338955 ],1e-10);
 
-
+ for sp = 3:4; subplot(2,2,sp);
+   XY = a*diag([1,9/sp^2]) - mean(a);
+   xy = fourier_fit(XY,'fit_spacing',linspace(0,1,32*100));
+   dxy = diff(xy); ll= sum(dxy.^2,2);
+   th = fourier_fit(XY,'fit_elec_th_from_top', 16);
+   y=cos(th'); x=sin(th');
+   plot(XY(:,1),XY(:,2),'ko-',xy(:,1),xy(:,2),'r-',[0;1]*x,[0;1]*y,'*-b'); axis equal
+   unit_test_cmp('Spacing:',max(abs(ll-mean(ll))),0,1e-9); 
+ end
