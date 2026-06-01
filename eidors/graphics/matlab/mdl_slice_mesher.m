@@ -262,6 +262,12 @@ if isempty(nimg.elem_data) % plane doesn't cut model
     return
 end
 
+% orient elements consistently
+jnk = fix_model(nmdl,struct('normals',true));
+flip = sum(jnk.normals,2)<0;
+nimg.fwd_model.elems(flip,:) = nimg.fwd_model.elems(flip,[1 3 2]);
+
+
 img_data = get_img_data(img);
 if size(img_data,1) == num_nodes(img.fwd_model)
     nimg.node_data = n2n' * img_data;
