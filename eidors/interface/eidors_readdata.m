@@ -1639,14 +1639,22 @@ function [vtmData] = read_vtm(full_dfile_name)
     len_frame = len_data + len_Medibus +len_imginfo;
 
     % Last frame is different - remove
-    framenums=(len-len_header-2)/len_frame - 1;
+    framenums=floor( ...
+        (len-len_header-2)/len_frame - 1 ...
+                   ); % in case truncated file
 
     ETDdata = zeros(len_data-2,framenums); 
     for k= 1:framenums
        ss= len_header + (k-1)*len_frame;
        if fseek(fid,ss,-1)<0; break; end
        oneframe = fread(fid,len_data,'uint8', 0, 'ieee-le');
-       assert(all(oneframe(1:2) == [170;102]), 'Frame HDR not 0xAA66');
+%      disp([framenums,k,oneframe(1:2)']);
+       if ~all(oneframe(1:2) == [170;102])
+          eidors_msg('Warning: wrong HDR, ending read early %d/%d',k,framenums,0);
+          ETDdata(:,k:end) = []; 
+          break
+       end
+%      assert(all(oneframe(1:2) == [170;102]), 'Frame HDR not 0xAA66');
        ETDdata(:,k)= oneframe(3:end);
     end
     contact0=ETDdata((9+192)*2+1:((9+192)*2+32),:);
