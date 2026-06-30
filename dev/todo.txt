@@ -1,4 +1,5 @@
 Plan for 3.13:
+ - Calculate frame_rate for *get file data in eidors_readdata
  - easily calculate the "Weiner filter" form of linear reconsts
  - check elem_select works. Debug when small size 
  - Check mk_c2f_circ_mapping correctly uses c2f in case=3
