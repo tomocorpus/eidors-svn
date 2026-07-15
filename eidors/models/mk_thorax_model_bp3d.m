@@ -20,7 +20,7 @@ function out = mk_thorax_model_bp3d(varargin)
 % Electrode positions can be specified as
 %  ep = [- 5   1350; -172  1350; -140  1050];
 %  fmdl = mk_thorax_model('bp3d',ep,[10 0 1],20);
-%  fmdl = mk_thorax_model_bp3d(out, 'fine');
+%  imgm = mk_thorax_model_bp3d(fmdl, 'fine');
 %
 % IMG = MK_THORAX_MODEL_BP3D(... , organspec)
 % Returns a torso model containing organ shapes as an image structure. Can
