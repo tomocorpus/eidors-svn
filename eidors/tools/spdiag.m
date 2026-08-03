@@ -11,16 +11,17 @@ function S = spdiag(V,K)
 % Matlab's spdiags is really annoying. This function provides
 %  an interface like G-d intended
 
+if ischar(V) && strcmp(V,'UNIT_TEST'); do_unit_test; return; end
+
 if nargin == 1; K=0; end
 
-N = length(V) + K;
+N = length(V) + abs(K);
 V = [zeros(K,1);V(:)];
 S = spdiags(V(:), K, N, N);
 
 
 
 
-
-
-
-
+function do_unit_test
+  unit_test_cmp('T1',full(spdiag(1:3,1)), diag(1:3,1))
+  unit_test_cmp('T2',full(spdiag(1:3,-1)), diag(1:3,-1))
