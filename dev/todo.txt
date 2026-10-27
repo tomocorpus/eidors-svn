@@ -1,4 +1,5 @@
 Plan for 3.13:
+ - In ng_write_opt('MSZSPHERE', [0,0,.2,0.2, 0.2 ]) - no errors if maxh large
  - Calculate frame_rate for *get file data in eidors_readdata
  - easily calculate the "Weiner filter" form of linear reconsts
  - check elem_select works. Debug when small size 
